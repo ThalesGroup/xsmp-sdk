@@ -1,0 +1,162 @@
+name: Build
+
+on:
+   push:
+      branches:
+      - main
+   pull_request:
+      branches:
+      - main
+permissions: read-all
+
+concurrency:
+   group: ${{ github.workflow }}-${{ github.ref }}
+   cancel-in-progress: true
+jobs:
+   cmake:
+      name: '${{matrix.os}} :: CMake ${{matrix.cmake_version}}'
+      runs-on: ${{matrix.os}}
+      strategy:
+         fail-fast: false
+         matrix:
+            os:
+            - ubuntu-latest
+            build_type:
+            - Debug
+            cmake_version:
+            - '3.14'
+            - '3.15'
+            - '3.16'
+            - '3.17'
+            - '3.18'
+            - '3.19'
+            - '3.20'
+            - '3.21'
+            - '3.22'
+            - '3.23'
+            - '3.24'
+            - '3.25'
+            - '3.26'
+            - '3.27'
+            - latest
+      steps:
+      -  uses: actions/checkout@v3
+      -  name: Get CMake ${{matrix.cmake_version}} and Ninja
+         uses: lukka/get-cmake@latest
+         with:
+            cmakeVersion: ${{matrix.cmake_version}}
+      -  name: install  pytest
+         run: |
+            pip install pytest
+      -  name: Configure cmake
+         run: |
+            cmake -B build -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DXSMP_BUILD_EXAMPLES=ON -S .
+      -  name: Build
+         run: |
+            cmake --build build --config ${{matrix.build_type}} -j 2
+      -  name: Run tests
+         working-directory: build
+         run: |
+            ctest -C ${{matrix.build_type}} --output-on-failure
+   gcc:
+      name: '${{matrix.os}} :: GCC ${{matrix.gcc}}'
+      runs-on: ${{matrix.os}}
+      container: gcc:${{matrix.gcc}}
+      strategy:
+         fail-fast: false
+         matrix:
+            os:
+            - ubuntu-latest
+            gcc:
+            - 7
+            - 8
+            - 9
+            - 10
+            - 11
+            - 12
+            - 13
+      steps:
+      -  uses: actions/checkout@v3
+      -  name: Setup CMake
+         uses: lukka/get-cmake@latest
+      -  name: Add Git & Python3
+         run: apt-get update; apt-get install -y git python3-dev python3-pytest
+      -  name: Configure CMake
+         run: |
+            cmake -B build -DCMAKE_BUILD_TYPE=Release -DXSMP_BUILD_EXAMPLES=ON -S .
+      -  name: Build
+         run: |
+            cmake --build build --config Release -j 2
+      -  name: Run tests
+         working-directory: build
+         run: |
+            ctest -C Release --output-on-failure
+   clang:
+      name: '${{matrix.os}} :: Clang ${{matrix.clang}}'
+      runs-on: ${{matrix.os}}
+      container: silkeh/clang:${{matrix.clang}}
+      strategy:
+         fail-fast: false
+         matrix:
+            os:
+            - ubuntu-latest
+            clang:
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+            - 11
+            - 12
+            - 13
+            - 14
+            - 15
+            - 16
+      steps:
+      -  uses: actions/checkout@v3
+      -  name: Setup CMake
+         uses: lukka/get-cmake@latest
+      -  name: Add Git & Python3
+         run: apt-get update; apt-get install -y git python3-dev python3-pytest
+      -  name: Configure CMake
+         run: |
+            cmake -B build -DCMAKE_BUILD_TYPE=Release -DXSMP_BUILD_EXAMPLES=ON -S .
+      -  name: Build
+         run: |
+            cmake --build build --config Release -j 2
+      -  name: Run tests
+         working-directory: build
+         run: |
+            ctest -C Release --output-on-failure
+   python:
+      name: '${{matrix.os}} :: Python ${{matrix.python-version}}'
+      runs-on: ${{matrix.os}}
+      strategy:
+         fail-fast: false
+         matrix:
+            os:
+            - ubuntu-latest
+            - macos-latest
+#- windows-latest
+            python-version:
+            - '3.7'
+            - '3.8'
+            - '3.9'
+            - '3.10'
+            - '3.11'
+      steps:
+      -  uses: actions/checkout@v3
+      -  uses: actions/setup-python@v4
+         with:
+            python-version: ${{matrix.python-version}}
+      -  name: Install Python bindings using pip
+         run: |
+            python -m pip install .[test] -v
+      -  name: Run Python tests
+         uses: nick-fields/retry@v2
+         with:
+            max_attempts: 3
+            retry_on: error
+            timeout_minutes: 1
+            command: python -m pytest python -v

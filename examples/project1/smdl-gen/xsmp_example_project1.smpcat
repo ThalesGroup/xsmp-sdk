@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ASCII"?>
+<Catalogue:Catalogue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Catalogue="http://www.ecss.nl/smp/2019/Smdl/Catalogue" xmlns:xlink="http://www.w3.org/1999/xlink" Id="_xsmp_example_project1" Name="xsmp_example_project1" Date="2023-06-02T15:08:16.000Z" Creator="Y.Daveluy">
+  <Description>Catalogue xsmp_example_project1</Description>
+  <Namespace Id="Example" Name="Example">
+    <Description></Description>
+    <Type xsi:type="Catalogue:Model" Id="Example.M1" Name="M1" Uuid="2386045d-5cff-46b5-b6da-3ff6e2cfd792">
+      <Description></Description>
+      <Field Id="Example.M1.integer1" Name="integer1" State="true" Input="false" Output="false">
+        <Description></Description>
+        <Type xlink:title="Int8" xlink:href="http://www.ecss.nl/smp/2019/Smdl#Smp.Int8"/>
+      </Field>
+      <Field Id="Example.M1.integer2" Name="integer2" State="true" Input="false" Output="false">
+        <Description></Description>
+        <Type xlink:title="Int16" xlink:href="http://www.ecss.nl/smp/2019/Smdl#Smp.Int16"/>
+      </Field>
+      <Container Id="Example.M1.subModels" Name="subModels" Lower="0" Upper="-1">
+        <Description></Description>
+        <Type xlink:title="M1" xlink:href="#Example.M1"/>
+      </Container>
+    </Type>
+  </Namespace>
+</Catalogue:Catalogue>

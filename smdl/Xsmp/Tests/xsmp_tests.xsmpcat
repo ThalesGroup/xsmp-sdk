@@ -1,0 +1,692 @@
+// Copyright 2023 THALES ALENIA SPACE FRANCE. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+/**
+ * Catalogue xsmp_tests
+ * 
+ * @creator Y.Daveluy
+ * @date 2023-06-02T16:39:36.000+0200
+ */
+catalogue xsmp_tests
+
+
+namespace Xsmp
+{
+    namespace Tests
+    {
+        namespace Types
+        {
+            /** @uuid ebca672c-ed02-4dec-8199-7049f2f3c03b */
+            public enum Enum1
+            {
+                L1 = 0,
+                L2 = 1,
+                L3 = 2
+            }
+
+            /** @uuid 363a4f06-62ab-4068-ad40-9a07a9fa08eb */
+            public string String1 [10]
+
+            /** @uuid d12d93e8-41a5-4638-9b6b-2cc1bcdac97b */
+            public float Float1
+
+            /** @uuid d4205d85-ad70-4268-a492-03b93fc3a7f1 */
+            public integer Integer1
+
+
+            /** @uuid b6ae5640-2094-4c06-bb57-e9446d2f36f3 */
+            public array BoolArray = Bool[3]
+
+            /** @uuid 658aea44-edee-43d4-a974-e438cd6dd475 */
+            @SimpleArray
+            public array SimpleBoolArray = Bool[3]
+
+            /** @uuid 7f4e63ba-2804-495b-a2f3-4f49e40e1411 */
+            public array Char8Array = Char8[3]
+
+            /** @uuid 1d2b17f6-b950-4fcf-b47d-1bb80a7cdacf */
+            @SimpleArray
+            public array SimpleChar8Array = Char8[3]
+
+
+            /** @uuid 0d4c1287-6855-4029-9af4-b1f4591500b5 */
+            public array Int8Array = Int8[3]
+
+            /** @uuid d7ac42ae-ac73-4560-a799-9bdab451d524 */
+            @SimpleArray
+            public array SimpleInt8Array = Int8[3]
+
+
+            /** @uuid 6e94bca9-4493-41ba-ae7d-1c99cce2b1be */
+            public array Int16Array = Int16[3]
+
+            /** @uuid cdb58aee-dccb-42c4-b90b-8bba61224fc9 */
+            @SimpleArray
+            public array SimpleInt16Array = Int16[3]
+
+
+            /** @uuid 13c47a9f-d605-4107-b751-75e75463c8ff */
+            public array Int32Array = Int32[3]
+
+            /** @uuid c236c297-5e6b-426f-9c4b-eb7c0924112f */
+            @SimpleArray
+            public array SimpleInt32Array = Int32[3]
+
+
+            /** @uuid dcf5089a-377b-4853-8049-74662d385dff */
+            public array Int64Array = Int64[3]
+
+            /** @uuid da0d220c-ec85-4c7d-90dd-a332f6c92295 */
+            @SimpleArray
+            public array SimpleInt64Array = Int64[3]
+
+            /** @uuid 8347af61-672d-472d-a879-319ef8bb6b6f */
+            public array UInt8Array = UInt8[3]
+
+            /** @uuid 2b659b6d-d186-4a5e-be0f-e79ce2169cca */
+            @SimpleArray
+            public array SimpleUInt8Array = UInt8[3]
+
+
+            /** @uuid b05ed0b5-4f3f-4aee-9487-f756059fc3fd */
+            public array UInt16Array = UInt16[3]
+
+            /** @uuid 0e6111fe-2db9-46c3-a5af-644462fc0ec1 */
+            @SimpleArray
+            public array SimpleUInt16Array = UInt16[3]
+
+
+            /** @uuid c3d5fac9-0739-42a4-b837-a8a8d1c3a8f2 */
+            public array UInt32Array = UInt32[3]
+
+            /** @uuid f5998043-498f-4d04-8754-ec4ef7a8cec6 */
+            @SimpleArray
+            public array SimpleUInt32Array = UInt32[3]
+
+
+            /** @uuid 67166292-3e11-4fe5-9155-1db12e55427b */
+            public array UInt64Array = UInt64[3]
+
+            /** @uuid 2f22e924-bf54-4945-9e66-b87edecb9d2b */
+            @SimpleArray
+            public array SimpleUInt64Array = UInt64[3]
+
+
+            /** @uuid 5d9d14c3-36ce-4101-9bc4-3e7113dc84ca */
+            public array Enum1Array = Enum1[3]
+
+            /** @uuid b7a9aa75-f37d-4250-8039-a271177cc416 */
+            @SimpleArray
+            public array SimpleEnum1Array = Enum1[3]
+
+
+            /** @uuid 44c17ffd-7beb-4d62-bcb9-0d303242bfc6 */
+            public array String1Array = String1[3]
+
+            /** @uuid 2cfe8204-ff00-484d-b7e3-c774d3447e5b */
+            @SimpleArray
+            public array SimpleString1Array = String1[3]
+
+            /** @uuid f60eb4ad-ada3-4354-8b1a-933a17a80103 */
+            public array Float32Array = Float32[3]
+
+            /** @uuid 445f0204-09ea-4949-9336-698ef2a43079 */
+            @SimpleArray
+            public array SimpleFloat32Array = Float32[3]
+
+
+            /** @uuid 2145bb2a-ecda-414d-90d5-e02735048502 */
+            public array Float64Array = Float64[3]
+
+            /** @uuid abe29edf-ef67-4c73-a74b-e54bf4af752d */
+            @SimpleArray
+            public array SimpleFloat64Array = Float64[3]
+
+            /** @uuid a19cc4ff-22c1-4fbb-97f0-08f6d7b07132 */
+            public array Float1Array = Float1[3]
+
+            /** @uuid a0189dc0-bff8-4326-8e23-f68cc66421a7 */
+            @SimpleArray
+            public array SimpleFloat1Array = Float1[3]
+
+
+            /** @uuid f3b181a7-896d-400d-a61a-9e0edb92faba */
+            public array Integer1Array = Integer1[3]
+
+            /** @uuid b6b85b8c-a64c-4d91-8f4d-918b36118323 */
+            @SimpleArray
+            public array SimpleInteger1Array = Integer1[3]
+
+
+            /** @uuid 8287dc95-211d-49d7-8b32-863832fb88c2 */
+            public struct Vector
+            {
+                field Float64 x
+                field Float64 y
+                field Float64 z
+            }
+
+            /** @uuid 7d495b9c-ca8f-48d4-a8f8-38c9d2420300 */
+            public array VectorArray = Vector[3]
+
+            /** @uuid 9f2ce560-20bc-427b-a0c1-18b9cec1a4be */
+            public array Int8Matrix = Int8Array[3]
+
+            /** @uuid 85c4a7d8-8bf7-4e6b-a172-1eab61d334ce */
+            public array SimpleInt8Matrix = SimpleInt8Array[3]
+
+            /** @uuid d7d96395-e3d2-49a3-b24b-f88a0bd08c4a */
+            public array Int16Matrix = Int16Array[3]
+
+            /** @uuid 475c86e0-512f-4938-9c07-6db8e7621986 */
+            public array SimpleInt16Matrix = SimpleInt16Array[3]
+
+            /** @uuid bf6c4259-a845-401b-b1b1-c6f4188dbb46 */
+            public array Int32Matrix = Int32Array[3]
+
+            /** @uuid 4d94b2b3-9b5c-4f7f-b89e-cd24fb368542 */
+            public array SimpleInt32Matrix = SimpleInt32Array[3]
+
+            /** @uuid b89b6584-5915-4bef-9f5d-a1b929629261 */
+            public array Int64Matrix = Int64Array[3]
+
+            /** @uuid d2ad2c28-6398-4a1e-8b7d-ff3d8a91223e */
+            public array SimpleInt64Matrix = SimpleInt64Array[3]
+
+            /** @uuid 1ed36bcf-3141-40c9-b61e-41cecf982efd */
+            public array UInt8Matrix = UInt8Array[3]
+
+            /** @uuid dd85d65c-e7b7-431a-9361-12da68db98f5 */
+            public array SimpleUInt8Matrix = SimpleUInt8Array[3]
+
+            /** @uuid a99460ec-41ea-4713-81c8-7ae57c457d5e */
+            public array UInt16Matrix = UInt16Array[3]
+
+            /** @uuid d57c230c-5106-49d7-91ed-34a2895a9035 */
+            public array SimpleUInt16Matrix = SimpleUInt16Array[3]
+
+            /** @uuid 1e900617-c89f-4975-8992-7760578c0ef2 */
+            public array UInt32Matrix = UInt32Array[3]
+
+            /** @uuid 011c4115-a4da-4897-8d24-682d1183fdbd */
+            public array SimpleUInt32Matrix = SimpleUInt32Array[3]
+
+            /** @uuid 46da5717-c5a2-4951-a332-17eafefdbc98 */
+            public array UInt64Matrix = UInt64Array[3]
+
+            /** @uuid c097600d-870e-48d3-a12d-385c2e5fb99c */
+            public array SimpleUInt64Matrix = SimpleUInt64Array[3]
+
+            /** @uuid 4e5a3483-1818-4da8-b9e0-4c02a4eb7502 */
+            public array VectorMatrix = VectorArray[3]
+
+            /** @uuid d5831073-1037-48a0-b455-53083c542d75 */
+            public struct SimpleStructure
+            {
+                // standard fields
+                field Bool boolean
+                field Char8 char8
+                field Types.Enum1 enum1
+                field Types.String1 string1
+                field Types.Float1 float1
+                field Types.Integer1 integer1
+            }
+
+            /** @uuid f7de138d-e0a5-4ae2-9624-ab49cc75b8b8 */
+            public struct StructureWithCustomFields
+            {
+                // input fields
+                input field Bool booleanInput
+                input field Char8 char8Input
+                input field Types.Enum1 enum1Input
+                input field Types.String1 string1Input
+                input field Types.Float1 float1Input
+                input field Types.Integer1 integer1Input
+                input field Types.SimpleStructure struct1Input
+
+                // transient fields
+                transient field Bool booleanTransient
+                transient field Char8 char8Transient
+                transient field Types.Enum1 enum1Transient
+                transient field Types.String1 string1Transient
+                transient field Types.Float1 float1Transient
+                transient field Types.Integer1 integer1Transient
+                transient field Types.SimpleStructure struct1Transient
+
+                // output fields
+                output field Bool booleanOutput
+                output field Char8 char8Output
+                output field Types.Enum1 enum1Output
+                output field Types.String1 string1Output
+                output field Types.Float1 float1Output
+                output field Types.Integer1 integer1Output
+                output field Types.SimpleStructure struct1Output
+
+                // forcible fields
+                @Forcible
+                field Bool booleanForcible
+                @Forcible
+                field Char8 char8Forcible
+                @Forcible
+                field Types.Enum1 enum1Forcible
+                @Forcible
+                field Types.String1 string1Forcible
+                @Forcible
+                field Types.Float1 float1Forcible
+                @Forcible
+                field Types.Integer1 integer1Forcible
+                @Forcible
+                field Types.SimpleStructure struct1Forcible
+                // failure fields
+                @Failure
+                field Bool booleanFailure
+                @Failure
+                field Char8 char8Failure
+                @Failure
+                field Types.Enum1 enum1Failure
+                @Failure
+                field Types.String1 string1Failure
+                @Failure
+                field Types.Float1 float1Failure
+                @Failure
+                field Types.Integer1 integer1Failure
+                @Failure
+                field Types.SimpleStructure struct1Failure
+
+                // fields with all options
+                @Failure
+                @Forcible
+                input output transient field Bool booleanAll
+                @Failure
+                @Forcible
+                input output transient field Char8 char8All
+                @Failure
+                @Forcible
+                input output transient field Types.Enum1 enum1All
+                @Failure
+                @Forcible
+                input output transient field Types.String1 string1All
+                @Failure
+                @Forcible
+                input output transient field Types.Float1 float1All
+                @Failure
+                @Forcible
+                input output transient field Types.Integer1 integer1All
+                @Failure
+                @Forcible
+                input output transient field Types.SimpleStructure struct1All
+            }
+
+            /** @uuid 1c417bf3-923e-4961-b5df-4004ab1c390a */
+            protected event VoidEvent
+
+
+            /** @uuid f1c0c34f-8dfe-405b-ade6-d9f53ddf2a0c */
+            protected event BoolEvent extends Bool
+
+            /** @uuid 72da9d1f-2bbd-4b1d-a300-ded2d315fc74 */
+            protected event Char8Event extends Char8
+
+            /** @uuid af239a65-e4f0-4b52-aad0-29ad2525772b */
+            protected event DateTimeEvent extends DateTime
+
+            /** @uuid df177855-1909-4f8a-88c8-772311673031 */
+            protected event DurationEvent extends Duration
+
+            /** @uuid b6abe847-54c8-431d-b0ff-5a8f31f82f73 */
+            protected event Float32Event extends Float32
+
+            /** @uuid 1b38557c-5a58-442c-95c3-332bf5cefbbd */
+            protected event Float64Event extends Float64
+
+            /** @uuid 73f48a10-fded-4d2e-bddc-eb2e1018fbe1 */
+            protected event Int16Event extends Int16
+
+            /** @uuid 7a9fa37e-db59-4d3d-a7a8-116c7f973bf8 */
+            protected event Int32Event extends Int32
+
+            /** @uuid 084920ac-0d3c-4296-a16d-1dbe9322cfc4 */
+            protected event Int64Event extends Int64
+
+            /** @uuid d19c8553-4fab-4443-8ce3-106ab76b557b */
+            protected event Int8Event extends Int8
+
+            /** @uuid 9c841bf3-bcae-4ee1-9d70-5cb3ee62c3be */
+            protected event String8Event extends String8
+
+            /** @uuid 86be8836-ffc5-4d75-a122-7c8b2b8feeb5 */
+            protected event UInt16Event extends UInt16
+
+            /** @uuid 7c807771-0de8-45e9-8e9c-571b618152f4 */
+            protected event UInt32Event extends UInt32
+
+            /** @uuid ef14f342-bc55-4a14-a780-2f2910658e84 */
+            protected event UInt64Event extends UInt64
+
+            /** @uuid a42e219b-bbec-482c-beaf-5edabbca187c */
+            protected event UInt8Event extends UInt8
+        } // namespace Types
+
+        /** @uuid df6ddf61-c676-47f5-8764-fc6d889318ff */
+        model ModelWithSimpleFields
+        {
+            // standard fields
+            field Bool boolean
+            field Char8 char8
+            field Types.Enum1 enum1
+            field Types.String1 string1
+            field Types.Float1 float1
+            field Types.Integer1 integer1
+            field Types.SimpleStructure struct1
+
+            // input fields
+            input field Bool booleanInput
+            input field Char8 char8Input
+            input field Types.Enum1 enum1Input
+            input field Types.String1 string1Input
+            input field Types.Float1 float1Input
+            input field Types.Integer1 integer1Input
+            input field Types.SimpleStructure struct1Input
+
+            // transient fields
+            transient field Bool booleanTransient
+            transient field Char8 char8Transient
+            transient field Types.Enum1 enum1Transient
+            transient field Types.String1 string1Transient
+            transient field Types.Float1 float1Transient
+            transient field Types.Integer1 integer1Transient
+            transient field Types.SimpleStructure struct1Transient
+
+            // output fields
+            output field Bool booleanOutput
+            output field Char8 char8Output
+            output field Types.Enum1 enum1Output
+            output field Types.String1 string1Output
+            output field Types.Float1 float1Output
+            output field Types.Integer1 integer1Output
+            output field Types.SimpleStructure struct1Output
+
+            // forcible fields
+            @Forcible
+            field Bool booleanForcible
+            @Forcible
+            field Char8 char8Forcible
+            @Forcible
+            field Types.Enum1 enum1Forcible
+            @Forcible
+            field Types.String1 string1Forcible
+            @Forcible
+            field Types.Float1 float1Forcible
+            @Forcible
+            field Types.Integer1 integer1Forcible
+            @Forcible
+            field Types.SimpleStructure struct1Forcible
+
+
+            // failure fields
+            @Failure
+            field Bool booleanFailure
+            @Failure
+            field Char8 char8Failure
+            @Failure
+            field Types.Enum1 enum1Failure
+            @Failure
+            field Types.String1 string1Failure
+            @Failure
+            field Types.Float1 float1Failure
+            @Failure
+            field Types.Integer1 integer1Failure
+
+            // fields with all options
+            @Failure
+            @Forcible
+            input output transient field Bool booleanAll
+            @Failure
+            @Forcible
+            input output transient field Char8 char8All
+            @Failure
+            @Forcible
+            input output transient field Types.Enum1 enum1All
+            @Failure
+            @Forcible
+            input output transient field Types.String1 string1All
+            @Failure
+            @Forcible
+            input output transient field Types.Float1 float1All
+            @Failure
+            @Forcible
+            input output transient field Types.Integer1 integer1All
+
+
+            container IModel[*] subModels
+            eventsink Types.VoidEvent esi
+            eventsource Types.VoidEvent eso
+        }
+
+        /** @uuid 120f3848-02d8-4cec-a0c2-32e3e5714e1a */
+        model ModelWithArrayFields
+        {
+            // standard fields
+            field Types.BoolArray boolean
+            field Types.Char8Array char8
+            field Types.Enum1Array enum1
+            field Types.String1Array string1
+            field Types.Float1Array float1
+            field Types.Integer1Array integer1
+
+            // input fields
+            input field Types.BoolArray booleanInput
+            input field Types.Char8Array char8Input
+            input field Types.Enum1Array enum1Input
+            input field Types.String1Array string1Input
+            input field Types.Float1Array float1Input
+            input field Types.Integer1Array integer1Input
+
+            // transient fields
+            transient field Types.BoolArray booleanTransient
+            transient field Types.Char8Array char8Transient
+            transient field Types.Enum1Array enum1Transient
+            transient field Types.String1Array string1Transient
+            transient field Types.Float1Array float1Transient
+            transient field Types.Integer1Array integer1Transient
+
+            // output fields
+            output field Types.BoolArray booleanOutput
+            output field Types.Char8Array char8Output
+            output field Types.Enum1Array enum1Output
+            output field Types.String1Array string1Output
+            output field Types.Float1Array float1Output
+            output field Types.Integer1Array integer1Output
+
+            // forcible fields
+            @Forcible
+            field Types.BoolArray booleanForcible
+            @Forcible
+            field Types.Char8Array char8Forcible
+            @Forcible
+            field Types.Enum1Array enum1Forcible
+            @Forcible
+            field Types.String1Array string1Forcible
+            @Forcible
+            field Types.Float1Array float1Forcible
+            @Forcible
+            field Types.Integer1Array integer1Forcible
+
+            // failure fields
+            @Failure
+            field Types.BoolArray booleanFailure
+            @Failure
+            field Types.Char8Array char8Failure
+            @Failure
+            field Types.Enum1Array enum1Failure
+            @Failure
+            field Types.String1Array string1Failure
+            @Failure
+            field Types.Float1Array float1Failure
+            @Failure
+            field Types.Integer1Array integer1Failure
+
+            // fields with all options
+            @Failure
+            @Forcible
+            input output transient field Types.BoolArray booleanAll
+            @Failure
+            @Forcible
+            input output transient field Types.Char8Array char8All
+            @Failure
+            @Forcible
+            input output transient field Types.Enum1Array enum1All
+            @Failure
+            @Forcible
+            input output transient field Types.String1Array string1All
+            @Failure
+            @Forcible
+            input output transient field Types.Float1Array float1All
+            @Failure
+            @Forcible
+            input output transient field Types.Integer1Array integer1All
+        // container M1[*] subModels
+        // eventsink VoidEvent esi
+        // eventsource VoidEvent eso
+        }
+
+        /** @uuid ea180c7c-4a55-4b42-8029-569a0b622c00 */
+        model ModelWithSimpleArrayFields
+        {
+            // standard fields
+            field Types.SimpleBoolArray boolean
+            field Types.SimpleChar8Array char8
+            field Types.SimpleEnum1Array enum1
+            field Types.SimpleString1Array string1
+            field Types.SimpleFloat1Array float1
+            field Types.SimpleInteger1Array integer1
+
+            // input fields
+            input field Types.SimpleBoolArray booleanInput
+            input field Types.SimpleChar8Array char8Input
+            input field Types.SimpleEnum1Array enum1Input
+            input field Types.SimpleString1Array string1Input
+            input field Types.SimpleFloat1Array float1Input
+            input field Types.SimpleInteger1Array integer1Input
+
+            // transient fields
+            transient field Types.SimpleBoolArray booleanTransient
+            transient field Types.SimpleChar8Array char8Transient
+            transient field Types.SimpleEnum1Array enum1Transient
+            transient field Types.SimpleString1Array string1Transient
+            transient field Types.SimpleFloat1Array float1Transient
+            transient field Types.SimpleInteger1Array integer1Transient
+
+            // output fields
+            output field Types.SimpleBoolArray booleanOutput
+            output field Types.SimpleChar8Array char8Output
+            output field Types.SimpleEnum1Array enum1Output
+            output field Types.SimpleString1Array string1Output
+            output field Types.SimpleFloat1Array float1Output
+            output field Types.SimpleInteger1Array integer1Output
+
+            // failure fields
+            @Failure
+            field Types.SimpleBoolArray booleanFailure
+            @Failure
+            field Types.SimpleChar8Array char8Failure
+            @Failure
+            field Types.SimpleEnum1Array enum1Failure
+            @Failure
+            field Types.SimpleString1Array string1Failure
+            @Failure
+            field Types.SimpleFloat1Array float1Failure
+            @Failure
+            field Types.SimpleInteger1Array integer1Failure
+
+            // fields with all options
+            @Failure
+            input output transient field Types.SimpleBoolArray booleanAll
+            @Failure
+            input output transient field Types.SimpleChar8Array char8All
+            @Failure
+            input output transient field Types.SimpleEnum1Array enum1All
+            @Failure
+            input output transient field Types.SimpleString1Array string1All
+            @Failure
+            input output transient field Types.SimpleFloat1Array float1All
+            @Failure
+            input output transient field Types.SimpleInteger1Array integer1All
+        // container M1[*] subModels
+        // eventsink VoidEvent esi
+        // eventsource VoidEvent eso
+        }
+
+        /** @uuid bc8e7b0e-b820-4404-a397-9e8df27bb93c */
+        model ModelWithEvents
+        {
+            eventsink Types.VoidEvent void_esi
+            eventsink Types.BoolEvent bool_esi
+            eventsink Types.Char8Event char8_esi
+            eventsink Types.DateTimeEvent dateTime_esi
+            eventsink Types.DurationEvent duration_esi
+            eventsink Types.Float32Event float32_esi
+            eventsink Types.Float64Event float64_esi
+            eventsink Types.Int16Event int16_esi
+            eventsink Types.Int32Event int32_esi
+            eventsink Types.Int64Event int64_esi
+            eventsink Types.Int8Event int8_esi
+            eventsink Types.String8Event string8_esi
+            eventsink Types.UInt16Event uint16_esi
+            eventsink Types.UInt32Event uint32_esi
+            eventsink Types.UInt64Event uint64_esi
+            eventsink Types.UInt8Event uint8_esi
+
+
+            eventsource Types.VoidEvent void_eso
+            eventsource Types.BoolEvent bool_eso
+            eventsource Types.Char8Event char8_eso
+            eventsource Types.DateTimeEvent dateTime_eso
+            eventsource Types.DurationEvent duration_eso
+            eventsource Types.Float32Event float32_eso
+            eventsource Types.Float64Event float64_eso
+            eventsource Types.Int16Event int16_eso
+            eventsource Types.Int32Event int32_eso
+            eventsource Types.Int64Event int64_eso
+            eventsource Types.Int8Event int8_eso
+            eventsource Types.String8Event string8_eso
+            eventsource Types.UInt16Event uint16_eso
+            eventsource Types.UInt32Event uint32_eso
+            eventsource Types.UInt64Event uint64_eso
+            eventsource Types.UInt8Event uint8_eso
+        }
+
+        /** @uuid 5c52ca42-4992-4401-9408-8d994b1fbabe */
+        model ModelWithOperations
+        {
+            def void voidOperation ()
+            def Bool boolOperation ()
+            def Char8 char8Operation ()
+            def DateTime dateTimeOperation ()
+            def Duration durationOperation ()
+            def Float32 float32Operation ()
+            def Float64 float64Operation ()
+            def Int16 int16Operation ()
+            def Int32 int32Operation ()
+            def Int64 int64Operation ()
+            def Int8 int8Operation ()
+            def String8 string8Operation ()
+            def UInt16 uint16Operation ()
+            def UInt32 uint32Operation ()
+            def UInt64 uint64Operation ()
+            def UInt8 uint8Operation ()
+        }
+    } // namespace Tests
+} // namespace Xsmp
+

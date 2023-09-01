@@ -1,0 +1,22 @@
+name: Coverity Scan
+
+on:
+   push:
+      branches:
+      - main
+concurrency:
+   group: ${{ github.workflow }}-${{ github.ref }}
+   cancel-in-progress: true
+
+jobs:
+   coverity:
+      runs-on: ubuntu-latest
+      steps:
+      -  uses: actions/checkout@v3
+      -  name: Configure CMake
+         run: cmake -B build -DCMAKE_BUILD_TYPE=Debug -S ${{github.workspace}}
+      -  uses: vapier/coverity-scan-action@v1
+         with:
+            email: ${{secrets.COVERITY_SCAN_EMAIL}}
+            token: ${{secrets.COVERITY_SCAN_TOKEN}}
+            command: cmake --build build/ --config Debug -j 2

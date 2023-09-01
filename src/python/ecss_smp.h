@@ -1,0 +1,420 @@
+// Copyright 2023 THALES ALENIA SPACE FRANCE. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#ifndef ecss_smp_H_
+#define ecss_smp_H_
+
+#include <pybind11/pybind11.h>
+#include <Smp/AnySimple.h>
+#include <Smp/Exception.h>
+#include <Smp/CannotDelete.h>
+#include <Smp/CannotRemove.h>
+#include <Smp/CannotRestore.h>
+#include <Smp/CannotStore.h>
+#include <Smp/ContainerFull.h>
+#include <Smp/DuplicateName.h>
+#include <Smp/DuplicateUuid.h>
+#include <Smp/EventSinkAlreadySubscribed.h>
+#include <Smp/EventSinkNotSubscribed.h>
+#include <Smp/FieldAlreadyConnected.h>
+#include <Smp/InvalidAnyType.h>
+#include <Smp/InvalidArrayIndex.h>
+#include <Smp/InvalidArraySize.h>
+#include <Smp/InvalidArrayValue.h>
+#include <Smp/InvalidComponentState.h>
+#include <Smp/InvalidEventSink.h>
+#include <Smp/InvalidFieldName.h>
+#include <Smp/InvalidFieldType.h>
+#include <Smp/InvalidFieldValue.h>
+#include <Smp/InvalidLibrary.h>
+#include <Smp/InvalidObjectName.h>
+#include <Smp/InvalidObjectType.h>
+#include <Smp/InvalidOperationName.h>
+#include <Smp/InvalidParameterCount.h>
+#include <Smp/InvalidParameterIndex.h>
+#include <Smp/InvalidParameterType.h>
+#include <Smp/InvalidParameterValue.h>
+#include <Smp/InvalidReturnValue.h>
+#include <Smp/InvalidSimulatorState.h>
+#include <Smp/InvalidTarget.h>
+#include <Smp/LibraryNotFound.h>
+#include <Smp/NotContained.h>
+#include <Smp/NotReferenced.h>
+#include <Smp/Services/EntryPointAlreadySubscribed.h>
+#include <Smp/Services/EntryPointNotSubscribed.h>
+#include <Smp/Services/InvalidCycleTime.h>
+#include <Smp/Services/InvalidEventId.h>
+#include <Smp/Services/InvalidEventName.h>
+#include <Smp/Services/InvalidEventTime.h>
+#include <Smp/Services/InvalidSimulationTime.h>
+#include <Smp/Publication/DuplicateLiteral.h>
+#include <Smp/Publication/InvalidPrimitiveType.h>
+#include <Smp/Publication/TypeAlreadyRegistered.h>
+#include <Smp/Publication/TypeNotRegistered.h>
+
+#include <Smp/IAggregate.h>
+#include <Smp/IArrayField.h>
+#include <Smp/IContainer.h>
+#include <Smp/IDataflowField.h>
+#include <Smp/IDynamicInvocation.h>
+#include <Smp/IEntryPoint.h>
+#include <Smp/IEntryPointPublisher.h>
+#include <Smp/IEventConsumer.h>
+#include <Smp/IEventProvider.h>
+#include <Smp/IEventSink.h>
+#include <Smp/IEventSource.h>
+#include <Smp/IFailure.h>
+#include <Smp/IFallibleModel.h>
+#include <Smp/IForcibleField.h>
+#include <Smp/ILinkingComponent.h>
+#include <Smp/IOperation.h>
+#include <Smp/IProperty.h>
+#include <Smp/IReference.h>
+#include <Smp/ISimpleArrayField.h>
+#include <Smp/ISimulator.h>
+#include <Smp/IStructureField.h>
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Services/IEventManager.h>
+#include <Smp/Services/ILinkRegistry.h>
+#include <Smp/Services/ILogger.h>
+#include <Smp/Services/IResolver.h>
+#include <Smp/Services/IScheduler.h>
+#include <Smp/Services/ITimeKeeper.h>
+#include <Xsmp/DateTime.h>
+#include <Xsmp/Duration.h>
+#include <Xsmp/Helper.h>
+#include <algorithm>
+#include <memory>
+#include <string>
+#include <type_traits>
+#include <typeinfo>
+#include <vector>
+#include <sstream>
+
+namespace py = pybind11;
+
+namespace PYBIND11_NAMESPACE {
+struct TypeHierarchy {
+
+    template<typename T>
+    static TypeHierarchy of(std::vector<TypeHierarchy> derived = { }) {
+        return TypeHierarchy { typeid(T), [](void *src) -> void* {
+            return dynamic_cast<T*>(reinterpret_cast<::Smp::IObject*>(src));
+        }, std::move(derived) };
+    }
+    const std::type_info &base;
+    void* (*caster)(void*);
+    std::vector<TypeHierarchy> derived;
+};
+
+static TypeHierarchy IObjectHierarchy = TypeHierarchy::of<::Smp::IObject>( {
+//IObject
+        /*TypeHierarchy::of<::Smp::ICollection>( { }),*/
+        TypeHierarchy::of<::Smp::IComponent>( {
+        //IComponent
+                TypeHierarchy::of<::Smp::IAggregate>(),
+
+                TypeHierarchy::of<::Smp::IDynamicInvocation>(),
+
+                TypeHierarchy::of<::Smp::IEventConsumer>(),
+
+                TypeHierarchy::of<::Smp::IEventProvider>(),
+
+                TypeHierarchy::of<::Smp::ILinkingComponent>(),
+
+                TypeHierarchy::of<::Smp::IModel>( {
+                //IModel
+                        TypeHierarchy::of<::Smp::IFallibleModel>(),
+
+                }),
+
+                TypeHierarchy::of<::Smp::IService>( {
+                //IService
+                        TypeHierarchy::of<::Smp::Services::IEventManager>(),
+
+                        TypeHierarchy::of<::Smp::Services::ILinkRegistry>(),
+
+                        TypeHierarchy::of<::Smp::Services::ILogger>(),
+
+                        TypeHierarchy::of<::Smp::Services::IResolver>(),
+
+                        TypeHierarchy::of<::Smp::Services::IScheduler>(),
+
+                        TypeHierarchy::of<::Smp::Services::ITimeKeeper>(),
+
+                }),
+
+        }),
+
+        TypeHierarchy::of<::Smp::IComposite>( {
+        //IComposite
+                TypeHierarchy::of<::Smp::ISimulator>(),
+
+        }),
+
+        TypeHierarchy::of<::Smp::IContainer>(),
+
+        TypeHierarchy::of<::Smp::IEntryPoint>(),
+
+        TypeHierarchy::of<::Smp::IEntryPointPublisher>(),
+
+        TypeHierarchy::of<::Smp::IEventSink>(),
+
+        TypeHierarchy::of<::Smp::IEventSource>(),
+
+        //TypeHierarchy::of<::Smp::IFactory>( ),
+
+        TypeHierarchy::of<::Smp::IOperation>(),
+
+        //TypeHierarchy::of<::Smp::IParameter>( ),
+
+        TypeHierarchy::of<::Smp::IPersist>( {
+        // IPersist
+                TypeHierarchy::of<::Smp::IFailure>(),
+
+                TypeHierarchy::of<::Smp::IField>( {
+                        //IField
+                        TypeHierarchy::of<::Smp::IArrayField>(),
+
+                        TypeHierarchy::of<::Smp::ISimpleArrayField>(),
+
+                        TypeHierarchy::of<::Smp::ISimpleField>( {
+                        //ISimpleField
+                                TypeHierarchy::of<::Smp::IForcibleField>(),
+
+                        }),
+
+                        TypeHierarchy::of<::Smp::IStructureField>(),
+                        TypeHierarchy::of<::Smp::IDataflowField>(),
+
+                }),
+
+        }),
+
+        TypeHierarchy::of<::Smp::IProperty>(),
+
+        TypeHierarchy::of<::Smp::IReference>(),
+
+});
+
+class SmpClass: public detail::generic_type {
+public:
+    using type = ::Smp::IObject;
+    using holder_type = std::unique_ptr<type>;
+    explicit SmpClass(type *obj) {
+
+        detail::type_record record;
+        auto type_name = detail::clean_type_id(typeid(*obj).name());
+        record.name = type_name.c_str(); // TODO add random ID ?
+        record.type = &typeid(*obj);
+        record.type_size = sizeof(*obj);
+        record.type_align = alignof(type);
+        // Store the dynamic class in the root module ecss_smp
+        record.scope = py::module_::import("ecss_smp");
+
+        record.holder_size = sizeof(holder_type);
+        record.init_instance = init_instance;
+        record.multiple_inheritance = true;
+
+        record.dealloc = dealloc;
+        record.default_holder = true;
+        record.module_local = true;
+
+        processHierarchy(IObjectHierarchy, obj, record);
+
+        detail::generic_type::initialize(record);
+
+    }
+
+    static bool processHierarchy(const TypeHierarchy &hierarchy, void *object,
+            detail::type_record &rec) {
+        bool ignore = false;
+
+        for (const auto &elem : hierarchy.derived) {
+            ignore |= processHierarchy(elem, object, rec);
+        }
+        if (!ignore && hierarchy.caster(object)) {
+            rec.add_base(hierarchy.base, hierarchy.caster);
+            ignore = true;
+        }
+        return ignore;
+    }
+
+    /// Performs instance initialization including constructing a holder and registering the known
+    /// instance.  Should be called as soon as the `type` value_ptr is set for an instance.  Takes
+    /// an optional pointer to an existing holder to use; if not specified and the instance is
+    /// `.owned`, a new holder will be constructed to manage the value pointer.
+    static void init_instance(detail::instance *inst, const void *holder_ptr) {
+        auto v_h = detail::value_and_holder(inst,
+                detail::get_type_info(typeid(type)), 0, 0);
+        if (!v_h.instance_registered()) {
+            register_instance(inst, v_h.value_ptr(), v_h.type);
+            v_h.set_instance_registered();
+        }
+        init_holder(inst, v_h, static_cast<const holder_type*>(holder_ptr), //TODO cast
+                v_h.value_ptr<type>());
+    }
+
+    /// Deallocates an instance; via holder, if constructed; otherwise via operator delete.
+    static void dealloc(detail::value_and_holder &v_h) {
+        // We could be deallocating because we are cleaning up after a Python exception.
+        // If so, the Python error indicator will be set. We need to clear that before
+        // running the destructor, in case the destructor code calls more Python.
+        // If we don't, the Python API will exit with an exception, and pybind11 will
+        // throw error_already_set from the C++ destructor which is forbidden and triggers
+        // std::terminate().
+        error_scope scope;
+        if (v_h.holder_constructed()) {
+            v_h.holder<holder_type>().~holder_type();
+            v_h.set_holder_constructed(false);
+        }
+        else {
+            detail::call_operator_delete(v_h.value_ptr<type>(),
+                    v_h.type->type_size, v_h.type->type_align);
+        }
+        v_h.value_ptr() = nullptr;
+    }
+
+private:
+
+    static void init_holder_from_existing(const detail::value_and_holder &v_h,
+            const holder_type *holder_ptr,
+            std::false_type /*is_copy_constructible*/) {
+        new (std::addressof(v_h.holder<holder_type>())) holder_type(
+                std::move(*const_cast<holder_type*>(holder_ptr)));
+    }
+
+    /// Initialize holder object, variant 2: try to construct from existing holder object, if
+    /// possible
+    static void init_holder(detail::instance *inst,
+            detail::value_and_holder &v_h, const holder_type *holder_ptr,
+            const void* /* dummy -- not enable_shared_from_this<T>) */) {
+        if (holder_ptr) {
+            init_holder_from_existing(v_h, holder_ptr,
+                    std::is_copy_constructible<holder_type>());
+            v_h.set_holder_constructed();
+        }
+        else if (detail::always_construct_holder<holder_type>::value
+                || inst->owned) {
+            new (std::addressof(v_h.holder<holder_type>())) holder_type(
+                    v_h.value_ptr<type>());
+            v_h.set_holder_constructed();
+        }
+    }
+};
+
+void Register(::Smp::IObject *object) {
+    if (py::detail::get_local_type_info(typeid(*object)) == nullptr) {
+        SmpClass(object)
+
+        .doc() = "Automatic Python binding for '"
+                + Xsmp::Helper::TypeName(object) + "'.";
+
+    }
+
+}
+
+} // namespace PYBIND11_NAMESPACE
+
+py::object convert(::Smp::AnySimple value) {
+    switch (value.GetType()) {
+    case ::Smp::PrimitiveTypeKind::PTK_String8:
+        return py::cast(value.operator ::Smp::String8());
+    case ::Smp::PrimitiveTypeKind::PTK_Char8:
+        return py::cast(value.operator ::Smp::Char8());
+    case ::Smp::PrimitiveTypeKind::PTK_Bool:
+        return py::cast(value.operator ::Smp::Bool());
+    case ::Smp::PrimitiveTypeKind::PTK_Int8:
+        return py::cast(value.operator ::Smp::Int8());
+    case ::Smp::PrimitiveTypeKind::PTK_Int16:
+        return py::cast(value.operator ::Smp::Int16());
+    case ::Smp::PrimitiveTypeKind::PTK_Int32:
+        return py::cast(value.operator ::Smp::Int32());
+    case ::Smp::PrimitiveTypeKind::PTK_Int64:
+        return py::cast(value.operator ::Smp::Int64());
+    case ::Smp::PrimitiveTypeKind::PTK_UInt8:
+        return py::cast(value.operator ::Smp::UInt8());
+    case ::Smp::PrimitiveTypeKind::PTK_UInt16:
+        return py::cast(value.operator ::Smp::UInt16());
+    case ::Smp::PrimitiveTypeKind::PTK_UInt32:
+        return py::cast(value.operator ::Smp::UInt32());
+    case ::Smp::PrimitiveTypeKind::PTK_UInt64:
+        return py::cast(value.operator ::Smp::UInt64());
+    case ::Smp::PrimitiveTypeKind::PTK_DateTime:
+        return py::cast(value.operator ::Smp::DateTime());
+    case ::Smp::PrimitiveTypeKind::PTK_Duration:
+        return py::cast(value.operator ::Smp::Duration());
+    case ::Smp::PrimitiveTypeKind::PTK_Float32:
+        return py::cast(value.operator ::Smp::Float32());
+    case ::Smp::PrimitiveTypeKind::PTK_Float64:
+        return py::cast(value.operator ::Smp::Float64());
+    default:
+        return py::none();
+    }
+}
+
+::Smp::AnySimple convert(py::handle handle, ::Smp::PrimitiveTypeKind kind) {
+
+    try {
+        const auto &field = handle.cast<::Smp::ISimpleField&>();
+        handle = convert(field.GetValue());
+    }
+    catch (std::exception&) {
+        //ignore
+    }
+    switch (kind) {
+    case ::Smp::PrimitiveTypeKind::PTK_String8:
+        return {kind, handle.cast<std::string>().c_str()}; // TODO if it is an ::Smp::IObject, return the path !
+    case ::Smp::PrimitiveTypeKind::PTK_Char8:
+        return {kind, handle.cast<::Smp::Char8>()};
+    case ::Smp::PrimitiveTypeKind::PTK_Bool:
+        return {kind, handle.cast<::Smp::Bool>()};
+    case ::Smp::PrimitiveTypeKind::PTK_Int8:
+        return {kind, handle.cast<::Smp::Int8>()};
+    case ::Smp::PrimitiveTypeKind::PTK_Int16:
+        return {kind, handle.cast<::Smp::Int16>()};
+    case ::Smp::PrimitiveTypeKind::PTK_Int32:
+        return {kind, handle.cast<::Smp::Int32>()};
+    case ::Smp::PrimitiveTypeKind::PTK_Int64:
+        return {kind, handle.cast<::Smp::Int64>()};
+    case ::Smp::PrimitiveTypeKind::PTK_UInt8:
+        return {kind, handle.cast<::Smp::UInt8>()};
+    case ::Smp::PrimitiveTypeKind::PTK_UInt16:
+        return {kind, handle.cast<::Smp::UInt16>()};
+    case ::Smp::PrimitiveTypeKind::PTK_UInt32:
+        return {kind, handle.cast<::Smp::UInt32>()};
+    case ::Smp::PrimitiveTypeKind::PTK_UInt64:
+        return {kind, handle.cast<::Smp::UInt64>()};
+    case ::Smp::PrimitiveTypeKind::PTK_DateTime:
+        return {kind, handle.cast<::Smp::DateTime>()};
+    case ::Smp::PrimitiveTypeKind::PTK_Duration:
+        return {kind, handle.cast<::Smp::Duration>()};
+    case ::Smp::PrimitiveTypeKind::PTK_Float32:
+        return {kind, handle.cast<::Smp::Float32>()};
+    case ::Smp::PrimitiveTypeKind::PTK_Float64:
+        return {kind, handle.cast<::Smp::Float64>()};
+    case ::Smp::PrimitiveTypeKind::PTK_None:
+        return {};
+    }
+    return {};
+}
+inline ::Smp::UInt64 GetIndex(::Smp::Int64 index, ::Smp::UInt64 size) {
+    ::Smp::Int64 result =
+            index < 0 ? static_cast<::Smp::Int64>(size) + index : index;
+    if (result < 0 || static_cast<::Smp::UInt64>(index) >= size)
+        throw py::index_error(std::to_string(index));
+    return static_cast<::Smp::UInt64>(result);
+}
+
+#endif /* ecss_smp_H_ */

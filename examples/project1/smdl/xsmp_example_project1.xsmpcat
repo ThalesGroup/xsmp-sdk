@@ -1,0 +1,26 @@
+// Copyright 2023 YOUR ORGANIZATION. All rights reserved.
+//
+// YOUR NOTICE
+// 
+
+/**
+ * Catalogue xsmp_example_project1
+ * 
+ * @creator Y.Daveluy
+ * @date 2023-06-02T17:08:16.000+0200
+ */
+catalogue xsmp_example_project1
+
+
+namespace Example
+{
+    /** @uuid 2386045d-5cff-46b5-b6da-3ff6e2cfd792 */
+    model M1
+    {
+        field Int8 integer1
+        field Int16 integer2
+
+        container M1[*] subModels
+    }
+}
+

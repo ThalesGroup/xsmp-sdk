@@ -1,0 +1,64 @@
+
+name: SonarCloud analysis
+on:
+   push:
+      branches:
+      - main
+   pull_request:
+      branches:
+      - main
+   workflow_dispatch: null
+permissions:
+   pull-requests: read # allows SonarCloud to decorate PRs with analysis results
+concurrency:
+   group: ${{ github.workflow }}-${{ github.ref }}
+   cancel-in-progress: true
+
+jobs:
+   Analysis:
+      runs-on: ubuntu-latest
+      env:
+         BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
+         BUILD_TYPE: Debug
+      steps:
+      -  uses: actions/checkout@v3
+         with:
+            fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+      -  name: Set up Python for gcovr
+         uses: actions/setup-python@v4
+         with:
+            python-version: 3.11
+            cache: pip # caching pip dependencies
+      -  name: install gcovr & pytest
+         run: |
+            pip install gcovr pytest
+      -  name: Install sonar-scanner and build-wrapper
+         uses: SonarSource/sonarcloud-github-c-cpp@v2
+      -  name: Configure cmake
+         run: |
+            cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DXSMP_ENABLE_CODECOVERAGE=ON -S ${{github.workspace}}
+      -  name: Run build-wrapper
+         run: |
+            build-wrapper-linux-x86-64 --out-dir ${{env.BUILD_WRAPPER_OUT_DIR}} cmake --build build/ --config ${{env.BUILD_TYPE}} -j 2
+      -  name: Run tests to generate coverage statistics
+         working-directory: build
+         run: |
+            ctest -C ${{env.BUILD_TYPE}} --output-on-failure
+      -  name: Collect coverage into one XML report
+         run: |
+            gcovr --sonarqube coverage.xml
+      -  name: Run sonar-scanner
+         env:
+            GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+            SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
+         run: >
+            sonar-scanner
+            -Dsonar.projectKey=ThalesGroup_xsmp-sdk
+            -Dsonar.organization=thalesgroup
+            -Dsonar.cfamily.build-wrapper-output="${{env.BUILD_WRAPPER_OUT_DIR}}"
+            -Dsonar.coverageReportPaths=coverage.xml
+            -Dsonar.sources=include,src
+            -Dsonar.tests=src,tests
+            -Dsonar.sourceEncoding=UTF-8
+            -Dsonar.exclusions=src/Xsmp/Tests/**
+            -Dsonar.test.inclusions=src/Xsmp/Tests/**
