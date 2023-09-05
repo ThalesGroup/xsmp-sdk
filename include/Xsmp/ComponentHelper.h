@@ -30,17 +30,14 @@ public:
     static void Publish(Component *cmp, ::Smp::IPublication *receiver) {
         if constexpr (hasDoPublish<T>::value) {
 
-            if constexpr (std::is_same_v<decltype(&T::DoPublish),
-                    void (T::*)(Smp::IPublication*)>)
+            if constexpr (std::is_invocable_v<decltype(&T::DoPublish), T*,
+                    ::Smp::IPublication*>)
                 dynamic_cast<T*>(cmp)->DoPublish(receiver);
-            else if constexpr (std::is_same_v<decltype(&T::DoPublish),
-                    void (T::*)()>)
+            else if constexpr (std::is_invocable_v<decltype(&T::DoPublish), T*>)
                 dynamic_cast<T*>(cmp)->DoPublish();
 
-            static_assert(std::is_same_v<decltype(&T::DoPublish),
-                    void (T::*)(Smp::IPublication*)> || std::is_same_v<decltype(&T::DoConnect),
-                    void (T::*)()> ,"DoPublish has an invalid signature. Expecting 'void DoPublish(Smp::IPublication*)' or 'void DoPublish()'.");
-
+            static_assert(std::is_invocable_v<decltype(&T::DoPublish), T*, ::Smp::IPublication*> || std::is_invocable_v<decltype(&T::DoConnect), T*>,
+                    "DoPublish has an invalid signature. Expecting 'void DoPublish(Smp::IPublication*)' or 'void DoPublish()'.");
         }
     }
     template<typename T>
@@ -49,17 +46,23 @@ public:
         if constexpr (hasDoConfigure<T>::value) {
             dynamic_cast<T*>(cmp)->DoConfigure(logger, linkRegistry);
 
-            if constexpr (std::is_same_v<decltype(&T::DoConfigure),
-                    void (T::*)(::Smp::Services::ILogger*,
-                            ::Smp::Services::ILinkRegistry*)>)
+            if constexpr (std::is_invocable_v<decltype(&T::DoConfigure), T*,
+                    ::Smp::Services::ILogger*, ::Smp::Services::ILinkRegistry*>)
                 dynamic_cast<T*>(cmp)->DoConfigure(logger, linkRegistry);
-            else if constexpr (std::is_same_v<decltype(&T::DoConfigure),
-                    void (T::*)()>)
+            else if constexpr (std::is_invocable_v<decltype(&T::DoConfigure),
+                    T*, ::Smp::Services::ILogger*>)
+                dynamic_cast<T*>(cmp)->DoConfigure(logger);
+            else if constexpr (std::is_invocable_v<decltype(&T::DoConfigure),
+                    T*, ::Smp::Services::ILinkRegistry*>)
+                dynamic_cast<T*>(cmp)->DoConfigure(linkRegistry);
+            else if constexpr (std::is_invocable_v<decltype(&T::DoConfigure), T*>)
                 dynamic_cast<T*>(cmp)->DoConfigure();
 
-            static_assert(std::is_same_v<decltype(&T::DoConfigure),
-                    void (T::*)(::Smp::Services::ILogger*,::Smp::Services::ILinkRegistry *)> || std::is_same_v<decltype(&T::DoConfigure),
-                    void (T::*)()> ,"DoConfigure has an invalid signature. Expecting 'void DoConfigure(Smp::Services::ILogger*, Smp::Services::ILinkRegistry)' or 'void DoConfigure()'.");
+            static_assert(std::is_invocable_v<decltype(&T::DoConfigure),
+                    T*, ::Smp::Services::ILogger*, ::Smp::Services::ILinkRegistry *> || std::is_invocable_v<decltype(&T::DoConfigure),
+                    T*, ::Smp::Services::ILogger*> ||std::is_invocable_v<decltype(&T::DoConfigure),
+                    T*, ::Smp::Services::ILinkRegistry *> ||std::is_invocable_v<decltype(&T::DoConfigure),
+                    T*> ,"DoConfigure has an invalid signature. Expecting 'void DoConfigure(Smp::Services::ILogger*, Smp::Services::ILinkRegistry*)' or 'void DoConfigure(Smp::Services::ILogger*)' or 'void DoConfigure(Smp::Services::ILinkRegistry*)' or 'void DoConfigure()'.");
 
         }
     }
@@ -67,29 +70,26 @@ public:
     template<typename T>
     static void Connect(Component *cmp, ::Smp::ISimulator *simulator) {
         if constexpr (hasDoConnect<T>::value) {
-            if constexpr (std::is_same_v<decltype(&T::DoConnect),
-                    void (T::*)(Smp::ISimulator*)>)
+            if constexpr (std::is_invocable_v<decltype(&T::DoConnect), T*,
+                    ::Smp::ISimulator*>)
                 dynamic_cast<T*>(cmp)->DoConnect(simulator);
-            else if constexpr (std::is_same_v<decltype(&T::DoConnect),
-                    void (T::*)()>)
+            else if constexpr (std::is_invocable_v<decltype(&T::DoConnect), T*>)
                 dynamic_cast<T*>(cmp)->DoConnect();
 
-            static_assert(std::is_same_v<decltype(&T::DoConnect),
-                    void (T::*)(Smp::ISimulator*)> || std::is_same_v<decltype(&T::DoConnect),
-                    void (T::*)()> ,"DoConnect has an invalid signature. Expecting 'void DoConnect(Smp::ISimulator*)' or 'void DoConnect()'.");
+            static_assert(std::is_invocable_v<decltype(&T::DoConnect),
+                    T*, ::Smp::ISimulator*> || std::is_invocable_v<decltype(&T::DoConnect),
+                    T*> ,"DoConnect has an invalid signature. Expecting 'void DoConnect(Smp::ISimulator*)' or 'void DoConnect()'.");
         }
-
     }
 
     template<typename T>
     static void Disconnect(Component *cmp) {
         if constexpr (hasDoDisconnect<T>::value) {
-            if constexpr (std::is_same_v<decltype(&T::DoDisconnect),
-                    void (T::*)()>)
+            if constexpr (std::is_invocable_v<decltype(&T::DoDisconnect), T*>)
                 dynamic_cast<T*>(cmp)->DoDisconnect();
 
-            static_assert(std::is_same_v<decltype(&T::DoDisconnect),
-                    void (T::*)()> ,"DoDisconnect has an invalid signature. Expecting 'void DoDisconnect()'.");
+            static_assert(std::is_invocable_v<decltype(&T::DoDisconnect),
+                    T*> ,"DoDisconnect has an invalid signature. Expecting 'void DoDisconnect()'.");
         }
     }
 private:

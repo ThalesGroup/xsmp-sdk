@@ -28,8 +28,8 @@ public:
     ~M1() noexcept override = default;
 
 private:
-    // M1Gen call DoPublish/DoConfigure/DoConnect/DoDisconnect
-    friend class ::Example::M1Gen;
+    // visibility to call DoPublish/DoConfigure/DoConnect/DoDisconnect
+    friend class ::Xsmp::Component::Helper;
 
     /// Publish fields, operations and properties of the model.
     /// @param receiver Publication receiver.

@@ -131,7 +131,7 @@ private:
     ::Smp::DateTime _missionStartTime { 0 };
     ::Smp::DateTime _epochStart { 0 };
     std::atomic_bool _simTimeChanging { false };
-    void DoConnect(::Smp::ISimulator *simulator);
+    void DoConnect(const ::Smp::ISimulator *simulator) const;
 
 };
 } // namespace Xsmp::Services

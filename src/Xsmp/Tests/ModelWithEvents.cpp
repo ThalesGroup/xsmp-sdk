@@ -18,81 +18,69 @@
 // -----------------------------------------------------------------------------
 /// @file Xsmp/Tests/ModelWithEvents.cpp
 
-// ----------------------------------------------------------------------------
-// ---------------------------- Include Header Files --------------------
-// ----------------------------------------------------------------------------
-
-#include "Smp/IPublication.h"
-#include "Xsmp/ComponentHelper.h"
-#include "Xsmp/EventSink.h"
 #include "Xsmp/Tests/ModelWithEvents.h"
 
 namespace Xsmp {
 namespace Tests {
-void ModelWithEvents::DoPublish(::Smp::IPublication *receiver) {
+void ModelWithEvents::DoPublish(::Smp::IPublication*) {
 }
 
-void ModelWithEvents::DoConfigure(::Smp::Services::ILogger *logger,
-        ::Smp::Services::ILinkRegistry *linkRegistry) {
+void ModelWithEvents::DoConfigure(::Smp::Services::ILogger*,
+        ::Smp::Services::ILinkRegistry*) {
 }
 
-void ModelWithEvents::DoConnect(::Smp::ISimulator *simulator) {
+void ModelWithEvents::DoConnect(::Smp::ISimulator*) {
 }
 
 void ModelWithEvents::DoDisconnect() {
 }
 
-void ModelWithEvents::_void_esi(::Smp::IObject *sender) {
+void ModelWithEvents::_void_esi(::Smp::IObject*) {
     // TODO implement EventSink void_esi
 }
-void ModelWithEvents::_bool_esi(::Smp::IObject *sender, ::Smp::Bool value) {
+void ModelWithEvents::_bool_esi(::Smp::IObject*, ::Smp::Bool) {
     // TODO implement EventSink bool_esi
 }
-void ModelWithEvents::_char8_esi(::Smp::IObject *sender, ::Smp::Char8 value) {
+void ModelWithEvents::_char8_esi(::Smp::IObject*, ::Smp::Char8) {
     // TODO implement EventSink char8_esi
 }
-void ModelWithEvents::_dateTime_esi(::Smp::IObject *sender,
-        ::Smp::DateTime value) {
+void ModelWithEvents::_dateTime_esi(::Smp::IObject*, ::Smp::DateTime) {
     // TODO implement EventSink dateTime_esi
 }
-void ModelWithEvents::_duration_esi(::Smp::IObject *sender,
-        ::Smp::Duration value) {
+void ModelWithEvents::_duration_esi(::Smp::IObject*, ::Smp::Duration) {
     // TODO implement EventSink duration_esi
 }
-void ModelWithEvents::_float32_esi(::Smp::IObject *sender,
-        ::Smp::Float32 value) {
+void ModelWithEvents::_float32_esi(::Smp::IObject*, ::Smp::Float32) {
     // TODO implement EventSink float32_esi
 }
-void ModelWithEvents::_float64_esi(::Smp::IObject *sender,
-        ::Smp::Float64 value) {
+void ModelWithEvents::_float64_esi(::Smp::IObject*, ::Smp::Float64) {
     // TODO implement EventSink float64_esi
 }
-void ModelWithEvents::_int16_esi(::Smp::IObject *sender, ::Smp::Int16 value) {
+void ModelWithEvents::_int16_esi(::Smp::IObject*, ::Smp::Int16) {
     // TODO implement EventSink int16_esi
 }
-void ModelWithEvents::_int32_esi(::Smp::IObject *sender, ::Smp::Int32 value) {
+void ModelWithEvents::_int32_esi(::Smp::IObject*, ::Smp::Int32) {
     // TODO implement EventSink int32_esi
 }
-void ModelWithEvents::_int64_esi(::Smp::IObject *sender, ::Smp::Int64 value) {
+void ModelWithEvents::_int64_esi(::Smp::IObject*, ::Smp::Int64) {
     // TODO implement EventSink int64_esi
 }
-void ModelWithEvents::_int8_esi(::Smp::IObject *sender, ::Smp::Int8 value) {
+void ModelWithEvents::_int8_esi(::Smp::IObject*, ::Smp::Int8) {
     // TODO implement EventSink int8_esi
 }
-void ModelWithEvents::_string8_esi(::Smp::IObject *sender,
-        ::Smp::String8 value) {
+void ModelWithEvents::_string8_esi(::Smp::IObject*, ::Smp::String8) {
     // TODO implement EventSink string8_esi
 }
-void ModelWithEvents::_uint16_esi(::Smp::IObject *sender, ::Smp::UInt16 value) {
+void ModelWithEvents::_uint16_esi(::Smp::IObject*, ::Smp::UInt16) {
     // TODO implement EventSink uint16_esi
 }
-void ModelWithEvents::_uint32_esi(::Smp::IObject *sender, ::Smp::UInt32 value) {
+void ModelWithEvents::_uint32_esi(::Smp::IObject*, ::Smp::UInt32) {
     // TODO implement EventSink uint32_esi
 }
-void ModelWithEvents::_uint64_esi(::Smp::IObject *sender, ::Smp::UInt64 value) {
+void ModelWithEvents::_uint64_esi(::Smp::IObject*, ::Smp::UInt64) {
     // TODO implement EventSink uint64_esi
 }
-void ModelWithEvents::_uint8_esi(::Smp::IObject *sender, ::Smp::UInt8 value) {
+void ModelWithEvents::_uint8_esi(::Smp::IObject*, ::Smp::UInt8) {
     // TODO implement EventSink uint8_esi
 }
 } // namespace Tests

@@ -18,12 +18,6 @@
 // -----------------------------------------------------------------------------
 /// @file Xsmp/Tests/ModelWithSimpleFields.cpp
 
-// ----------------------------------------------------------------------------
-// ---------------------------- Include Header Files --------------------
-// ----------------------------------------------------------------------------
-
-#include "Smp/IPublication.h"
-#include "Xsmp/EventSink.h"
 #include "Xsmp/Tests/ModelWithSimpleFields.h"
 
 namespace Xsmp {

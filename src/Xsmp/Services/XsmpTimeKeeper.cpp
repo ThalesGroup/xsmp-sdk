@@ -24,7 +24,7 @@
 
 namespace Xsmp::Services {
 
-void XsmpTimeKeeper::DoConnect(::Smp::ISimulator *simulator) {
+void XsmpTimeKeeper::DoConnect(const ::Smp::ISimulator *simulator) const {
 
     simulator->GetEventManager()->Subscribe(
             ::Smp::Services::IEventManager::SMP_PreSimTimeChangeId,

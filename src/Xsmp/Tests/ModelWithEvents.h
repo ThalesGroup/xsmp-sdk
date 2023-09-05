@@ -63,35 +63,22 @@ private:
     void DoDisconnect();
 
 public:
-    virtual void _void_esi(::Smp::IObject *sender) override;
-    virtual void _bool_esi(::Smp::IObject *sender, ::Smp::Bool value) override;
-    virtual void _char8_esi(::Smp::IObject *sender, ::Smp::Char8 value)
-            override;
-    virtual void _dateTime_esi(::Smp::IObject *sender, ::Smp::DateTime value)
-            override;
-    virtual void _duration_esi(::Smp::IObject *sender, ::Smp::Duration value)
-            override;
-    virtual void _float32_esi(::Smp::IObject *sender, ::Smp::Float32 value)
-            override;
-    virtual void _float64_esi(::Smp::IObject *sender, ::Smp::Float64 value)
-            override;
-    virtual void _int16_esi(::Smp::IObject *sender, ::Smp::Int16 value)
-            override;
-    virtual void _int32_esi(::Smp::IObject *sender, ::Smp::Int32 value)
-            override;
-    virtual void _int64_esi(::Smp::IObject *sender, ::Smp::Int64 value)
-            override;
-    virtual void _int8_esi(::Smp::IObject *sender, ::Smp::Int8 value) override;
-    virtual void _string8_esi(::Smp::IObject *sender, ::Smp::String8 value)
-            override;
-    virtual void _uint16_esi(::Smp::IObject *sender, ::Smp::UInt16 value)
-            override;
-    virtual void _uint32_esi(::Smp::IObject *sender, ::Smp::UInt32 value)
-            override;
-    virtual void _uint64_esi(::Smp::IObject *sender, ::Smp::UInt64 value)
-            override;
-    virtual void _uint8_esi(::Smp::IObject *sender, ::Smp::UInt8 value)
-            override;
+    void _void_esi(::Smp::IObject *sender) override;
+    void _bool_esi(::Smp::IObject *sender, ::Smp::Bool value) override;
+    void _char8_esi(::Smp::IObject *sender, ::Smp::Char8 value) override;
+    void _dateTime_esi(::Smp::IObject *sender, ::Smp::DateTime value) override;
+    void _duration_esi(::Smp::IObject *sender, ::Smp::Duration value) override;
+    void _float32_esi(::Smp::IObject *sender, ::Smp::Float32 value) override;
+    void _float64_esi(::Smp::IObject *sender, ::Smp::Float64 value) override;
+    void _int16_esi(::Smp::IObject *sender, ::Smp::Int16 value) override;
+    void _int32_esi(::Smp::IObject *sender, ::Smp::Int32 value) override;
+    void _int64_esi(::Smp::IObject *sender, ::Smp::Int64 value) override;
+    void _int8_esi(::Smp::IObject *sender, ::Smp::Int8 value) override;
+    void _string8_esi(::Smp::IObject *sender, ::Smp::String8 value) override;
+    void _uint16_esi(::Smp::IObject *sender, ::Smp::UInt16 value) override;
+    void _uint32_esi(::Smp::IObject *sender, ::Smp::UInt32 value) override;
+    void _uint64_esi(::Smp::IObject *sender, ::Smp::UInt64 value) override;
+    void _uint8_esi(::Smp::IObject *sender, ::Smp::UInt8 value) override;
 };
 } // namespace Tests
 } // namespace Xsmp

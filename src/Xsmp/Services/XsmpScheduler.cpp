@@ -76,7 +76,7 @@ XsmpScheduler::~XsmpScheduler() {
         DoDisconnect();
 }
 
-void XsmpScheduler::DoConnect(::Smp::ISimulator *simulator) {
+void XsmpScheduler::DoConnect(const ::Smp::ISimulator *simulator) {
 
     simulator->GetEventManager()->Subscribe(
             ::Smp::Services::IEventManager::SMP_EnterExecutingId,

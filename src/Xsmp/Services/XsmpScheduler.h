@@ -470,7 +470,7 @@ private:
     /// @return true if all events have been executed, false if hold immediate is requested and we have to exit
     bool ExecuteImmediateEvents();
 
-    void DoConnect(::Smp::ISimulator *simulator);
+    void DoConnect(const ::Smp::ISimulator *simulator);
     void DoDisconnect();
 };
 

@@ -108,17 +108,17 @@ namespace PYBIND11_NAMESPACE {
 struct TypeHierarchy {
 
     template<typename T>
-    static TypeHierarchy of(std::vector<TypeHierarchy> derived = { }) {
+    static TypeHierarchy of(std::vector<TypeHierarchy> _derived = { }) {
         return TypeHierarchy { typeid(T), [](void *src) -> void* {
             return dynamic_cast<T*>(reinterpret_cast<::Smp::IObject*>(src));
-        }, std::move(derived) };
+        }, std::move(_derived) };
     }
     const std::type_info &base;
     void* (*caster)(void*);
     std::vector<TypeHierarchy> derived;
 };
 
-static TypeHierarchy IObjectHierarchy = TypeHierarchy::of<::Smp::IObject>( {
+static inline const TypeHierarchy IObjectHierarchy = TypeHierarchy::of<::Smp::IObject>( {
 //IObject
         /*TypeHierarchy::of<::Smp::ICollection>( { }),*/
         TypeHierarchy::of<::Smp::IComponent>( {

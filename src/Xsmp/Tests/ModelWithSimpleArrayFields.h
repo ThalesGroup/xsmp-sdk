@@ -39,8 +39,8 @@ public:
     ~ModelWithSimpleArrayFields() noexcept override = default;
 
 private:
-    // ModelWithSimpleArrayFieldsGen call DoPublish/DoConfigure/DoConnect/DoDisconnect
-    friend class ::Xsmp::Tests::ModelWithSimpleArrayFieldsGen;
+    // visibility to call DoPublish/DoConfigure/DoConnect/DoDisconnect
+    friend class ::Xsmp::Component::Helper;
 
     /// Publish fields, operations and properties of the model.
     /// @param receiver Publication receiver.

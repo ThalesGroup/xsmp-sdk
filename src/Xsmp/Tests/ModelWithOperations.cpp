@@ -18,13 +18,6 @@
 // -----------------------------------------------------------------------------
 /// @file Xsmp/Tests/ModelWithOperations.cpp
 
-// ----------------------------------------------------------------------------
-// ---------------------------- Include Header Files --------------------
-// ----------------------------------------------------------------------------
-
-#include "Smp/IPublication.h"
-#include "Xsmp/ComponentHelper.h"
-#include "Xsmp/Request.h"
 #include "Xsmp/Tests/ModelWithOperations.h"
 
 namespace Xsmp {

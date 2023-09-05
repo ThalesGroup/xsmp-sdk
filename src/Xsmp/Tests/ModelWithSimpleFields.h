@@ -39,8 +39,8 @@ public:
     ~ModelWithSimpleFields() noexcept override = default;
 
 private:
-    // ModelWithSimpleFieldsGen call DoPublish/DoConfigure/DoConnect/DoDisconnect
-    friend class ::Xsmp::Tests::ModelWithSimpleFieldsGen;
+    // visibility to call DoPublish/DoConfigure/DoConnect/DoDisconnect
+    friend class ::Xsmp::Component::Helper;
 
     /// Publish fields, operations and properties of the model.
     /// @param receiver Publication receiver.
@@ -63,7 +63,7 @@ private:
     void DoDisconnect();
 
 public:
-    virtual void _esi(::Smp::IObject *sender) override;
+    void _esi(::Smp::IObject *sender) override;
 };
 } // namespace Tests
 } // namespace Xsmp
