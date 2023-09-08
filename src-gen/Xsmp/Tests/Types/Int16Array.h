@@ -34,9 +34,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 using Int16Array = ::Xsmp::Array<::Smp::Int16, 3>;
 
 /// Universally unique identifier of type Int16Array.
@@ -44,8 +42,6 @@ static constexpr ::Smp::Uuid Uuid_Int16Array { 0x6e94bca9U, 0x4493U, 0x41baU,
         0xae7dU, 0x1c99cce2b1beU };
 
 void _Register_Int16Array(::Smp::Publication::ITypeRegistry *registry);
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types
 
 #endif // XSMP_TESTS_TYPES_INT16ARRAY_H_

@@ -28,8 +28,7 @@
 #include "Xsmp/EventSink.h"
 #include "Xsmp/Tests/ModelWithSimpleFields.h"
 
-namespace Xsmp {
-namespace Tests {
+namespace Xsmp::Tests {
 //--------------------------- Constructor -------------------------
 ModelWithSimpleFieldsGen::ModelWithSimpleFieldsGen(::Smp::String8 name,
         ::Smp::String8 description, ::Smp::IObject *parent,
@@ -364,5 +363,4 @@ void ModelWithSimpleFieldsGen::Disconnect() {
 const Smp::Uuid& ModelWithSimpleFieldsGen::GetUuid() const {
     return Uuid_ModelWithSimpleFields;
 }
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests

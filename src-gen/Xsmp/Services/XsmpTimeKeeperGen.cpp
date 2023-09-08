@@ -28,8 +28,7 @@
 #include "Xsmp/EntryPoint.h"
 #include "Xsmp/Services/XsmpTimeKeeper.h"
 
-namespace Xsmp {
-namespace Services {
+namespace Xsmp::Services {
 //--------------------------- Constructor -------------------------
 XsmpTimeKeeperGen::XsmpTimeKeeperGen(::Smp::String8 name,
         ::Smp::String8 description, ::Smp::IObject *parent,
@@ -92,5 +91,4 @@ void XsmpTimeKeeperGen::Disconnect() {
 const Smp::Uuid& XsmpTimeKeeperGen::GetUuid() const {
     return Uuid_XsmpTimeKeeper;
 }
-} // namespace Services
-} // namespace Xsmp
+} // namespace Xsmp::Services

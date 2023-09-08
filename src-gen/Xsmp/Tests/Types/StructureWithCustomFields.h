@@ -38,9 +38,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 struct StructureWithCustomFields {
     ::Smp::Bool booleanInput;
     ::Smp::Char8 char8Input;
@@ -351,8 +349,6 @@ struct StructureWithCustomFields {
 /// Universally unique identifier of type StructureWithCustomFields.
 static constexpr ::Smp::Uuid Uuid_StructureWithCustomFields { 0xf7de138dU,
         0xe0a5U, 0x4ae2U, 0x9624U, 0xab49cc75b8b8U };
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types
 
 #endif // XSMP_TESTS_TYPES_STRUCTUREWITHCUSTOMFIELDS_H_

@@ -25,9 +25,7 @@
 
 #include "Xsmp/Tests/Types/Float1.h"
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 void _Register_Float1(::Smp::Publication::ITypeRegistry *registry) {
     registry->AddFloatType("Float1", //Name
             "", //description
@@ -40,6 +38,4 @@ void _Register_Float1(::Smp::Publication::ITypeRegistry *registry) {
             ::Smp::PrimitiveTypeKind::PTK_Float64 // Primitive Type Kind
             );
 }
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types

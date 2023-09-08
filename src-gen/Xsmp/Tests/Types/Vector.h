@@ -33,9 +33,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 struct Vector {
     ::Smp::Float64 x;
     ::Smp::Float64 y;
@@ -90,8 +88,6 @@ struct Vector {
 /// Universally unique identifier of type Vector.
 static constexpr ::Smp::Uuid Uuid_Vector { 0x8287dc95U, 0x211dU, 0x49d7U,
         0x8b32U, 0x863832fb88c2U };
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types
 
 #endif // XSMP_TESTS_TYPES_VECTOR_H_

@@ -166,11 +166,11 @@ class M1Test(xsmp.unittest.TestCase):
         test.integer1 -= test.integer1
         self.assertEqual(test.integer1 , 0)
         
-        # test.integer1 /= 2
-        # self.assertEqual(test.integer1 , 5)
         
         test.float1 = 5.4
         self.assertEqual(test.float1, 5.4)
+        test.float1 /= 2
+        self.assertEqual(test.float1, 2.7)
         
         v = test.string1
         self.assertEqual(v, "")

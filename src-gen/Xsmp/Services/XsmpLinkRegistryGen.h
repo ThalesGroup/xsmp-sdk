@@ -36,8 +36,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Services {
+namespace Xsmp::Services {
 // forward declaration of user class
 class XsmpLinkRegistry;
 /// Universally unique identifier of type XsmpLinkRegistry.
@@ -102,7 +101,6 @@ public:
     const Smp::Uuid& GetUuid() const override;
 
 };
-} // namespace Services
-} // namespace Xsmp
+} // namespace Xsmp::Services
 
 #endif // XSMP_SERVICES_XSMPLINKREGISTRYGEN_H_

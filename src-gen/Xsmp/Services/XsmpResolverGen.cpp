@@ -27,8 +27,7 @@
 #include "Xsmp/ComponentHelper.h"
 #include "Xsmp/Services/XsmpResolver.h"
 
-namespace Xsmp {
-namespace Services {
+namespace Xsmp::Services {
 //--------------------------- Constructor -------------------------
 XsmpResolverGen::XsmpResolverGen(::Smp::String8 name,
         ::Smp::String8 description, ::Smp::IObject *parent,
@@ -81,5 +80,4 @@ void XsmpResolverGen::Disconnect() {
 const Smp::Uuid& XsmpResolverGen::GetUuid() const {
     return Uuid_XsmpResolver;
 }
-} // namespace Services
-} // namespace Xsmp
+} // namespace Xsmp::Services

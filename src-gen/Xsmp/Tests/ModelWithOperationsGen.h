@@ -40,8 +40,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
+namespace Xsmp::Tests {
 // forward declaration of user class
 class ModelWithOperations;
 /// Universally unique identifier of type ModelWithOperations.
@@ -133,7 +132,6 @@ private:
     virtual ::Smp::UInt64 uint64Operation()=0;
     virtual ::Smp::UInt8 uint8Operation()=0;
 };
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests
 
 #endif // XSMP_TESTS_MODELWITHOPERATIONSGEN_H_

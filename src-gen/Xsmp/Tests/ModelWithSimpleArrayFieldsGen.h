@@ -43,8 +43,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
+namespace Xsmp::Tests {
 // forward declaration of user class
 class ModelWithSimpleArrayFields;
 /// Universally unique identifier of type ModelWithSimpleArrayFields.
@@ -148,7 +147,6 @@ private:
     ::Xsmp::Field<::Xsmp::Tests::Types::SimpleFloat1Array>::transient::input::output::failure float1All;
     ::Xsmp::Field<::Xsmp::Tests::Types::SimpleInteger1Array>::transient::input::output::failure integer1All;
 };
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests
 
 #endif // XSMP_TESTS_MODELWITHSIMPLEARRAYFIELDSGEN_H_

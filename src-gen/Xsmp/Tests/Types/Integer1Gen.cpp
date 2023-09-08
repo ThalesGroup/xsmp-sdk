@@ -25,9 +25,7 @@
 
 #include "Xsmp/Tests/Types/Integer1.h"
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 void _Register_Integer1(::Smp::Publication::ITypeRegistry *registry) {
     registry->AddIntegerType("Integer1", //Name
             "", //description
@@ -38,6 +36,4 @@ void _Register_Integer1(::Smp::Publication::ITypeRegistry *registry) {
             ::Smp::PrimitiveTypeKind::PTK_Int32 // Primitive Type Kind
             );
 }
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types

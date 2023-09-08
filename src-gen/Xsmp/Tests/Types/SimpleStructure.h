@@ -37,9 +37,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 struct SimpleStructure {
     ::Smp::Bool boolean;
     ::Smp::Char8 char8;
@@ -112,8 +110,6 @@ struct SimpleStructure {
 /// Universally unique identifier of type SimpleStructure.
 static constexpr ::Smp::Uuid Uuid_SimpleStructure { 0xd5831073U, 0x1037U,
         0x48a0U, 0xb455U, 0x53083c542d75U };
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types
 
 #endif // XSMP_TESTS_TYPES_SIMPLESTRUCTURE_H_

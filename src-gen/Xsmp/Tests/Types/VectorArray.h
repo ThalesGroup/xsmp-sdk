@@ -35,9 +35,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 using VectorArray = ::Xsmp::Array<::Xsmp::Tests::Types::Vector, 3>;
 
 /// Universally unique identifier of type VectorArray.
@@ -45,8 +43,6 @@ static constexpr ::Smp::Uuid Uuid_VectorArray { 0x7d495b9cU, 0xca8fU, 0x48d4U,
         0xa8f8U, 0x38c9d2420300U };
 
 void _Register_VectorArray(::Smp::Publication::ITypeRegistry *registry);
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types
 
 #endif // XSMP_TESTS_TYPES_VECTORARRAY_H_

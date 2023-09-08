@@ -35,9 +35,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 using Int64Matrix = ::Xsmp::Array<::Xsmp::Tests::Types::Int64Array, 3>;
 
 /// Universally unique identifier of type Int64Matrix.
@@ -45,8 +43,6 @@ static constexpr ::Smp::Uuid Uuid_Int64Matrix { 0xb89b6584U, 0x5915U, 0x4befU,
         0x9f5dU, 0xa1b929629261U };
 
 void _Register_Int64Matrix(::Smp::Publication::ITypeRegistry *registry);
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types
 
 #endif // XSMP_TESTS_TYPES_INT64MATRIX_H_

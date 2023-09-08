@@ -27,8 +27,7 @@
 #include "Xsmp/ComponentHelper.h"
 #include "Xsmp/Tests/ModelWithSimpleArrayFields.h"
 
-namespace Xsmp {
-namespace Tests {
+namespace Xsmp::Tests {
 //--------------------------- Constructor -------------------------
 ModelWithSimpleArrayFieldsGen::ModelWithSimpleArrayFieldsGen(
         ::Smp::String8 name, ::Smp::String8 description, ::Smp::IObject *parent,
@@ -298,5 +297,4 @@ void ModelWithSimpleArrayFieldsGen::Disconnect() {
 const Smp::Uuid& ModelWithSimpleArrayFieldsGen::GetUuid() const {
     return Uuid_ModelWithSimpleArrayFields;
 }
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests

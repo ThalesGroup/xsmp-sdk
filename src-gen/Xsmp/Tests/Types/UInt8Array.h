@@ -34,9 +34,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 using UInt8Array = ::Xsmp::Array<::Smp::UInt8, 3>;
 
 /// Universally unique identifier of type UInt8Array.
@@ -44,8 +42,6 @@ static constexpr ::Smp::Uuid Uuid_UInt8Array { 0x8347af61U, 0x672dU, 0x472dU,
         0xa879U, 0x319ef8bb6b6fU };
 
 void _Register_UInt8Array(::Smp::Publication::ITypeRegistry *registry);
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types
 
 #endif // XSMP_TESTS_TYPES_UINT8ARRAY_H_

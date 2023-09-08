@@ -25,9 +25,7 @@
 
 #include "Xsmp/Tests/Types/SimpleInteger1Array.h"
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 void _Register_SimpleInteger1Array(
         ::Smp::Publication::ITypeRegistry *registry) {
     registry->AddArrayType("SimpleInteger1Array", // Name
@@ -39,6 +37,4 @@ void _Register_SimpleInteger1Array(
             true // is simple array
             );
 }
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types

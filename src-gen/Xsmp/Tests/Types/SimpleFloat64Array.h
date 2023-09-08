@@ -34,9 +34,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 using SimpleFloat64Array = ::Xsmp::Array<::Smp::Float64, 3>::simple;
 
 /// Universally unique identifier of type SimpleFloat64Array.
@@ -44,8 +42,6 @@ static constexpr ::Smp::Uuid Uuid_SimpleFloat64Array { 0xabe29edfU, 0xef67U,
         0x4c73U, 0xa74bU, 0xe54bf4af752dU };
 
 void _Register_SimpleFloat64Array(::Smp::Publication::ITypeRegistry *registry);
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types
 
 #endif // XSMP_TESTS_TYPES_SIMPLEFLOAT64ARRAY_H_

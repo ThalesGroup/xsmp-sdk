@@ -37,8 +37,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Services {
+namespace Xsmp::Services {
 // forward declaration of user class
 class XsmpEventManager;
 /// Universally unique identifier of type XsmpEventManager.
@@ -104,7 +103,6 @@ public:
     const Smp::Uuid& GetUuid() const override;
 
 };
-} // namespace Services
-} // namespace Xsmp
+} // namespace Xsmp::Services
 
 #endif // XSMP_SERVICES_XSMPEVENTMANAGERGEN_H_

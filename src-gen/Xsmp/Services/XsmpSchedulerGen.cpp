@@ -28,8 +28,7 @@
 #include "Xsmp/EntryPoint.h"
 #include "Xsmp/Services/XsmpScheduler.h"
 
-namespace Xsmp {
-namespace Services {
+namespace Xsmp::Services {
 //--------------------------- Constructor -------------------------
 XsmpSchedulerGen::XsmpSchedulerGen(::Smp::String8 name,
         ::Smp::String8 description, ::Smp::IObject *parent,
@@ -97,5 +96,4 @@ void XsmpSchedulerGen::Disconnect() {
 const Smp::Uuid& XsmpSchedulerGen::GetUuid() const {
     return Uuid_XsmpScheduler;
 }
-} // namespace Services
-} // namespace Xsmp
+} // namespace Xsmp::Services

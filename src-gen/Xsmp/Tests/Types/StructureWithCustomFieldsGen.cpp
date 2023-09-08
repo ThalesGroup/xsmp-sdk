@@ -27,9 +27,7 @@
 #include "Xsmp/Tests/Types/StructureWithCustomFields.h"
 #include <cstddef>
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 void StructureWithCustomFields::_Register(
         ::Smp::Publication::ITypeRegistry *registry) {
     auto *pStructure = registry->AddStructureType("StructureWithCustomFields" /// Name
@@ -349,6 +347,4 @@ void StructureWithCustomFields::_Register(
             );
 }
 
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types

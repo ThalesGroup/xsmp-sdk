@@ -27,8 +27,7 @@
 #include "Xsmp/ComponentHelper.h"
 #include "Xsmp/Services/XsmpEventManager.h"
 
-namespace Xsmp {
-namespace Services {
+namespace Xsmp::Services {
 //--------------------------- Constructor -------------------------
 XsmpEventManagerGen::XsmpEventManagerGen(::Smp::String8 name,
         ::Smp::String8 description, ::Smp::IObject *parent,
@@ -81,5 +80,4 @@ void XsmpEventManagerGen::Disconnect() {
 const Smp::Uuid& XsmpEventManagerGen::GetUuid() const {
     return Uuid_XsmpEventManager;
 }
-} // namespace Services
-} // namespace Xsmp
+} // namespace Xsmp::Services

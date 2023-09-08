@@ -37,8 +37,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Services {
+namespace Xsmp::Services {
 // forward declaration of user class
 class XsmpLogger;
 /// Universally unique identifier of type XsmpLogger.
@@ -104,7 +103,6 @@ public:
     const Smp::Uuid& GetUuid() const override;
 
 };
-} // namespace Services
-} // namespace Xsmp
+} // namespace Xsmp::Services
 
 #endif // XSMP_SERVICES_XSMPLOGGERGEN_H_

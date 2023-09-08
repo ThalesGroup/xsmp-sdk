@@ -34,9 +34,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 enum class Enum1 : ::Smp::Int32 {
     L1 = 0, L2 = 1, L3 = 2
 };
@@ -52,8 +50,6 @@ const std::map<Enum1, std::string> Enum1_name_map = { { Enum1::L1, "L1" }, {
 
 const std::map<Enum1, std::string> Enum1_descr_map = { { Enum1::L1, "" }, {
         Enum1::L2, "" }, { Enum1::L3, "" } };
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types
 
 #endif // XSMP_TESTS_TYPES_ENUM1_H_

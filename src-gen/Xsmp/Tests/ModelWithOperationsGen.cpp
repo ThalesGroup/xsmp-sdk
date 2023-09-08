@@ -28,8 +28,7 @@
 #include "Xsmp/Request.h"
 #include "Xsmp/Tests/ModelWithOperations.h"
 
-namespace Xsmp {
-namespace Tests {
+namespace Xsmp::Tests {
 //--------------------------- Constructor -------------------------
 ModelWithOperationsGen::ModelWithOperationsGen(::Smp::String8 name,
         ::Smp::String8 description, ::Smp::IObject *parent,
@@ -402,5 +401,4 @@ void ModelWithOperationsGen::Invoke(::Smp::IRequest *request) {
 const Smp::Uuid& ModelWithOperationsGen::GetUuid() const {
     return Uuid_ModelWithOperations;
 }
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests

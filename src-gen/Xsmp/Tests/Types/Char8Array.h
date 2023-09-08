@@ -34,9 +34,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 using Char8Array = ::Xsmp::Array<::Smp::Char8, 3>;
 
 /// Universally unique identifier of type Char8Array.
@@ -44,8 +42,6 @@ static constexpr ::Smp::Uuid Uuid_Char8Array { 0x7f4e63baU, 0x2804U, 0x495bU,
         0xa2f3U, 0x4f49e40e1411U };
 
 void _Register_Char8Array(::Smp::Publication::ITypeRegistry *registry);
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types
 
 #endif // XSMP_TESTS_TYPES_CHAR8ARRAY_H_

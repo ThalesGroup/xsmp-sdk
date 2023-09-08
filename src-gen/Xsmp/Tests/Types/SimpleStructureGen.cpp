@@ -27,9 +27,7 @@
 #include "Xsmp/Tests/Types/SimpleStructure.h"
 #include <cstddef>
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 void SimpleStructure::_Register(::Smp::Publication::ITypeRegistry *registry) {
     auto *pStructure = registry->AddStructureType("SimpleStructure"  /// Name
             , ""   /// description
@@ -81,6 +79,4 @@ void SimpleStructure::_Register(::Smp::Publication::ITypeRegistry *registry) {
             );
 }
 
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types

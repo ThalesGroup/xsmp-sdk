@@ -25,9 +25,7 @@
 
 #include "Xsmp/Tests/Types/SimpleInt64Matrix.h"
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 void _Register_SimpleInt64Matrix(::Smp::Publication::ITypeRegistry *registry) {
     registry->AddArrayType("SimpleInt64Matrix", // Name
             "", // Description
@@ -38,6 +36,4 @@ void _Register_SimpleInt64Matrix(::Smp::Publication::ITypeRegistry *registry) {
             false // is simple array
             );
 }
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types

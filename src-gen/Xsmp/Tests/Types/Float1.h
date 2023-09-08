@@ -34,16 +34,12 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 /// Universally unique identifier of type Float1.
 static constexpr ::Smp::Uuid Uuid_Float1 { 0xd12d93e8U, 0x41a5U, 0x4638U,
         0x9b6bU, 0x2cc1bcdac97bU };
 using Float1 = ::Smp::Float64;
 void _Register_Float1(::Smp::Publication::ITypeRegistry *registry);
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types
 
 #endif // XSMP_TESTS_TYPES_FLOAT1_H_

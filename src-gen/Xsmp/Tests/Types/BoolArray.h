@@ -34,9 +34,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 using BoolArray = ::Xsmp::Array<::Smp::Bool, 3>;
 
 /// Universally unique identifier of type BoolArray.
@@ -44,8 +42,6 @@ static constexpr ::Smp::Uuid Uuid_BoolArray { 0xb6ae5640U, 0x2094U, 0x4c06U,
         0xbb57U, 0xe9446d2f36f3U };
 
 void _Register_BoolArray(::Smp::Publication::ITypeRegistry *registry);
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types
 
 #endif // XSMP_TESTS_TYPES_BOOLARRAY_H_

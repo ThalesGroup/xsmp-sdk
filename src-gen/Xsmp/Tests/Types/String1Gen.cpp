@@ -25,9 +25,7 @@
 
 #include "Xsmp/Tests/Types/String1.h"
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 void _Register_String1(::Smp::Publication::ITypeRegistry *registry) {
     registry->AddStringType("String1", //Name
             "", // Description
@@ -35,6 +33,4 @@ void _Register_String1(::Smp::Publication::ITypeRegistry *registry) {
             10 // Length of the String
             );
 }
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types

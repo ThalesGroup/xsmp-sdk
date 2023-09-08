@@ -50,8 +50,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
+namespace Xsmp::Tests {
 // forward declaration of user class
 class ModelWithSimpleFields;
 /// Universally unique identifier of type ModelWithSimpleFields.
@@ -172,7 +171,6 @@ private:
 public:
     ::Xsmp::Container<::Smp::IModel> *subModels;
 };
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests
 
 #endif // XSMP_TESTS_MODELWITHSIMPLEFIELDSGEN_H_

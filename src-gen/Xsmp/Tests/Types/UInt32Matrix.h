@@ -35,9 +35,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 using UInt32Matrix = ::Xsmp::Array<::Xsmp::Tests::Types::UInt32Array, 3>;
 
 /// Universally unique identifier of type UInt32Matrix.
@@ -45,8 +43,6 @@ static constexpr ::Smp::Uuid Uuid_UInt32Matrix { 0x1e900617U, 0xc89fU, 0x4975U,
         0x8992U, 0x7760578c0ef2U };
 
 void _Register_UInt32Matrix(::Smp::Publication::ITypeRegistry *registry);
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types
 
 #endif // XSMP_TESTS_TYPES_UINT32MATRIX_H_

@@ -35,9 +35,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 using Enum1Array = ::Xsmp::Array<::Xsmp::Tests::Types::Enum1, 3>;
 
 /// Universally unique identifier of type Enum1Array.
@@ -45,8 +43,6 @@ static constexpr ::Smp::Uuid Uuid_Enum1Array { 0x5d9d14c3U, 0x36ceU, 0x4101U,
         0x9bc4U, 0x3e7113dc84caU };
 
 void _Register_Enum1Array(::Smp::Publication::ITypeRegistry *registry);
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types
 
 #endif // XSMP_TESTS_TYPES_ENUM1ARRAY_H_

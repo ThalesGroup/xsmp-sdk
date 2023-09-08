@@ -25,9 +25,7 @@
 
 #include "Xsmp/Tests/Types/Enum1.h"
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 void _Register_Enum1(::Smp::Publication::ITypeRegistry *registry) {
     ::Smp::Publication::IEnumerationType *typeState =
             registry->AddEnumerationType("Enum1", // name
@@ -44,6 +42,4 @@ void _Register_Enum1(::Smp::Publication::ITypeRegistry *registry) {
     typeState->AddLiteral("L3", "",
             static_cast<::Smp::Int32>(::Xsmp::Tests::Types::Enum1::L3));
 }
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types

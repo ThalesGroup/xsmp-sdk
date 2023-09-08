@@ -35,9 +35,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 using SimpleInteger1Array = ::Xsmp::Array<::Xsmp::Tests::Types::Integer1, 3>::simple;
 
 /// Universally unique identifier of type SimpleInteger1Array.
@@ -45,8 +43,6 @@ static constexpr ::Smp::Uuid Uuid_SimpleInteger1Array { 0xb6b85b8cU, 0xa64cU,
         0x4d91U, 0x8f4dU, 0x918b36118323U };
 
 void _Register_SimpleInteger1Array(::Smp::Publication::ITypeRegistry *registry);
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types
 
 #endif // XSMP_TESTS_TYPES_SIMPLEINTEGER1ARRAY_H_

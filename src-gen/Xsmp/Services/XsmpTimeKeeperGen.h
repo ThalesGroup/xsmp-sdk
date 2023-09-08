@@ -39,8 +39,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Services {
+namespace Xsmp::Services {
 // forward declaration of user class
 class XsmpTimeKeeper;
 /// Universally unique identifier of type XsmpTimeKeeper.
@@ -111,7 +110,6 @@ public:
     ::Smp::IEntryPoint *PostSimTimeChange;
     virtual void _PostSimTimeChange() = 0;
 };
-} // namespace Services
-} // namespace Xsmp
+} // namespace Xsmp::Services
 
 #endif // XSMP_SERVICES_XSMPTIMEKEEPERGEN_H_

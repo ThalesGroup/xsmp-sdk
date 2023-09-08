@@ -40,8 +40,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
+namespace Xsmp::Tests {
 // forward declaration of user class
 class ModelWithEvents;
 /// Universally unique identifier of type ModelWithEvents.
@@ -157,7 +156,6 @@ public:
     ::Xsmp::EventSource<::Smp::UInt64> *uint64_eso;
     ::Xsmp::EventSource<::Smp::UInt8> *uint8_eso;
 };
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests
 
 #endif // XSMP_TESTS_MODELWITHEVENTSGEN_H_

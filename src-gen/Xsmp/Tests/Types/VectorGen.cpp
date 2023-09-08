@@ -27,9 +27,7 @@
 #include "Xsmp/Tests/Types/Vector.h"
 #include <cstddef>
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 void Vector::_Register(::Smp::Publication::ITypeRegistry *registry) {
     auto *pStructure = registry->AddStructureType("Vector"  /// Name
             , ""   /// description
@@ -60,6 +58,4 @@ void Vector::_Register(::Smp::Publication::ITypeRegistry *registry) {
             );
 }
 
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types

@@ -35,9 +35,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 using SimpleInt8Matrix = ::Xsmp::Array<::Xsmp::Tests::Types::SimpleInt8Array, 3>;
 
 /// Universally unique identifier of type SimpleInt8Matrix.
@@ -45,8 +43,6 @@ static constexpr ::Smp::Uuid Uuid_SimpleInt8Matrix { 0x85c4a7d8U, 0x8bf7U,
         0x4e6bU, 0xa172U, 0x1eab61d334ceU };
 
 void _Register_SimpleInt8Matrix(::Smp::Publication::ITypeRegistry *registry);
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types
 
 #endif // XSMP_TESTS_TYPES_SIMPLEINT8MATRIX_H_

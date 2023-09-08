@@ -27,8 +27,7 @@
 #include "Xsmp/ComponentHelper.h"
 #include "Xsmp/Services/XsmpLogger.h"
 
-namespace Xsmp {
-namespace Services {
+namespace Xsmp::Services {
 //--------------------------- Constructor -------------------------
 XsmpLoggerGen::XsmpLoggerGen(::Smp::String8 name, ::Smp::String8 description,
         ::Smp::IObject *parent, ::Smp::ISimulator *simulator) :
@@ -80,5 +79,4 @@ void XsmpLoggerGen::Disconnect() {
 const Smp::Uuid& XsmpLoggerGen::GetUuid() const {
     return Uuid_XsmpLogger;
 }
-} // namespace Services
-} // namespace Xsmp
+} // namespace Xsmp::Services

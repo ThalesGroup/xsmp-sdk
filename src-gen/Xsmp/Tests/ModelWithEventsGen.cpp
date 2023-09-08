@@ -28,8 +28,7 @@
 #include "Xsmp/EventSink.h"
 #include "Xsmp/Tests/ModelWithEvents.h"
 
-namespace Xsmp {
-namespace Tests {
+namespace Xsmp::Tests {
 //--------------------------- Constructor -------------------------
 ModelWithEventsGen::ModelWithEventsGen(::Smp::String8 name,
         ::Smp::String8 description, ::Smp::IObject *parent,
@@ -256,5 +255,4 @@ void ModelWithEventsGen::Disconnect() {
 const Smp::Uuid& ModelWithEventsGen::GetUuid() const {
     return Uuid_ModelWithEvents;
 }
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests

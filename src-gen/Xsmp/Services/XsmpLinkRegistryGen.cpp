@@ -27,8 +27,7 @@
 #include "Xsmp/ComponentHelper.h"
 #include "Xsmp/Services/XsmpLinkRegistry.h"
 
-namespace Xsmp {
-namespace Services {
+namespace Xsmp::Services {
 //--------------------------- Constructor -------------------------
 XsmpLinkRegistryGen::XsmpLinkRegistryGen(::Smp::String8 name,
         ::Smp::String8 description, ::Smp::IObject *parent,
@@ -81,5 +80,4 @@ void XsmpLinkRegistryGen::Disconnect() {
 const Smp::Uuid& XsmpLinkRegistryGen::GetUuid() const {
     return Uuid_XsmpLinkRegistry;
 }
-} // namespace Services
-} // namespace Xsmp
+} // namespace Xsmp::Services

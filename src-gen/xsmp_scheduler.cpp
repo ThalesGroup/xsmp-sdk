@@ -37,12 +37,6 @@ namespace {
 std::unordered_set<::Smp::ISimulator*> simulators { };
 } // namespace
 
-#if __cplusplus >= 201703L
-    #define MAYBE_UNUSED [[maybe_unused]]
-#else
-#define MAYBE_UNUSED
-#endif
-
 // --------------------------------------------------------------------------------
 // --------------------------- Initialise Function -----------------------------
 // --------------------------------------------------------------------------------
@@ -53,7 +47,7 @@ extern "C" {
 /// @param typeRegistry Type Registry for registration of types.
 /// @return True if initialisation was successful, false otherwise.
 bool Initialise_xsmp_scheduler(::Smp::ISimulator *simulator,
-        MAYBE_UNUSED ::Smp::Publication::ITypeRegistry *typeRegistry) {
+        [[maybe_unused]] ::Smp::Publication::ITypeRegistry *typeRegistry) {
     // check simulator validity
     if (!simulator) {
         return false;

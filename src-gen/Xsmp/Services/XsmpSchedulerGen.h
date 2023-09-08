@@ -39,8 +39,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Services {
+namespace Xsmp::Services {
 // forward declaration of user class
 class XsmpScheduler;
 /// Universally unique identifier of type XsmpScheduler.
@@ -113,7 +112,6 @@ public:
     ::Smp::IEntryPoint *LeaveExecuting;
     virtual void _LeaveExecuting() = 0;
 };
-} // namespace Services
-} // namespace Xsmp
+} // namespace Xsmp::Services
 
 #endif // XSMP_SERVICES_XSMPSCHEDULERGEN_H_

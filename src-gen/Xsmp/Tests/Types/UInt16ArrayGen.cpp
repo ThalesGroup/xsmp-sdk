@@ -25,9 +25,7 @@
 
 #include "Xsmp/Tests/Types/UInt16Array.h"
 
-namespace Xsmp {
-namespace Tests {
-namespace Types {
+namespace Xsmp::Tests::Types {
 void _Register_UInt16Array(::Smp::Publication::ITypeRegistry *registry) {
     registry->AddArrayType("UInt16Array", // Name
             "", // Description
@@ -38,6 +36,4 @@ void _Register_UInt16Array(::Smp::Publication::ITypeRegistry *registry) {
             false // is simple array
             );
 }
-} // namespace Types
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests::Types

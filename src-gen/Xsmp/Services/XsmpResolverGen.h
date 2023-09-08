@@ -36,8 +36,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Services {
+namespace Xsmp::Services {
 // forward declaration of user class
 class XsmpResolver;
 /// Universally unique identifier of type XsmpResolver.
@@ -102,7 +101,6 @@ public:
     const Smp::Uuid& GetUuid() const override;
 
 };
-} // namespace Services
-} // namespace Xsmp
+} // namespace Xsmp::Services
 
 #endif // XSMP_SERVICES_XSMPRESOLVERGEN_H_
