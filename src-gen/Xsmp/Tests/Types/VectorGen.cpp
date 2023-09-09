@@ -29,32 +29,32 @@
 
 namespace Xsmp::Tests::Types {
 void Vector::_Register(::Smp::Publication::ITypeRegistry *registry) {
-    auto *pStructure = registry->AddStructureType("Vector"  /// Name
-            , ""   /// description
-            , ::Xsmp::Tests::Types::Uuid_Vector /// UUID
+    auto *type = registry->AddStructureType("Vector",  /// Name
+            "", /// description
+            ::Xsmp::Tests::Types::Uuid_Vector /// UUID
             );
 
     /// Register the Fields of the Structure
-    pStructure->AddField("x", "", ::Smp::Uuids::Uuid_Float64 ///UUID of the Field Type
-            , offsetof(Vector, x)  ///Compute the offset of the current item
-                    , ::Smp::ViewKind::VK_None  ///viewkind
-            , true  ///state
-            , false  ///is an input field
-            , false  ///is an output field
+    type->AddField("x", "", ::Smp::Uuids::Uuid_Float64, ///UUID of the Field Type
+            offsetof(Vector, x), ///Compute the offset of the current item
+            ::Smp::ViewKind::VK_None, ///viewkind
+            true, ///state
+            false, ///is an input field
+            false ///is an output field
             );
-    pStructure->AddField("y", "", ::Smp::Uuids::Uuid_Float64 ///UUID of the Field Type
-            , offsetof(Vector, y)  ///Compute the offset of the current item
-                    , ::Smp::ViewKind::VK_None  ///viewkind
-            , true  ///state
-            , false  ///is an input field
-            , false  ///is an output field
+    type->AddField("y", "", ::Smp::Uuids::Uuid_Float64, ///UUID of the Field Type
+            offsetof(Vector, y), ///Compute the offset of the current item
+            ::Smp::ViewKind::VK_None, ///viewkind
+            true, ///state
+            false, ///is an input field
+            false ///is an output field
             );
-    pStructure->AddField("z", "", ::Smp::Uuids::Uuid_Float64 ///UUID of the Field Type
-            , offsetof(Vector, z)  ///Compute the offset of the current item
-                    , ::Smp::ViewKind::VK_None  ///viewkind
-            , true  ///state
-            , false  ///is an input field
-            , false  ///is an output field
+    type->AddField("z", "", ::Smp::Uuids::Uuid_Float64, ///UUID of the Field Type
+            offsetof(Vector, z), ///Compute the offset of the current item
+            ::Smp::ViewKind::VK_None, ///viewkind
+            true, ///state
+            false, ///is an input field
+            false ///is an output field
             );
 }
 

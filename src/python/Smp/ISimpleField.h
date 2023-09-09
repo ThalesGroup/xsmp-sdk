@@ -28,6 +28,16 @@ inline void RegisterISimpleField(const py::module_ &m) {
     .def("GetPrimitiveTypeKind", &::Smp::ISimpleField::GetPrimitiveTypeKind,
             "Get primitive type kind that this simple field uses.")
 
+    .def("GetValue", [](const ::Smp::ISimpleField &self) {
+        return convert(self.GetValue());
+    },
+    "Get the value of the simple field.")
+
+    .def("SetValue", [](::Smp::ISimpleField &self, const py::handle &value) {
+        self.SetValue(convert(value, self.GetType()->GetPrimitiveTypeKind()));
+    },
+    "Set the value of the simple field.", py::arg { "value" })
+
     .def("__bool__", [](const ::Smp::ISimpleField &self) {
         return convert(self.GetValue()).cast<bool>();
     })

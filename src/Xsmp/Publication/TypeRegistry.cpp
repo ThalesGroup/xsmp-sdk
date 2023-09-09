@@ -64,11 +64,10 @@ TypeRegistry::TypeRegistry(::Smp::String8 name, ::Smp::String8 description,
             ::Smp::PrimitiveTypeKind::PTK_DateTime,
             ::Smp::Uuids::Uuid_DateTime);
 
-    ::Smp::Publication::IEnumerationType *primitiveTypeKind =
-            AddEnumerationType("PrimitiveTypeKind", // name
-                    "This is an enumeration of the available primitive types.", // description
-                    ::Smp::Uuids::Uuid_PrimitiveTypeKind, // UUID
-                    sizeof(::Smp::PrimitiveTypeKind));
+    auto *primitiveTypeKind = AddEnumerationType("PrimitiveTypeKind", // name
+            "This is an enumeration of the available primitive types.", // description
+            ::Smp::Uuids::Uuid_PrimitiveTypeKind, // UUID
+            sizeof(::Smp::PrimitiveTypeKind));
 
     // Register the Literals of the Enumeration
     primitiveTypeKind->AddLiteral("PTK_None", "No type, e.g. for void.", 0);
@@ -116,8 +115,7 @@ TypeRegistry::TypeRegistry(::Smp::String8 name, ::Smp::String8 description,
             "", //unit
             ::Smp::PrimitiveTypeKind::PTK_Int32);
 
-    ::Smp::Publication::IEnumerationType *timeKind = AddEnumerationType(
-            "TimeKind", // name
+    auto *timeKind = AddEnumerationType("TimeKind", // name
             "Enumeration of supported time kinds.", // description
             ::Smp::Uuids::Uuid_TimeKind, // UUID
             sizeof(::Smp::Services::TimeKind));
@@ -128,7 +126,7 @@ TypeRegistry::TypeRegistry(::Smp::String8 name, ::Smp::String8 description,
     timeKind->AddLiteral("TK_EpochTime", "Epoch time.", 2);
     timeKind->AddLiteral("TK_ZuluTime", "Zulu time.", 3);
 
-    ::Smp::Publication::IEnumerationType *viewKind =
+    auto *viewKind =
             AddEnumerationType(
                     "ViewKind", // name
                     R"(This enumeration defines possible options for the View attribute, which can be used to control if and how an element is made visible when published to the simulation infrastructure.
@@ -152,7 +150,7 @@ The element is not visible to end users. If the simulation infrastructure suppor
     viewKind->AddLiteral("VK_All", "The element is made visible to all users.",
             3);
 
-    ::Smp::Publication::IEnumerationType *parameterDirectionKind =
+    auto *parameterDirectionKind =
             AddEnumerationType(
                     "ParameterDirectionKind", // name
                     "The Parameter Direction Kind enumeration defines the possible parameter directions.", // description
@@ -172,7 +170,7 @@ The element is not visible to end users. If the simulation infrastructure suppor
     parameterDirectionKind->AddLiteral("PDK_Return",
             "The parameter represents the operation's return value.", 3);
 
-    ::Smp::Publication::IEnumerationType *componentStateKind =
+    auto *componentStateKind =
             AddEnumerationType(
                     "ComponentStateKind", // name
                     "This is an enumeration of the available states of a component. Each component is always in one of these four component states.", // description
@@ -206,7 +204,7 @@ The element is not visible to end users. If the simulation infrastructure suppor
                     "This is the final state of a component, and only left on deletion.",
             4);
 
-    ::Smp::Publication::IEnumerationType *accessKind =
+    auto *accessKind =
             AddEnumerationType(
                     "AccessKind", // name
                     "The Access Kind of a property defines whether it has getter and setter.", // description
@@ -221,7 +219,7 @@ The element is not visible to end users. If the simulation infrastructure suppor
     accessKind->AddLiteral("AK_WriteOnly",
             "Write only access, i.e. only setter method.", 2);
 
-    ::Smp::Publication::IEnumerationType *simulatorStateKind =
+    auto *simulatorStateKind =
             AddEnumerationType(
                     "SimulatorStateKind", // name
                     "This is an enumeration of the available states of the simulator. The Setup phase is split into three different states, the Execution phase has five different states, and the Termination phase has two states.", // description

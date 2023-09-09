@@ -26,9 +26,8 @@
 #include <stdexcept>
 
 namespace Xsmp::Publication {
-namespace {
 
-bool isValid(const ::Smp::IObject *sender,
+bool Request::isValid(const ::Smp::IObject *sender,
         const ::Smp::Publication::IType *type, const ::Smp::AnySimple &value) {
     if (type->GetPrimitiveTypeKind() != value.type)
         ::Xsmp::Exception::throwInvalidAnyType(sender, value.type,
@@ -74,7 +73,6 @@ bool isValid(const ::Smp::IObject *sender,
     }
     return true;
 }
-} // namespace
 
 Request::Request(::Smp::IOperation *operation,
         ::Smp::Publication::ITypeRegistry *typeRegistry) :

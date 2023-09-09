@@ -28,6 +28,16 @@ inline void RegisterIProperty(const py::module_ &m) {
     .def("GetView", &::Smp::IProperty::GetView,
             "Provides the view kind of the property.")
 
+    .def("GetValue", [](const ::Smp::IProperty &self) {
+        return convert(self.GetValue());
+    },
+    "Provides the value of the property.")
+
+    .def("SetValue", [](::Smp::IProperty &self, const py::handle &value) {
+        self.SetValue(convert(value, self.GetType()->GetPrimitiveTypeKind()));
+    },
+    "Sets the value of the property.", py::arg { "value" })
+
     .def("__bool__", [](const ::Smp::IProperty &self) {
         return convert(self.GetValue()).cast<bool>();
     })

@@ -27,6 +27,7 @@
 #include "Xsmp/Tests/ModelWithArrayFields.h"
 #include "Xsmp/Tests/ModelWithEvents.h"
 #include "Xsmp/Tests/ModelWithOperations.h"
+#include "Xsmp/Tests/ModelWithProperties.h"
 #include "Xsmp/Tests/ModelWithSimpleArrayFields.h"
 #include "Xsmp/Tests/ModelWithSimpleFields.h"
 #include "Xsmp/Tests/Types/BoolArray.h"
@@ -272,6 +273,14 @@ bool Initialise_xsmp_tests(::Smp::ISimulator *simulator,
                     "", // description
                     simulator, // simulator
                     ::Xsmp::Tests::Uuid_ModelWithOperations // UUID
+                    ));
+    // Register factory for Model ModelWithProperties
+    simulator->RegisterFactory(
+            ::Xsmp::Factory::Create < ::Xsmp::Tests::ModelWithProperties
+                    > ("ModelWithProperties", // name
+                    "", // description
+                    simulator, // simulator
+                    ::Xsmp::Tests::Uuid_ModelWithProperties // UUID
                     ));
 
     return true;

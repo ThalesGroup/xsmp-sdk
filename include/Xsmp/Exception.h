@@ -186,19 +186,19 @@ template<typename T>
 [[ noreturn ]] void throwTypeNotRegistered(const ::Smp::IObject *sender,
         ::Smp::Uuid uuid);
 
-[[ noreturn ]] void throwInvalidParameterIndex(const ::Smp::IOperation *sender,
+[[ noreturn ]] void throwInvalidParameterIndex(const ::Smp::IObject *sender,
         ::Smp::Int32 index, ::Smp::Int32 count);
 
-[[ noreturn ]] void throwVoidOperation(const ::Smp::IOperation *sender);
+[[ noreturn ]] void throwVoidOperation(const ::Smp::IObject *sender);
 
 [[ noreturn ]] void throwInvalidAnyType(const ::Smp::IObject *sender,
         ::Smp::PrimitiveTypeKind expectedType,
         ::Smp::PrimitiveTypeKind invalidType);
 
-[[ noreturn ]] void throwInvalidReturnValue(const ::Smp::IOperation *sender,
+[[ noreturn ]] void throwInvalidReturnValue(const ::Smp::IObject *sender,
         const ::Smp::AnySimple &value);
 
-[[ noreturn ]] void throwInvalidParameterValue(const ::Smp::IOperation *sender,
+[[ noreturn ]] void throwInvalidParameterValue(const ::Smp::IObject *sender,
         const std::string &parameterName, const ::Smp::AnySimple &value);
 
 [[ noreturn ]] void throwInvalidFieldType(const ::Smp::IObject *sender);

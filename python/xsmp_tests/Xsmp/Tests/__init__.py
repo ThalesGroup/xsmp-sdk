@@ -31,5 +31,7 @@ class ModelWithEvents:
     uuid: ecss_smp.Smp.Uuid = ecss_smp.Smp.Uuid("bc8e7b0e-b820-4404-a397-9e8df27bb93c")
 class ModelWithOperations:
     uuid: ecss_smp.Smp.Uuid = ecss_smp.Smp.Uuid("5c52ca42-4992-4401-9408-8d994b1fbabe")
+class ModelWithProperties:
+    uuid: ecss_smp.Smp.Uuid = ecss_smp.Smp.Uuid("3264ed26-0085-4238-8ecf-d099715341e2")
 
 del ecss_smp

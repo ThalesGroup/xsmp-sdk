@@ -12,13 +12,123 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/AnySimple.h>
 #include <Smp/IDynamicInvocation.h>
-#include <Smp/IRequest.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Publication/Property.h>
+#include <Xsmp/Publication/Request.h>
+#include <algorithm>
 #include <string>
 
 namespace Xsmp::Publication {
+
+class Property::Getter final: public ::Smp::IRequest {
+
+public:
+    explicit Getter(const ::Smp::IProperty *property) :
+            _property { property }, _name { std::string("get_")
+                    + property->GetName() } {
+
+    }
+    ~Getter() noexcept override = default;
+    Getter(const Getter&) = delete;
+    Getter& operator=(const Getter&) = delete;
+
+    ::Smp::String8 GetOperationName() const override {
+        return _name.c_str();
+    }
+
+    ::Smp::Int32 GetParameterCount() const override {
+        return 0;
+    }
+
+    ::Smp::Int32 GetParameterIndex(::Smp::String8) const override {
+        return -1;
+    }
+
+    [[noreturn]] void SetParameterValue(::Smp::Int32 index, ::Smp::AnySimple)
+            override {
+        ::Xsmp::Exception::throwInvalidParameterIndex(_property, index, 0);
+    }
+
+    [[noreturn]] ::Smp::AnySimple GetParameterValue(::Smp::Int32 index) const
+            override {
+        ::Xsmp::Exception::throwInvalidParameterIndex(_property, index, 0);
+    }
+
+    void SetReturnValue(::Smp::AnySimple value) override {
+        if (!::Xsmp::Publication::Request::isValid(_property,
+                _property->GetType(), value))
+            ::Xsmp::Exception::throwInvalidReturnValue(_property, value);
+
+        _returnValue = std::move(value);
+    }
+
+    ::Smp::AnySimple GetReturnValue() const override {
+        return _returnValue;
+    }
+private:
+    const ::Smp::IProperty *_property;
+    std::string _name;
+    ::Smp::AnySimple _returnValue { };
+};
+
+class Property::Setter final: public ::Smp::IRequest {
+
+public:
+    explicit Setter(const ::Smp::IProperty *property) :
+            _property { property }, _name { std::string("set_")
+                    + property->GetName() } {
+
+    }
+    ~Setter() noexcept override = default;
+    Setter(const Setter&) = delete;
+    Setter& operator=(const Setter&) = delete;
+
+    ::Smp::String8 GetOperationName() const override {
+        return _name.c_str();
+    }
+
+    ::Smp::Int32 GetParameterCount() const override {
+        return 1;
+    }
+
+    ::Smp::Int32 GetParameterIndex(::Smp::String8) const override {
+        return 0;
+    }
+
+    void SetParameterValue(::Smp::Int32 index, ::Smp::AnySimple value) override
+    {
+        if (index != 0)
+            ::Xsmp::Exception::throwInvalidParameterIndex(_property, index, 0);
+
+        if (!::Xsmp::Publication::Request::isValid(_property,
+                _property->GetType(), value))
+            ::Xsmp::Exception::throwInvalidParameterValue(_property,
+                    _property->GetName(), value);
+
+        _value = std::move(value);
+    }
+
+    ::Smp::AnySimple GetParameterValue(::Smp::Int32 index) const override {
+        if (index != 0)
+            ::Xsmp::Exception::throwInvalidParameterIndex(_property, index, 0);
+
+        return _value;
+    }
+
+    [[noreturn]] void SetReturnValue(::Smp::AnySimple) override {
+        ::Xsmp::Exception::throwVoidOperation(_property);
+    }
+
+    [[noreturn]] ::Smp::AnySimple GetReturnValue() const override {
+        ::Xsmp::Exception::throwVoidOperation(_property);
+    }
+private:
+    const ::Smp::IProperty *_property;
+    std::string _name;
+    ::Smp::AnySimple _value { };
+};
 
 Property::Property(::Smp::String8 name, ::Smp::String8 description,
         ::Smp::IObject *parent, ::Smp::Publication::IType *type,
@@ -26,19 +136,6 @@ Property::Property(::Smp::String8 name, ::Smp::String8 description,
         Object(name, description, parent), _type(type), _accessKind(accessKind), _view(
                 view) {
 
-    if (auto *invoker = dynamic_cast<::Smp::IDynamicInvocation*>(parent)) {
-
-        auto deleter = [invoker](::Smp::IRequest *request) {
-            invoker->DeleteRequest(request);
-        };
-        _getter = request_ptr(
-                invoker->CreateRequest((std::string("get_") + name).c_str()),
-                deleter);
-        _setter = request_ptr(
-                invoker->CreateRequest((std::string("set_") + name).c_str()),
-                deleter);
-
-    }
 }
 
 ::Smp::Publication::IType* Property::GetType() const {
@@ -55,28 +152,26 @@ Property::Property(::Smp::String8 name, ::Smp::String8 description,
 
 ::Smp::AnySimple Property::GetValue() const {
 
-    if (!_getter || _accessKind == ::Smp::AccessKind::AK_WriteOnly)
+    auto *invoker = dynamic_cast<::Smp::IDynamicInvocation*>(GetParent());
+    if (_accessKind == ::Smp::AccessKind::AK_WriteOnly || !invoker)
         ::Xsmp::Exception::throwException(this, "InvalidAccessKind", "",
-                "InvalidAccess: ", _accessKind);
+                "The property getter is not invokable: ", this);
 
-    // _getter is set only if the parent implements IDynamicInvocation
-    dynamic_cast<::Smp::IDynamicInvocation*>(GetParent())->Invoke(
-            _getter.get());
+    Getter request { this };
 
-    return _getter->GetReturnValue();
+    invoker->Invoke(&request);
+    return request.GetReturnValue();
 }
 
 void Property::SetValue(::Smp::AnySimple value) {
-    if (!_setter || _accessKind == ::Smp::AccessKind::AK_ReadOnly)
+    auto *invoker = dynamic_cast<::Smp::IDynamicInvocation*>(GetParent());
+    if (_accessKind == ::Smp::AccessKind::AK_ReadOnly || !invoker)
         ::Xsmp::Exception::throwException(this, "InvalidAccessKind", "",
-                "InvalidAccess: ", _accessKind);
+                "The property setter is not invokable: ", this);
 
-    // assume one parameter at index 0
-    _setter->SetParameterValue(0, std::move(value));
-
-    // _setter is set only if the parent implements IDynamicInvocation
-    dynamic_cast<::Smp::IDynamicInvocation*>(GetParent())->Invoke(
-            _setter.get());
+    Setter request { this };
+    request.SetParameterValue(0, std::move(value));
+    invoker->Invoke(&request);
 
 }
 

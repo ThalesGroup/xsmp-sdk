@@ -118,7 +118,8 @@ struct TypeHierarchy {
     std::vector<TypeHierarchy> derived;
 };
 
-static inline const TypeHierarchy IObjectHierarchy = TypeHierarchy::of<::Smp::IObject>( {
+static inline const TypeHierarchy IObjectHierarchy = TypeHierarchy::of<
+        ::Smp::IObject>( {
 //IObject
         /*TypeHierarchy::of<::Smp::ICollection>( { }),*/
         TypeHierarchy::of<::Smp::IComponent>( {

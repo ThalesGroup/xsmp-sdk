@@ -687,6 +687,65 @@ namespace Xsmp
             def UInt64 uint64Operation ()
             def UInt8 uint8Operation ()
         }
+
+        /** @uuid 3264ed26-0085-4238-8ecf-d099715341e2 */
+        model ModelWithProperties
+        {
+            field Types.Enum1 enum_field
+            field Types.String1 string_field
+            field Int32 int_field
+            field Float64 float_field
+            property Types.Enum1 enum_property -> enum_field
+            property Types.String1 string_property -> string_field
+            property Int32 int_property -> int_field
+            property Float64 float_property -> float_field
+            readOnly property Types.Enum1 readonly_enum_property -> enum_field
+            readOnly property Types.String1 readonly_string_property -> string_field
+            readOnly property Int32 readonly_int_property -> int_field
+            readOnly property Float64 readonly_float_property -> float_field
+            writeOnly property Types.Enum1 writeonly_enum_property -> enum_field
+            writeOnly property Types.String1 writeonly_string_property -> string_field
+            writeOnly property Int32 writeonly_int_property -> int_field
+            writeOnly property Float64 writeonly_float_property -> float_field
+
+
+            @Static
+            field Types.Enum1 static_enum_field
+            @Static
+            field Types.String1 static_string_field
+            @Static
+            field Int32 static_int_field
+            @Static
+            field Float64 static_float_field
+            @Static
+            property Types.Enum1 static_enum_property -> static_enum_field
+            @Static
+            property Types.String1 static_string_property -> static_string_field
+            @Static
+            property Int32 static_int_property -> static_int_field
+            @Static
+            property Float64 static_float_property -> static_float_field
+
+            @Static
+            readOnly property Types.Enum1 readonly_static_enum_property -> static_enum_field
+            @Static
+            readOnly property Types.String1 readonly_static_string_property -> static_string_field
+            @Static
+            readOnly property Int32 readonly_static_int_property -> static_int_field
+            @Static
+            readOnly property Float64 readonly_static_float_property -> static_float_field
+
+            @Static
+            writeOnly property Types.Enum1 writeonly_static_enum_property -> static_enum_field
+            @Static
+            writeOnly property Types.String1 writeonly_static_string_property -> static_string_field
+            @Static
+            writeOnly property Int32 writeonly_static_int_property -> static_int_field
+            @Static
+            writeOnly property Float64 writeonly_static_float_property -> static_float_field
+
+            property Uuid uuid_property
+        }
     } // namespace Tests
 } // namespace Xsmp
 

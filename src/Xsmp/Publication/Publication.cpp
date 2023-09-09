@@ -23,11 +23,11 @@
 #include <Smp/ViewKind.h>
 #include <Xsmp/Collection.h>
 #include <Xsmp/Exception.h>
+#include <Xsmp/Helper.h>
 #include <Xsmp/Publication/Field.h>
 #include <Xsmp/Publication/Operation.h>
 #include <Xsmp/Publication/Property.h>
 #include <Xsmp/Publication/Publication.h>
-#include <Xsmp/Helper.h>
 #include <memory>
 
 namespace Xsmp::Publication {
@@ -237,8 +237,7 @@ const ::Smp::OperationCollection* Publication::GetOperations() const {
 
 ::Smp::IRequest* Publication::CreateRequest(::Smp::String8 operationName) {
     if (operationName) {
-        auto *operation = _operations.at(operationName);
-        if (operation)
+        if (auto *operation = _operations.at(operationName))
             return operation->CreateRequest();
     }
     return nullptr;

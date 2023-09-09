@@ -29,53 +29,53 @@
 
 namespace Xsmp::Tests::Types {
 void SimpleStructure::_Register(::Smp::Publication::ITypeRegistry *registry) {
-    auto *pStructure = registry->AddStructureType("SimpleStructure"  /// Name
-            , ""   /// description
-            , ::Xsmp::Tests::Types::Uuid_SimpleStructure /// UUID
+    auto *type = registry->AddStructureType("SimpleStructure",  /// Name
+            "", /// description
+            ::Xsmp::Tests::Types::Uuid_SimpleStructure /// UUID
             );
 
     /// Register the Fields of the Structure
-    pStructure->AddField("boolean", "", ::Smp::Uuids::Uuid_Bool ///UUID of the Field Type
-            , offsetof(SimpleStructure, boolean) ///Compute the offset of the current item
-                    , ::Smp::ViewKind::VK_None  ///viewkind
-            , true  ///state
-            , false  ///is an input field
-            , false  ///is an output field
+    type->AddField("boolean", "", ::Smp::Uuids::Uuid_Bool, ///UUID of the Field Type
+            offsetof(SimpleStructure, boolean), ///Compute the offset of the current item
+            ::Smp::ViewKind::VK_None, ///viewkind
+            true, ///state
+            false, ///is an input field
+            false ///is an output field
             );
-    pStructure->AddField("char8", "", ::Smp::Uuids::Uuid_Char8 ///UUID of the Field Type
-            , offsetof(SimpleStructure, char8) ///Compute the offset of the current item
-                    , ::Smp::ViewKind::VK_None  ///viewkind
-            , true  ///state
-            , false  ///is an input field
-            , false  ///is an output field
+    type->AddField("char8", "", ::Smp::Uuids::Uuid_Char8, ///UUID of the Field Type
+            offsetof(SimpleStructure, char8), ///Compute the offset of the current item
+            ::Smp::ViewKind::VK_None, ///viewkind
+            true, ///state
+            false, ///is an input field
+            false ///is an output field
             );
-    pStructure->AddField("enum1", "", ::Xsmp::Tests::Types::Uuid_Enum1 ///UUID of the Field Type
-            , offsetof(SimpleStructure, enum1) ///Compute the offset of the current item
-                    , ::Smp::ViewKind::VK_None  ///viewkind
-            , true  ///state
-            , false  ///is an input field
-            , false  ///is an output field
+    type->AddField("enum1", "", ::Xsmp::Tests::Types::Uuid_Enum1, ///UUID of the Field Type
+            offsetof(SimpleStructure, enum1), ///Compute the offset of the current item
+            ::Smp::ViewKind::VK_None, ///viewkind
+            true, ///state
+            false, ///is an input field
+            false ///is an output field
             );
-    pStructure->AddField("string1", "", ::Xsmp::Tests::Types::Uuid_String1 ///UUID of the Field Type
-            , offsetof(SimpleStructure, string1) ///Compute the offset of the current item
-                    , ::Smp::ViewKind::VK_None  ///viewkind
-            , true  ///state
-            , false  ///is an input field
-            , false  ///is an output field
+    type->AddField("string1", "", ::Xsmp::Tests::Types::Uuid_String1, ///UUID of the Field Type
+            offsetof(SimpleStructure, string1), ///Compute the offset of the current item
+            ::Smp::ViewKind::VK_None, ///viewkind
+            true, ///state
+            false, ///is an input field
+            false ///is an output field
             );
-    pStructure->AddField("float1", "", ::Xsmp::Tests::Types::Uuid_Float1 ///UUID of the Field Type
-            , offsetof(SimpleStructure, float1) ///Compute the offset of the current item
-                    , ::Smp::ViewKind::VK_None  ///viewkind
-            , true  ///state
-            , false  ///is an input field
-            , false  ///is an output field
+    type->AddField("float1", "", ::Xsmp::Tests::Types::Uuid_Float1, ///UUID of the Field Type
+            offsetof(SimpleStructure, float1), ///Compute the offset of the current item
+            ::Smp::ViewKind::VK_None, ///viewkind
+            true, ///state
+            false, ///is an input field
+            false ///is an output field
             );
-    pStructure->AddField("integer1", "", ::Xsmp::Tests::Types::Uuid_Integer1 ///UUID of the Field Type
-            , offsetof(SimpleStructure, integer1) ///Compute the offset of the current item
-                    , ::Smp::ViewKind::VK_None  ///viewkind
-            , true  ///state
-            , false  ///is an input field
-            , false  ///is an output field
+    type->AddField("integer1", "", ::Xsmp::Tests::Types::Uuid_Integer1, ///UUID of the Field Type
+            offsetof(SimpleStructure, integer1), ///Compute the offset of the current item
+            ::Smp::ViewKind::VK_None, ///viewkind
+            true, ///state
+            false, ///is an input field
+            false ///is an output field
             );
 }
 

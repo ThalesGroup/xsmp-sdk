@@ -980,7 +980,7 @@ private:
 class InvalidParameterIndex final: public Exception,
         public ::Smp::InvalidParameterIndex {
 public:
-    InvalidParameterIndex(const ::Smp::IOperation *operation,
+    InvalidParameterIndex(const ::Smp::IObject *operation,
             ::Smp::Int32 parameterIndex, ::Smp::Int32 parameterCount) :
             Exception(operation, __func__,
                     "This exception is raised when using an invalid parameter index to set (SetParameterValue()) or get (GetParameterValue()) a parameter value of an operation in a request",
@@ -1010,7 +1010,7 @@ private:
 
 class VoidOperation final: public Exception, public ::Smp::VoidOperation {
 public:
-    explicit VoidOperation(const ::Smp::IOperation *sender) :
+    explicit VoidOperation(const ::Smp::IObject *sender) :
             Exception(sender, __func__,
                     "Cannot read (GetReturnValue()) or write (SetReturnValue()) the return value of a void operation",
                     "The Operation '", sender, "' does not have a return value") {
@@ -1057,7 +1057,7 @@ private:
 class InvalidReturnValue final: public Exception,
         public ::Smp::InvalidReturnValue {
 public:
-    InvalidReturnValue(const ::Smp::IOperation *sender,
+    InvalidReturnValue(const ::Smp::IObject *sender,
             const ::Smp::AnySimple &value) :
             Exception(sender, __func__,
                     "Cannot assign an invalid return value of an operation in a request using SetReturnValue()",
@@ -1082,7 +1082,7 @@ private:
 class InvalidParameterValue final: public Exception,
         public ::Smp::InvalidParameterValue {
 public:
-    InvalidParameterValue(const ::Smp::IOperation *sender,
+    InvalidParameterValue(const ::Smp::IObject *sender,
             const std::string &parameterName, const ::Smp::AnySimple &value) :
             Exception(sender, __func__,
                     "Cannot assign an illegal value to a parameter of an operation in a request using SetParameterValue()",
@@ -1514,12 +1514,12 @@ void throwTypeNotRegistered(const ::Smp::IObject *sender, ::Smp::Uuid uuid) {
     throw TypeNotRegistered(sender, uuid);
 }
 
-void throwInvalidParameterIndex(const ::Smp::IOperation *sender,
+void throwInvalidParameterIndex(const ::Smp::IObject *sender,
         ::Smp::Int32 index, ::Smp::Int32 count) {
     throw InvalidParameterIndex(sender, index, count);
 }
 
-void throwVoidOperation(const ::Smp::IOperation *sender) {
+void throwVoidOperation(const ::Smp::IObject *sender) {
     throw VoidOperation(sender);
 }
 
@@ -1529,12 +1529,12 @@ void throwInvalidAnyType(const ::Smp::IObject *sender,
     throw InvalidAnyType(sender, expectedType, invalidType);
 }
 
-void throwInvalidReturnValue(const ::Smp::IOperation *sender,
+void throwInvalidReturnValue(const ::Smp::IObject *sender,
         const ::Smp::AnySimple &value) {
     throw InvalidReturnValue(sender, value);
 }
 
-void throwInvalidParameterValue(const ::Smp::IOperation *sender,
+void throwInvalidParameterValue(const ::Smp::IObject *sender,
         const std::string &parameterName, const ::Smp::AnySimple &value) {
     throw InvalidParameterValue(sender, parameterName, value);
 }

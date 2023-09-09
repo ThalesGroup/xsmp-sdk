@@ -17,17 +17,12 @@
 
 #include <Smp/AccessKind.h>
 #include <Smp/IProperty.h>
-#include <Smp/IRequest.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/ViewKind.h>
 #include <Xsmp/Object.h>
-#include <functional>
-#include <memory>
 
 namespace Smp {
 class AnySimple;
-class IDynamicInvocation;
-class IRequest;
 namespace Publication {
 class IType;
 } // namespace Publication
@@ -40,7 +35,8 @@ class Property: public ::Xsmp::Object, public virtual ::Smp::IProperty {
 public:
     Property(::Smp::String8 name, ::Smp::String8 description,
             ::Smp::IObject *parent, ::Smp::Publication::IType *type,
-            ::Smp::AccessKind accessKind, ::Smp::ViewKind view);
+            ::Smp::AccessKind accessKind = ::Smp::AccessKind::AK_ReadWrite,
+            ::Smp::ViewKind view = ::Smp::ViewKind::VK_None);
     /// Property cannot be copied
     Property(const Property&) = delete;
     /// Property cannot be copied
@@ -81,9 +77,8 @@ private:
     ::Smp::Publication::IType *_type;
     ::Smp::AccessKind _accessKind;
     ::Smp::ViewKind _view;
-    using request_ptr = std::unique_ptr<::Smp::IRequest, std::function<void(::Smp::IRequest*)>>;
-    request_ptr _getter { };
-    request_ptr _setter { };
+    class Getter;
+    class Setter;
 };
 
 } // namespace Xsmp::Publication

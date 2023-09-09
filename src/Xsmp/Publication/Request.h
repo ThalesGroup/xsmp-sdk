@@ -123,6 +123,11 @@ public:
     /// @return  Return value of the operation.
     /// @throws  ::Smp::VoidOperation
     ::Smp::AnySimple GetReturnValue() const override;
+
+    // check whether a value is valid for a given type
+    static bool isValid(const ::Smp::IObject *sender,
+            const ::Smp::Publication::IType *type,
+            const ::Smp::AnySimple &value);
 private:
     ::Smp::IOperation *_operation;
 

@@ -49,8 +49,8 @@ template<typename T>
     return Create(name, description, simulator, uuid, typeid(T),
             [](::Smp::String8 _name, ::Smp::String8 _description,
                     ::Smp::IObject *_parent, ::Smp::ISimulator *_simulator) {
-                return std::make_unique < T
-                        > (_name, _description, _parent, _simulator);
+                return std::make_unique<T>(_name, _description, _parent,
+                        _simulator);
             });
 }
 

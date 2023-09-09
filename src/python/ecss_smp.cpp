@@ -66,8 +66,7 @@
 namespace py = pybind11;
 
 PYBIND11_MODULE(ecss_smp, ecss_smp) {
-    ecss_smp.doc() =
-            R"(Specifies the SMP Component Model as SMDL Catalogue.)";
+    ecss_smp.doc() = R"(Specifies the SMP Component Model as SMDL Catalogue.)";
 
 #ifdef VERSION_INFO
     ecss_smp.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);

@@ -484,7 +484,7 @@ private:
     std::queue<LogEntry> _logs { };
     std::vector<std::unique_ptr<Appender>> _appenders { };
 
-    bool running{true};
+    bool running { true };
     std::thread workingThread;
 
 };
