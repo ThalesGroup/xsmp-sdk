@@ -15,7 +15,6 @@
 #include <gtest/gtest.h>
 #include <Xsmp/Simulator.h>
 
-#include <Xsmp/TestHelper.h>
 #include <Xsmp/LibraryHelper.h>
 #include <Xsmp/Tests/ModelWithArrayFields.h>
 #include <Xsmp/Tests/ModelWithSimpleFields.h>
@@ -113,12 +112,7 @@ TEST(SimulatorTest, init) {
 TEST(SimulatorTest, State) {
     Simulator sim;
 
-    sim.LoadLibrary("xsmp_logger");
-    sim.LoadLibrary("xsmp_time_keeper");
-    sim.LoadLibrary("xsmp_resolver");
-    sim.LoadLibrary("xsmp_event_manager");
-    sim.LoadLibrary("xsmp_link_registry");
-    sim.LoadLibrary("xsmp_scheduler");
+    sim.LoadLibrary("xsmp_services");
 
     EXPECT_EQ(sim.GetState(), Smp::SimulatorStateKind::SSK_Building);
 
@@ -135,12 +129,7 @@ TEST(SimulatorTest, State) {
 
 TEST(SimulatorTest, LoadLibrary) {
     Simulator sim;
-    sim.LoadLibrary("xsmp_logger");
-    sim.LoadLibrary("xsmp_time_keeper");
-    sim.LoadLibrary("xsmp_resolver");
-    sim.LoadLibrary("xsmp_event_manager");
-    sim.LoadLibrary("xsmp_link_registry");
-    sim.LoadLibrary("xsmp_scheduler");
+    sim.LoadLibrary("xsmp_services");
     EXPECT_THROW(sim.LoadLibrary("invalid_library"), Smp::LibraryNotFound);
     EXPECT_THROW(sim.LoadLibrary("xsmp_simulator"), Smp::InvalidLibrary);
 

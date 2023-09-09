@@ -23,7 +23,6 @@
 #include <Xsmp/EntryPoint.h>
 #include <Xsmp/EntryPointPublisher.h>
 #include <Xsmp/Simulator.h>
-#include <Xsmp/TestHelper.h>
 #include <initializer_list>
 #include <map>
 #include <string>
@@ -33,7 +32,7 @@ namespace Xsmp::Services {
 TEST(XsmpResolverTest, ResolveAbsolute) {
 
     Simulator sim;
-    ::Xsmp::TestHelper::InitializeSimulator(sim);
+    sim.LoadLibrary("xsmp_services");
 
    EXPECT_EQ( sim.GetResolver()->ResolveAbsolute("/"), &sim);
    EXPECT_EQ( sim.GetResolver()->ResolveAbsolute("/XsmpResolver"), sim.GetResolver());
@@ -46,7 +45,7 @@ TEST(XsmpResolverTest, ResolveAbsolute) {
 TEST(XsmpResolverTest, ResolveRelative) {
 
     Simulator sim;
-    ::Xsmp::TestHelper::InitializeSimulator(sim);
+    sim.LoadLibrary("xsmp_services");
 
    EXPECT_EQ( sim.GetResolver()->ResolveRelative("..", sim.GetResolver()), &sim);
    EXPECT_EQ( sim.GetResolver()->ResolveRelative(".", sim.GetResolver()), sim.GetResolver());

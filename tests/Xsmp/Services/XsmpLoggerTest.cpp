@@ -16,14 +16,13 @@
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Services/ILogger.h>
 #include <Xsmp/Simulator.h>
-#include <Xsmp/TestHelper.h>
 #include <string>
 
 namespace Xsmp::Services {
 TEST(XsmpLoggerTest, QueryLogMessageKind) {
 
     Simulator sim;
-    ::Xsmp::TestHelper::InitializeSimulator(sim);
+    sim.LoadLibrary("xsmp_services");
     EXPECT_EQ(
             sim.GetLogger()->QueryLogMessageKind(
                     ::Smp::Services::ILogger::LMK_InformationName),

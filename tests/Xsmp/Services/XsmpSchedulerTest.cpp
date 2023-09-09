@@ -19,7 +19,6 @@
 #include <Xsmp/EntryPoint.h>
 #include <Xsmp/Services/XsmpScheduler.h>
 #include <Xsmp/Simulator.h>
-#include <Xsmp/TestHelper.h>
 #include <chrono>
 #include <thread>
 #include <vector>
@@ -37,7 +36,7 @@ public:
 TEST(XsmpSchedulerTest, run) {
 
     Simulator sim;
-    ::Xsmp::TestHelper::InitializeSimulator(sim);
+    sim.LoadLibrary("xsmp_services");
     sim.Connect();
     auto &scheduler =
             *dynamic_cast<Services::XsmpScheduler*>(sim.GetScheduler());
@@ -93,7 +92,7 @@ INSTANTIATE_TEST_SUITE_P(XsmpSchedulerTest, SpeedTestFixture,
 TEST_P(SpeedTestFixture, SpeedTest) {
     double speed = GetParam();
     Simulator sim;
-    ::Xsmp::TestHelper::InitializeSimulator(sim);
+    sim.LoadLibrary("xsmp_services");
     sim.Connect();
     auto &scheduler =
             *dynamic_cast<Services::XsmpScheduler*>(sim.GetScheduler());
@@ -111,7 +110,7 @@ TEST_P(SpeedTestFixture, SpeedTest) {
 TEST(XsmpSchedulerTest, zulu_events) {
 
     Simulator sim;
-    ::Xsmp::TestHelper::InitializeSimulator(sim);
+    sim.LoadLibrary("xsmp_services");
 
     sim.Connect();
     auto &scheduler =
@@ -164,7 +163,7 @@ TEST(XsmpSchedulerTest, zulu_events) {
 TEST(XsmpSchedulerTest, EventTime) {
 
     Simulator sim;
-    ::Xsmp::TestHelper::InitializeSimulator(sim);
+    sim.LoadLibrary("xsmp_services");
     sim.Connect();
     auto &scheduler =
             *dynamic_cast<Services::XsmpScheduler*>(sim.GetScheduler());
@@ -199,7 +198,7 @@ TEST(XsmpSchedulerTest, EventTime) {
 TEST(XsmpSchedulerTest, EventCycleAndRepeatTime) {
 
     Simulator sim;
-    ::Xsmp::TestHelper::InitializeSimulator(sim);
+    sim.LoadLibrary("xsmp_services");
     sim.Connect();
     auto &scheduler =
             *dynamic_cast<Services::XsmpScheduler*>(sim.GetScheduler());
@@ -247,7 +246,7 @@ TEST(XsmpSchedulerTest, EventCycleAndRepeatTime) {
 TEST(XsmpSchedulerTest, RemoveEvent) {
 
     Simulator sim;
-    ::Xsmp::TestHelper::InitializeSimulator(sim);
+    sim.LoadLibrary("xsmp_services");
     sim.Connect();
     auto &scheduler =
             *dynamic_cast<Services::XsmpScheduler*>(sim.GetScheduler());

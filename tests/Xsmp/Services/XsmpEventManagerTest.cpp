@@ -23,7 +23,6 @@
 #include <Xsmp/EntryPoint.h>
 #include <Xsmp/EntryPointPublisher.h>
 #include <Xsmp/Simulator.h>
-#include <Xsmp/TestHelper.h>
 #include <initializer_list>
 #include <map>
 #include <string>
@@ -40,7 +39,7 @@ public:
 TEST(XsmpEventManagerTest, QueryEventId) {
 
     Simulator sim;
-    ::Xsmp::TestHelper::InitializeSimulator(sim);
+    sim.LoadLibrary("xsmp_services");
 
     sim.Connect();
     ASSERT_TRUE(sim.GetEventManager());
@@ -144,7 +143,7 @@ TEST(XsmpEventManagerTest, QueryEventId) {
 TEST(XsmpEventManagerTest, ep) {
 
     Simulator sim;
-    ::Xsmp::TestHelper::InitializeSimulator(sim);
+    sim.LoadLibrary("xsmp_services");
     ASSERT_TRUE(sim.GetEventManager());
     TestEntryPointPublisher entryPoints { "entryPoints", "", &sim };
 

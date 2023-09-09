@@ -69,14 +69,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 option(XSMP_BUILD_TESTS           "whether or not tests should be built"            ${XSMP_MASTER_PROJECT})
 option(XSMP_BUILD_PYTHON_BINDINGS "whether or not Python bindings should be built"  ON)
-option(XSMP_BUILD_SIMULATOR       "whether or not simulator should be built"        ON)
-option(XSMP_BUILD_SERVICES        "whether or not services should be built"         ON)
-option(XSMP_BUILD_EVENT_MANAGER   "whether or not event manager should be built"    ${XSMP_BUILD_SERVICES})
-option(XSMP_BUILD_LINK_REGISTRY   "whether or not link registry should be built"    ${XSMP_BUILD_SERVICES})
-option(XSMP_BUILD_LOGGER          "whether or not logger should be built"           ${XSMP_BUILD_SERVICES})
-option(XSMP_BUILD_RESOLVER        "whether or not resolver should be built"         ${XSMP_BUILD_SERVICES})
-option(XSMP_BUILD_SCHEDULER       "whether or not scheduler should be built"        ${XSMP_BUILD_SERVICES})
-option(XSMP_BUILD_TIME_KEEPER     "whether or not time keeper should be built"      ${XSMP_BUILD_SERVICES})
 
 option(XSMP_BUILD_PACKAGE         "whether or not the package should be built"      ${XSMP_MASTER_PROJECT})
 option(XSMP_BUILD_EXAMPLES        "whether or not examples should be built"         OFF)
@@ -294,193 +286,206 @@ target_include_directories(
 # --------------------------------------------------------------------
 # Create EventManager library
 # --------------------------------------------------------------------
-if(XSMP_BUILD_EVENT_MANAGER)
+add_library(EventManager SHARED 
+    src-gen/Xsmp/Services/XsmpEventManagerGen.cpp
+    src-gen/xsmp_event_manager.cpp
+    src-gen/xsmp_event_manager.pkg.cpp
+    src/Xsmp/Services/XsmpEventManager.cpp
+)
+set_target_properties(EventManager PROPERTIES OUTPUT_NAME "xsmp_event_manager")
+add_library(Xsmp::EventManager ALIAS EventManager)
 
-    add_library(EventManager SHARED 
-        src-gen/Xsmp/Services/XsmpEventManagerGen.cpp
-        src-gen/xsmp_event_manager.cpp
-        src-gen/xsmp_event_manager.pkg.cpp
-        src/Xsmp/Services/XsmpEventManager.cpp
-    )
-    set_target_properties(EventManager PROPERTIES OUTPUT_NAME "xsmp_event_manager")
-    add_library(Xsmp::EventManager ALIAS EventManager)
-    
-    target_include_directories(
-        EventManager
-        PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
-               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
-               $<INSTALL_INTERFACE:src> 
-               $<INSTALL_INTERFACE:src-gen>)
-    
-    target_link_libraries(EventManager PUBLIC Xsmp::Cdk)
-    
-    target_compile_options(EventManager PRIVATE ${XSMP_COMPILE_OPTIONS})
-endif(XSMP_BUILD_EVENT_MANAGER)
+target_include_directories(
+    EventManager
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
+           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
+           $<INSTALL_INTERFACE:src> 
+           $<INSTALL_INTERFACE:src-gen>)
+
+target_link_libraries(EventManager PUBLIC Xsmp::Cdk)
+
+target_compile_options(EventManager PRIVATE ${XSMP_COMPILE_OPTIONS})
+
 
 # --------------------------------------------------------------------
 # Create LinkRegistry library
 # --------------------------------------------------------------------
-if(XSMP_BUILD_LINK_REGISTRY)
+add_library(LinkRegistry SHARED 
+    src-gen/Xsmp/Services/XsmpLinkRegistryGen.cpp
+    src-gen/xsmp_link_registry.cpp
+    src-gen/xsmp_link_registry.pkg.cpp
+    src/Xsmp/Services/XsmpLinkRegistry.cpp
+)
 
-    add_library(LinkRegistry SHARED 
-        src-gen/Xsmp/Services/XsmpLinkRegistryGen.cpp
-        src-gen/xsmp_link_registry.cpp
-        src-gen/xsmp_link_registry.pkg.cpp
-        src/Xsmp/Services/XsmpLinkRegistry.cpp
-    )
-    
-    set_target_properties(LinkRegistry PROPERTIES OUTPUT_NAME "xsmp_link_registry")
-    add_library(Xsmp::LinkRegistry ALIAS LinkRegistry)
-    
-    target_include_directories(
-        LinkRegistry
-        PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
-               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
-               $<INSTALL_INTERFACE:src> 
-               $<INSTALL_INTERFACE:src-gen>)
-    
-    target_link_libraries(LinkRegistry PUBLIC Xsmp::Cdk)
-    
-    target_compile_options(LinkRegistry PRIVATE ${XSMP_COMPILE_OPTIONS})
-endif(XSMP_BUILD_LINK_REGISTRY)
+set_target_properties(LinkRegistry PROPERTIES OUTPUT_NAME "xsmp_link_registry")
+add_library(Xsmp::LinkRegistry ALIAS LinkRegistry)
+
+target_include_directories(
+    LinkRegistry
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
+           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
+           $<INSTALL_INTERFACE:src> 
+           $<INSTALL_INTERFACE:src-gen>)
+
+target_link_libraries(LinkRegistry PUBLIC Xsmp::Cdk)
+
+target_compile_options(LinkRegistry PRIVATE ${XSMP_COMPILE_OPTIONS})
+
 
 # --------------------------------------------------------------------
 # Create Logger library
 # --------------------------------------------------------------------
-if(XSMP_BUILD_LOGGER)
-    add_library(Logger SHARED 
-        src-gen/Xsmp/Services/XsmpLoggerGen.cpp
-        src-gen/xsmp_logger.cpp
-        src-gen/xsmp_logger.pkg.cpp
-        src/Xsmp/Services/XsmpLogger.cpp
-    )
-    set_target_properties(Logger PROPERTIES OUTPUT_NAME "xsmp_logger")
-    add_library(Xsmp::Logger ALIAS Logger)
-    
-    target_include_directories(
-        Logger
-        PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
-               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
-               $<INSTALL_INTERFACE:src> 
-               $<INSTALL_INTERFACE:src-gen>)
+add_library(Logger SHARED 
+    src-gen/Xsmp/Services/XsmpLoggerGen.cpp
+    src-gen/xsmp_logger.cpp
+    src-gen/xsmp_logger.pkg.cpp
+    src/Xsmp/Services/XsmpLogger.cpp
+)
+set_target_properties(Logger PROPERTIES OUTPUT_NAME "xsmp_logger")
+add_library(Xsmp::Logger ALIAS Logger)
 
-    target_link_libraries(Logger PUBLIC Xsmp::Cdk)
+target_include_directories(
+    Logger
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
+           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
+           $<INSTALL_INTERFACE:src> 
+           $<INSTALL_INTERFACE:src-gen>)
 
-    target_compile_options(Logger PRIVATE ${XSMP_COMPILE_OPTIONS})
-endif(XSMP_BUILD_LOGGER)
+target_link_libraries(Logger PUBLIC Xsmp::Cdk)
+
+target_compile_options(Logger PRIVATE ${XSMP_COMPILE_OPTIONS})
+
 
 # --------------------------------------------------------------------
 # Create Resolver library
 # --------------------------------------------------------------------
-if(XSMP_BUILD_RESOLVER)
-    add_library(Resolver SHARED 
-        src-gen/Xsmp/Services/XsmpResolverGen.cpp
-        src-gen/xsmp_resolver.cpp
-        src-gen/xsmp_resolver.pkg.cpp
-        src/Xsmp/Services/XsmpResolver.cpp
-    )
-    
-    set_target_properties(Resolver PROPERTIES OUTPUT_NAME "xsmp_resolver")
-    add_library(Xsmp::Resolver ALIAS Resolver)
-    
-    target_include_directories(
-        Resolver
-        PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
-               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
-               $<INSTALL_INTERFACE:src> 
-               $<INSTALL_INTERFACE:src-gen>)
+add_library(Resolver SHARED 
+    src-gen/Xsmp/Services/XsmpResolverGen.cpp
+    src-gen/xsmp_resolver.cpp
+    src-gen/xsmp_resolver.pkg.cpp
+    src/Xsmp/Services/XsmpResolver.cpp
+)
 
-    target_link_libraries(Resolver PUBLIC Xsmp::Cdk)
-    target_compile_options(Resolver PRIVATE ${XSMP_COMPILE_OPTIONS})
-endif(XSMP_BUILD_RESOLVER)
+set_target_properties(Resolver PROPERTIES OUTPUT_NAME "xsmp_resolver")
+add_library(Xsmp::Resolver ALIAS Resolver)
+
+target_include_directories(
+    Resolver
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
+           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
+           $<INSTALL_INTERFACE:src> 
+           $<INSTALL_INTERFACE:src-gen>)
+
+target_link_libraries(Resolver PUBLIC Xsmp::Cdk)
+target_compile_options(Resolver PRIVATE ${XSMP_COMPILE_OPTIONS})
 
 # --------------------------------------------------------------------
 # Create Scheduler library
 # --------------------------------------------------------------------
-if(XSMP_BUILD_SCHEDULER)
-    add_library(Scheduler SHARED 
-        src-gen/Xsmp/Services/XsmpSchedulerGen.cpp
-        src-gen/xsmp_scheduler.cpp
-        src-gen/xsmp_scheduler.pkg.cpp
-        src/Xsmp/Services/XsmpScheduler.cpp
-    )
+add_library(Scheduler SHARED 
+    src-gen/Xsmp/Services/XsmpSchedulerGen.cpp
+    src-gen/xsmp_scheduler.cpp
+    src-gen/xsmp_scheduler.pkg.cpp
+    src/Xsmp/Services/XsmpScheduler.cpp
+)
 
-    set_target_properties(Scheduler PROPERTIES OUTPUT_NAME "xsmp_scheduler")
-    add_library(Xsmp::Scheduler ALIAS Scheduler)
-    
-    target_include_directories(
-        Scheduler
-        PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
-               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
-               $<INSTALL_INTERFACE:src> 
-               $<INSTALL_INTERFACE:src-gen>)
+set_target_properties(Scheduler PROPERTIES OUTPUT_NAME "xsmp_scheduler")
+add_library(Xsmp::Scheduler ALIAS Scheduler)
 
-    target_link_libraries(Scheduler PUBLIC Xsmp::Cdk)
-    target_compile_options(Scheduler PRIVATE ${XSMP_COMPILE_OPTIONS})
-endif(XSMP_BUILD_SCHEDULER)
+target_include_directories(
+    Scheduler
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
+           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
+           $<INSTALL_INTERFACE:src> 
+           $<INSTALL_INTERFACE:src-gen>)
+
+target_link_libraries(Scheduler PUBLIC Xsmp::Cdk)
+target_compile_options(Scheduler PRIVATE ${XSMP_COMPILE_OPTIONS})
+
 
 # --------------------------------------------------------------------
 # Create TimeKeeper library
 # --------------------------------------------------------------------
-if(XSMP_BUILD_TIME_KEEPER)
-    add_library(TimeKeeper SHARED 
-        src-gen/Xsmp/Services/XsmpTimeKeeperGen.cpp
-        src-gen/xsmp_time_keeper.cpp
-        src-gen/xsmp_time_keeper.pkg.cpp
-        src/Xsmp/Services/XsmpTimeKeeper.cpp
-    )
+add_library(TimeKeeper SHARED 
+    src-gen/Xsmp/Services/XsmpTimeKeeperGen.cpp
+    src-gen/xsmp_time_keeper.cpp
+    src-gen/xsmp_time_keeper.pkg.cpp
+    src/Xsmp/Services/XsmpTimeKeeper.cpp
+)
 
-    set_target_properties(TimeKeeper PROPERTIES OUTPUT_NAME "xsmp_time_keeper")
-    add_library(Xsmp::TimeKeeper ALIAS TimeKeeper)
+set_target_properties(TimeKeeper PROPERTIES OUTPUT_NAME "xsmp_time_keeper")
+add_library(Xsmp::TimeKeeper ALIAS TimeKeeper)
 
-    target_include_directories(
-        TimeKeeper
-        PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
-               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
-               $<INSTALL_INTERFACE:src> 
-               $<INSTALL_INTERFACE:src-gen>)
+target_include_directories(
+    TimeKeeper
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
+           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
+           $<INSTALL_INTERFACE:src> 
+           $<INSTALL_INTERFACE:src-gen>)
 
-    target_link_libraries(TimeKeeper PUBLIC Xsmp::Cdk)
-    target_compile_options(TimeKeeper PRIVATE ${XSMP_COMPILE_OPTIONS})
-endif(XSMP_BUILD_TIME_KEEPER)
+target_link_libraries(TimeKeeper PUBLIC Xsmp::Cdk)
+target_compile_options(TimeKeeper PRIVATE ${XSMP_COMPILE_OPTIONS})
+
+
+# --------------------------------------------------------------------
+# Create Bundle Services library
+# --------------------------------------------------------------------
+add_library(Services SHARED 
+    src/xsmp_services.cpp
+    src/xsmp_services.pkg.cpp
+)
+
+set_target_properties(Services PROPERTIES OUTPUT_NAME "xsmp_services")
+add_library(Xsmp::Services ALIAS Services)
+
+target_include_directories(
+    Services
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
+           $<INSTALL_INTERFACE:src>)
+
+target_link_libraries(Services PUBLIC Xsmp::Logger 
+                                      Xsmp::Resolver
+                                      Xsmp::Scheduler
+                                      Xsmp::EventManager 
+                                      Xsmp::LinkRegistry
+                                      Xsmp::TimeKeeper)
+target_compile_options(Services PRIVATE ${XSMP_COMPILE_OPTIONS})
 
 
 # --------------------------------------------------------------------
 # Create Simulator library
 # --------------------------------------------------------------------
-if(XSMP_BUILD_SIMULATOR)
-    
-    add_library(Simulator SHARED 
-        src/Xsmp/FactoryCollection.cpp
-        src/Xsmp/Publication/Field.cpp
-        src/Xsmp/Publication/Operation.cpp
-        src/Xsmp/Publication/Property.cpp
-        src/Xsmp/Publication/Publication.cpp
-        src/Xsmp/Publication/Request.cpp
-        src/Xsmp/Publication/TypeRegistry.cpp
-        src/Xsmp/Publication/Type.cpp
-        src/Xsmp/Simulator.cpp
-        src/Xsmp/StorageReader.cpp
-        src/Xsmp/StorageWriter.cpp
-    )
+add_library(Simulator SHARED 
+    src/Xsmp/FactoryCollection.cpp
+    src/Xsmp/Publication/Field.cpp
+    src/Xsmp/Publication/Operation.cpp
+    src/Xsmp/Publication/Property.cpp
+    src/Xsmp/Publication/Publication.cpp
+    src/Xsmp/Publication/Request.cpp
+    src/Xsmp/Publication/TypeRegistry.cpp
+    src/Xsmp/Publication/Type.cpp
+    src/Xsmp/Simulator.cpp
+    src/Xsmp/StorageReader.cpp
+    src/Xsmp/StorageWriter.cpp
+)
 
-    set_target_properties(Simulator PROPERTIES OUTPUT_NAME "xsmp_simulator")
-    add_library(Xsmp::Simulator ALIAS Simulator)
-    
-    target_include_directories(
-        Simulator
-        PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-               $<INSTALL_INTERFACE:.>)
+set_target_properties(Simulator PROPERTIES OUTPUT_NAME "xsmp_simulator")
+add_library(Xsmp::Simulator ALIAS Simulator)
 
-    target_link_libraries(Simulator PUBLIC Xsmp::Cdk Xsmp::LibraryHelper)
+target_include_directories(
+    Simulator
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+           $<INSTALL_INTERFACE:.>)
 
-    target_compile_options(Simulator PRIVATE ${XSMP_COMPILE_OPTIONS})
+target_link_libraries(Simulator PUBLIC Xsmp::Cdk Xsmp::LibraryHelper)
 
-    if((CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0) OR
-       (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 11))
-        target_link_libraries(Simulator PUBLIC stdc++fs)
-    endif()
-endif(XSMP_BUILD_SIMULATOR)
+target_compile_options(Simulator PRIVATE ${XSMP_COMPILE_OPTIONS})
+
+if((CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0) OR
+   (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 11))
+    target_link_libraries(Simulator PUBLIC stdc++fs)
+endif()
+
 
 
 # --------------------------------------------------------------------
@@ -568,12 +573,7 @@ if(XSMP_BUILD_TESTS)
                                     Xsmp::Cdk
                                     Xsmp::TestsPackage
                                     Xsmp::Simulator
-                                    Xsmp::EventManager
-                                    Xsmp::LinkRegistry
-                                    Xsmp::Logger
-                                    Xsmp::Resolver
-                                    Xsmp::Scheduler
-                                    Xsmp::TimeKeeper
+                                    Xsmp::Services
                                     GTest::gtest_main
     )
 

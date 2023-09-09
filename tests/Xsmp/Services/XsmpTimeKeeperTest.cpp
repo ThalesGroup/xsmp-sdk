@@ -22,7 +22,6 @@
 #include <Xsmp/EntryPoint.h>
 #include <Xsmp/EntryPointPublisher.h>
 #include <Xsmp/Simulator.h>
-#include <Xsmp/TestHelper.h>
 #include <type_traits>
 
 namespace Xsmp::Services {
@@ -37,7 +36,7 @@ public:
 TEST(XsmpTimeKeeperTest, simulationTime) {
 
     Simulator sim;
-    ::Xsmp::TestHelper::InitializeSimulator(sim);
+    sim.LoadLibrary("xsmp_services");
 
     sim.Connect();
 
@@ -79,7 +78,7 @@ TEST(XsmpTimeKeeperTest, simulationTime) {
 TEST(XsmpTimeKeeperTest, epochTime) {
 
     Simulator sim;
-    ::Xsmp::TestHelper::InitializeSimulator(sim);
+    sim.LoadLibrary("xsmp_services");
 
     sim.Connect();
 
@@ -95,7 +94,7 @@ TEST(XsmpTimeKeeperTest, epochTime) {
 TEST(XsmpTimeKeeperTest, missionTime) {
 
     Simulator sim;
-    ::Xsmp::TestHelper::InitializeSimulator(sim);
+    sim.LoadLibrary("xsmp_services");
 
     sim.Connect();
 
@@ -112,7 +111,7 @@ TEST(XsmpTimeKeeperTest, missionTime) {
 TEST(XsmpTimeKeeperTest, zuluTime) {
 
     Simulator sim;
-    ::Xsmp::TestHelper::InitializeSimulator(sim);
+    sim.LoadLibrary("xsmp_services");
 
     sim.Connect();
 
