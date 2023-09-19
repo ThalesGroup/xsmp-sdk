@@ -32,10 +32,12 @@ function(pytest_discover_tests_impl)
         endforeach()
 
     else()
+        # save paths
+        set(old_lib_env_path "ENV{${_LIB_ENV_PATH}}")
+        set(old_python_path "ENV{${PYTHONPATH}}")
         # collect tests
         set(ENV{${_LIB_ENV_PATH}} "${_LIBRARY_PATH}")
         set(ENV{PYTHONPATH} "${_PYTHON_PATH}")
-
         execute_process(
             COMMAND ${_PYTHON_EXECUTABLE} -m pytest --collect-only -q --rootdir=${_WORKING_DIRECTORY} .
             OUTPUT_VARIABLE _output_list
@@ -43,7 +45,10 @@ function(pytest_discover_tests_impl)
             OUTPUT_STRIP_TRAILING_WHITESPACE
             WORKING_DIRECTORY ${_WORKING_DIRECTORY}
         )
-        
+        #restore paths
+        set(ENV{${_LIB_ENV_PATH}} "${old_lib_env_path}")
+        set(ENV{PYTHONPATH} "${old_python_path}")
+
         # Parse output
         string(REPLACE [[;]] [[\;]] _output_list "${_output_list}")
         string(REPLACE "\n" ";" _output_list "${_output_list}")

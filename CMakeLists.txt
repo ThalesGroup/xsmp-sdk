@@ -27,10 +27,6 @@ project(xsmp-sdk
 message(STATUS "xsmp-sdk v${xsmp-sdk_VERSION} ${xsmp-sdk_VERSION_TYPE}")
 
 
-if(WIN32)
-    message(FATAL_ERROR "Windows platform is not yet supported. Help required.")
-endif(WIN32)
-
 
 if( CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR )
     set(XSMP_MASTER_PROJECT ON)
@@ -76,14 +72,17 @@ option(XSMP_ENABLE_INSTALL        "whether or not to enable the install rule"   
 option(XSMP_ENABLE_CODECOVERAGE   "Enable code coverage testing support"            OFF)
 option(XSMP_BUILD_WITH_WARNINGS   "Enable all compiler warnings"                    OFF)
 
-if(WIN32)
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+if(WIN32)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Archive output dir.")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Library output dir.")
+else()
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib" CACHE PATH "Archive output dir.")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib" CACHE PATH "Library output dir.")
+endif(WIN32)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib" CACHE PATH "Archive output dir.")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib" CACHE PATH "Library output dir.")
 set(CMAKE_PDB_OUTPUT_DIRECTORY     "${CMAKE_BINARY_DIR}/bin" CACHE PATH "PDB (MSVC debug symbol)output dir.")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Executable/dll output dir.")
 

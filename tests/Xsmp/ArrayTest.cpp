@@ -27,6 +27,7 @@ TEST(ArrayTest, Constructor) {
 
     EmptyArrayBool emptyAr { };
     EXPECT_EQ(emptyAr.size(), 0);
+    EXPECT_TRUE(emptyAr.empty());
 
     Array3Bool ar { };
 

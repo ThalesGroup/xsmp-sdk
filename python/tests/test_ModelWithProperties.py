@@ -32,14 +32,16 @@ class ModelWithPropertiesTest(xsmp.unittest.TestCase):
         # create an Instance of M1 in Models
         sim._Models += sim.CreateInstance(uuid=xsmp_tests.Xsmp.Tests.ModelWithProperties.uuid, name="test", parent=sim)
 
-
     def testIntProperty(self):
         # test getter
         self.sim.test.int_field = 5
         self.assertEqual(self.sim.test.int_property, 5)
         self.assertEqual(self.sim.test.readonly_int_property, 5)
         self.assertEqual(self.sim.test.int_property.GetValue(), 5)
-        if not sys.platform.startswith("darwin"):
+        if sys.platform.startswith("darwin"):
+            with self.assertRaises(RuntimeError):
+                self.sim.test.writeonly_int_property.GetValue()
+        else: 
             with self.assertRaises(ecss_smp.Smp.Exception):
                 self.sim.test.writeonly_int_property.GetValue()
         
@@ -50,7 +52,10 @@ class ModelWithPropertiesTest(xsmp.unittest.TestCase):
         self.assertEqual(self.sim.test.int_field, 15)
         self.sim.test.writeonly_int_property = 20
         self.assertEqual(self.sim.test.int_field, 20)
-        if not sys.platform.startswith("darwin"):
+        if sys.platform.startswith("darwin"):
+            with self.assertRaises(RuntimeError):
+                self.sim.test.readonly_int_property.SetValue(25)
+        else:
             with self.assertRaises(ecss_smp.Smp.Exception):
                 self.sim.test.readonly_int_property.SetValue(25)
 
@@ -61,7 +66,10 @@ class ModelWithPropertiesTest(xsmp.unittest.TestCase):
         self.assertEqual(self.sim.test.readonly_static_int_property, 5)
         self.assertEqual(self.sim.test.static_int_property.GetValue(), 5)
 
-        if not sys.platform.startswith("darwin"):
+        if sys.platform.startswith("darwin"):
+            with self.assertRaises(RuntimeError):
+                self.sim.test.writeonly_static_int_property.GetValue()
+        else:
             with self.assertRaises(ecss_smp.Smp.Exception):
                 self.sim.test.writeonly_static_int_property.GetValue()
         
@@ -72,7 +80,10 @@ class ModelWithPropertiesTest(xsmp.unittest.TestCase):
         self.assertEqual(self.sim.test.static_int_field, 15)
         self.sim.test.writeonly_static_int_property = 20
         self.assertEqual(self.sim.test.static_int_field, 20)
-        if not sys.platform.startswith("darwin"):
+        if sys.platform.startswith("darwin"):
+            with self.assertRaises(RuntimeError):
+                self.sim.test.readonly_static_int_property.SetValue(25)
+        else:
             with self.assertRaises(ecss_smp.Smp.Exception):
                 self.sim.test.readonly_static_int_property.SetValue(25)
 

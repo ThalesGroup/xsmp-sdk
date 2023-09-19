@@ -105,7 +105,7 @@ private:
 
 class AnonymousArrayField: public Field,
         public virtual ::Smp::IArrayField,
-        public Publication::Publication {
+        public ::Xsmp::Publication::Publication {
 public:
     AnonymousArrayField(::Smp::String8 name, ::Smp::String8 description,
             ::Smp::IObject *parent,

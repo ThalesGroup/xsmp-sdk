@@ -34,7 +34,7 @@ std::ifstream createInputStream(::Smp::String8 path, ::Smp::String8 filename,
 
     if (!is.good())
         ::Xsmp::Exception::throwCannotRestore(object,
-                std::string("Cannot open file: ") + fullPath.c_str());
+                "Cannot open file: " + fullPath.string());
     return is;
 }
 } // namespace

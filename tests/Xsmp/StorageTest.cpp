@@ -41,7 +41,7 @@ TEST(StorageTest, Writer) {
     EXPECT_STREQ(reader.GetStateVectorFilePath(), dir.c_str());
     EXPECT_STREQ(reader.GetStateVectorFileName(), filename);
 
-    std::remove((fs::path(dir) / filename).c_str());
+    std::remove((fs::path(dir) / filename).string().c_str());
 }
 TEST(StorageTest, Reader) {
 
@@ -54,7 +54,7 @@ TEST(StorageTest, Reader) {
 
 TEST(StorageTest, StoreRestore) {
 
-    auto dir = fs::path(testing::TempDir()).append("StorageTest");
+    auto dir = fs::path(testing::TempDir()).append("StorageTest").string();
     auto filename = "StoreRestore.bin";
 
     double value1 = 42.;
@@ -74,7 +74,7 @@ TEST(StorageTest, StoreRestore) {
     EXPECT_EQ(value1, 42.);
     EXPECT_EQ(value2, 43.);
 
-    std::remove(fs::path(dir).c_str());
+    std::remove(dir.c_str());
 }
 
 } // namespace Xsmp

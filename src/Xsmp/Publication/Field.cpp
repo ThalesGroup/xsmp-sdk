@@ -181,7 +181,7 @@ AnonymousArrayField::AnonymousArrayField(::Smp::String8 name,
         ::Smp::Publication::ITypeRegistry *typeRegistry, ::Smp::ViewKind view,
         ::Smp::Bool state) :
         Field(name, description, parent, nullptr, nullptr, view, state, false,
-                false), Publication(parent, typeRegistry) {
+                false), ::Xsmp::Publication::Publication(parent, typeRegistry) {
 }
 
 void AnonymousArrayField::Restore(::Smp::IStorageReader *reader) {

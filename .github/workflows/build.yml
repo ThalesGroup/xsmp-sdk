@@ -4,6 +4,7 @@ on:
    push:
       branches:
       - main
+      - 1-build-on-windows
    pull_request:
       branches:
       - main
@@ -129,6 +130,32 @@ jobs:
          working-directory: build
          run: |
             ctest -C Release --output-on-failure
+   windows:
+      name: '${{matrix.os}}'
+      runs-on: ${{matrix.os}}
+      strategy:
+         fail-fast: false
+         matrix:
+            os:
+            - windows-2019
+            - windows-2022
+            - windows-latest
+      steps:
+      -  uses: actions/checkout@v3
+      -  name: install  pytest
+         run: |
+            pip install pytest
+      -  name: Configure cmake
+         run: |
+            cmake -B build -DCMAKE_BUILD_TYPE=Release -DXSMP_BUILD_EXAMPLES=ON -S .
+      -  name: Build
+         run: |
+            cmake --build build --config Release -j 2
+#TODO enable tests
+#      -  name: Run tests
+#         working-directory: build
+#         run: |
+#            ctest -C Release --output-on-failure -E XsmpSchedulerTest
    python:
       name: '${{matrix.os}} :: Python ${{matrix.python-version}}'
       runs-on: ${{matrix.os}}
@@ -138,7 +165,7 @@ jobs:
             os:
             - ubuntu-latest
             - macos-latest
-#- windows-latest
+#            - windows-latest
             python-version:
             - '3.7'
             - '3.8'
