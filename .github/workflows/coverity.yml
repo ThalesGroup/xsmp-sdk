@@ -12,7 +12,7 @@ jobs:
    coverity:
       runs-on: ubuntu-latest
       steps:
-      -  uses: actions/checkout@v3
+      -  uses: actions/checkout@v4
       -  name: Configure CMake
          run: cmake -B build -DCMAKE_BUILD_TYPE=Debug -S ${{github.workspace}}
       -  uses: vapier/coverity-scan-action@v1
