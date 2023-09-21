@@ -578,8 +578,13 @@ if(XSMP_BUILD_TESTS)
 
     gtest_discover_tests(XsmpTests)
     
-    include(Pytest)
-    pytest_discover_tests(PythonTest)
+    # Check for CMake version >= 3.20 to execute Python tests
+    if(NOT "${CMAKE_VERSION}" VERSION_LESS "3.20")
+        include(Pytest)
+        pytest_discover_tests(PythonTest)
+    else()
+        message(WARNING "Warning: Python tests will not be executed because CMake version is less than 3.20.")
+    endif()
 
 endif(XSMP_BUILD_TESTS)
 
