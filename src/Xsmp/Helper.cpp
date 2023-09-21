@@ -342,7 +342,7 @@ static inline ::Smp::IObject* ResolveComponent(const ::Smp::IObject *object,
     return nullptr;
 }
 
-inline void erase_all(std::string& string, const std::string& search) {
+inline void erase_all(std::string& string, std::string_view search) {
     for (size_t pos = 0;;) {
         pos = string.find(search, pos);
         if (pos == std::string::npos) {

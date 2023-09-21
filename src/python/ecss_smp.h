@@ -17,7 +17,6 @@
 
 #include <pybind11/pybind11.h>
 
-namespace py = pybind11;
 
 #include <Smp/AnySimple.h>
 #include <Smp/IAggregate.h>
@@ -59,6 +58,7 @@ namespace py = pybind11;
 #include <vector>
 #include <sstream>
 
+namespace py = pybind11;
 
 namespace PYBIND11_NAMESPACE {
 struct TypeHierarchy {

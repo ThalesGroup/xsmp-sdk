@@ -16,6 +16,7 @@
 #define XSMP_ARRAY_H_
 
 #include <cstddef>
+#include <cstdlib>
 #include <iterator>
 #include <stdexcept>
 #include <string>
@@ -40,7 +41,7 @@ struct _array_traits<Tp, 0> {
     struct type {
         // Indexing is undefined.
         Tp& operator[](std::size_t) const noexcept {
-            throw std::runtime_error("Indexing is undefined for empty Xsmp::Array.");
+            std::abort();
         }
 
         // Conversion to a pointer produces a null pointer.

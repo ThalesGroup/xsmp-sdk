@@ -13,7 +13,7 @@
 // limitations under the License.
 
 
-//#include <python/ecss_smp.h>
+#include <python/ecss_smp.h>
 #include <python/Smp/AccessKindBinding.h>
 #include <python/Smp/ComponentStateKindBinding.h>
 #include <python/Smp/IAggregateBinding.h>
@@ -107,7 +107,6 @@
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 
-//namespace py = pybind11;
 
 PYBIND11_MODULE(ecss_smp, ecss_smp) {
     ecss_smp.doc() = R"(Specifies the SMP Component Model as SMDL Catalogue.)";
