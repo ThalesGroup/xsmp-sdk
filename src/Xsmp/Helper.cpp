@@ -342,6 +342,16 @@ static inline ::Smp::IObject* ResolveComponent(const ::Smp::IObject *object,
     return nullptr;
 }
 
+inline void erase_all(std::string& string, const std::string& search) {
+    for (size_t pos = 0;;) {
+        pos = string.find(search, pos);
+        if (pos == std::string::npos) {
+            break;
+        }
+        string.erase(pos, search.length());
+    }
+}
+
 std::string demangle(::Smp::String8 name) {
 #if defined(__GNUG__)
     int status = 0;
@@ -352,8 +362,14 @@ std::string demangle(::Smp::String8 name) {
     if (status == 0) {
         return res.get();
     }
-#endif
     return name;
+#else
+    std::string result {name};
+    erase_all(result, "class ");
+    erase_all(result, "struct ");
+    erase_all(result, "enum ");
+    return result;
+#endif
 }
 std::string TypeName(const ::Smp::IObject *type) {
     return demangle(typeid(*type).name());

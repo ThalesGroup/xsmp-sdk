@@ -12,58 +12,102 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <pybind11/detail/common.h>
-#include <pybind11/pytypes.h>
-#include <pyerrors.h>
-#include <python/ecss_smp.h>
-#include <python/Smp/AccessKind.h>
-#include <python/Smp/ComponentStateKind.h>
-#include <python/Smp/IAggregate.h>
-#include <python/Smp/IArrayField.h>
-#include <python/Smp/IComponent.h>
-#include <python/Smp/IComposite.h>
-#include <python/Smp/IContainer.h>
-#include <python/Smp/IDataflowField.h>
-#include <python/Smp/IDynamicInvocation.h>
-#include <python/Smp/IEntryPoint.h>
-#include <python/Smp/IEntryPointPublisher.h>
-#include <python/Smp/IEventConsumer.h>
-#include <python/Smp/IEventProvider.h>
-#include <python/Smp/IEventSink.h>
-#include <python/Smp/IEventSource.h>
-#include <python/Smp/IFailure.h>
-#include <python/Smp/IFallibleModel.h>
-#include <python/Smp/IField.h>
-#include <python/Smp/IForcibleField.h>
-#include <python/Smp/ILinkingComponent.h>
-#include <python/Smp/IModel.h>
-#include <python/Smp/IObject.h>
-#include <python/Smp/IOperation.h>
-#include <python/Smp/IPersist.h>
-#include <python/Smp/IProperty.h>
-#include <python/Smp/IReference.h>
-#include <python/Smp/IService.h>
-#include <python/Smp/ISimpleArrayField.h>
-#include <python/Smp/ISimpleField.h>
-#include <python/Smp/ISimulator.h>
-#include <python/Smp/IStructureField.h>
-#include <python/Smp/Services/IEventManager.h>
-#include <python/Smp/Services/ILinkRegistry.h>
-#include <python/Smp/Services/ILogger.h>
-#include <python/Smp/Services/IResolver.h>
-#include <python/Smp/Services/IScheduler.h>
-#include <python/Smp/Services/ITimeKeeper.h>
-#include <python/Smp/Services/TimeKind.h>
-#include <python/Smp/SimulatorStateKind.h>
-#include <python/Smp/Uuid.h>
-#include <python/Smp/ViewKind.h>
+
+//#include <python/ecss_smp.h>
+#include <python/Smp/AccessKindBinding.h>
+#include <python/Smp/ComponentStateKindBinding.h>
+#include <python/Smp/IAggregateBinding.h>
+#include <python/Smp/IArrayFieldBinding.h>
+#include <python/Smp/IComponentBinding.h>
+#include <python/Smp/ICompositeBinding.h>
+#include <python/Smp/IContainerBinding.h>
+#include <python/Smp/IDataflowFieldBinding.h>
+#include <python/Smp/IDynamicInvocationBinding.h>
+#include <python/Smp/IEntryPointBinding.h>
+#include <python/Smp/IEntryPointPublisherBinding.h>
+#include <python/Smp/IEventConsumerBinding.h>
+#include <python/Smp/IEventProviderBinding.h>
+#include <python/Smp/IEventSinkBinding.h>
+#include <python/Smp/IEventSourceBinding.h>
+#include <python/Smp/IFailureBinding.h>
+#include <python/Smp/IFallibleModelBinding.h>
+#include <python/Smp/IFieldBinding.h>
+#include <python/Smp/IForcibleFieldBinding.h>
+#include <python/Smp/ILinkingComponentBinding.h>
+#include <python/Smp/IModelBinding.h>
+#include <python/Smp/IObjectBinding.h>
+#include <python/Smp/IOperationBinding.h>
+#include <python/Smp/IPersistBinding.h>
+#include <python/Smp/IPropertyBinding.h>
+#include <python/Smp/IReferenceBinding.h>
+#include <python/Smp/IServiceBinding.h>
+#include <python/Smp/ISimpleArrayFieldBinding.h>
+#include <python/Smp/ISimpleFieldBinding.h>
+#include <python/Smp/ISimulatorBinding.h>
+#include <python/Smp/IStructureFieldBinding.h>
+#include <python/Smp/Services/IEventManagerBinding.h>
+#include <python/Smp/Services/ILinkRegistryBinding.h>
+#include <python/Smp/Services/ILoggerBinding.h>
+#include <python/Smp/Services/IResolverBinding.h>
+#include <python/Smp/Services/ISchedulerBinding.h>
+#include <python/Smp/Services/ITimeKeeperBinding.h>
+#include <python/Smp/Services/TimeKindBinding.h>
+#include <python/Smp/SimulatorStateKindBinding.h>
+#include <python/Smp/UuidBinding.h>
+#include <python/Smp/ViewKindBinding.h>
+
+#include <Smp/Exception.h>
+#include <Smp/CannotDelete.h>
+#include <Smp/CannotRemove.h>
+#include <Smp/CannotRestore.h>
+#include <Smp/CannotStore.h>
+#include <Smp/ContainerFull.h>
+#include <Smp/DuplicateName.h>
+#include <Smp/DuplicateUuid.h>
+#include <Smp/EventSinkAlreadySubscribed.h>
+#include <Smp/EventSinkNotSubscribed.h>
+#include <Smp/FieldAlreadyConnected.h>
+#include <Smp/InvalidAnyType.h>
+#include <Smp/InvalidArrayIndex.h>
+#include <Smp/InvalidArraySize.h>
+#include <Smp/InvalidArrayValue.h>
+#include <Smp/InvalidComponentState.h>
+#include <Smp/InvalidEventSink.h>
+#include <Smp/InvalidFieldName.h>
+#include <Smp/InvalidFieldType.h>
+#include <Smp/InvalidFieldValue.h>
+#include <Smp/InvalidLibrary.h>
+#include <Smp/InvalidObjectName.h>
+#include <Smp/InvalidObjectType.h>
+#include <Smp/InvalidOperationName.h>
+#include <Smp/InvalidParameterCount.h>
+#include <Smp/InvalidParameterIndex.h>
+#include <Smp/InvalidParameterType.h>
+#include <Smp/InvalidParameterValue.h>
+#include <Smp/InvalidReturnValue.h>
+#include <Smp/InvalidSimulatorState.h>
+#include <Smp/InvalidTarget.h>
+#include <Smp/LibraryNotFound.h>
+#include <Smp/NotContained.h>
+#include <Smp/NotReferenced.h>
+#include <Smp/Services/EntryPointAlreadySubscribed.h>
+#include <Smp/Services/EntryPointNotSubscribed.h>
+#include <Smp/Services/InvalidCycleTime.h>
+#include <Smp/Services/InvalidEventId.h>
+#include <Smp/Services/InvalidEventName.h>
+#include <Smp/Services/InvalidEventTime.h>
+#include <Smp/Services/InvalidSimulationTime.h>
+#include <Smp/Publication/DuplicateLiteral.h>
+#include <Smp/Publication/InvalidPrimitiveType.h>
+#include <Smp/Publication/TypeAlreadyRegistered.h>
+#include <Smp/Publication/TypeNotRegistered.h>
 #include <Smp/ReferenceFull.h>
 #include <Smp/VoidOperation.h>
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 
-namespace py = pybind11;
+//namespace py = pybind11;
 
 PYBIND11_MODULE(ecss_smp, ecss_smp) {
     ecss_smp.doc() = R"(Specifies the SMP Component Model as SMDL Catalogue.)";

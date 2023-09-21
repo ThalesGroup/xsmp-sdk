@@ -1230,13 +1230,6 @@ template<typename T, typename ... Annotations, typename Other>
         Other rhs) noexcept {
     return *lhs == rhs;
 }
-template<typename T, typename ... Annotations, typename T2,
-        typename ... Annotations2>
-[[nodiscard]] inline bool operator==(
-        const typename SimpleArrayField<T, Annotations...>::protected_reference &lhs,
-        const typename SimpleArrayField<T2, Annotations2...>::protected_reference &rhs) noexcept {
-    return *lhs == *rhs;
-}
 
 template<typename T, typename ... Annotations, typename Other>
 [[nodiscard]] inline bool operator!=(Other lhs,
@@ -1248,13 +1241,6 @@ template<typename T, typename ... Annotations, typename Other>
         const typename SimpleArrayField<T, Annotations...>::protected_reference &lhs,
         Other rhs) noexcept {
     return *lhs != rhs;
-}
-template<typename T, typename ... Annotations, typename T2,
-        typename ... Annotations2>
-[[nodiscard]] inline bool operator!=(
-        const typename SimpleArrayField<T, Annotations...>::protected_reference &lhs,
-        const typename SimpleArrayField<T2, Annotations2...>::protected_reference &rhs) noexcept {
-    return *lhs != *rhs;
 }
 
 template<typename T, typename ... Annotations, typename Other>
@@ -1269,14 +1255,6 @@ template<typename T, typename ... Annotations, typename Other>
     return *lhs < rhs;
 }
 
-template<typename T, typename ... Annotations, typename T2,
-        typename ... Annotations2>
-[[nodiscard]] inline bool operator<(
-        const typename SimpleArrayField<T, Annotations...>::protected_reference &lhs,
-        const typename SimpleArrayField<T2, Annotations2...>::protected_reference &rhs) noexcept {
-    return *lhs < *rhs;
-}
-
 template<typename T, size_t Nm, typename ... Annotations, typename Other>
 [[nodiscard]] inline bool operator>(Other lhs,
         const typename SimpleArrayField<T, Annotations...>::protected_reference &rhs) noexcept {
@@ -1287,13 +1265,6 @@ template<typename T, typename ... Annotations, typename Other>
         const typename SimpleArrayField<T, Annotations...>::protected_reference &lhs,
         Other rhs) noexcept {
     return *lhs > rhs;
-}
-template<typename T, typename ... Annotations, typename T2,
-        typename ... Annotations2>
-[[nodiscard]] inline bool operator>(
-        const typename SimpleArrayField<T, Annotations...>::protected_reference &lhs,
-        const typename SimpleArrayField<T2, Annotations2...>::protected_reference &rhs) noexcept {
-    return *lhs > *rhs;
 }
 
 template<typename T, typename ... Annotations, typename Other>
@@ -1307,13 +1278,6 @@ template<typename T, typename ... Annotations, typename Other>
         Other rhs) noexcept {
     return *lhs <= rhs;
 }
-template<typename T, typename ... Annotations, typename T2,
-        typename ... Annotations2>
-[[nodiscard]] inline bool operator<=(
-        const typename SimpleArrayField<T, Annotations...>::protected_reference &lhs,
-        const typename SimpleArrayField<T2, Annotations2...>::protected_reference &rhs) noexcept {
-    return *lhs <= *rhs;
-}
 
 template<typename T, size_t Nm, typename ... Annotations, typename Other>
 [[nodiscard]] inline bool operator>=(Other lhs,
@@ -1325,14 +1289,6 @@ template<typename T, typename ... Annotations, typename Other>
         const typename SimpleArrayField<T, Annotations...>::protected_reference &lhs,
         Other rhs) noexcept {
     return *lhs >= rhs;
-}
-
-template<typename T, typename ... Annotations, typename T2,
-        typename ... Annotations2>
-[[nodiscard]] inline bool operator>=(
-        const typename SimpleArrayField<T, Annotations...>::protected_reference &lhs,
-        const typename SimpleArrayField<T2, Annotations2...>::protected_reference &rhs) noexcept {
-    return *lhs >= *rhs;
 }
 
 template<typename T, typename ... Annotations>

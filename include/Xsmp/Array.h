@@ -28,21 +28,44 @@ struct simpleArray {
 };
 } //namespace Annotation
 
+template <typename Tp, std::size_t Nm>
+struct _array_traits {
+    using type = Tp[Nm];
+    using is_nothrow_swappable = std::is_nothrow_swappable<Tp>;
+};
+
+template <typename Tp>
+struct _array_traits<Tp, 0> {
+    // Empty type used instead of Tp[0] for Xsmp::Array<Tp, 0>.
+    struct type {
+        // Indexing is undefined.
+        Tp& operator[](std::size_t) const noexcept {
+            throw std::runtime_error("Indexing is undefined for empty Xsmp::Array.");
+        }
+
+        // Conversion to a pointer produces a null pointer.
+        constexpr explicit operator Tp*() const noexcept {
+            return nullptr;
+        }
+    };
+    using is_nothrow_swappable = std::true_type;
+};
+
 /// A SMP Array.
 /// Contains an internalArray field as defined in ECSS SMP
 /// Provides similar interfaces as a std::array
 ///
-/// @tparam  T
+/// @tparam  Tp
 ///     Type of element.
 /// @tparam  Nm
 ///     Number of elements.
 /// @tparam  options
 ///     a list of options.
 
-template<typename T, std::size_t Nm, typename ... options>
+template<typename Tp, std::size_t Nm, typename ... options>
 struct Array {
-    using simple = Array<T, Nm, ::Xsmp::Annotation::simpleArray, options...>;
-    using value_type = T;
+    using simple = Array<Tp, Nm, ::Xsmp::Annotation::simpleArray, options...>;
+    using value_type = Tp;
     using pointer = value_type *;
     using const_pointer = const value_type *;
     using reference = value_type &;
@@ -54,7 +77,7 @@ struct Array {
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-    T internalArray[Nm];
+    typename _array_traits<Tp, Nm>::type internalArray;
 
     // No explicit construct/copy/destroy for aggregate type.
 
@@ -62,7 +85,8 @@ struct Array {
         std::fill_n(begin(), size(), _u);
     }
 
-    constexpr void swap(Array &_other) noexcept {
+    constexpr void swap(Array &_other) 
+    noexcept(_array_traits<Tp, Nm>::is_nothrow_swappable::value) {
         std::swap_ranges(begin(), end(), _other.begin());
     }
 
@@ -130,13 +154,11 @@ struct Array {
 
     // Element access.
     [[nodiscard]] constexpr reference operator[](size_type index) noexcept {
-        static_assert(Nm >0,"operator[] not available for empty arrays.");
         return internalArray[index];
     }
 
     [[nodiscard]] constexpr const_reference operator[](
             size_type index) const noexcept {
-        static_assert(Nm >0,"operator[] not available for empty arrays.");
         return internalArray[index];
     }
 
@@ -160,69 +182,65 @@ struct Array {
     }
 
     [[nodiscard]] constexpr reference front() noexcept {
-        static_assert(Nm >0,"front() not available for empty arrays.");
         return internalArray[static_cast<size_type>(0)];
     }
 
     [[nodiscard]] constexpr const_reference front() const noexcept {
-        static_assert(Nm >0,"front() not available for empty arrays.");
         return internalArray[static_cast<size_type>(0)];
     }
 
     [[nodiscard]] constexpr reference back() noexcept {
-        static_assert(Nm >0,"back() not available for empty arrays.");
         return internalArray[Nm - static_cast<size_type>(1)];
     }
 
     [[nodiscard]] constexpr const_reference back() const noexcept {
-        static_assert(Nm >0,"back() not available for empty arrays.");
         return internalArray[Nm - static_cast<size_type>(1)];
     }
 
     [[nodiscard]] constexpr pointer data() noexcept {
-        return internalArray;
+        return static_cast<pointer>(internalArray);
     }
 
     [[nodiscard]] constexpr const_pointer data() const noexcept {
-        return internalArray;
+        return static_cast<const_pointer>(internalArray);
     }
 };
 
 // Array comparisons.
-template<typename T, std::size_t Nm, typename ... options>
-[[nodiscard]] constexpr bool operator==(const Array<T, Nm, options...> &_one,
-        const Array<T, Nm, options...> &_two) {
+template<typename Tp, std::size_t Nm, typename ... options>
+[[nodiscard]] constexpr bool operator==(const Array<Tp, Nm, options...> &_one,
+        const Array<Tp, Nm, options...> &_two) {
     return std::equal(_one.begin(), _one.end(), _two.begin());
 }
 
-template<typename T, std::size_t Nm, typename ... options>
-[[nodiscard]] constexpr bool operator!=(const Array<T, Nm, options...> &_one,
-        const Array<T, Nm, options...> &_two) {
+template<typename Tp, std::size_t Nm, typename ... options>
+[[nodiscard]] constexpr bool operator!=(const Array<Tp, Nm, options...> &_one,
+        const Array<Tp, Nm, options...> &_two) {
     return !(_one == _two);
 }
 
-template<typename T, std::size_t Nm, typename ... options>
-[[nodiscard]] constexpr bool operator<(const Array<T, Nm, options...> &_a,
-        const Array<T, Nm, options...> &_b) {
+template<typename Tp, std::size_t Nm, typename ... options>
+[[nodiscard]] constexpr bool operator<(const Array<Tp, Nm, options...> &_a,
+        const Array<Tp, Nm, options...> &_b) {
     return std::lexicographical_compare(_a.begin(), _a.end(), _b.begin(),
             _b.end());
 }
 
-template<typename T, std::size_t Nm, typename ... options>
-[[nodiscard]] constexpr bool operator>(const Array<T, Nm, options...> &_one,
-        const Array<T, Nm, options...> &_two) {
+template<typename Tp, std::size_t Nm, typename ... options>
+[[nodiscard]] constexpr bool operator>(const Array<Tp, Nm, options...> &_one,
+        const Array<Tp, Nm, options...> &_two) {
     return _two < _one;
 }
 
-template<typename T, std::size_t Nm, typename ... options>
-[[nodiscard]] constexpr bool operator<=(const Array<T, Nm, options...> &_one,
-        const Array<T, Nm, options...> &_two) {
+template<typename Tp, std::size_t Nm, typename ... options>
+[[nodiscard]] constexpr bool operator<=(const Array<Tp, Nm, options...> &_one,
+        const Array<Tp, Nm, options...> &_two) {
     return !(_one > _two);
 }
 
-template<typename T, std::size_t Nm, typename ... options>
-[[nodiscard]] constexpr bool operator>=(const Array<T, Nm, options...> &_one,
-        const Array<T, Nm, options...> &_two) {
+template<typename Tp, std::size_t Nm, typename ... options>
+[[nodiscard]] constexpr bool operator>=(const Array<Tp, Nm, options...> &_one,
+        const Array<Tp, Nm, options...> &_two) {
     return !(_one < _two);
 }
 

@@ -31,7 +31,11 @@ target_link_libraries(xsmp_example_project1 PUBLIC Xsmp::Cdk)
 # --------------------------------------------------------------------
 
 include(CTest)
-include(Pytest)
- pytest_discover_tests(xsmp_example_project1Test)
 
-
+# Check for CMake version >= 3.20 to execute Python tests
+if(NOT "${CMAKE_VERSION}" VERSION_LESS "3.20")
+    include(Pytest)
+    pytest_discover_tests(xsmp_example_project1Test)
+else()
+     message(WARNING "Warning: Python tests will not be executed because CMake version is less than 3.20.")
+endif()

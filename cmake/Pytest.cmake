@@ -1,5 +1,9 @@
 
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.20)
+
+if(NOT "${CMAKE_VERSION}" VERSION_LESS "3.27")
+  cmake_policy(SET CMP0144 NEW)
+endif()
 
 find_package(Python COMPONENTS Interpreter Development)
 
@@ -7,7 +11,7 @@ function(pytest_discover_tests NAME)
     cmake_parse_arguments(
         PARSE_ARGV 1 "" ""
         "WORKING_DIRECTORY;TRIM_FROM_NAME;BUNDLE_TESTS"
-        "LIBRARY_PATH_PREPEND;PYTHON_PATH_PREPEND;ENVIRONMENT;DEPENDS"
+        "LIBRARY_PATH_PREPEND;PYTHON_PATH_PREPEND;ENVIRONMENT"
     )
 
     # Set library path depending on the platform.
@@ -23,8 +27,8 @@ function(pytest_discover_tests NAME)
     endif()
 
     # Convert all paths into cmake paths.
-    #cmake_path(CONVERT "$ENV{${LIB_ENV_PATH}}" TO_CMAKE_PATH_LIST libpath)
-    #cmake_path(CONVERT "$ENV{PYTHONPATH}" TO_CMAKE_PATH_LIST pythonpath)
+    cmake_path(CONVERT "$ENV{${LIB_ENV_PATH}}" TO_CMAKE_PATH_LIST libpath)
+    cmake_path(CONVERT "$ENV{PYTHONPATH}" TO_CMAKE_PATH_LIST pythonpath)
 
     # Prepend input path to environment variables
     if (_LIBRARY_PATH_PREPEND)

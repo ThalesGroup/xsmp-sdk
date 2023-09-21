@@ -12,57 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ecss_smp_H_
-#define ecss_smp_H_
+#ifndef PYTHON_ECSS_SMP_H_
+#define PYTHON_ECSS_SMP_H_
 
 #include <pybind11/pybind11.h>
-#include <Smp/AnySimple.h>
-#include <Smp/Exception.h>
-#include <Smp/CannotDelete.h>
-#include <Smp/CannotRemove.h>
-#include <Smp/CannotRestore.h>
-#include <Smp/CannotStore.h>
-#include <Smp/ContainerFull.h>
-#include <Smp/DuplicateName.h>
-#include <Smp/DuplicateUuid.h>
-#include <Smp/EventSinkAlreadySubscribed.h>
-#include <Smp/EventSinkNotSubscribed.h>
-#include <Smp/FieldAlreadyConnected.h>
-#include <Smp/InvalidAnyType.h>
-#include <Smp/InvalidArrayIndex.h>
-#include <Smp/InvalidArraySize.h>
-#include <Smp/InvalidArrayValue.h>
-#include <Smp/InvalidComponentState.h>
-#include <Smp/InvalidEventSink.h>
-#include <Smp/InvalidFieldName.h>
-#include <Smp/InvalidFieldType.h>
-#include <Smp/InvalidFieldValue.h>
-#include <Smp/InvalidLibrary.h>
-#include <Smp/InvalidObjectName.h>
-#include <Smp/InvalidObjectType.h>
-#include <Smp/InvalidOperationName.h>
-#include <Smp/InvalidParameterCount.h>
-#include <Smp/InvalidParameterIndex.h>
-#include <Smp/InvalidParameterType.h>
-#include <Smp/InvalidParameterValue.h>
-#include <Smp/InvalidReturnValue.h>
-#include <Smp/InvalidSimulatorState.h>
-#include <Smp/InvalidTarget.h>
-#include <Smp/LibraryNotFound.h>
-#include <Smp/NotContained.h>
-#include <Smp/NotReferenced.h>
-#include <Smp/Services/EntryPointAlreadySubscribed.h>
-#include <Smp/Services/EntryPointNotSubscribed.h>
-#include <Smp/Services/InvalidCycleTime.h>
-#include <Smp/Services/InvalidEventId.h>
-#include <Smp/Services/InvalidEventName.h>
-#include <Smp/Services/InvalidEventTime.h>
-#include <Smp/Services/InvalidSimulationTime.h>
-#include <Smp/Publication/DuplicateLiteral.h>
-#include <Smp/Publication/InvalidPrimitiveType.h>
-#include <Smp/Publication/TypeAlreadyRegistered.h>
-#include <Smp/Publication/TypeNotRegistered.h>
 
+namespace py = pybind11;
+
+#include <Smp/AnySimple.h>
 #include <Smp/IAggregate.h>
 #include <Smp/IArrayField.h>
 #include <Smp/IContainer.h>
@@ -102,7 +59,6 @@
 #include <vector>
 #include <sstream>
 
-namespace py = pybind11;
 
 namespace PYBIND11_NAMESPACE {
 struct TypeHierarchy {
@@ -222,7 +178,7 @@ public:
         record.type_size = sizeof(*obj);
         record.type_align = alignof(type);
         // Store the dynamic class in the root module ecss_smp
-        record.scope = py::module_::import("ecss_smp");
+        record.scope = module_::import("ecss_smp");
 
         record.holder_size = sizeof(holder_type);
         record.init_instance = init_instance;
@@ -316,7 +272,7 @@ private:
 };
 
 void Register(::Smp::IObject *object) {
-    if (py::detail::get_local_type_info(typeid(*object)) == nullptr) {
+    if (detail::get_local_type_info(typeid(*object)) == nullptr) {
         SmpClass(object)
 
         .doc() = "Automatic Python binding for '"
@@ -327,6 +283,8 @@ void Register(::Smp::IObject *object) {
 }
 
 } // namespace PYBIND11_NAMESPACE
+
+
 
 py::object convert(::Smp::AnySimple value) {
     switch (value.GetType()) {
@@ -418,4 +376,4 @@ inline ::Smp::UInt64 GetIndex(::Smp::Int64 index, ::Smp::UInt64 size) {
     return static_cast<::Smp::UInt64>(result);
 }
 
-#endif /* ecss_smp_H_ */
+#endif // PYTHON_ECSS_SMP_H_

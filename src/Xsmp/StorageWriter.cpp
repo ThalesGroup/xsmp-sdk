@@ -37,7 +37,7 @@ std::ofstream createOutputStream(::Smp::String8 path, ::Smp::String8 filename,
 
     if (!os.good())
         ::Xsmp::Exception::throwCannotStore(object,
-                std::string("Cannot open file: ") + fullPath.c_str());
+                "Cannot open file: " + fullPath.string());
     return os;
 }
 } // namespace
