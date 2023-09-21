@@ -37,7 +37,8 @@ ModelWithSimpleFieldsGen::ModelWithSimpleFieldsGen(::Smp::String8 name,
         ::Xsmp::Model(name, description, parent, simulator),
         // Event Sink: esi
         esi { new ::Xsmp::EventSink<>("esi", "", this,
-                &ModelWithSimpleFieldsGen::_esi) },
+                std::bind(&ModelWithSimpleFieldsGen::_esi, this,
+                        std::placeholders::_1)) },
         // Event Source: eso
         eso { new ::Xsmp::EventSource<>("eso", "", this) },
         // boolean initialization

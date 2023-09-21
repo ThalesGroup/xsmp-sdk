@@ -47,14 +47,14 @@ TEST(EventsTest, auto_register) {
     TestEventProvider event_sources { "collection" };
 
     EXPECT_EQ(0, event_sources.GetEventSources()->size());
-    EventSource<void> eso { "eso", "", &event_sources };
+    EventSource eso { "eso", "", &event_sources };
     EXPECT_EQ(1, event_sources.GetEventSources()->size());
     EXPECT_EQ(&eso, event_sources.GetEventSource("eso"));
     EXPECT_EQ(&eso, event_sources.GetEventSources()->at("eso"));
 
     TestEventConsumer event_sinks { "collection", "", &sender };
     EXPECT_EQ(0, event_sinks.GetEventSinks()->size());
-    EventSink<void> esi { "esi", "desc", &event_sinks, [&](::Smp::IObject*) {
+    EventSink esi { "esi", "desc", &event_sinks, [&](::Smp::IObject*) {
     } };
 
     EXPECT_EQ(1, event_sinks.GetEventSinks()->size());
@@ -67,13 +67,13 @@ TEST(EventsTest, void_emit) {
     Object sender { "sender", "", nullptr };
     TestEventProvider event_sources { "collection", "", &sender };
 
-    EventSource<void> eso { "eso1", "", &event_sources };
+    EventSource eso { "eso1", "", &event_sources };
 
     eso.Emit(&sender);
 
     ::Smp::IObject *esiSender = nullptr;
     TestEventConsumer event_sinks { "collection", "", &sender };
-    EventSink<void> esi { "esi1", "desc", &event_sinks, [&](
+    EventSink esi { "esi1", "desc", &event_sinks, [&](
             ::Smp::IObject *obj) {
         esiSender = obj;
     } };
@@ -150,7 +150,7 @@ TEST(EventsTest, exceptions) {
 
     EXPECT_THROW(eso.Subscribe(&esi2), ::Smp::InvalidEventSink);
 
-    EventSink<void> esi3 { "esi3", "desc", &event_sinks, [&](::Smp::IObject*) {
+    EventSink esi3 { "esi3", "desc", &event_sinks, [&](::Smp::IObject*) {
     } };
 
     EXPECT_THROW(

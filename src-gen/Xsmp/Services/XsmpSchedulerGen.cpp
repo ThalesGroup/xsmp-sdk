@@ -37,13 +37,13 @@ XsmpSchedulerGen::XsmpSchedulerGen(::Smp::String8 name,
         ::Xsmp::Service(name, description, parent, simulator),
         // EntryPoint: HoldEvent
         HoldEvent { new ::Xsmp::EntryPoint("HoldEvent", "", this,
-                &XsmpSchedulerGen::_HoldEvent) },
+                std::bind(&XsmpSchedulerGen::_HoldEvent, this)) },
         // EntryPoint: EnterExecuting
         EnterExecuting { new ::Xsmp::EntryPoint("EnterExecuting", "", this,
-                &XsmpSchedulerGen::_EnterExecuting) },
+                std::bind(&XsmpSchedulerGen::_EnterExecuting, this)) },
         // EntryPoint: LeaveExecuting
         LeaveExecuting { new ::Xsmp::EntryPoint("LeaveExecuting", "", this,
-                &XsmpSchedulerGen::_LeaveExecuting) } {
+                std::bind(&XsmpSchedulerGen::_LeaveExecuting, this)) } {
 }
 
 /// Virtual destructor that is called by inherited classes as well.

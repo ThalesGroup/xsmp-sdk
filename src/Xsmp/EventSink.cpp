@@ -36,6 +36,17 @@ AbstractEventSink::AbstractEventSink(::Smp::String8 name,
     return ::Smp::PrimitiveTypeKind::PTK_None;
 }
 
+EventSink<void>::EventSink(::Smp::String8 name, ::Smp::String8 description,
+        ::Smp::IObject *parent, callbackType &&callback) :
+        AbstractEventSink(name, description, parent), _callback(
+                std::move(callback)) {
+}
+EventSink<void>::EventSink(::Smp::String8 name, ::Smp::String8 description,
+        ::Xsmp::EventConsumer *parent, callbackType &&callback) :
+        AbstractEventSink(name, description, parent), _callback(
+                std::move(callback)) {
+}
+
 void EventSink<void>::Notify(::Smp::IObject *sender, ::Smp::AnySimple value) {
     if (value.GetType() != GetEventArgType())
         ::Xsmp::Exception::throwInvalidAnyType(nullptr, value.GetType(),

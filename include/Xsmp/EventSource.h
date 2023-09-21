@@ -43,12 +43,11 @@ public:
     void Subscribe(::Smp::IEventSink *eventSink) final;
     void Unsubscribe(::Smp::IEventSink *eventSink) final;
 protected:
-    inline const std::set<::Smp::IEventSink*>& GetEventSinks() const noexcept {
-        return _event_sinks;
-    }
     inline ::Smp::PrimitiveTypeKind GetEventArgType() const noexcept {
         return _eventArgType;
     }
+
+    void Emit(::Smp::IObject *sender, const ::Smp::AnySimple &value) const;
 private:
     std::set<::Smp::IEventSink*> _event_sinks { };
     ::Smp::PrimitiveTypeKind _eventArgType;
@@ -81,10 +80,9 @@ public:
     /// @param sender component that emits the event
     /// @param value event value to send
     void Emit(::Smp::IObject *sender, T value) const {
-        for (auto &sink : GetEventSinks()) {
-            sink->Notify(sender,
-                    AnySimpleConverter<T>::convert(GetEventArgType(), value));
-        }
+        AbstractEventSource::Emit(sender,
+                AnySimpleConverter<T>::convert(GetEventArgType(), value));
+
     }
 
     /// Emit the event to all connected events sinks
@@ -135,6 +133,10 @@ public:
     /// @remark use the parent as emitter
     void operator()() const;
 };
+
+// deduction guide
+EventSource(::Smp::String8 name, ::Smp::String8 description,
+        ::Smp::IObject *parent) -> EventSource<void>;
 
 } // namespace Xsmp
 

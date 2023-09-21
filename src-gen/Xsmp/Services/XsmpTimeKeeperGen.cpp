@@ -37,10 +37,10 @@ XsmpTimeKeeperGen::XsmpTimeKeeperGen(::Smp::String8 name,
         ::Xsmp::Service(name, description, parent, simulator),
         // EntryPoint: PreSimTimeChange
         PreSimTimeChange { new ::Xsmp::EntryPoint("PreSimTimeChange", "", this,
-                &XsmpTimeKeeperGen::_PreSimTimeChange) },
+                std::bind(&XsmpTimeKeeperGen::_PreSimTimeChange, this)) },
         // EntryPoint: PostSimTimeChange
         PostSimTimeChange { new ::Xsmp::EntryPoint("PostSimTimeChange", "",
-                this, &XsmpTimeKeeperGen::_PostSimTimeChange) } {
+                this, std::bind(&XsmpTimeKeeperGen::_PostSimTimeChange, this)) } {
 }
 
 /// Virtual destructor that is called by inherited classes as well.

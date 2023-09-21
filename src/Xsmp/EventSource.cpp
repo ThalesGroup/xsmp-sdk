@@ -65,6 +65,12 @@ void AbstractEventSource::RemoveLinks(const ::Smp::IComponent *target) {
             ++it;
     }
 }
+void AbstractEventSource::Emit(::Smp::IObject *sender,
+        const ::Smp::AnySimple &value) const {
+    for (auto &sink : _event_sinks) {
+        sink->Notify(sender, value);
+    }
+}
 
 } // namespace detail
 
@@ -80,9 +86,7 @@ EventSource<void>::EventSource(::Smp::String8 name, ::Smp::String8 description,
 }
 
 void EventSource<void>::Emit(::Smp::IObject *sender) const {
-    for (auto &sink : GetEventSinks()) {
-        sink->Notify(sender, ::Smp::AnySimple { });
-    }
+    AbstractEventSource::Emit(sender, ::Smp::AnySimple { });
 }
 void EventSource<void>::Emit() const {
     Emit(this->GetParent());

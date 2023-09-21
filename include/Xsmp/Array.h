@@ -20,6 +20,7 @@
 #include <iterator>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 
 namespace Xsmp {
 
@@ -29,13 +30,13 @@ struct simpleArray {
 };
 } //namespace Annotation
 
-template <typename Tp, std::size_t Nm>
+template<typename Tp, std::size_t Nm>
 struct _array_traits {
     using type = Tp[Nm];
     using is_nothrow_swappable = std::is_nothrow_swappable<Tp>;
 };
 
-template <typename Tp>
+template<typename Tp>
 struct _array_traits<Tp, 0> {
     // Empty type used instead of Tp[0] for Xsmp::Array<Tp, 0>.
     struct type {
@@ -86,8 +87,8 @@ struct Array {
         std::fill_n(begin(), size(), _u);
     }
 
-    constexpr void swap(Array &_other) 
-    noexcept(_array_traits<Tp, Nm>::is_nothrow_swappable::value) {
+    constexpr void swap(Array &_other)
+            noexcept (_array_traits<Tp, Nm>::is_nothrow_swappable::value) {
         std::swap_ranges(begin(), end(), _other.begin());
     }
 
@@ -206,6 +207,11 @@ struct Array {
         return static_cast<const_pointer>(internalArray);
     }
 };
+
+//deduction guide
+template<class Tp, class ... Args, class = std::enable_if_t<
+        (std::is_same_v<Tp, Args> && ...), void> >
+Array(Tp, Args...) -> Array<Tp, 1 + sizeof...(Args)>;
 
 // Array comparisons.
 template<typename Tp, std::size_t Nm, typename ... options>

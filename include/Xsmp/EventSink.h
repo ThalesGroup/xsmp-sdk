@@ -39,34 +39,20 @@ public:
 
 template<typename T = void>
 class EventSink final: public detail::AbstractEventSink {
+    using callbackType = std::function<void(::Smp::IObject *sender, T value)>;
 public:
-
-    template<typename ObjectType>
     EventSink(::Smp::String8 name, ::Smp::String8 description,
-            ObjectType *parent,
-            void (ObjectType::*callback)(::Smp::IObject*, T),
-            ::Smp::PrimitiveTypeKind eventArgType) :
-            EventSink(name, description, parent,
-                    std::bind(callback, parent, std::placeholders::_1,
-                            std::placeholders::_2), eventArgType) {
-    }
-
-    template<typename Callable>
-    EventSink(::Smp::String8 name, ::Smp::String8 description,
-            ::Smp::IObject *parent, Callable &&callback,
+            ::Smp::IObject *parent, callbackType &&callback,
             ::Smp::PrimitiveTypeKind eventArgType) :
             AbstractEventSink(name, description, parent), _callback(
-                    std::forward<Callable>(callback)), _eventArgType(
-                    eventArgType) {
+                    std::move(callback)), _eventArgType(eventArgType) {
     }
 
-    template<typename Callable>
     EventSink(::Smp::String8 name, ::Smp::String8 description,
-            ::Xsmp::EventConsumer *parent, Callable &&callback,
+            ::Xsmp::EventConsumer *parent, callbackType &&callback,
             ::Smp::PrimitiveTypeKind eventArgType) :
             AbstractEventSink(name, description, parent), _callback(
-                    std::forward<Callable>(callback)), _eventArgType(
-                    eventArgType) {
+                    std::move(callback)), _eventArgType(eventArgType) {
     }
 
     ::Smp::PrimitiveTypeKind GetEventArgType() const override {
@@ -77,42 +63,32 @@ public:
     }
 
 private:
-    std::function<void(::Smp::IObject *sender, T value)> _callback;
+    callbackType _callback;
     ::Smp::PrimitiveTypeKind _eventArgType;
 };
 
 /// specialization for void event (implemented in .cpp)
 template<>
 class EventSink<void> final: public detail::AbstractEventSink {
+    using callbackType = std::function<void(::Smp::IObject *sender)>;
 public:
-
-    template<typename ObjectType>
     EventSink(::Smp::String8 name, ::Smp::String8 description,
-            ObjectType *parent, void (ObjectType::*callback)(::Smp::IObject*)) :
-            EventSink(name, description, parent,
-                    std::bind(callback, parent, std::placeholders::_1)) {
-    }
-
-    template<typename Callable>
+            ::Smp::IObject *parent, callbackType &&callback);
     EventSink(::Smp::String8 name, ::Smp::String8 description,
-            ::Smp::IObject *parent, Callable &&callback) :
-            AbstractEventSink(name, description, parent), _callback(
-                    std::forward<Callable>(callback)) {
-    }
-
-    template<typename Callable>
-    EventSink(::Smp::String8 name, ::Smp::String8 description,
-            ::Xsmp::EventConsumer *parent, Callable &&callback) :
-            AbstractEventSink(name, description, parent), _callback(
-                    std::forward<Callable>(callback)) {
-    }
+            ::Xsmp::EventConsumer *parent, callbackType &&callback);
     ~EventSink() noexcept override = default;
     ::Smp::PrimitiveTypeKind GetEventArgType() const override;
     void Notify(::Smp::IObject *sender, ::Smp::AnySimple value) override;
 
 private:
-    std::function<void(::Smp::IObject *sender)> _callback;
+    callbackType _callback;
 };
+
+// deduction guide
+EventSink(::Smp::String8 name, ::Smp::String8 description,
+        ::Smp::IObject *parent,
+        std::function<void(::Smp::IObject *sender)> callback) ->
+                EventSink<void>;
 
 } // namespace Xsmp
 

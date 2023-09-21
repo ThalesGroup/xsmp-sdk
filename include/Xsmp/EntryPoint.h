@@ -26,13 +26,6 @@ class EntryPointPublisher;
 
 class EntryPoint final: public Object, public ::Smp::IEntryPoint {
 public:
-
-    template<typename ObjectType>
-    EntryPoint(::Smp::String8 name, ::Smp::String8 description,
-            ObjectType *parent, void (ObjectType::*callback)(void)) :
-            EntryPoint(name, description, parent, std::bind(callback, parent)) {
-    }
-
     EntryPoint(::Smp::String8 name, ::Smp::String8 description,
             ::Xsmp::EntryPointPublisher *parent,
             std::function<void()> &&callback);
