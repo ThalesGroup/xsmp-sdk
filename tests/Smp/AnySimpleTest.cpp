@@ -32,8 +32,8 @@ TYPED_TEST_SUITE_P(Integral);
 template<typename TypeParam, PrimitiveTypeKind kind>
 void check() {
 
-    auto min = ::Xsmp::Helper::numeric_limits<kind>::lowest();
-    auto expectedMin = std::numeric_limits<TypeParam>::lowest();
+    constexpr auto min = ::Xsmp::Helper::numeric_limits<kind>::lowest();
+    constexpr auto expectedMin = std::numeric_limits<TypeParam>::lowest();
 
     EXPECT_NO_THROW( (AnySimple {kind, min}))<< kind;
     EXPECT_THROW((AnySimple {PrimitiveTypeKind::PTK_None, min}), ::Smp::InvalidAnyType);
@@ -57,8 +57,8 @@ void check() {
         EXPECT_THROW((static_cast<TypeParam>(AnySimple {kind,min})), ::Smp::InvalidAnyType)<< kind;
     }
 
-    auto max = ::Xsmp::Helper::numeric_limits<kind>::max();
-    auto expectedMax = std::numeric_limits<TypeParam>::max();
+    constexpr auto max = ::Xsmp::Helper::numeric_limits<kind>::max();
+    constexpr auto expectedMax = std::numeric_limits<TypeParam>::max();
 
     EXPECT_NO_THROW(
             (AnySimple {kind,

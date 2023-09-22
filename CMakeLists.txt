@@ -575,6 +575,9 @@ if(XSMP_BUILD_TESTS)
                                     Xsmp::Services
                                     GTest::gtest_main
     )
+    if(MSVC)
+        target_compile_options(XsmpTests PRIVATE /bigobj)
+    endif(MSVC)
 
     gtest_discover_tests(XsmpTests)
     

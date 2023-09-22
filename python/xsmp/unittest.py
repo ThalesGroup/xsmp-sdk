@@ -76,7 +76,6 @@ class TestCase(unittest.TestCase):
         except Exception as err:
             # in case of error, try to deallocate the simulator
             try:
-                self.sim.Exit()
                 del self.sim
             except AttributeError:
                 pass

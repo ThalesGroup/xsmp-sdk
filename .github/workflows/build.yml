@@ -4,7 +4,7 @@ on:
    push:
       branches:
       - main
-      - 1-build-on-windows
+      - enable-tests-on-windows
    pull_request:
       branches:
       - main
@@ -141,21 +141,24 @@ jobs:
             - windows-2022
             - windows-latest
       steps:
-      -  uses: actions/checkout@v3
+      -  uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
       -  name: install  pytest
          run: |
-            pip install pytest
+            python3 -m pip install pytest
       -  name: Configure cmake
          run: |
             cmake -B build -DCMAKE_BUILD_TYPE=Release -DXSMP_BUILD_EXAMPLES=ON -S .
       -  name: Build
          run: |
             cmake --build build --config Release -j 2
-#TODO enable tests
-#      -  name: Run tests
-#         working-directory: build
-#         run: |
-#            ctest -C Release --output-on-failure -E XsmpSchedulerTest
+      -  name: Run tests
+         working-directory: build
+         run: |
+            ctest -C Release --output-on-failure -E "XsmpSchedulerTest|PythonTest|xsmp_example_project1Test"
    python:
       name: '${{matrix.os}} :: Python ${{matrix.python-version}}'
       runs-on: ${{matrix.os}}
