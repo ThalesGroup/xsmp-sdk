@@ -70,30 +70,32 @@ void* GetSymbol(void *handle, const char *symbolName) {
 // Create a string with last error message
 std::string GetLastError() {
 #if (defined(_WIN32) || defined(_WIN64))
+    DWORD error = ::GetLastError();
+    if (error) {
+        LPVOID lpMsgBuf;
+        DWORD bufLen = FormatMessageW(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER |
+            FORMAT_MESSAGE_FROM_SYSTEM |
+            FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL,
+            error,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            (LPWSTR)&lpMsgBuf,
+            0, NULL);
 
-  DWORD error = ::GetLastError();
-  if (error)
-  {
-    LPVOID lpMsgBuf;
-    DWORD bufLen = FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER |
-        FORMAT_MESSAGE_FROM_SYSTEM |
-        FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL,
-        error,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPTSTR) &lpMsgBuf,
-        0, NULL );
-    if (bufLen)
-    {
-      LPCSTR lpMsgStr = (LPCSTR)lpMsgBuf;
-      std::string result(lpMsgStr, lpMsgStr+bufLen);
+        if (bufLen) {
+            LPCWSTR lpMsgStr = (LPCWSTR)lpMsgBuf;
+            int utf8BufferSize = WideCharToMultiByte(CP_UTF8, 0, lpMsgStr, -1, NULL, 0, NULL, NULL);
+            if (utf8BufferSize > 0) {
+                std::string result(utf8BufferSize, 0);
+                WideCharToMultiByte(CP_UTF8, 0, lpMsgStr, -1, &result[0], utf8BufferSize, NULL, NULL);
 
-      LocalFree(lpMsgBuf);
+                LocalFree(lpMsgBuf);
 
-      return result;
+                return result;
+            }
+        }
     }
-  }
 #else
     if (auto const *error = dlerror())
         return error;

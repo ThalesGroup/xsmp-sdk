@@ -17,7 +17,7 @@ function(pytest_discover_tests NAME)
     # Set library path depending on the platform.
     if (CMAKE_SYSTEM_NAME STREQUAL Windows)
         set(LIB_ENV_PATH PATH)
-        set(_env_sep "\\\;")
+        set(_env_sep "\\\\\;")
     elseif(CMAKE_SYSTEM_NAME STREQUAL Darwin)
         set(LIB_ENV_PATH DYLD_LIBRARY_PATH)
         set(_env_sep ":")
@@ -37,7 +37,18 @@ function(pytest_discover_tests NAME)
             set(libpath "${_path}" "${libpath}")
         endforeach()
     endif()
-    set(pythonpath "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" "${xsmp-sdk_SOURCE_DIR}/python")
+
+    get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL
+        PROPERTY GENERATOR_IS_MULTI_CONFIG
+    )
+
+    if(GENERATOR_IS_MULTI_CONFIG)
+      set(libpath "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/$<CONFIG>" "${libpath}")
+      set(pythonpath "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/$<CONFIG>" "${xsmp-sdk_SOURCE_DIR}/python" "${pythonpath}")
+    else()
+      set(libpath "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" "${libpath}")
+      set(pythonpath "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" "${xsmp-sdk_SOURCE_DIR}/python" "${pythonpath}")
+    endif()
 
     if (_PYTHON_PATH_PREPEND)
         list(REVERSE _PYTHON_PATH_PREPEND)
@@ -64,14 +75,12 @@ function(pytest_discover_tests NAME)
 
     set(ctest_file_base "${CMAKE_CURRENT_BINARY_DIR}/${NAME}")
     set(ctest_include_file "${ctest_file_base}_include.cmake")
-    set(ctest_tests_file "${ctest_file_base}_tests.cmake")
   
-    get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL
-        PROPERTY GENERATOR_IS_MULTI_CONFIG
-    )
 
     if(GENERATOR_IS_MULTI_CONFIG)
       set(ctest_tests_file "${ctest_file_base}_tests-$<CONFIG>.cmake")
+    else()
+      set(ctest_tests_file "${ctest_file_base}_tests.cmake")
     endif()
     string(CONCAT ctest_include_content
 
