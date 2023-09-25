@@ -34,15 +34,15 @@ struct AnySimpleConverter {
     }
 };
 
-/// converter for enum types (intermediate cast to ::Smp::Int32)
+/// converter for enum types (intermediate cast to the underlying enum type)
 template<typename T>
 struct AnySimpleConverter<T, std::enable_if_t<std::is_enum_v<T>>> {
     static inline T convert(const ::Smp::AnySimple &value) {
-        return static_cast<T>(static_cast<::Smp::Int32>(value));
+        return static_cast<T>(static_cast<std::underlying_type_t<T>>(value));
     }
     static inline ::Smp::AnySimple convert(::Smp::PrimitiveTypeKind kind,
             T value) {
-        return {kind, static_cast<::Smp::Int32>(value)};
+        return {kind, static_cast<std::underlying_type_t<T>>(value)};
     }
 };
 
