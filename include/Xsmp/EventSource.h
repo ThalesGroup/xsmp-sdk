@@ -43,7 +43,7 @@ public:
     void Subscribe(::Smp::IEventSink *eventSink) final;
     void Unsubscribe(::Smp::IEventSink *eventSink) final;
 protected:
-    inline ::Smp::PrimitiveTypeKind GetEventArgType() const noexcept {
+    [[nodiscard]] inline ::Smp::PrimitiveTypeKind GetEventArgType() const noexcept {
         return _eventArgType;
     }
 

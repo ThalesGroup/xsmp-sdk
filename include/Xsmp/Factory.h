@@ -36,13 +36,15 @@ using _factory_instantiator_t = std::function<std::unique_ptr<::Smp::IComponent>
         ::Smp::IComposite* parent,
         ::Smp::ISimulator *simulator)>;
 
-::Smp::IFactory* Create(::Smp::String8 name, ::Smp::String8 description,
-        ::Smp::ISimulator *simulator, ::Smp::Uuid uuid,
-        const std::type_info &type, _factory_instantiator_t &&callback);
+[[nodiscard]] ::Smp::IFactory* Create(::Smp::String8 name,
+        ::Smp::String8 description, ::Smp::ISimulator *simulator,
+        ::Smp::Uuid uuid, const std::type_info &type,
+        _factory_instantiator_t &&callback);
 
 template<typename T>
-::Smp::IFactory* Create(::Smp::String8 name, ::Smp::String8 description,
-        ::Smp::ISimulator *simulator, ::Smp::Uuid uuid) {
+[[nodiscard]] ::Smp::IFactory* Create(::Smp::String8 name,
+        ::Smp::String8 description, ::Smp::ISimulator *simulator,
+        ::Smp::Uuid uuid) {
 
     static_assert(std::is_base_of_v<::Smp::IComponent, T>, "T must inherit from ::Smp::IComponent");
 

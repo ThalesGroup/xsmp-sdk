@@ -370,7 +370,7 @@ private:
 
     void EmitGlobalEvent(::Smp::Services::EventId id);
 
-    ::Xsmp::Publication::Publication* CreatePublication(
+    [[nodiscard]] ::Xsmp::Publication::Publication* CreatePublication(
             ::Smp::IComponent *component);
 
     std::vector<std::pair<std::string, void*>> _libraries { };

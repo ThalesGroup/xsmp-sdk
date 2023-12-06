@@ -36,9 +36,10 @@ private:
             ::Smp::IRequest *request, const std::string &name,
             const ::Smp::AnySimple &value);
 
-    static ::Smp::AnySimple getValue(::Smp::IComponent const *component,
-            ::Smp::IRequest const *request, const std::string &name,
-            ::Smp::PrimitiveTypeKind kind, bool useDefaultValue = false);
+    [[nodiscard]] static ::Smp::AnySimple getValue(
+            ::Smp::IComponent const *component, ::Smp::IRequest const *request,
+            const std::string &name, ::Smp::PrimitiveTypeKind kind,
+            bool useDefaultValue = false);
 
     ///Extract a field value from a request
     static void extract(::Smp::IRequest *request, ::Smp::IField *field,
@@ -55,7 +56,7 @@ public:
     /// @param kind the primitive type kind
     /// @return the parameter value
     template<typename T>
-    static T get(::Smp::IComponent const *component,
+    [[nodiscard]] static T get(::Smp::IComponent const *component,
             ::Smp::IRequest const *request, const std::string &name,
             ::Smp::PrimitiveTypeKind kind) {
         return AnySimpleConverter<T>::convert(
@@ -70,7 +71,7 @@ public:
     /// @param defaultValue the default value to return if the parameter is not found
     /// @return the parameter value or defaultValue
     template<typename T>
-    static T get(::Smp::IComponent const *component,
+    [[nodiscard]] static T get(::Smp::IComponent const *component,
             ::Smp::IRequest const *request, const std::string &name,
             ::Smp::PrimitiveTypeKind kind, T defaultValue) {
         auto value = getValue(component, request, name, kind, true);
@@ -88,7 +89,7 @@ public:
     /// @param uuid the type uuid
     /// @return the parameter value
     template<typename T, class C>
-    static T get(C *component, ::Smp::IRequest *request,
+    [[nodiscard]] static T get(C *component, ::Smp::IRequest *request,
             const std::string &name, const ::Smp::Uuid &uuid) {
         Field<T> parameter { component, uuid, name };
         extract(request, &parameter, parameter.GetName());
@@ -101,7 +102,7 @@ public:
     /// @param uuid the type uuid
     /// @return the parameter value
     template<typename T, class C>
-    static T get(C *component, ::Smp::IRequest *request,
+    [[nodiscard]] static T get(C *component, ::Smp::IRequest *request,
             const std::string &name, const ::Smp::Uuid &uuid,
             const T &default_value) {
         Field<T> parameter { component, uuid, name };

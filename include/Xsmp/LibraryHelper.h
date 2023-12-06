@@ -20,7 +20,7 @@
 namespace Xsmp {
 
 // Create a string with last error message
-std::string GetLastError();
+[[nodiscard]] std::string GetLastError();
 
 /// Load a library with the given libraryName
 /// @param libraryName the library name without the platform dependent prefix and suffix
@@ -32,10 +32,10 @@ void* LoadLibrary(const char *libraryName);
 /// Close a library handle
 void CloseLibrary(void *handle);
 
-void* GetSymbol(void *handle, const char *symbolName);
+[[nodiscard]] void* GetSymbol(void *handle, const char *symbolName);
 
 template<typename T>
-inline T GetSymbol(void *handle, const char *symbolName) {
+[[nodiscard]] inline T GetSymbol(void *handle, const char *symbolName) {
     return reinterpret_cast<T>(GetSymbol(handle, symbolName));
 }
 } // namespace Xsmp

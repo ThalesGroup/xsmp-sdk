@@ -44,18 +44,20 @@ void SafeExecute(::Smp::ISimulator *simulator,
 /// Get the object's path.
 /// @param obj the object
 /// @return the path
-std::string GetPath(const ::Smp::IObject *obj);
+[[nodiscard]] std::string GetPath(const ::Smp::IObject *obj);
 
-::Smp::IObject* Resolve(const ::Smp::ICollection<Smp::IField> *fields,
+[[nodiscard]] ::Smp::IObject* Resolve(
+        const ::Smp::ICollection<Smp::IField> *fields, ::Smp::String8 path);
+[[nodiscard]] ::Smp::IObject* Resolve(::Smp::IObject *parent,
         ::Smp::String8 path);
-::Smp::IObject* Resolve(::Smp::IObject *parent, ::Smp::String8 path);
-::Smp::IObject* Resolve(::Smp::IField *parent, ::Smp::String8 path);
+[[nodiscard]] ::Smp::IObject* Resolve(::Smp::IField *parent,
+        ::Smp::String8 path);
 
-std::string demangle(::Smp::String8 typeName);
+[[nodiscard]] std::string demangle(::Smp::String8 typeName);
 
-std::string TypeName(const ::Smp::IObject *type);
+[[nodiscard]] std::string TypeName(const ::Smp::IObject *type);
 template<typename T>
-std::string TypeName() {
+[[nodiscard]] std::string TypeName() {
     return demangle(typeid(T).name());
 }
 
@@ -64,7 +66,7 @@ void CopyString(::Smp::Char8 *destination, size_t size,
         const ::Smp::AnySimple &value);
 
 template<typename T>
-T* GetParentOfType(::Smp::IObject *object) {
+[[nodiscard]] T* GetParentOfType(::Smp::IObject *object) {
     for (auto *e = object; e != nullptr; e = e->GetParent())
         if (auto *casted = dynamic_cast<T*>(e))
             return casted;
@@ -73,7 +75,7 @@ T* GetParentOfType(::Smp::IObject *object) {
 }
 
 template<typename T>
-const T* GetParentOfType(const ::Smp::IObject *object) {
+[[nodiscard]] const T* GetParentOfType(const ::Smp::IObject *object) {
     for (const auto *e = object; e != nullptr; e = e->GetParent())
         if (const auto *casted = dynamic_cast<const T*>(e))
             return casted;
@@ -81,7 +83,8 @@ const T* GetParentOfType(const ::Smp::IObject *object) {
     return nullptr;
 }
 
-bool AreEquivalent(const ::Smp::IField *first, const ::Smp::IField *second);
+[[nodiscard]] bool AreEquivalent(const ::Smp::IField *first,
+        const ::Smp::IField *second);
 
 /// helper to check if a type is an smp string of the form
 /// struct MyStr {::Smp::Char8 internalString[42];};

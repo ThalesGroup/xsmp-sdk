@@ -25,11 +25,11 @@ namespace Xsmp {
 /// Basic converter for standard types (integrals, floats, bool)
 template<typename T, typename = void>
 struct AnySimpleConverter {
-    static inline T convert(const ::Smp::AnySimple &value) {
+    [[nodiscard]] static inline T convert(const ::Smp::AnySimple &value) {
         return static_cast<T>(value);
     }
-    static inline ::Smp::AnySimple convert(::Smp::PrimitiveTypeKind kind,
-            T value) {
+    [[nodiscard]] static inline ::Smp::AnySimple convert(
+            ::Smp::PrimitiveTypeKind kind, T value) {
         return ::Smp::AnySimple { kind, value };
     }
 };
@@ -37,11 +37,11 @@ struct AnySimpleConverter {
 /// converter for enum types (intermediate cast to the underlying enum type)
 template<typename T>
 struct AnySimpleConverter<T, std::enable_if_t<std::is_enum_v<T>>> {
-    static inline T convert(const ::Smp::AnySimple &value) {
+    [[nodiscard]] static inline T convert(const ::Smp::AnySimple &value) {
         return static_cast<T>(static_cast<std::underlying_type_t<T>>(value));
     }
-    static inline ::Smp::AnySimple convert(::Smp::PrimitiveTypeKind kind,
-            T value) {
+    [[nodiscard]] static inline ::Smp::AnySimple convert(
+            ::Smp::PrimitiveTypeKind kind, T value) {
         return {kind, static_cast<std::underlying_type_t<T>>(value)};
     }
 };
@@ -49,14 +49,14 @@ struct AnySimpleConverter<T, std::enable_if_t<std::is_enum_v<T>>> {
 /// converter for smp strings (with internalString array)
 template<typename T>
 struct AnySimpleConverter<T, std::enable_if_t<Helper::is_smp_string_v<T>>> {
-    static inline T convert(const ::Smp::AnySimple &value) {
+    [[nodiscard]] static inline T convert(const ::Smp::AnySimple &value) {
         T new_value;
         ::Xsmp::Helper::CopyString(&new_value.internalString[0],
                 sizeof(new_value.internalString), value);
         return new_value;
     }
-    static inline ::Smp::AnySimple convert(::Smp::PrimitiveTypeKind kind,
-            const T &value) {
+    [[nodiscard]] static inline ::Smp::AnySimple convert(
+            ::Smp::PrimitiveTypeKind kind, const T &value) {
         return {kind, &value.internalString[0]};
     }
 };
@@ -64,13 +64,13 @@ struct AnySimpleConverter<T, std::enable_if_t<Helper::is_smp_string_v<T>>> {
 /// converter for array of char (std::array<::Smp::Char8, ?> or ::Smp::Char8[?])
 template<typename T>
 struct AnySimpleConverter<T, std::enable_if_t<Helper::is_char_array_v<T>>> {
-    static inline T convert(const ::Smp::AnySimple &value) {
+    [[nodiscard]] static inline T convert(const ::Smp::AnySimple &value) {
         T new_value;
         ::Xsmp::Helper::CopyString(&new_value[0], sizeof(new_value), value);
         return new_value;
     }
-    static inline ::Smp::AnySimple convert(::Smp::PrimitiveTypeKind kind,
-            const T &value) {
+    [[nodiscard]] static inline ::Smp::AnySimple convert(
+            ::Smp::PrimitiveTypeKind kind, const T &value) {
         return {kind, &value[0]};
     }
 };

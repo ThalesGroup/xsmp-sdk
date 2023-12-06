@@ -63,7 +63,7 @@ public:
     void RemoveLinks(const Smp::IComponent *target) override;
     [[noreturn]] const ::Smp::Uuid& GetUuid() const override;
 protected:
-    inline ::Smp::ISimulator* GetSimulator() const noexcept {
+    [[nodiscard]] inline ::Smp::ISimulator* GetSimulator() const noexcept {
         return _simulator;
     }
 
