@@ -121,7 +121,7 @@ void DataflowField::Connect(::Smp::IField *target) {
     if (_targets.find(target) != _targets.end())
         ::Xsmp::Exception::throwFieldAlreadyConnected(this, this, target);
 
-    if (!this->IsOutput() || !target->IsInput()
+    if (!this->IsOutput() || !target->IsInput() || target == this
             || !::Xsmp::Helper::AreEquivalent(this, target))
         ::Xsmp::Exception::throwInvalidTarget(this, this, target);
 

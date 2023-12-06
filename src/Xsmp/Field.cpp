@@ -178,7 +178,7 @@ void SimpleArrayConnectableField::RemoveLinks(const ::Smp::IComponent *target) {
 
 void DataflowField::Connect(::Smp::IField *target) {
 
-    if (!this->IsOutput() || !target->IsInput()
+    if (!this->IsOutput() || !target->IsInput() || target == this
             || !::Xsmp::Helper::AreEquivalent(this, target)
             || !Connect(this, this, target))
         ::Xsmp::Exception::throwInvalidTarget(this, this, target);

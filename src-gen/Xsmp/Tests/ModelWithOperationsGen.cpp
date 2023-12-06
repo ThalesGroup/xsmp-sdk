@@ -210,7 +210,7 @@ ModelWithOperationsGen::RequestHandlers ModelWithOperationsGen::InitRequestHandl
     RequestHandlers handlers;
     if (handlers.find("voidOperation") == handlers.end()) {
         handlers["voidOperation"] = [](ModelWithOperationsGen *cmp,
-                ::Smp::IRequest *req) {
+                ::Smp::IRequest*) {
 
             /// Invoke voidOperation
             cmp->voidOperation();
