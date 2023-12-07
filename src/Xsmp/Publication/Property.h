@@ -30,6 +30,8 @@ class IType;
 
 namespace Xsmp::Publication {
 
+class Publication;
+
 class Property: public ::Xsmp::Object, public virtual ::Smp::IProperty {
 
 public:
@@ -74,6 +76,17 @@ public:
     void SetAccess(::Smp::AccessKind accessKind) noexcept;
     void SetView(::Smp::ViewKind view) noexcept;
 private:
+    /// provide access to Update method to Publication class
+    friend class ::Xsmp::Publication::Publication;
+
+    /// Update a Property that was already published.
+    /// @param description the new Property description
+    /// @param type the new Property type
+    /// @param accessKind the new Property accesskind
+    /// @param view the new Property view
+    void Update(::Smp::String8 description, ::Smp::Publication::IType *type,
+            ::Smp::AccessKind accessKind, ::Smp::ViewKind view) noexcept;
+
     ::Smp::Publication::IType *_type;
     ::Smp::AccessKind _accessKind;
     ::Smp::ViewKind _view;

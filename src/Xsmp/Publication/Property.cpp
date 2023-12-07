@@ -175,15 +175,11 @@ void Property::SetValue(::Smp::AnySimple value) {
 
 }
 
-void Property::SetType(::Smp::Publication::IType *type) noexcept {
+void Property::Update(::Smp::String8 description, ::Smp::Publication::IType *type,
+            ::Smp::AccessKind accessKind, ::Smp::ViewKind view) noexcept {
+    SetDescription(description);
     _type = type;
-}
-
-void Property::SetAccess(::Smp::AccessKind accessKind) noexcept {
     _accessKind = accessKind;
-}
-
-void Property::SetView(::Smp::ViewKind view) noexcept {
     _view = view;
 }
 

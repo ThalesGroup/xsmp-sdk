@@ -183,14 +183,12 @@ void Publication::PublishArray(::Smp::String8 name, ::Smp::String8 description,
         ::Smp::String8 name, ::Smp::String8 description, ::Smp::ViewKind view) {
 
     auto *operation = dynamic_cast<Operation*>(_operations.at(name));
-    if (operation) {
-        operation->SetDescription(description);
-        operation->SetView(view);
-    }
-    else {
+    if (operation)
+        operation->Update(description, view);
+    else
         operation = _operations.Add<Operation>(name, description, _parent, view,
                 _typeRegistry);
-    }
+
     return operation;
 }
 
@@ -202,13 +200,8 @@ void Publication::PublishProperty(::Smp::String8 name,
     if (!type)
         ::Xsmp::Exception::throwTypeNotRegistered(_parent, typeUuid);
 
-    auto *property = dynamic_cast<Property*>(_properties.at(name));
-    if (property) {
-        property->SetDescription(description);
-        property->SetType(type);
-        property->SetAccess(accessKind);
-        property->SetView(view);
-    }
+    if (auto *property = dynamic_cast<Property*>(_properties.at(name)))
+        property->Update(description, type, accessKind, view);
     else
         _properties.Add<Property>(name, description, _parent, type, accessKind,
                 view);

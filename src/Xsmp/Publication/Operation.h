@@ -31,7 +31,7 @@ class ITypeRegistry;
 } // namespace Smp::Publication
 
 namespace Xsmp::Publication {
-
+class Publication;
 class Operation final: public ::Xsmp::Object,
         public ::Smp::Publication::IPublishOperation,
         public ::Smp::IOperation {
@@ -131,9 +131,17 @@ public:
     /// @param   request Request object to destroy.
     void DeleteRequest(::Smp::IRequest *request) override;
 
-    using ::Xsmp::Object::SetDescription;
-    void SetView(::Smp::ViewKind view) noexcept;
+
 private:
+    /// provide access to Update method to Publication class
+    friend class ::Xsmp::Publication::Publication;
+
+    /// Update an Operation that was already published.
+    /// The parameters(including the return parameter) are reinitialized
+    /// @param description the new Operation description
+    /// @param view the new Operation view
+    void Update(::Smp::String8 description,::Smp::ViewKind view) noexcept;
+
     class Parameter final: public ::Xsmp::Object,
             public virtual ::Smp::IParameter {
         ::Smp::Publication::IType *_type;

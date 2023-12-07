@@ -150,8 +150,11 @@ void Operation::DeleteRequest(::Smp::IRequest *request) {
     stale_ptr.release();
 }
 
-void Operation::SetView(::Smp::ViewKind view) noexcept {
+void Operation::Update(::Smp::String8 description,::Smp::ViewKind view) noexcept {
+    SetDescription(description);
     _view = view;
+    _returnParameter = {};
+    _parameters.clear();
 }
 
 } // namespace Xsmp::Publication
