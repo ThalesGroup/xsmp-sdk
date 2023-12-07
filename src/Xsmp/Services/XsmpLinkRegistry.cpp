@@ -99,8 +99,7 @@ const ::Smp::ComponentCollection* XsmpLinkRegistry::GetLinkSources(
 
 void XsmpLinkRegistry::RemoveLinks(const ::Smp::IComponent *target) {
     std::unique_lock lck { _targetsMutex };
-    auto it = _targets.find(target);
-    if (it != _targets.end()) {
+    if (auto it = _targets.find(target); it != _targets.end()) {
         for (auto *source : it->second) {
             if (auto *cmp = dynamic_cast<::Smp::ILinkingComponent*>(source)) {
                 lck.unlock();

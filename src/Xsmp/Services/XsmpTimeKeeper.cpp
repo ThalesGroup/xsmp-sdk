@@ -101,11 +101,13 @@ void XsmpTimeKeeper::SetSimulationTime(::Smp::Duration simulationTime) {
 }
 
 void XsmpTimeKeeper::Restore(::Smp::IStorageReader *reader) {
+    std::scoped_lock lck { _mutex };
     ::Xsmp::Persist::Restore(GetSimulator(), this, reader, _simulationTime,
             _missionStartTime, _epochStart);
 }
 
 void XsmpTimeKeeper::Store(::Smp::IStorageWriter *writer) {
+    std::scoped_lock lck { _mutex };
     ::Xsmp::Persist::Store(GetSimulator(), this, writer, _simulationTime,
             _missionStartTime, _epochStart);
 }

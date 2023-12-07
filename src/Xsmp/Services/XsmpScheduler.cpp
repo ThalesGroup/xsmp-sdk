@@ -536,11 +536,10 @@ void XsmpScheduler::InternalZuluRun(const ::Smp::ISimulator *sim) {
     while (!_terminate) {
 
         std::unique_lock lck(_zuluEventsTableMutex);
+        auto it = _zulu_events_table.begin();
         // execute all events with time <= current zulu time
-        for (auto it = _zulu_events_table.begin();
-                it != _zulu_events_table.end()
-                        && it->first <= sim->GetTimeKeeper()->GetZuluTime();
-                it = _zulu_events_table.erase(it)) {
+        while (it != _zulu_events_table.end()
+                && it->first <= sim->GetTimeKeeper()->GetZuluTime()) {
 
             // execute all events
             while (!it->second.empty()) {
@@ -552,10 +551,12 @@ void XsmpScheduler::InternalZuluRun(const ::Smp::ISimulator *sim) {
                 for (auto eventId : events) {
                     if (_terminate)
                         return;
+
                     ExecuteZulu(eventId);
                 }
                 lck.lock();
             }
+            it = _zulu_events_table.erase(it);
         }
 
         // wait until next event
@@ -578,11 +579,13 @@ void XsmpScheduler::InternalZuluRun(const ::Smp::ISimulator *sim) {
 }
 
 void XsmpScheduler::Restore(::Smp::IStorageReader *reader) {
+    std::scoped_lock lck { _eventsMutex };
     ::Xsmp::Persist::Restore(GetSimulator(), this, reader, _events,
             _events_table, _immediate_events, _lastEventId);
 }
 
 void XsmpScheduler::Store(::Smp::IStorageWriter *writer) {
+    std::scoped_lock lck { _eventsMutex };
     ::Xsmp::Persist::Store(GetSimulator(), this, writer, _events, _events_table,
             _immediate_events, _lastEventId);
 }
