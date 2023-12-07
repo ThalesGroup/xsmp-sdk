@@ -89,7 +89,7 @@ XsmpEventManager::XsmpEventManager(::Smp::String8 name,
 
     auto eventId = static_cast<::Smp::Services::EventId>(_events.size() + 1);
 
-    auto &name = _events.try_emplace(eventName, eventId).first->first;
+    const auto &name = _events.try_emplace(eventName, eventId).first->first;
 
     std::scoped_lock lck2 { _idsMutex };
     _ids.try_emplace(eventId, name);
@@ -109,7 +109,7 @@ const std::string& XsmpEventManager::GetEventName(
 void XsmpEventManager::Subscribe(::Smp::Services::EventId event,
         const ::Smp::IEntryPoint *entryPoint) {
 
-    auto event_name = GetEventName(event);
+    const auto &event_name = GetEventName(event);
 
     std::unique_lock lck { _subscriptionsMutex };
 
@@ -139,7 +139,7 @@ void XsmpEventManager::Subscribe(::Smp::Services::EventId event,
 void XsmpEventManager::Unsubscribe(::Smp::Services::EventId event,
         const ::Smp::IEntryPoint *entryPoint) {
 
-    auto event_name = GetEventName(event);
+    const auto &event_name = GetEventName(event);
 
     std::scoped_lock lck { _subscriptionsMutex };
 
@@ -167,7 +167,7 @@ void XsmpEventManager::Unsubscribe(::Smp::Services::EventId event,
 void XsmpEventManager::Emit(::Smp::Services::EventId event,
         ::Smp::Bool /*synchronous*/) {
 
-    auto event_name = GetEventName(event);
+    const auto &event_name = GetEventName(event);
     if (auto *logger = GetSimulator()->GetLogger())
         logger->Log(this, event_name.c_str(),
                 ::Smp::Services::ILogger::LMK_Event);

@@ -151,7 +151,7 @@ void Request::SetParameterValue(::Smp::Int32 index, ::Smp::AnySimple value) {
         ::Xsmp::Exception::throwInvalidParameterValue(_operation, it->first,
                 value);
     }
-    _values[static_cast<size_t>(index)].first = value;
+    _values[static_cast<size_t>(index)].first = std::move(value);
 }
 
 ::Smp::AnySimple Request::GetParameterValue(::Smp::Int32 index) const {
@@ -170,7 +170,7 @@ void Request::SetReturnValue(::Smp::AnySimple value) {
             value))
         ::Xsmp::Exception::throwInvalidReturnValue(_operation, value);
 
-    _returnValue = value;
+    _returnValue = std::move(value);
 }
 
 ::Smp::AnySimple Request::GetReturnValue() const {
