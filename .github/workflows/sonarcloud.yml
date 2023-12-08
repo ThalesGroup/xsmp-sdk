@@ -60,5 +60,7 @@ jobs:
             -Dsonar.sources=include,src
             -Dsonar.tests=src,tests
             -Dsonar.sourceEncoding=UTF-8
+            -Dsonar.c.file.suffixes=.c
+            -Dsonar.cpp.file.suffixes=.cpp,.h
             -Dsonar.exclusions=src/Xsmp/Tests/**
             -Dsonar.test.inclusions=src/Xsmp/Tests/**
