@@ -298,7 +298,7 @@ public:
                 _pathRegex = std::regex { unescape(pathRegex->second),
                         std::regex::ECMAScript | std::regex::optimize };
             }
-            catch (const std::exception &e) {
+            catch (const std::regex_error &e) {
                 std::cerr << "Invalid regex expression: \"" << pathRegex->second
                         << "\" ->" << e.what() << std::endl;
             }

@@ -254,7 +254,7 @@ private:
 
     /// Initialize holder object, variant 2: try to construct from existing holder object, if
     /// possible
-    static void init_holder(detail::instance *inst,
+    static void init_holder(const detail::instance *inst,
             detail::value_and_holder &v_h, const holder_type *holder_ptr,
             const void* /* dummy -- not enable_shared_from_this<T>) */) {
         if (holder_ptr) {
@@ -329,7 +329,7 @@ py::object convert(::Smp::AnySimple value) {
         const auto &field = handle.cast<::Smp::ISimpleField&>();
         handle = convert(field.GetValue());
     }
-    catch (std::exception&) {
+    catch (py::cast_error&) {
         //ignore
     }
     switch (kind) {

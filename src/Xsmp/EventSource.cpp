@@ -56,7 +56,7 @@ void AbstractEventSource::Unsubscribe(::Smp::IEventSink *eventSink) {
     _event_sinks.erase(it);
 }
 
-void AbstractEventSource::RemoveLinks(const ::Smp::IComponent *target) {
+void AbstractEventSource::RemoveLinks(const ::Smp::IComponent *target) noexcept {
     //remove all event sinks contained in parent
     for (auto it = _event_sinks.begin(); it != _event_sinks.end();) {
         if ((*it)->GetParent() == target)
@@ -65,7 +65,7 @@ void AbstractEventSource::RemoveLinks(const ::Smp::IComponent *target) {
             ++it;
     }
 }
-void AbstractEventSource::Emit(::Smp::IObject *sender,
+void AbstractEventSource::DoEmit(::Smp::IObject *sender,
         const ::Smp::AnySimple &value) const {
     for (auto &sink : _event_sinks) {
         sink->Notify(sender, value);
@@ -86,7 +86,7 @@ EventSource<void>::EventSource(::Smp::String8 name, ::Smp::String8 description,
 }
 
 void EventSource<void>::Emit(::Smp::IObject *sender) const {
-    AbstractEventSource::Emit(sender, ::Smp::AnySimple { });
+    AbstractEventSource::DoEmit(sender, ::Smp::AnySimple { });
 }
 void EventSource<void>::Emit() const {
     Emit(this->GetParent());

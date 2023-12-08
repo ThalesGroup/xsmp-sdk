@@ -47,7 +47,7 @@ protected:
         return _eventArgType;
     }
 
-    void Emit(::Smp::IObject *sender, const ::Smp::AnySimple &value) const;
+    void DoEmit(::Smp::IObject *sender, const ::Smp::AnySimple &value) const;
 private:
     std::set<::Smp::IEventSink*> _event_sinks { };
     ::Smp::PrimitiveTypeKind _eventArgType;
@@ -57,7 +57,7 @@ private:
     /// After this method has been called, the component must not try to
     /// access the given target component anymore.
     /// @param   target Target component to which all links shall be removed.
-    virtual void RemoveLinks(const ::Smp::IComponent *target);
+    void RemoveLinks(const ::Smp::IComponent *target) noexcept;
     friend ::Xsmp::Component;
 };
 
@@ -80,7 +80,7 @@ public:
     /// @param sender component that emits the event
     /// @param value event value to send
     void Emit(::Smp::IObject *sender, T value) const {
-        AbstractEventSource::Emit(sender,
+        AbstractEventSource::DoEmit(sender,
                 AnySimpleConverter<T>::convert(GetEventArgType(), value));
 
     }
