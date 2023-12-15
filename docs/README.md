@@ -7,7 +7,7 @@
   [![Open questions](https://img.shields.io/static/v1?label=Discussions&message=Ask&color=blue&logo=github)](https://github.com/ThalesGroup/xsmp-sdk/discussions)
   [![Open bugs](https://img.shields.io/badge/Open-bugs-red.svg)](https://github.com/ThalesGroup/xsmp-sdk/labels/bug)
 
-  ![XSMP logo](https://github.com/ThalesGroup/xsmp-modeler-core/blob/main/logo/xsmp.svg)
+  ![XSMP logo](https://github.com/ThalesGroup/xsmp-modeler-core/raw/main/docs/images/xsmp_logo_light.svg)
 
 
 ## Dependencies

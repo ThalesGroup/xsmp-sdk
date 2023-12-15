@@ -1,15 +1,17 @@
 # XSMP-SDK: lightweight and efficient SMP Simulator Development Kit
 
-  [![Build Status](https://github.com/ThalesGroup/xsmp-sdk/actions/workflows/build.yml/badge.svg)](https://github.com/ThalesGroup/xsmp-sdk/actions/workflows/build.yml)
-  [![doc](https://github.com/ThalesGroup/xsmp-sdk/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/ThalesGroup/xsmp-sdk/actions/workflows/pages/pages-build-deployment)
-  [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ThalesGroup_xsmp-sdk&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ThalesGroup_xsmp-sdk)
-  [![Coverity Scan Build Status](https://scan.coverity.com/projects/29012/badge.svg)](https://scan.coverity.com/projects/ThalesGroup-xsmp-sdk)
-  [![Open questions](https://img.shields.io/static/v1?label=Discussions&message=Ask&color=blue&logo=github)](https://github.com/ThalesGroup/xsmp-sdk/discussions)
-  [![Open bugs](https://img.shields.io/badge/Open-bugs-red.svg)](https://github.com/ThalesGroup/xsmp-sdk/labels/bug)
+[![Build Status](https://github.com/ThalesGroup/xsmp-sdk/actions/workflows/build.yml/badge.svg)](https://github.com/ThalesGroup/xsmp-sdk/actions/workflows/build.yml)
+[![doc](https://github.com/ThalesGroup/xsmp-sdk/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/ThalesGroup/xsmp-sdk/actions/workflows/pages/pages-build-deployment)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ThalesGroup_xsmp-sdk&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ThalesGroup_xsmp-sdk)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/29012/badge.svg)](https://scan.coverity.com/projects/ThalesGroup-xsmp-sdk)
+[![Open questions](https://img.shields.io/static/v1?label=Discussions&message=Ask&color=blue&logo=github)](https://github.com/ThalesGroup/xsmp-sdk/discussions)
+[![Open bugs](https://img.shields.io/badge/Open-bugs-red.svg)](https://github.com/ThalesGroup/xsmp-sdk/labels/bug)
 
 <p align="center">
     <picture>
-      <img alt="XSMP logo" width="125" src="https://github.com/ThalesGroup/xsmp-modeler-core/blob/main/logo/xsmp.svg">
+      <source media="(prefers-color-scheme: dark)" width="200" srcset="https://github.com/ThalesGroup/xsmp-modeler-core/raw/main/docs/images/xsmp_logo_dark.svg">
+      <source media="(prefers-color-scheme: light)" width="200" srcset="https://github.com/ThalesGroup/xsmp-modeler-core/raw/main/docs/images/xsmp_logo_light.svg">
+      <img alt="XSMP logo" width="200" src="https://github.com/ThalesGroup/xsmp-modeler-core/raw/main/docs/images/xsmp_logo_light.svg">
     </picture>
 </p>
 
