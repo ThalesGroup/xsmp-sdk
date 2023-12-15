@@ -20,7 +20,7 @@ string(REGEX MATCH "^[0-9]+" XSMP_VERSION_PATCH "${XSMP_VERSION_PATCH}")
 
 project(xsmp-sdk
     VERSION "${XSMP_VERSION_MAJOR}.${XSMP_VERSION_MINOR}.${XSMP_VERSION_PATCH}"
-    DESCRIPTION "Xsmp Simulator Development Kit."
+    DESCRIPTION "XSMP Simulator Development Kit."
     HOMEPAGE_URL https://github.com/ThalesGroup/xsmp-sdk
     LANGUAGES CXX)
 
@@ -195,7 +195,7 @@ if(XSMP_BUILD_WITH_WARNINGS)
             /wd4619
             /wd4250
         )
-    endif()
+    endif(MSVC)
 endif(XSMP_BUILD_WITH_WARNINGS)
 
 # --------------------------------------------------------------------
@@ -527,7 +527,7 @@ if(XSMP_BUILD_PACKAGE)
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS ${package_files})
     add_custom_target(package DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/xsmp-sdk-src.zip)
-endif()
+endif(XSMP_BUILD_PACKAGE)
 
 
 
@@ -587,7 +587,7 @@ endif(XSMP_BUILD_TESTS)
 
 if(XSMP_BUILD_EXAMPLES)
     add_subdirectory(examples)
-endif()
+endif(XSMP_BUILD_EXAMPLES)
 
 if(XSMP_ENABLE_CODECOVERAGE)
     include(CTest)
@@ -620,4 +620,4 @@ if(XSMP_ENABLE_INSTALL)
     install(EXPORT xsmp.sdk-config
         NAMESPACE Xsmp::
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
-endif()
+endif(XSMP_ENABLE_INSTALL)

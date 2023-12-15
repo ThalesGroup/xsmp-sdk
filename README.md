@@ -27,7 +27,7 @@ It provides all SMP components to develop and test catalogues:
 
 - Linux, Windows or MacOS
 - A C++ 17 compiler: Clang 5+, GCC 7+ and MSVC 2019+ are officially supported
-- CMake 3.14+ (3.20+ for Python tests)
+- CMake 3.14+
 - Python 3.7+ and pytest
 
 ## How to Build

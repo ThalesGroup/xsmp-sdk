@@ -13,10 +13,17 @@ function(pytest_discover_tests_impl)
 
     set(_content "")
     
+    # Use platform specific path separator (";" on windows else ":") and convert path to native platform (replace "/" by "\" on Windows)
+    if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
+        string(REPLACE "][" "\\;" _LIBRARY_PATH "${_LIBRARY_PATH}")
+        string(REPLACE "][" "\\;" _PYTHON_PATH "${_PYTHON_PATH}")
+        string(REPLACE "/" "\\\\" _LIBRARY_PATH "${_LIBRARY_PATH}")
+        string(REPLACE "/" "\\\\" _PYTHON_PATH "${_PYTHON_PATH}")
+    else()
+        string(REPLACE "][" ":" _LIBRARY_PATH "${_LIBRARY_PATH}")
+        string(REPLACE "][" ":" _PYTHON_PATH "${_PYTHON_PATH}")
+    endif()
 
-    # Convert input environment variable into list.
-    string(REPLACE "\\\;" ";" _LIBRARY_PATH "${_LIBRARY_PATH}")
-    string(REPLACE "\\\;" ";" _PYTHON_PATH "${_PYTHON_PATH}")
 
     if (_BUNDLE_TESTS)
         string(APPEND _content
