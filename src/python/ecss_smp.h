@@ -67,105 +67,138 @@ struct TypeHierarchy {
     static TypeHierarchy of(std::vector<TypeHierarchy> _derived = { }) {
         return TypeHierarchy { typeid(T), [](void *src) -> void* {
             return dynamic_cast<T*>(reinterpret_cast<::Smp::IObject*>(src));
-        }, std::move(_derived) };
+        },
+        [](::Smp::IObject *src) -> bool {
+            return dynamic_cast<T*>(src);
+        },
+        std::move(_derived) };
     }
     const std::type_info &base;
     void* (*caster)(void*);
+    bool (*isInstance)(::Smp::IObject*);
     std::vector<TypeHierarchy> derived;
 };
 
-static inline const TypeHierarchy IObjectHierarchy = TypeHierarchy::of<
-        ::Smp::IObject>( {
+static inline const TypeHierarchy IObjectHierarchy =
+        TypeHierarchy::template of<::Smp::IObject>(
+                {
 //IObject
-        /*TypeHierarchy::of<::Smp::ICollection>( { }),*/
-        TypeHierarchy::of<::Smp::IComponent>( {
-        //IComponent
-                TypeHierarchy::of<::Smp::IAggregate>(),
+                        /*TypeHierarchy::template of<::Smp::ICollection>( { }),*/
+                        TypeHierarchy::template of<::Smp::IComponent>(
+                                {
+                                        //IComponent
+                                        TypeHierarchy::template of<
+                                                ::Smp::IAggregate>(),
 
-                TypeHierarchy::of<::Smp::IDynamicInvocation>(),
+                                        TypeHierarchy::template of<
+                                                ::Smp::IDynamicInvocation>(),
 
-                TypeHierarchy::of<::Smp::IEventConsumer>(),
+                                        TypeHierarchy::template of<
+                                                ::Smp::IEventConsumer>(),
 
-                TypeHierarchy::of<::Smp::IEventProvider>(),
+                                        TypeHierarchy::template of<
+                                                ::Smp::IEventProvider>(),
 
-                TypeHierarchy::of<::Smp::ILinkingComponent>(),
+                                        TypeHierarchy::template of<
+                                                ::Smp::ILinkingComponent>(),
 
-                TypeHierarchy::of<::Smp::IModel>( {
-                //IModel
-                        TypeHierarchy::of<::Smp::IFallibleModel>(),
+                                        TypeHierarchy::template of<::Smp::IModel>(
+                                                {
+                                                //IModel
+                                                        TypeHierarchy::template of<
+                                                                ::Smp::IFallibleModel>(),
 
-                }),
+                                                }),
 
-                TypeHierarchy::of<::Smp::IService>( {
-                //IService
-                        TypeHierarchy::of<::Smp::Services::IEventManager>(),
+                                        TypeHierarchy::template of<
+                                                ::Smp::IService>(
+                                                {
+                                                        //IService
+                                                        TypeHierarchy::template of<
+                                                                ::Smp::Services::IEventManager>(),
 
-                        TypeHierarchy::of<::Smp::Services::ILinkRegistry>(),
+                                                        TypeHierarchy::template of<
+                                                                ::Smp::Services::ILinkRegistry>(),
 
-                        TypeHierarchy::of<::Smp::Services::ILogger>(),
+                                                        TypeHierarchy::template of<
+                                                                ::Smp::Services::ILogger>(),
 
-                        TypeHierarchy::of<::Smp::Services::IResolver>(),
+                                                        TypeHierarchy::template of<
+                                                                ::Smp::Services::IResolver>(),
 
-                        TypeHierarchy::of<::Smp::Services::IScheduler>(),
+                                                        TypeHierarchy::template of<
+                                                                ::Smp::Services::IScheduler>(),
 
-                        TypeHierarchy::of<::Smp::Services::ITimeKeeper>(),
+                                                        TypeHierarchy::template of<
+                                                                ::Smp::Services::ITimeKeeper>(),
 
-                }),
+                                                }),
 
-        }),
+                                }),
 
-        TypeHierarchy::of<::Smp::IComposite>( {
-        //IComposite
-                TypeHierarchy::of<::Smp::ISimulator>(),
-
-        }),
-
-        TypeHierarchy::of<::Smp::IContainer>(),
-
-        TypeHierarchy::of<::Smp::IEntryPoint>(),
-
-        TypeHierarchy::of<::Smp::IEntryPointPublisher>(),
-
-        TypeHierarchy::of<::Smp::IEventSink>(),
-
-        TypeHierarchy::of<::Smp::IEventSource>(),
-
-        //TypeHierarchy::of<::Smp::IFactory>( ),
-
-        TypeHierarchy::of<::Smp::IOperation>(),
-
-        //TypeHierarchy::of<::Smp::IParameter>( ),
-
-        TypeHierarchy::of<::Smp::IPersist>( {
-        // IPersist
-                TypeHierarchy::of<::Smp::IFailure>(),
-
-                TypeHierarchy::of<::Smp::IField>( {
-                        //IField
-                        TypeHierarchy::of<::Smp::IArrayField>(),
-
-                        TypeHierarchy::of<::Smp::ISimpleArrayField>(),
-
-                        TypeHierarchy::of<::Smp::ISimpleField>( {
-                        //ISimpleField
-                                TypeHierarchy::of<::Smp::IForcibleField>(),
+                        TypeHierarchy::template of<::Smp::IComposite>( {
+                        //IComposite
+                                TypeHierarchy::template of<::Smp::ISimulator>(),
 
                         }),
 
-                        TypeHierarchy::of<::Smp::IStructureField>(),
-                        TypeHierarchy::of<::Smp::IDataflowField>(),
+                        TypeHierarchy::template of<::Smp::IContainer>(),
 
-                }),
+                        TypeHierarchy::template of<::Smp::IEntryPoint>(),
 
-        }),
+                        TypeHierarchy::template of<::Smp::IEntryPointPublisher>(),
 
-        TypeHierarchy::of<::Smp::IProperty>(),
+                        TypeHierarchy::template of<::Smp::IEventSink>(),
 
-        TypeHierarchy::of<::Smp::IReference>(),
+                        TypeHierarchy::template of<::Smp::IEventSource>(),
 
-});
+                        //TypeHierarchy::template of<::Smp::IFactory>( ),
+
+                        TypeHierarchy::template of<::Smp::IOperation>(),
+
+                        //TypeHierarchy::template of<::Smp::IParameter>( ),
+
+                        TypeHierarchy::template of<::Smp::IPersist>(
+                                {
+                                        // IPersist
+                                        TypeHierarchy::template of<
+                                                ::Smp::IFailure>(),
+
+                                        TypeHierarchy::template of<::Smp::IField>(
+                                                {
+                                                        //IField
+                                                        TypeHierarchy::template of<
+                                                                ::Smp::IArrayField>(),
+
+                                                        TypeHierarchy::template of<
+                                                                ::Smp::ISimpleArrayField>(),
+
+                                                        TypeHierarchy::template of<
+                                                                ::Smp::ISimpleField>(
+                                                                {
+                                                                //ISimpleField
+                                                                        TypeHierarchy::template of<
+                                                                                ::Smp::IForcibleField>(),
+
+                                                                }),
+
+                                                        TypeHierarchy::template of<
+                                                                ::Smp::IStructureField>(),
+                                                        TypeHierarchy::template of<
+                                                                ::Smp::IDataflowField>(),
+
+                                                }),
+
+                                }),
+
+                        TypeHierarchy::template of<::Smp::IProperty>(),
+
+                        TypeHierarchy::template of<::Smp::IReference>(),
+
+                });
 
 class SmpClass: public detail::generic_type {
+
 public:
     using type = ::Smp::IObject;
     using holder_type = std::unique_ptr<type>;
@@ -194,14 +227,14 @@ public:
 
     }
 
-    static bool processHierarchy(const TypeHierarchy &hierarchy, void *object,
+    static bool processHierarchy(const TypeHierarchy &hierarchy, type *object,
             detail::type_record &rec) {
         bool ignore = false;
 
         for (const auto &elem : hierarchy.derived) {
             ignore |= processHierarchy(elem, object, rec);
         }
-        if (!ignore && hierarchy.caster(object)) {
+        if (!ignore && hierarchy.isInstance(object)) {
             rec.add_base(hierarchy.base, hierarchy.caster);
             ignore = true;
         }
