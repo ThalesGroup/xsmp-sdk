@@ -26,9 +26,9 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Smp/PrimitiveTypes.h"
-#include "Smp/Publication/ITypeRegistry.h"
-#include "Xsmp/Array.h"
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/ITypeRegistry.h>
+#include <Xsmp/Array.h>
 
 // ----------------------------------------------------------------------------
 // ------------------------ Types and Interfaces ------------------------

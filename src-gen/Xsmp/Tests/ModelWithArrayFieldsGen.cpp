@@ -23,9 +23,9 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Smp/IPublication.h"
-#include "Xsmp/ComponentHelper.h"
-#include "Xsmp/Tests/ModelWithArrayFields.h"
+#include <Smp/IPublication.h>
+#include <Xsmp/ComponentHelper.h>
+#include <Xsmp/Tests/ModelWithArrayFields.h>
 
 namespace Xsmp::Tests {
 //--------------------------- Constructor -------------------------

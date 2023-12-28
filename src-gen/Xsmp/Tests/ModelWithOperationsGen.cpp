@@ -23,10 +23,10 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Smp/IPublication.h"
-#include "Xsmp/ComponentHelper.h"
-#include "Xsmp/Request.h"
-#include "Xsmp/Tests/ModelWithOperations.h"
+#include <Smp/IPublication.h>
+#include <Xsmp/ComponentHelper.h>
+#include <Xsmp/Request.h>
+#include <Xsmp/Tests/ModelWithOperations.h>
 
 namespace Xsmp::Tests {
 //--------------------------- Constructor -------------------------

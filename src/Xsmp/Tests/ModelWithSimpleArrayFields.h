@@ -22,7 +22,7 @@
 #define XSMP_TESTS_MODELWITHSIMPLEARRAYFIELDS_H_
 
 // Include the generated header file
-#include "Xsmp/Tests/ModelWithSimpleArrayFieldsGen.h"
+#include <Xsmp/Tests/ModelWithSimpleArrayFieldsGen.h>
 
 // ----------------------------------------------------------------------------
 // ------------------------ Types and Interfaces ------------------------

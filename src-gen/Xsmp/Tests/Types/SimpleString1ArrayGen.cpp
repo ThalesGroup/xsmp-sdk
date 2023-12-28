@@ -23,7 +23,7 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Tests/Types/SimpleString1Array.h"
+#include <Xsmp/Tests/Types/SimpleString1Array.h>
 
 namespace Xsmp::Tests::Types {
 void _Register_SimpleString1Array(::Smp::Publication::ITypeRegistry *registry) {

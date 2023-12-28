@@ -23,7 +23,7 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Tests/Types/VectorArray.h"
+#include <Xsmp/Tests/Types/VectorArray.h>
 
 namespace Xsmp::Tests::Types {
 void _Register_VectorArray(::Smp::Publication::ITypeRegistry *registry) {

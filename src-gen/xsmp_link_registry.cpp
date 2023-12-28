@@ -23,10 +23,10 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Factory.h"
-#include "Xsmp/Services/XsmpLinkRegistry.h"
-#include "xsmp_link_registry.h"
+#include <Xsmp/Factory.h>
+#include <Xsmp/Services/XsmpLinkRegistry.h>
 #include <unordered_set>
+#include <xsmp_link_registry.h>
 
 // ----------------------------------------------------------------------------------
 // ----------------------------- Global variables ------------------------------

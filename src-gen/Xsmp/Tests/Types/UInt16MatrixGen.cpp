@@ -23,7 +23,7 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Tests/Types/UInt16Matrix.h"
+#include <Xsmp/Tests/Types/UInt16Matrix.h>
 
 namespace Xsmp::Tests::Types {
 void _Register_UInt16Matrix(::Smp::Publication::ITypeRegistry *registry) {

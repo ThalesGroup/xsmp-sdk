@@ -26,14 +26,14 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Smp/IEventSink.h"
-#include "Smp/ISimulator.h"
-#include "Smp/PrimitiveTypes.h"
-#include "Smp/Publication/ITypeRegistry.h"
-#include "Xsmp/EventConsumer.h"
-#include "Xsmp/EventProvider.h"
-#include "Xsmp/EventSource.h"
-#include "Xsmp/Model.h"
+#include <Smp/IEventSink.h>
+#include <Smp/ISimulator.h>
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/ITypeRegistry.h>
+#include <Xsmp/EventConsumer.h>
+#include <Xsmp/EventProvider.h>
+#include <Xsmp/EventSource.h>
+#include <Xsmp/Model.h>
 #include <type_traits>
 
 // ----------------------------------------------------------------------------

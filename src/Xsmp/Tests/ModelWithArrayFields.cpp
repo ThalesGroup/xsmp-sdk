@@ -18,7 +18,7 @@
 // -----------------------------------------------------------------------------
 /// @file Xsmp/Tests/ModelWithArrayFields.cpp
 
-#include "Xsmp/Tests/ModelWithArrayFields.h"
+#include <Xsmp/Tests/ModelWithArrayFields.h>
 
 namespace Xsmp {
 namespace Tests {

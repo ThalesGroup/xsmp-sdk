@@ -23,9 +23,9 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Smp/IPublication.h"
-#include "Xsmp/ComponentHelper.h"
-#include "Xsmp/Services/XsmpLinkRegistry.h"
+#include <Smp/IPublication.h>
+#include <Xsmp/ComponentHelper.h>
+#include <Xsmp/Services/XsmpLinkRegistry.h>
 
 namespace Xsmp::Services {
 //--------------------------- Constructor -------------------------

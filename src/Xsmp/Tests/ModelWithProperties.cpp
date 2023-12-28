@@ -18,7 +18,7 @@
 // -----------------------------------------------------------------------------
 /// @file Xsmp/Tests/ModelWithProperties.cpp
 
-#include "Xsmp/Tests/ModelWithProperties.h"
+#include <Xsmp/Tests/ModelWithProperties.h>
 
 namespace Xsmp::Tests {
 

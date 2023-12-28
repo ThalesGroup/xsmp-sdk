@@ -23,8 +23,8 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Smp/Publication/IStructureType.h"
-#include "Xsmp/Tests/Types/Vector.h"
+#include <Smp/Publication/IStructureType.h>
+#include <Xsmp/Tests/Types/Vector.h>
 #include <cstddef>
 
 namespace Xsmp::Tests::Types {

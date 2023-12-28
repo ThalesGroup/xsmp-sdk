@@ -23,7 +23,7 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Tests/Types/SimpleFloat32Array.h"
+#include <Xsmp/Tests/Types/SimpleFloat32Array.h>
 
 namespace Xsmp::Tests::Types {
 void _Register_SimpleFloat32Array(::Smp::Publication::ITypeRegistry *registry) {

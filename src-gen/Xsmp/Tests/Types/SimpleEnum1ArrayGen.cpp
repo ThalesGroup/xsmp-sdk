@@ -23,7 +23,7 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Tests/Types/SimpleEnum1Array.h"
+#include <Xsmp/Tests/Types/SimpleEnum1Array.h>
 
 namespace Xsmp::Tests::Types {
 void _Register_SimpleEnum1Array(::Smp::Publication::ITypeRegistry *registry) {

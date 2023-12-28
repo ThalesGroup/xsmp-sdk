@@ -23,10 +23,10 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Factory.h"
-#include "Xsmp/Services/XsmpLogger.h"
-#include "xsmp_logger.h"
+#include <Xsmp/Factory.h>
+#include <Xsmp/Services/XsmpLogger.h>
 #include <unordered_set>
+#include <xsmp_logger.h>
 
 // ----------------------------------------------------------------------------------
 // ----------------------------- Global variables ------------------------------

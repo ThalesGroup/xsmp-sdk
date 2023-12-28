@@ -23,7 +23,7 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Tests/Types/UInt32Array.h"
+#include <Xsmp/Tests/Types/UInt32Array.h>
 
 namespace Xsmp::Tests::Types {
 void _Register_UInt32Array(::Smp::Publication::ITypeRegistry *registry) {

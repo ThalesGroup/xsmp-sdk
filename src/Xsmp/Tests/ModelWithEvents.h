@@ -22,7 +22,7 @@
 #define XSMP_TESTS_MODELWITHEVENTS_H_
 
 // Include the generated header file
-#include "Xsmp/Tests/ModelWithEventsGen.h"
+#include <Xsmp/Tests/ModelWithEventsGen.h>
 
 // ----------------------------------------------------------------------------
 // ------------------------ Types and Interfaces ------------------------

@@ -23,7 +23,7 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Tests/Types/SimpleFloat64Array.h"
+#include <Xsmp/Tests/Types/SimpleFloat64Array.h>
 
 namespace Xsmp::Tests::Types {
 void _Register_SimpleFloat64Array(::Smp::Publication::ITypeRegistry *registry) {

@@ -18,7 +18,7 @@
 // -----------------------------------------------------------------------------
 /// @file Xsmp/Tests/ModelWithSimpleFields.cpp
 
-#include "Xsmp/Tests/ModelWithSimpleFields.h"
+#include <Xsmp/Tests/ModelWithSimpleFields.h>
 
 namespace Xsmp {
 namespace Tests {

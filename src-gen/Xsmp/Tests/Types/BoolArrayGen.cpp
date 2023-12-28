@@ -23,7 +23,7 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Tests/Types/BoolArray.h"
+#include <Xsmp/Tests/Types/BoolArray.h>
 
 namespace Xsmp::Tests::Types {
 void _Register_BoolArray(::Smp::Publication::ITypeRegistry *registry) {

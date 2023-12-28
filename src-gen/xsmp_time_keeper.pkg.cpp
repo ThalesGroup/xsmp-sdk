@@ -22,8 +22,8 @@
 // -------------------------------------------------------------------------------
 // --------------------------------- Includes ----------------------------------
 // -------------------------------------------------------------------------------
-#include "xsmp_time_keeper.h"
-#include "Smp/Publication/ITypeRegistry.h"
+#include <xsmp_time_keeper.h>
+#include <Smp/Publication/ITypeRegistry.h>
 
 #ifdef  WIN32
 #define DLL_EXPORT __declspec(dllexport) // %RELAX<mconst> Visual Studio requires a define

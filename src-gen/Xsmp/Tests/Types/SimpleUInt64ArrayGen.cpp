@@ -23,7 +23,7 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Tests/Types/SimpleUInt64Array.h"
+#include <Xsmp/Tests/Types/SimpleUInt64Array.h>
 
 namespace Xsmp::Tests::Types {
 void _Register_SimpleUInt64Array(::Smp::Publication::ITypeRegistry *registry) {

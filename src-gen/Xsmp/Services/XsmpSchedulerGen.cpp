@@ -23,10 +23,10 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Smp/IPublication.h"
-#include "Xsmp/ComponentHelper.h"
-#include "Xsmp/EntryPoint.h"
-#include "Xsmp/Services/XsmpScheduler.h"
+#include <Smp/IPublication.h>
+#include <Xsmp/ComponentHelper.h>
+#include <Xsmp/EntryPoint.h>
+#include <Xsmp/Services/XsmpScheduler.h>
 
 namespace Xsmp::Services {
 //--------------------------- Constructor -------------------------

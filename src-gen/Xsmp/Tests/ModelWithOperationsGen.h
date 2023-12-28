@@ -26,12 +26,12 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Smp/IRequest.h"
-#include "Smp/ISimulator.h"
-#include "Smp/PrimitiveTypes.h"
-#include "Smp/Publication/IPublishOperation.h"
-#include "Smp/Publication/ITypeRegistry.h"
-#include "Xsmp/Model.h"
+#include <Smp/IRequest.h>
+#include <Smp/ISimulator.h>
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/IPublishOperation.h>
+#include <Smp/Publication/ITypeRegistry.h>
+#include <Xsmp/Model.h>
 #include <functional>
 #include <map>
 #include <type_traits>

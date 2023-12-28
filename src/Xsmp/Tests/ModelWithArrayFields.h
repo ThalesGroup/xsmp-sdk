@@ -22,7 +22,7 @@
 #define XSMP_TESTS_MODELWITHARRAYFIELDS_H_
 
 // Include the generated header file
-#include "Xsmp/Tests/ModelWithArrayFieldsGen.h"
+#include <Xsmp/Tests/ModelWithArrayFieldsGen.h>
 
 // ----------------------------------------------------------------------------
 // ------------------------ Types and Interfaces ------------------------

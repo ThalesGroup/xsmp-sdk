@@ -23,7 +23,7 @@
 #include <Smp/AccessKind.h>
 #include <sstream>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace Smp {
 

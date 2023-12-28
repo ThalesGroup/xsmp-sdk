@@ -23,7 +23,7 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Tests/Types/UInt32Matrix.h"
+#include <Xsmp/Tests/Types/UInt32Matrix.h>
 
 namespace Xsmp::Tests::Types {
 void _Register_UInt32Matrix(::Smp::Publication::ITypeRegistry *registry) {

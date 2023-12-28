@@ -22,7 +22,7 @@
 #define XSMP_TESTS_MODELWITHOPERATIONS_H_
 
 // Include the generated header file
-#include "Xsmp/Tests/ModelWithOperationsGen.h"
+#include <Xsmp/Tests/ModelWithOperationsGen.h>
 
 // ----------------------------------------------------------------------------
 // ------------------------ Types and Interfaces ------------------------

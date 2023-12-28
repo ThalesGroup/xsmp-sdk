@@ -26,13 +26,13 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Smp/PrimitiveTypes.h"
-#include "Smp/Publication/ITypeRegistry.h"
-#include "Xsmp/Tests/Types/Enum1.h"
-#include "Xsmp/Tests/Types/Float1.h"
-#include "Xsmp/Tests/Types/Integer1.h"
-#include "Xsmp/Tests/Types/SimpleStructure.h"
-#include "Xsmp/Tests/Types/String1.h"
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/ITypeRegistry.h>
+#include <Xsmp/Tests/Types/Enum1.h>
+#include <Xsmp/Tests/Types/Float1.h>
+#include <Xsmp/Tests/Types/Integer1.h>
+#include <Xsmp/Tests/Types/SimpleStructure.h>
+#include <Xsmp/Tests/Types/String1.h>
 
 // ----------------------------------------------------------------------------
 // ------------------------ Types and Interfaces ------------------------

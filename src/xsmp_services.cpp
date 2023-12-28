@@ -28,7 +28,7 @@
 #include <xsmp_resolver.h>
 #include <xsmp_scheduler.h>
 #include <xsmp_time_keeper.h>
-#include "xsmp_services.h"
+#include <xsmp_services.h>
 #include <unordered_set>
 
 // ----------------------------------------------------------------------------------

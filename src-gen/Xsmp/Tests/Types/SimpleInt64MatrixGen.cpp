@@ -23,7 +23,7 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Tests/Types/SimpleInt64Matrix.h"
+#include <Xsmp/Tests/Types/SimpleInt64Matrix.h>
 
 namespace Xsmp::Tests::Types {
 void _Register_SimpleInt64Matrix(::Smp::Publication::ITypeRegistry *registry) {

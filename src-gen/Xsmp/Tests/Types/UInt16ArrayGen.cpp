@@ -23,7 +23,7 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Tests/Types/UInt16Array.h"
+#include <Xsmp/Tests/Types/UInt16Array.h>
 
 namespace Xsmp::Tests::Types {
 void _Register_UInt16Array(::Smp::Publication::ITypeRegistry *registry) {

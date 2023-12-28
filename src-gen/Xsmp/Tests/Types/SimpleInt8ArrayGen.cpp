@@ -23,7 +23,7 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Tests/Types/SimpleInt8Array.h"
+#include <Xsmp/Tests/Types/SimpleInt8Array.h>
 
 namespace Xsmp::Tests::Types {
 void _Register_SimpleInt8Array(::Smp::Publication::ITypeRegistry *registry) {

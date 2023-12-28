@@ -22,7 +22,7 @@
 #define XSMP_TESTS_MODELWITHPROPERTIES_H_
 
 // Include the generated header file
-#include "Xsmp/Tests/ModelWithPropertiesGen.h"
+#include <Xsmp/Tests/ModelWithPropertiesGen.h>
 
 // ----------------------------------------------------------------------------
 // ------------------------ Types and Interfaces ------------------------

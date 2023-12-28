@@ -26,13 +26,13 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Smp/IEntryPoint.h"
-#include "Smp/IPersist.h"
-#include "Smp/ISimulator.h"
-#include "Smp/Publication/ITypeRegistry.h"
-#include "Smp/Services/ITimeKeeper.h"
-#include "Xsmp/EntryPointPublisher.h"
-#include "Xsmp/Service.h"
+#include <Smp/IEntryPoint.h>
+#include <Smp/IPersist.h>
+#include <Smp/ISimulator.h>
+#include <Smp/Publication/ITypeRegistry.h>
+#include <Smp/Services/ITimeKeeper.h>
+#include <Xsmp/EntryPointPublisher.h>
+#include <Xsmp/Service.h>
 #include <type_traits>
 
 // ----------------------------------------------------------------------------

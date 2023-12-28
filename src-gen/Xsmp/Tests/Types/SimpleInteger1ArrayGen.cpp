@@ -23,7 +23,7 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Tests/Types/SimpleInteger1Array.h"
+#include <Xsmp/Tests/Types/SimpleInteger1Array.h>
 
 namespace Xsmp::Tests::Types {
 void _Register_SimpleInteger1Array(

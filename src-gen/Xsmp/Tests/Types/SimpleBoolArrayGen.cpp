@@ -23,7 +23,7 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Tests/Types/SimpleBoolArray.h"
+#include <Xsmp/Tests/Types/SimpleBoolArray.h>
 
 namespace Xsmp::Tests::Types {
 void _Register_SimpleBoolArray(::Smp::Publication::ITypeRegistry *registry) {

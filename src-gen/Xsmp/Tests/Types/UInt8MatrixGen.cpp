@@ -23,7 +23,7 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Tests/Types/UInt8Matrix.h"
+#include <Xsmp/Tests/Types/UInt8Matrix.h>
 
 namespace Xsmp::Tests::Types {
 void _Register_UInt8Matrix(::Smp::Publication::ITypeRegistry *registry) {

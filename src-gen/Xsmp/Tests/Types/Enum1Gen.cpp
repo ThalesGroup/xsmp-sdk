@@ -23,7 +23,7 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Tests/Types/Enum1.h"
+#include <Xsmp/Tests/Types/Enum1.h>
 
 namespace Xsmp::Tests::Types {
 void _Register_Enum1(::Smp::Publication::ITypeRegistry *registry) {

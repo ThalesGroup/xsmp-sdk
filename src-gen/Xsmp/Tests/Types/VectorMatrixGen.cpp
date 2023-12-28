@@ -23,7 +23,7 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Xsmp/Tests/Types/VectorMatrix.h"
+#include <Xsmp/Tests/Types/VectorMatrix.h>
 
 namespace Xsmp::Tests::Types {
 void _Register_VectorMatrix(::Smp::Publication::ITypeRegistry *registry) {

@@ -26,10 +26,10 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Smp/PrimitiveTypes.h"
-#include "Smp/Publication/ITypeRegistry.h"
-#include "Xsmp/Array.h"
-#include "Xsmp/Tests/Types/Vector.h"
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/ITypeRegistry.h>
+#include <Xsmp/Array.h>
+#include <Xsmp/Tests/Types/Vector.h>
 
 // ----------------------------------------------------------------------------
 // ------------------------ Types and Interfaces ------------------------

@@ -18,7 +18,7 @@
 // -----------------------------------------------------------------------------
 /// @file Xsmp/Tests/ModelWithOperations.cpp
 
-#include "Xsmp/Tests/ModelWithOperations.h"
+#include <Xsmp/Tests/ModelWithOperations.h>
 
 namespace Xsmp {
 namespace Tests {
