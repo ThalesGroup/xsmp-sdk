@@ -23,7 +23,6 @@
 #include <Smp/ViewKind.h>
 #include <Xsmp/Collection.h>
 #include <memory>
-#include <set>
 
 namespace Smp::Publication {
 class IType;
@@ -171,7 +170,6 @@ private:
                 override;
     };
     std::unique_ptr<::Smp::IParameter> _returnParameter { };
-    std::set<std::unique_ptr<::Smp::IRequest>> _requests { };
     ::Xsmp::ContainingCollection<::Smp::IParameter> _parameters;
     ::Smp::Publication::ITypeRegistry *_typeRegistry;
 

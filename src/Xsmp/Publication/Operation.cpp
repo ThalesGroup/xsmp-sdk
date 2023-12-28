@@ -104,7 +104,7 @@ const ::Smp::ParameterCollection* Operation::GetParameters() const {
                     == ::Smp::PrimitiveTypeKind::PTK_None) {
         return nullptr;
     }
-    return _requests.emplace(std::make_unique<Request>(this, _typeRegistry)).first->get();
+    return new ::Xsmp::Publication::Request(this, _typeRegistry);
 }
 
 void Operation::Invoke(::Smp::IRequest *request) {
@@ -145,9 +145,7 @@ void Operation::Invoke(::Smp::IRequest *request) {
 }
 
 void Operation::DeleteRequest(::Smp::IRequest *request) {
-    std::unique_ptr<::Smp::IRequest> stale_ptr { request };
-    _requests.erase(stale_ptr);
-    stale_ptr.release();
+   delete request;
 }
 
 void Operation::Update(::Smp::String8 description,::Smp::ViewKind view) noexcept {
