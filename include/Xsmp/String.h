@@ -40,8 +40,8 @@ struct String {
     using const_iterator = const value_type*;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-    using size_type = size_t;
-    using difference_type = ptrdiff_t;
+    using size_type = std::size_t;
+    using difference_type = std::ptrdiff_t;
 
     value_type internalString[Nm + 1];
 
@@ -60,7 +60,7 @@ struct String {
     constexpr String(std::string_view str) {
         assign(str);
     }
-    template<size_t S>
+    template<std::size_t S>
     constexpr String(const String<S> &str) {
         assign(str);
     }
@@ -330,7 +330,7 @@ struct String {
         internalString[0] = '\0';
     }
 
-    template<size_t S>
+    template<std::size_t S>
     constexpr String& assign(const String<S> &str) {
         return assign(str.c_str());
 
@@ -346,7 +346,7 @@ struct String {
         return assign(std::string_view { str, length });
     }
 
-    template<size_t S>
+    template<std::size_t S>
     constexpr String& append(const String<S> &str) {
         return append(str.c_str());
     }
@@ -369,7 +369,7 @@ struct String {
     constexpr String& operator+=(std::string_view str) {
         return append(str);
     }
-    template<size_t S>
+    template<std::size_t S>
     constexpr String& operator+=(const String<S> &str) {
         return append(str);
     }
@@ -381,11 +381,11 @@ struct String {
         remove_suffix(1);
     }
 
-    template<size_t T>
+    template<std::size_t T>
     constexpr String& operator=(const String<T> &str) {
         return assign(str.c_str());
     }
-    template<size_t T>
+    template<std::size_t T>
     [[nodiscard]] constexpr int compare(const String<T> &str) const {
         return compare(data(), size(), str.data(), str.size());
     }
@@ -399,8 +399,8 @@ struct String {
 
 private:
 
-    constexpr int compare(const char *str, size_t size, const char *ostr,
-            size_t osize) const {
+    constexpr int compare(const char *str, std::size_t size, const char *ostr,
+            std::size_t osize) const {
         const auto len = std::min(size, osize);
 
         int result = traits_type::compare(str, ostr, len);
@@ -417,7 +417,7 @@ private:
     }
 };
 
-template<std::size_t Nm, size_t Nm2>
+template<std::size_t Nm, std::size_t Nm2>
 constexpr void swap(const String<Nm> &lhs, const String<Nm2> &rhs) noexcept {
     rhs.swap(lhs);
 }
@@ -435,7 +435,7 @@ operator>>(std::istream &is, String<Nm> &str) {
     return is;
 }
 
-template<std::size_t Nm, size_t Nm2>
+template<std::size_t Nm, std::size_t Nm2>
 [[nodiscard]] std::string operator+(const String<Nm> &_lhs,
         const String<Nm2> &_rhs) {
     return std::string(_lhs.c_str()) + _rhs;
@@ -460,7 +460,7 @@ template<std::size_t Nm>
     return std::string(_lhs.c_str()) + _rhs;
 }
 
-template<std::size_t Nm, size_t Nm2>
+template<std::size_t Nm, std::size_t Nm2>
 [[nodiscard]] constexpr bool operator==(const String<Nm> &_lhs,
         const String<Nm2> &_rhs) noexcept {
     return _lhs.compare(_rhs) == 0;
@@ -476,7 +476,7 @@ template<std::size_t Nm>
     return _lhs.compare(_rhs) == 0;
 }
 
-template<std::size_t Nm, size_t Nm2>
+template<std::size_t Nm, std::size_t Nm2>
 [[nodiscard]] constexpr bool operator!=(const String<Nm> &_lhs,
         const String<Nm2> &_rhs) noexcept {
     return !(_lhs == _rhs);
@@ -492,7 +492,7 @@ template<std::size_t Nm>
     return !(_lhs == _rhs);
 }
 
-template<std::size_t Nm, size_t Nm2>
+template<std::size_t Nm, std::size_t Nm2>
 [[nodiscard]] constexpr bool operator<(const String<Nm> &_lhs,
         const String<Nm2> &_rhs) noexcept {
     return _lhs.compare(_rhs) < 0;
@@ -508,7 +508,7 @@ template<std::size_t Nm>
     return _lhs.compare(_rhs) < 0;
 }
 
-template<std::size_t Nm, size_t Nm2>
+template<std::size_t Nm, std::size_t Nm2>
 [[nodiscard]] constexpr bool operator>(const String<Nm> &_lhs,
         const String<Nm2> &_rhs) noexcept {
     return _lhs.compare(_rhs) > 0;
@@ -524,7 +524,7 @@ template<std::size_t Nm>
     return _lhs.compare(_rhs) > 0;
 }
 
-template<std::size_t Nm, size_t Nm2>
+template<std::size_t Nm, std::size_t Nm2>
 [[nodiscard]] constexpr bool operator<=(const String<Nm> &_lhs,
         const String<Nm2> &_rhs) noexcept {
     return _lhs.compare(_rhs) <= 0;
@@ -551,7 +551,7 @@ template<std::size_t Nm>
     return _lhs.compare(_rhs) <= 0;
 }
 
-template<std::size_t Nm, size_t Nm2>
+template<std::size_t Nm, std::size_t Nm2>
 [[nodiscard]] constexpr bool operator>=(const String<Nm> &_lhs,
         const String<Nm2> &_rhs) noexcept {
     return _lhs.compare(_rhs) >= 0;
@@ -571,9 +571,9 @@ template<std::size_t Nm>
 
 // hash
 namespace std {
-template<size_t N>
+template<std::size_t N>
 struct hash<::Xsmp::String<N>> {
-    size_t operator()(const ::Xsmp::String<N> &str) const {
+    std::size_t operator()(const ::Xsmp::String<N> &str) const {
         return std::hash<std::string_view>()(
                 static_cast<std::string_view>(str.c_str()));
     }

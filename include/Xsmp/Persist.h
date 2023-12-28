@@ -100,7 +100,7 @@ void Restore(const ::Smp::ISimulator *simulator, const ::Smp::IObject *sender,
         ::Smp::IStorageReader *reader, Args &... args) {
 
     auto restore = [simulator, sender, reader](auto &value) {
-        size_t hash;
+        std::size_t hash;
         Restore(simulator, reader, hash);
         if (hash != typeid(value).hash_code())
             ::Xsmp::Exception::throwCannotRestore(sender, typeid(value).name());

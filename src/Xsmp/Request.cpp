@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <stddef.h>
+#include <cstddef>
 #include <Smp/IArrayField.h>
 #include <Smp/IComponent.h>
 #include <Smp/ISimpleArrayField.h>
@@ -75,7 +75,7 @@ void Request::extract(::Smp::IRequest *request, ::Smp::IField *field,
     //simple array field
     else if (auto *simpleArray = dynamic_cast<::Smp::ISimpleArrayField*>(field)) {
 
-        for (size_t i = 0; i < simpleArray->GetSize(); ++i) {
+        for (std::size_t i = 0; i < simpleArray->GetSize(); ++i) {
             std::string itemName = name + "[" + std::to_string(i) + "]";
             auto index = request->GetParameterIndex(itemName.c_str());
             if (index != -1)
@@ -91,7 +91,7 @@ void Request::extract(::Smp::IRequest *request, ::Smp::IField *field,
     }
     //array field
     else if (auto const *array = dynamic_cast<::Smp::IArrayField*>(field)) {
-        for (size_t i = 0; i < array->GetSize(); ++i)
+        for (std::size_t i = 0; i < array->GetSize(); ++i)
             extract(request, array->GetItem(i),
                     name + "[" + std::to_string(i) + "]",
                     ignoreMissingParameters);
@@ -124,7 +124,7 @@ void Request::inject(::Smp::IRequest *request, ::Smp::IField *field,
     //simple array field
     else if (auto const *simpleArray =
             dynamic_cast<::Smp::ISimpleArrayField*>(field)) {
-        for (size_t i = 0; i < simpleArray->GetSize(); ++i) {
+        for (std::size_t i = 0; i < simpleArray->GetSize(); ++i) {
             std::string itemName = name + "[" + std::to_string(i) + "]";
             auto index = request->GetParameterIndex(itemName.c_str());
             if (index == -1)
@@ -136,7 +136,7 @@ void Request::inject(::Smp::IRequest *request, ::Smp::IField *field,
     }
     //array field
     else if (auto const *array = dynamic_cast<::Smp::IArrayField*>(field)) {
-        for (size_t i = 0; i < array->GetSize(); ++i)
+        for (std::size_t i = 0; i < array->GetSize(); ++i)
             inject(request, array->GetItem(i),
                     name + "[" + std::to_string(i) + "]");
     }

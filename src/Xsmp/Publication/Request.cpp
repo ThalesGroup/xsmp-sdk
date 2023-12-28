@@ -56,7 +56,7 @@ bool Request::isValid(const ::Smp::IObject *sender,
     else if (const auto *stringType = dynamic_cast<const StringType*>(type)) {
         auto *stringValue = static_cast<::Smp::String8>(value);
         if (stringValue
-                && strlen(stringValue)
+                && std::strlen(stringValue)
                         > static_cast<std::size_t>(stringType->GetLength()))
             return false;
     }
@@ -139,7 +139,7 @@ void Request::SetParameterValue(::Smp::Int32 index, ::Smp::AnySimple value) {
         ::Xsmp::Exception::throwInvalidParameterIndex(_operation, index,
                 static_cast<::Smp::Int32>(_values.size()));
 
-    if (!isValid(_operation, _values[static_cast<size_t>(index)].second,
+    if (!isValid(_operation, _values[static_cast<std::size_t>(index)].second,
             value)) {
         auto it =
                 std::find_if(_indexes.begin(), _indexes.end(),
@@ -151,7 +151,7 @@ void Request::SetParameterValue(::Smp::Int32 index, ::Smp::AnySimple value) {
         ::Xsmp::Exception::throwInvalidParameterValue(_operation, it->first,
                 value);
     }
-    _values[static_cast<size_t>(index)].first = std::move(value);
+    _values[static_cast<std::size_t>(index)].first = std::move(value);
 }
 
 ::Smp::AnySimple Request::GetParameterValue(::Smp::Int32 index) const {
@@ -159,7 +159,7 @@ void Request::SetParameterValue(::Smp::Int32 index, ::Smp::AnySimple value) {
         ::Xsmp::Exception::throwInvalidParameterIndex(_operation, index,
                 static_cast<::Smp::Int32>(_values.size()));
 
-    return _values[static_cast<size_t>(index)].first;
+    return _values[static_cast<std::size_t>(index)].first;
 }
 
 void Request::SetReturnValue(::Smp::AnySimple value) {

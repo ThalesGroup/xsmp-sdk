@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <stddef.h>
+#include <cstddef>
 #include <Smp/AnySimple.h>
 #include <Smp/CannotDelete.h>
 #include <Smp/CannotRemove.h>
@@ -1446,13 +1446,13 @@ void throwInvalidParameterType(const ::Smp::IObject *sender,
 }
 
 void throwInvalidArrayIndex(const ::Smp::IArrayField *sender,
-        size_t invalidIndex) {
+        std::size_t invalidIndex) {
     throw InvalidArrayIndex(sender,
             static_cast<::Smp::Int64>(sender->GetSize()),
             static_cast<::Smp::Int64>(invalidIndex));
 }
 void throwInvalidArrayIndex(const ::Smp::ISimpleArrayField *sender,
-        size_t invalidIndex) {
+        std::size_t invalidIndex) {
     throw InvalidArrayIndex(sender,
             static_cast<::Smp::Int64>(sender->GetSize()),
             static_cast<::Smp::Int64>(invalidIndex));
@@ -1464,7 +1464,7 @@ void throwInvalidFieldValue(const ::Smp::IField *sender,
 }
 
 void throwInvalidArrayValue(const ::Smp::ISimpleArrayField *sender,
-        size_t index, const ::Smp::AnySimple &invalidValue) {
+        std::size_t index, const ::Smp::AnySimple &invalidValue) {
     throw InvalidArrayValue(sender, static_cast<::Smp::Int64>(index),
             invalidValue);
 }

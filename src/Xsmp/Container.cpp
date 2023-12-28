@@ -41,12 +41,12 @@ AbstractContainer::ContainerCollection::ContainerCollection(
     return _parent.GetComponent(name);
 }
 ::Smp::IComponent* AbstractContainer::ContainerCollection::at(
-        size_t index) const {
+        std::size_t index) const {
 
     return _parent.GetComponent(index);
 }
-size_t AbstractContainer::ContainerCollection::size() const {
-    return static_cast<size_t>(_parent.GetCount());
+std::size_t AbstractContainer::ContainerCollection::size() const {
+    return static_cast<std::size_t>(_parent.GetCount());
 }
 AbstractContainer::ContainerCollection::const_iterator AbstractContainer::ContainerCollection::begin() const {
     return const_iterator(*this, 0);

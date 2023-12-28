@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include <gtest/gtest.h>
-#include <stddef.h>
+#include <cstddef>
 #include <Smp/CannotRemove.h>
 #include <Smp/CollectionIterator.h>
 #include <Smp/InvalidObjectType.h>
@@ -84,9 +84,9 @@ TEST(ReferenceTest, auto_register) {
     EXPECT_EQ(1, ref.GetCount());
     EXPECT_EQ(&i1, ref.GetComponent("i1"));
     EXPECT_EQ(&i1, ref.GetComponents()->at("i1"));
-    EXPECT_EQ(&i1, ref.GetComponents()->at(size_t(0)));
-    EXPECT_EQ(&i1, ref.GetComponent(size_t(0)));
-    EXPECT_EQ(nullptr, ref.GetComponent(size_t(1)));
+    EXPECT_EQ(&i1, ref.GetComponents()->at(std::size_t(0)));
+    EXPECT_EQ(&i1, ref.GetComponent(std::size_t(0)));
+    EXPECT_EQ(nullptr, ref.GetComponent(std::size_t(1)));
 
     EXPECT_THROW(ref.RemoveComponent(&i1), ::Smp::CannotRemove);
 
@@ -95,7 +95,7 @@ TEST(ReferenceTest, auto_register) {
 
     EXPECT_EQ(2, ref.GetCount());
     EXPECT_EQ(&i1, ref.GetComponent("i1"));
-    EXPECT_EQ(&i1_bis, ref.GetComponent(size_t(1)));
+    EXPECT_EQ(&i1_bis, ref.GetComponent(std::size_t(1)));
 
     M2 i3 { "i3", "", nullptr };
     EXPECT_THROW(ref.RemoveComponent(&i3), ::Smp::NotReferenced);

@@ -34,11 +34,11 @@ AbstractReference::RefCollection::RefCollection(AbstractReference &parent) :
         ::Smp::String8 name) const {
     return _parent.GetComponent(name);
 }
-::Smp::IComponent* AbstractReference::RefCollection::at(size_t index) const {
+::Smp::IComponent* AbstractReference::RefCollection::at(std::size_t index) const {
     return _parent.GetComponent(index);
 }
-size_t AbstractReference::RefCollection::size() const {
-    return static_cast<size_t>(_parent.GetCount());
+std::size_t AbstractReference::RefCollection::size() const {
+    return static_cast<std::size_t>(_parent.GetCount());
 }
 AbstractReference::RefCollection::const_iterator AbstractReference::RefCollection::begin() const {
     return const_iterator(*this, 0);

@@ -187,7 +187,7 @@ private:
 
 class SimpleArrayConnectableField: public virtual ::Smp::ISimpleArrayField {
 protected:
-    void internal_push(size_t index) const;
+    void internal_push(std::size_t index) const;
 private:
     void RemoveLinks(const ::Smp::IComponent *target);
     std::set<::Smp::ISimpleArrayField*> _connectedFields { };
@@ -555,7 +555,7 @@ template<typename T, typename ... Annotations>
 class ArrayField final: public Xsmp::detail::Field<T, Annotations...>,
         public virtual Smp::IArrayField {
 
-    static constexpr size_t _size = detail::FieldTypeHelper<T>::size;
+    static constexpr std::size_t _size = detail::FieldTypeHelper<T>::size;
 
     template<typename ... Options>
     struct apply_options {
@@ -801,7 +801,7 @@ class SimpleArrayField final: public Xsmp::detail::Field<T, Annotations...>,
                 detail::SimpleArrayConnectableField, ::Smp::ISimpleArrayField> {
     static_assert(Helper::is_simple_type_v<typename T::value_type>, "Only Smp Simple types are supported.");
     static_assert(!::Xsmp::Annotation::any_of<Xsmp::Annotation::forcible,Annotations...>, "A SimpleArrayField cannot be forcible.");
-    static constexpr size_t _size = detail::FieldTypeHelper<T>::size;
+    static constexpr std::size_t _size = detail::FieldTypeHelper<T>::size;
 public:
 
     SimpleArrayField(const SimpleArrayField&) = delete;
@@ -844,7 +844,7 @@ public:
             ::Xsmp::Exception::throwInvalidArraySize(this, length);
 
         auto _itemKind = _type->GetItemType()->GetPrimitiveTypeKind();
-        for (size_t i = 0; i < _size; ++i) {
+        for (std::size_t i = 0; i < _size; ++i) {
             values[i] = AnySimpleConverter<value_type>::convert(_itemKind,
                     _value[i]);
         }
@@ -855,7 +855,7 @@ public:
             ::Xsmp::Exception::throwInvalidArraySize(this, length);
 
         auto _itemKind = _type->GetItemType()->GetPrimitiveTypeKind();
-        for (size_t i = 0; i < _size; ++i) {
+        for (std::size_t i = 0; i < _size; ++i) {
             if (values[i].type != _itemKind) {
                 ::Xsmp::Exception::throwInvalidArrayValue(this, i, values[i]);
             }
@@ -1255,7 +1255,7 @@ template<typename T, typename ... Annotations, typename Other>
     return *lhs < rhs;
 }
 
-template<typename T, size_t Nm, typename ... Annotations, typename Other>
+template<typename T, std::size_t Nm, typename ... Annotations, typename Other>
 [[nodiscard]] inline bool operator>(Other lhs,
         const typename SimpleArrayField<T, Annotations...>::protected_reference &rhs) noexcept {
     return lhs > *rhs;
@@ -1279,7 +1279,7 @@ template<typename T, typename ... Annotations, typename Other>
     return *lhs <= rhs;
 }
 
-template<typename T, size_t Nm, typename ... Annotations, typename Other>
+template<typename T, std::size_t Nm, typename ... Annotations, typename Other>
 [[nodiscard]] inline bool operator>=(Other lhs,
         const typename SimpleArrayField<T, Annotations...>::protected_reference &rhs) noexcept {
     return lhs >= *rhs;
@@ -1392,7 +1392,7 @@ struct FieldTypeHelper<T, std::enable_if_t<Xsmp::Helper::is_simple_type_v<T>>> {
     using field = SimpleField<T, Annotations...>;
 };
 
-template<typename T, size_t Nm, typename ...TypeAnnotations>
+template<typename T, std::size_t Nm, typename ...TypeAnnotations>
 struct FieldTypeHelper<::Xsmp::Array<T, Nm, TypeAnnotations...>,
 
         std::enable_if_t<
@@ -1400,10 +1400,10 @@ struct FieldTypeHelper<::Xsmp::Array<T, Nm, TypeAnnotations...>,
                         ::Xsmp::Array<T, Nm, TypeAnnotations...>>::value> > {
     template<typename ... Annotations>
     using field = ArrayField<::Xsmp::Array<T, Nm, TypeAnnotations...>, Annotations...>;
-    static constexpr size_t size = Nm;
+    static constexpr std::size_t size = Nm;
 };
 
-template<typename T, size_t Nm, typename ...TypeAnnotations>
+template<typename T, std::size_t Nm, typename ...TypeAnnotations>
 struct FieldTypeHelper<::Xsmp::Array<T, Nm, TypeAnnotations...>,
 
         std::enable_if_t<
@@ -1411,7 +1411,7 @@ struct FieldTypeHelper<::Xsmp::Array<T, Nm, TypeAnnotations...>,
                         ::Xsmp::Array<T, Nm, TypeAnnotations...>>::value> > {
     template<typename ... Annotations>
     using field = SimpleArrayField<::Xsmp::Array<T, Nm, TypeAnnotations...>, Annotations...>;
-    static constexpr size_t size = Nm;
+    static constexpr std::size_t size = Nm;
 };
 
 }  // namespace detail

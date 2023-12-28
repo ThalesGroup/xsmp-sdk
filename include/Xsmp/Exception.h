@@ -15,7 +15,7 @@
 #ifndef XSMP_EXCEPTION_H_
 #define XSMP_EXCEPTION_H_
 
-#include <stddef.h>
+#include <cstddef>
 #include <Smp/AnySimple.h>
 #include <Smp/ComponentStateKind.h>
 #include <Smp/PrimitiveTypes.h>
@@ -143,19 +143,19 @@ template<typename T>
         ::Smp::PrimitiveTypeKind expectedType);
 
 [[ noreturn ]] void throwInvalidArrayIndex(const ::Smp::IArrayField *sender,
-        size_t invalidIndex);
+        std::size_t invalidIndex);
 
 [[ noreturn ]] void throwInvalidArrayIndex(
-        const ::Smp::ISimpleArrayField *sender, size_t invalidIndex);
+        const ::Smp::ISimpleArrayField *sender, std::size_t invalidIndex);
 
 [[ noreturn ]] void throwInvalidArrayIndex(const ::Smp::IObject *sender,
-        size_t arraySize, size_t invalidIndex);
+        std::size_t arraySize, std::size_t invalidIndex);
 
 [[ noreturn ]] void throwInvalidFieldValue(const ::Smp::IField *sender,
         const ::Smp::AnySimple &invalidFieldValue);
 
 [[ noreturn ]] void throwInvalidArrayValue(
-        const ::Smp::ISimpleArrayField *sender, size_t index,
+        const ::Smp::ISimpleArrayField *sender, std::size_t index,
         const ::Smp::AnySimple &invalidValue);
 
 [[ noreturn ]] void throwInvalidArraySize(

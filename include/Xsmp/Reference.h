@@ -15,7 +15,7 @@
 #ifndef XSMP_REFERENCE_H_
 #define XSMP_REFERENCE_H_
 
-#include <stddef.h>
+#include <cstddef>
 #include <Smp/IComponent.h>
 #include <Smp/IReference.h>
 #include <Smp/PrimitiveTypes.h>
@@ -42,7 +42,7 @@ public:
     ::Smp::Int64 GetUpper() const final;
     ::Smp::Int64 GetLower() const final;
     ::Smp::IComponent* GetComponent(::Smp::String8 name) const override = 0;
-    virtual ::Smp::IComponent* GetComponent(size_t index) const noexcept= 0;
+    virtual ::Smp::IComponent* GetComponent(std::size_t index) const noexcept= 0;
 protected:
     // Extensions for ILinkingComponent
     /// Asks a Reference to remove all its links to the given target
@@ -64,8 +64,8 @@ private:
         ::Smp::String8 GetDescription() const override;
         ::Smp::IObject* GetParent() const override;
         ::Smp::IComponent* at(::Smp::String8 name) const override;
-        ::Smp::IComponent* at(size_t index) const override;
-        size_t size() const override;
+        ::Smp::IComponent* at(std::size_t index) const override;
+        std::size_t size() const override;
         const_iterator begin() const override;
         const_iterator end() const override;
     private:
@@ -114,7 +114,7 @@ public:
         return nullptr;
     }
 
-    ::Smp::IComponent* GetComponent(size_t index) const noexcept override {
+    ::Smp::IComponent* GetComponent(std::size_t index) const noexcept override {
         if (index < size())
             return dynamic_cast<::Smp::IComponent*>((*this)[index]);
         return nullptr;
@@ -122,7 +122,7 @@ public:
 
     void AddComponent(::Smp::IComponent *component) override {
 
-        if (size() >= static_cast<size_t>(GetUpper()))
+        if (size() >= static_cast<std::size_t>(GetUpper()))
             ::Xsmp::Exception::throwReferenceFull(this, this->GetCount());
 
         // check that the component type can be casted to T
@@ -139,7 +139,7 @@ public:
         if (it == end())
             ::Xsmp::Exception::throwNotReferenced(this, component);
 
-        if (size() <= static_cast<size_t>(GetLower()))
+        if (size() <= static_cast<std::size_t>(GetLower()))
             ::Xsmp::Exception::throwCannotRemove(this, component, GetLower());
         _vector.erase(it);
     }

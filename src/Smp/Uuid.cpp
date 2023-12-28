@@ -122,7 +122,7 @@ bool ::Smp::Uuid::operator!=(const ::Smp::Uuid &o) const {
 } // namespace Smp
 
 namespace std {
-size_t std::hash<::Smp::Uuid>::operator()(const ::Smp::Uuid &uuid) const {
+std::size_t std::hash<::Smp::Uuid>::operator()(const ::Smp::Uuid &uuid) const {
 
     uint64_t h0 = (static_cast<uint64_t>(uuid.Data1) << 32)
             | (static_cast<uint64_t>(uuid.Data2[0]) << 16)

@@ -45,7 +45,7 @@ public:
     ::Smp::Int64 GetUpper() const final;
     ::Smp::Int64 GetLower() const final;
     ::Smp::IComponent* GetComponent(::Smp::String8 name) const override =0;
-    virtual ::Smp::IComponent* GetComponent(size_t index) const = 0;
+    virtual ::Smp::IComponent* GetComponent(std::size_t index) const = 0;
 
     void AddComponent(::Smp::IComponent *component) override;
     void DeleteComponent(::Smp::IComponent *component) override;
@@ -61,8 +61,8 @@ private:
         ::Smp::String8 GetDescription() const override;
         ::Smp::IObject* GetParent() const override;
         ::Smp::IComponent* at(::Smp::String8 name) const override;
-        ::Smp::IComponent* at(size_t index) const override;
-        size_t size() const override;
+        ::Smp::IComponent* at(std::size_t index) const override;
+        std::size_t size() const override;
         const_iterator begin() const override;
         const_iterator end() const override;
     private:
@@ -121,7 +121,7 @@ public:
         return nullptr;
     }
 
-    ::Smp::IComponent* GetComponent(size_t index) const override {
+    ::Smp::IComponent* GetComponent(std::size_t index) const override {
         if (index < size()) {
             return dynamic_cast<::Smp::IComponent*>(_vector[index]);
         }

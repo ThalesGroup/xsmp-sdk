@@ -15,7 +15,7 @@
 #ifndef XSMP_COLLECTION_H_
 #define XSMP_COLLECTION_H_
 
-#include <stddef.h>
+#include <cstddef>
 #include <Smp/ICollection.h>
 #include <Smp/IObject.h>
 #include <Smp/PrimitiveTypes.h>
@@ -39,11 +39,11 @@ public:
         return it == _map.cend() ? nullptr : it->second;
 
     }
-    T* at(size_t index) const override {
+    T* at(std::size_t index) const override {
         return (index < _vector.size() ? _vector[index] : nullptr);
     }
 
-    size_t size() const override {
+    std::size_t size() const override {
         return _vector.size();
     }
     const_iterator begin() const override {
@@ -114,11 +114,11 @@ public:
         return it == _map.cend() ? nullptr : it->second.get();
 
     }
-    T* at(size_t index) const override {
+    T* at(std::size_t index) const override {
         return (index < _vector.size() ? _vector[index] : nullptr);
     }
 
-    size_t size() const override {
+    std::size_t size() const override {
         return _vector.size();
     }
     const_iterator begin() const override {
@@ -192,14 +192,14 @@ public:
         auto *value = _delegate->at(name);
         return value ? value : ::Xsmp::detail::AbstractCollection<T>::at(name);
     }
-    T* at(size_t index) const override {
+    T* at(std::size_t index) const override {
         return index < _delegate->size() ?
                 _delegate->at(index) :
                 ::Xsmp::detail::AbstractCollection<T>::at(
                         index - _delegate->size());
     }
 
-    size_t size() const override
+    std::size_t size() const override
     {
         return detail::AbstractCollection<T>::size() + _delegate->size();
     }

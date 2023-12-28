@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include <gtest/gtest.h>
-#include <stddef.h>
+#include <cstddef>
 #include <Smp/CollectionIterator.h>
 #include <Smp/DuplicateName.h>
 #include <Smp/PrimitiveTypes.h>
@@ -51,7 +51,7 @@ TEST(CollectionTest, simple) {
     c.Add(&o1);
 
     EXPECT_EQ(1, c.size());
-    EXPECT_EQ(&o1, c.at(size_t(0)));
+    EXPECT_EQ(&o1, c.at(std::size_t(0)));
     EXPECT_EQ(&o1, c.at("o1"));
 
     EXPECT_EQ(nullptr, c.at(10));
@@ -67,7 +67,7 @@ TEST(CollectionTest, simple) {
     InterfaceObj o2 { "o2", "", nullptr };
     c.Add(&o2);
     EXPECT_EQ(2, c.size());
-    EXPECT_EQ(&o2, c.at(size_t(1)));
+    EXPECT_EQ(&o2, c.at(std::size_t(1)));
     EXPECT_EQ(&o2, c.at("o2"));
 
     EXPECT_EQ(nullptr, c.at(10));
@@ -83,7 +83,7 @@ TEST(CollectionTest, simple) {
 
     c.Remove(&o1);
     EXPECT_EQ(1, c.size());
-    EXPECT_EQ(&o2, c.at(size_t(0)));
+    EXPECT_EQ(&o2, c.at(std::size_t(0)));
     c.clear();
     EXPECT_EQ(0, c.size());
 }
@@ -104,8 +104,8 @@ TEST(CollectionTest, delegate) {
     EXPECT_EQ(c.GetDescription(), delegate.GetDescription());
     EXPECT_EQ(c.GetParent(), delegate.GetParent());
     EXPECT_EQ(c.size(), delegate.size());
-    EXPECT_EQ(&o1, c.at(size_t(0)));
-    EXPECT_EQ(&o2, c.at(size_t(1)));
+    EXPECT_EQ(&o1, c.at(std::size_t(0)));
+    EXPECT_EQ(&o2, c.at(std::size_t(1)));
     EXPECT_EQ(&o1, c.at("o1"));
     EXPECT_EQ(&o2, c.at("o2"));
 
@@ -114,12 +114,12 @@ TEST(CollectionTest, delegate) {
     InterfaceObj o3 { "o3", "", nullptr };
     delegate.Add(&o3);
     EXPECT_EQ(c.size() + 1, delegate.size());
-    EXPECT_EQ(&o1, delegate.at(size_t(0)));
-    EXPECT_EQ(&o2, delegate.at(size_t(1)));
+    EXPECT_EQ(&o1, delegate.at(std::size_t(0)));
+    EXPECT_EQ(&o2, delegate.at(std::size_t(1)));
     EXPECT_EQ(&o1, delegate.at("o1"));
     EXPECT_EQ(&o2, delegate.at("o2"));
     EXPECT_EQ(&o3, delegate.at("o3"));
-    EXPECT_EQ(&o3, delegate.at(size_t(2)));
+    EXPECT_EQ(&o3, delegate.at(std::size_t(2)));
 
     auto it = delegate.begin();
     ASSERT_TRUE(delegate.end() != it);

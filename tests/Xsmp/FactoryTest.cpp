@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include <gtest/gtest.h>
-#include <stddef.h>
+#include <cstddef>
 #include <Smp/CollectionIterator.h>
 #include <Smp/DuplicateUuid.h>
 #include <Smp/IFactory.h>
@@ -118,7 +118,7 @@ TEST(FactoryCollectionTest, FactoryCollection) {
     EXPECT_EQ(collection.at("M2"), m2);
     EXPECT_EQ(collection.at("M3"), nullptr);
 
-    EXPECT_EQ(collection.at(static_cast<size_t>(0)), m1);
+    EXPECT_EQ(collection.at(static_cast<std::size_t>(0)), m1);
     EXPECT_EQ(collection.at(1), m2);
     EXPECT_EQ(collection.at(2), nullptr);
 

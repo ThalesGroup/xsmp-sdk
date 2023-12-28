@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include <gtest/gtest.h>
-#include <stddef.h>
+#include <cstddef>
 #include <Smp/CannotDelete.h>
 #include <Smp/ContainerFull.h>
 #include <Smp/DuplicateName.h>
@@ -55,7 +55,7 @@ TEST(ContainerTest, auto_register) {
 
     EXPECT_EQ(&ctn, composite.GetContainer("ctn"));
     EXPECT_EQ(&ctn, composite.GetContainers()->at("ctn"));
-    EXPECT_EQ(&ctn, composite.GetContainers()->at(static_cast<size_t>(0)));
+    EXPECT_EQ(&ctn, composite.GetContainers()->at(static_cast<std::size_t>(0)));
     EXPECT_STREQ("ctn", ctn.GetName());
     EXPECT_STREQ("desc", ctn.GetDescription());
     EXPECT_EQ(&composite, ctn.GetParent());
@@ -81,10 +81,10 @@ TEST(ContainerTest, auto_register) {
 
     EXPECT_EQ(1, ctn.GetCount());
     EXPECT_EQ(i1, ctn.GetComponent("i1"));
-    EXPECT_EQ(i1, ctn.GetComponent(size_t(0)));
+    EXPECT_EQ(i1, ctn.GetComponent(std::size_t(0)));
     EXPECT_EQ(i1, ctn.GetComponents()->at("i1"));
 
-    EXPECT_EQ(nullptr, ctn.GetComponent(size_t(1)));
+    EXPECT_EQ(nullptr, ctn.GetComponent(std::size_t(1)));
 
     EXPECT_THROW(ctn.DeleteComponent(i1), ::Smp::CannotDelete);
 
@@ -96,7 +96,7 @@ TEST(ContainerTest, auto_register) {
 
     EXPECT_EQ(2, ctn.GetCount());
     EXPECT_EQ(i2, ctn.GetComponent("i2"));
-    EXPECT_EQ(i2, ctn.GetComponent(size_t(1)));
+    EXPECT_EQ(i2, ctn.GetComponent(std::size_t(1)));
 
     auto *i3 = new M2 { "i3", "", &composite };
     EXPECT_THROW(ctn.DeleteComponent(i3), ::Smp::NotContained);
@@ -125,7 +125,7 @@ TEST(ContainerTest, bounds) {
 
     EXPECT_EQ(1, ctn.GetCount());
     EXPECT_EQ(i1, ctn.GetComponent("i1"));
-    EXPECT_EQ(i1, ctn.GetComponent(size_t(0)));
+    EXPECT_EQ(i1, ctn.GetComponent(std::size_t(0)));
 
 }
 

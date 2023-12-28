@@ -197,7 +197,7 @@ std::string GetPath(const ::Smp::IObject *obj) {
 
             try {
                 auto size = arrayField->GetSize();
-                size_t pos;
+                std::size_t pos;
                 auto value = std::stoll(&segment[1], &pos);
                 if (pos + 2 != segment.length())
                     return nullptr;
@@ -343,7 +343,7 @@ static inline ::Smp::IObject* ResolveComponent(const ::Smp::IObject *object,
 }
 
 inline void erase_all(std::string& string, std::string_view search) {
-    for (size_t pos = 0;;) {
+    for (std::size_t pos = 0;;) {
         pos = string.find(search, pos);
         if (pos == std::string::npos) {
             break;
@@ -375,11 +375,11 @@ std::string TypeName(const ::Smp::IObject *type) {
     return demangle(typeid(*type).name());
 }
 
-void CopyString(::Smp::Char8 *destination, size_t size,
+void CopyString(::Smp::Char8 *destination, std::size_t size,
         const ::Smp::AnySimple &value) {
     auto *str = static_cast<::Smp::String8>(value);
     if (str) {
-        size_t length = std::min(size, std::strlen(str) + 1);
+        std::size_t length = std::min(size, std::strlen(str) + 1);
         std::memcpy(destination, str, length);
         destination[size - 1] = '\0';
     }
@@ -395,7 +395,7 @@ static inline bool AreEquivalent(const ::Smp::ISimpleArrayField *source,
     // the Smp::IsimpleArray interface should provide a Smp::PrimitiveTypeKind GetItemKind() const; method
     // && simpleArrayTarget->GetType()->GetPrimitiveTypeKind() == simpleArraySource->GetType()->GetPrimitiveTypeKind()
     if (target->GetSize() == source->GetSize()) {
-        for (size_t i = 0; i < source->GetSize(); ++i) {
+        for (std::size_t i = 0; i < source->GetSize(); ++i) {
             if (source->GetValue(i).GetType() != target->GetValue(i).GetType())
                 return false;
         }
@@ -406,7 +406,7 @@ static inline bool AreEquivalent(const ::Smp::ISimpleArrayField *source,
 static inline bool AreEquivalent(const ::Smp::IArrayField *source,
         const ::Smp::IArrayField *target) {
     if (target->GetSize() == source->GetSize()) {
-        for (size_t i = 0; i < source->GetSize(); ++i) {
+        for (std::size_t i = 0; i < source->GetSize(); ++i) {
             if (!AreEquivalent(source->GetItem(i), target->GetItem(i)))
                 return false;
         }
@@ -417,7 +417,7 @@ static inline bool AreEquivalent(const ::Smp::IArrayField *source,
 static inline bool AreEquivalent(const ::Smp::IStructureField *source,
         const ::Smp::IStructureField *target) {
     if (target->GetFields()->size() == source->GetFields()->size()) {
-        size_t index = 0;
+        std::size_t index = 0;
         for (auto const *f : *source->GetFields()) {
             if (!AreEquivalent(f, target->GetFields()->at(index)))
                 return false;

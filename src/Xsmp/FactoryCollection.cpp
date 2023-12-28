@@ -31,7 +31,7 @@ FactoryCollection::FactoryCollection(::Smp::IObject *parent) :
     return (it == _factory_map.end()) ? nullptr : it->second;
 }
 
-::Smp::IFactory* FactoryCollection::at(size_t index) const {
+::Smp::IFactory* FactoryCollection::at(std::size_t index) const {
     return (index < _factories.size() ? _factories[index] : nullptr);
 }
 
@@ -40,7 +40,7 @@ FactoryCollection::FactoryCollection(::Smp::IObject *parent) :
     return (it == _uuid_map.end()) ? nullptr : it->second.get();
 }
 
-size_t FactoryCollection::size() const {
+std::size_t FactoryCollection::size() const {
     return _factories.size();
 }
 FactoryCollection::const_iterator FactoryCollection::begin() const {

@@ -16,7 +16,7 @@
 #define PYTHON_SMP_IOPERATION_H_
 
 #include <python/ecss_smp.h>
-#include <stddef.h>
+#include <cstddef>
 #include <Smp/AnySimple.h>
 #include <Smp/IOperation.h>
 #include <Smp/Publication/IType.h>
@@ -49,7 +49,7 @@ inline py::object callOperation(::Smp::IOperation &self, const py::args &args,
         ++index;
         request->SetParameterValue(index,
                 convert(arg,
-                        parameters->at(static_cast<size_t>(index))->GetType()->GetPrimitiveTypeKind()));
+                        parameters->at(static_cast<std::size_t>(index))->GetType()->GetPrimitiveTypeKind()));
     }
 
     for (const auto& [name, value] : kwargs) {
@@ -67,7 +67,7 @@ inline py::object callOperation(::Smp::IOperation &self, const py::args &args,
                             + "'");
         request->SetParameterValue(i,
                 convert(value,
-                        parameters->at(static_cast<size_t>(i))->GetType()->GetPrimitiveTypeKind()));
+                        parameters->at(static_cast<std::size_t>(i))->GetType()->GetPrimitiveTypeKind()));
     }
 
     self.Invoke(request.get());

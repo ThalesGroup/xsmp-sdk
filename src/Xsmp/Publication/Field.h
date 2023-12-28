@@ -15,7 +15,7 @@
 #ifndef XSMP_PUBLICATION_FIELD_H_
 #define XSMP_PUBLICATION_FIELD_H_
 
-#include <stddef.h>
+#include <cstddef>
 #include <Smp/AnySimpleArray.h>
 #include <Smp/IArrayField.h>
 #include <Smp/IDataflowField.h>
@@ -145,7 +145,7 @@ public:
 
     void SetValues(::Smp::UInt64 length, ::Smp::AnySimpleArray values) override;
 private:
-    size_t GetItemSize() const;
+    std::size_t GetItemSize() const;
     ::Smp::UInt64 _count;
     ::Smp::PrimitiveTypeKind _kind;
 };

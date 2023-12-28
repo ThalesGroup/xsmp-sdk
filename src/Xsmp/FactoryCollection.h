@@ -15,7 +15,7 @@
 #ifndef XSMP_FACTORYCOLLECTION_H_
 #define XSMP_FACTORYCOLLECTION_H_
 
-#include <stddef.h>
+#include <cstddef>
 #include <Smp/IFactory.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Uuid.h>
@@ -39,11 +39,11 @@ public:
 
     ::Smp::IFactory* at(::Smp::String8 name) const override;
 
-    ::Smp::IFactory* at(size_t index) const override;
+    ::Smp::IFactory* at(std::size_t index) const override;
 
     ::Smp::IFactory* at(::Smp::Uuid uuid) const;
 
-    size_t size() const override;
+    std::size_t size() const override;
     const_iterator begin() const override;
     const_iterator end() const override;
     /// Add a factory to the collection

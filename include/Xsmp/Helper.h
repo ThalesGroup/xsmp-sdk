@@ -62,7 +62,7 @@ template<typename T>
 }
 
 /// helper function to copy a string from an AnySimple
-void CopyString(::Smp::Char8 *destination, size_t size,
+void CopyString(::Smp::Char8 *destination, std::size_t size,
         const ::Smp::AnySimple &value);
 
 template<typename T>
