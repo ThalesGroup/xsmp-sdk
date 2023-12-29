@@ -47,10 +47,14 @@ XSMP_BUILD_PYTHON_BINDINGS = "ON"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q"
-testpaths = [
-    "tests"
+addopts = ["-ra", "--showlocals", "--strict-markers", "--strict-config"]
+xfail_strict = true
+log_cli_level = "INFO"
+filterwarnings = [
+  "error",
 ]
+testpaths = ["python"]
+
 [tool.cibuildwheel]
 test-extras = "test"
 test-command = "python -m pytest {project}/python -v"

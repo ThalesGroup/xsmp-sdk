@@ -61,6 +61,15 @@
 namespace py = pybind11;
 
 namespace PYBIND11_NAMESPACE {
+
+template <typename itype>
+struct polymorphic_type_hook<itype, std::enable_if_t<std::is_base_of_v<Smp::IObject, itype>>> {
+    static const void *get(const itype *src, const std::type_info *&type) {
+        type = src ? &typeid(*src) : nullptr;
+        return static_cast<const Smp::IObject *>(src);
+    }
+};
+
 struct TypeHierarchy {
 
     template<typename T>
@@ -220,6 +229,7 @@ public:
         record.dealloc = dealloc;
         record.default_holder = true;
         record.module_local = true;
+        record.is_final = true;
 
         processHierarchy(IObjectHierarchy, obj, record);
 

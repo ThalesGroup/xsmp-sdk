@@ -4,7 +4,6 @@ on:
    push:
       branches:
       - main
-      - enable-tests-on-windows
    pull_request:
       branches:
       - main
@@ -158,7 +157,7 @@ jobs:
       -  name: Run tests
          working-directory: build
          run: |
-            ctest -C Release --output-on-failure -E "XsmpSchedulerTest|PythonTest|xsmp_example_project1Test"
+            ctest -C Release --output-on-failure -E "XsmpSchedulerTest"
    python:
       name: '${{matrix.os}} :: Python ${{matrix.python-version}}'
       runs-on: ${{matrix.os}}
