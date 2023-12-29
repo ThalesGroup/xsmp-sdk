@@ -6,10 +6,10 @@ endif()
 
 find_package(Python COMPONENTS Interpreter Development)
 
-function(pytest_discover_tests NAME)
+function(pytest_discover_tests)
     cmake_parse_arguments(
-        PARSE_ARGV 1 "" ""
-        "WORKING_DIRECTORY;TRIM_FROM_NAME;BUNDLE_TESTS"
+        PARSE_ARGV 0 "" ""
+        "NAME;WORKING_DIRECTORY;TRIM_FROM_NAME;BUNDLE_TESTS"
         "LIBRARY_PATH_PREPEND;PYTHON_PATH_PREPEND;ENVIRONMENT"
     )
 
@@ -74,8 +74,11 @@ function(pytest_discover_tests NAME)
         set(_BUNDLE_TESTS $ENV{BUNDLE_PYTHON_TESTS})
     endif()
 
-
-    set(ctest_file_base "${CMAKE_CURRENT_BINARY_DIR}/${NAME}")
+    if (NOT _NAME)
+        set(_NAME "pytest")
+    endif()
+    
+    set(ctest_file_base "${CMAKE_CURRENT_BINARY_DIR}/${_NAME}")
     set(ctest_include_file "${ctest_file_base}_include.cmake")
   
 
@@ -89,7 +92,7 @@ function(pytest_discover_tests NAME)
       "include(\"${_PYTEST_DISCOVER_TESTS_SCRIPT}\")"                    "\n"
       "pytest_discover_tests_impl("                                      "\n"
       "    PYTHON_EXECUTABLE"     " [==[" "${Python_EXECUTABLE}"  "]==]" "\n"
-      "    TEST_GROUP_NAME"       " [==[" "${NAME}"               "]==]" "\n"
+      "    TEST_GROUP_NAME"       " [==[" "${_NAME}"               "]==]" "\n"
       "    BUNDLE_TESTS"          " [==[" "${_BUNDLE_TESTS}"      "]==]" "\n"
       "    LIB_ENV_PATH"          " [==[" "${LIB_ENV_PATH}"       "]==]" "\n"
       "    LIBRARY_PATH"          " [==[" "${libpath}"            "]==]" "\n"
@@ -97,7 +100,6 @@ function(pytest_discover_tests NAME)
       "    TRIM_FROM_NAME"        " [==[" "${_TRIM_FROM_NAME}"    "]==]" "\n"
       "    WORKING_DIRECTORY"     " [==[" "${_WORKING_DIRECTORY}" "]==]" "\n"
       "    ENVIRONMENT"           " [==[" "${_ENVIRONMENT}"       "]==]" "\n"
-      "    PROJECT_SOURCE_DIR"    " [==[" "${PROJECT_SOURCE_DIR}" "]==]" "\n"
       "    CTEST_FILE"            " [==[" "${ctest_tests_file}"    "]==]" "\n"
       ")"                                                                "\n"
       "include(\"${ctest_tests_file}\")"                                  "\n"

@@ -34,4 +34,4 @@ include(CTest)
 
 
 include(Pytest)
-pytest_discover_tests(xsmp_example_project1Test)
+pytest_discover_tests()

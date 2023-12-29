@@ -6,7 +6,7 @@ function(pytest_discover_tests_impl)
     cmake_parse_arguments(
         ""
         ""
-        "PYTHON_EXECUTABLE;TEST_GROUP_NAME;BUNDLE_TESTS;LIB_ENV_PATH;LIBRARY_PATH;PYTHON_PATH;TRIM_FROM_NAME;WORKING_DIRECTORY;ENVIRONMENT;PROJECT_SOURCE_DIR;CTEST_FILE"
+        "PYTHON_EXECUTABLE;TEST_GROUP_NAME;BUNDLE_TESTS;LIB_ENV_PATH;LIBRARY_PATH;PYTHON_PATH;TRIM_FROM_NAME;WORKING_DIRECTORY;ENVIRONMENT;CTEST_FILE"
         ""
         ${ARGN}
     )
@@ -84,7 +84,7 @@ function(pytest_discover_tests_impl)
                         "${_TRIM_FROM_NAME}" "" test_name "${test_name}")
             endif()
 
-            set(test_name "${_TEST_GROUP_NAME}.${test_name}")
+            set(test_name "${_TEST_GROUP_NAME}/${test_name}")
             set(test_case "${_WORKING_DIRECTORY}/${test_case}")
 
             string(APPEND _content
@@ -131,7 +131,6 @@ if(CMAKE_SCRIPT_MODE_FILE)
         TRIM_FROM_NAME ${TRIM_FROM_NAME}
         WORKING_DIRECTORY ${WORKING_DIRECTORY}
         ENVIRONMENT ${ENVIRONMENT}
-        PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR}
         CTEST_FILE ${CTEST_FILE}
     )
 endif(CMAKE_SCRIPT_MODE_FILE)
