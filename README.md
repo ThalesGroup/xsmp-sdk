@@ -21,31 +21,8 @@ It provides all SMP components to develop and test catalogues:
 
 - a Component Development Kit (CDK)
 - a lightweight simulator and standard services for test purpose
-- a Python binding to ease the writing of unit-tests
+- a Python SMP unit-tests framework
 
-## System Requirements
-
-- Linux, Windows or MacOS
-- A C++ 17 compiler: Clang 5+, GCC 7+ and MSVC 2019+ are officially supported
-- CMake 3.14+
-- Python 3.7+ and pytest
-
-## How to Build
-
-Both CMake and Python (pip) builds are supported.
-
-### Build with CMake
-
-```bash
-cmake -B ./build -DCMAKE_BUILD_TYPE=Release
-cmake --build ./build --config Release
-```
-
-### Build with Python (pip)
-
-```bash
-python -m pip install .[test] -v
-```
 
 ## Documentation
 
