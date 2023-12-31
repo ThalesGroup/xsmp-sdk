@@ -16,7 +16,6 @@
 #define PYTHON_SMP_ACCESSKIND_H_
 
 #include <python/ecss_smp.h>
-
 #include <Smp/AccessKind.h>
 
 inline void RegisterAccessKind(const py::module_ &m) {

@@ -16,7 +16,6 @@
 #define PYTHON_SMP_SERVICES_ITIMEKEEPER_H_
 
 #include <python/ecss_smp.h>
-
 #include <Smp/Services/ITimeKeeper.h>
 
 inline void RegisterITimeKeeper(const py::module_ &m) {

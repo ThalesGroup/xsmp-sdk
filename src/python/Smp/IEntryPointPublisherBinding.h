@@ -17,8 +17,6 @@
 
 #include <python/ecss_smp.h>
 #include <Smp/IEntryPointPublisher.h>
-#include <string>
-#include <typeinfo>
 
 inline void RegisterIEntryPointPublisher(const py::module_ &m) {
     py::class_<::Smp::IEntryPointPublisher, ::Smp::IObject>(m,

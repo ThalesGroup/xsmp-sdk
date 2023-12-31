@@ -17,8 +17,6 @@
 
 #include <python/ecss_smp.h>
 #include <Smp/ILinkingComponent.h>
-#include <string>
-#include <typeinfo>
 
 inline void RegisterILinkingComponent(const py::module_ &m) {
     py::class_<::Smp::ILinkingComponent, ::Smp::IComponent>(m,

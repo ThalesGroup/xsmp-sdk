@@ -17,8 +17,8 @@
 
 #include <python/ecss_smp.h>
 #include <Smp/IArrayField.h>
+#include <Smp/PrimitiveTypes.h>
 #include <string>
-#include <typeinfo>
 
 inline void RegisterIArrayField(const py::module_ &m) {
     py::class_<::Smp::IArrayField, ::Smp::IField>(m, "IArrayField",

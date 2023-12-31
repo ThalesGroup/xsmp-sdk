@@ -16,7 +16,6 @@
 #define PYTHON_SMP_VIEWKIND_H_
 
 #include <python/ecss_smp.h>
-
 #include <Smp/ViewKind.h>
 
 inline void RegisterViewKind(const py::module_ &m) {

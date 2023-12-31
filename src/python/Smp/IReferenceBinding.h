@@ -16,8 +16,9 @@
 #define PYTHON_SMP_IREFERENCE_H_
 
 #include <python/ecss_smp.h>
-
+#include <Smp/IComponent.h>
 #include <Smp/IReference.h>
+#include <Smp/PrimitiveTypes.h>
 #include <string>
 
 inline void RegisterIReference(const py::module_ &m) {

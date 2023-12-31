@@ -17,8 +17,6 @@
 
 #include <python/ecss_smp.h>
 #include <Smp/IEventSource.h>
-#include <string>
-#include <typeinfo>
 
 ::Smp::IEventSource& SubscribeEventSource(::Smp::IEventSource &self,
         ::Smp::IEventSink &esi) {

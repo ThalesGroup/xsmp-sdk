@@ -16,7 +16,6 @@
 #define PYTHON_SMP_SERVICES_TIMEKIND_H_
 
 #include <python/ecss_smp.h>
-
 #include <Smp/Services/TimeKind.h>
 
 inline void RegisterTimeKind(const py::module_ &m) {

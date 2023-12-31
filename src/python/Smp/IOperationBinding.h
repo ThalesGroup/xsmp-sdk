@@ -16,11 +16,14 @@
 #define PYTHON_SMP_IOPERATION_H_
 
 #include <python/ecss_smp.h>
-#include <cstddef>
 #include <Smp/AnySimple.h>
 #include <Smp/IOperation.h>
+#include <Smp/IParameter.h>
+#include <Smp/IRequest.h>
+#include <Smp/PrimitiveTypes.h>
 #include <Smp/Publication/IType.h>
 #include <Smp/Publication/ParameterDirectionKind.h>
+#include <cstddef>
 #include <functional>
 #include <memory>
 #include <string>

@@ -17,8 +17,6 @@
 
 #include <python/ecss_smp.h>
 #include <Smp/IEntryPoint.h>
-#include <string>
-#include <typeinfo>
 
 inline void RegisterIEntryPoint(const py::module_ &m) {
     py::class_<::Smp::IEntryPoint, ::Smp::IObject>(m, "IEntryPoint",

@@ -17,8 +17,6 @@
 
 #include <python/ecss_smp.h>
 #include <Smp/IEventConsumer.h>
-#include <string>
-#include <typeinfo>
 
 inline void RegisterIEventConsumer(const py::module_ &m) {
     py::class_<::Smp::IEventConsumer, ::Smp::IComponent>(m, "IEventConsumer",

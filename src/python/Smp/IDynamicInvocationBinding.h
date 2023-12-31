@@ -17,8 +17,6 @@
 
 #include <python/ecss_smp.h>
 #include <Smp/IDynamicInvocation.h>
-#include <string>
-#include <typeinfo>
 
 inline void RegisterIDynamicInvocation(const py::module_ &m) {
     py::class_<::Smp::IDynamicInvocation, ::Smp::IComponent>(m,

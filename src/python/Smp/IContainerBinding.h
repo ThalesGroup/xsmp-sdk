@@ -16,9 +16,10 @@
 #define PYTHON_SMP_ICONTAINER_H_
 
 #include <python/ecss_smp.h>
+#include <Smp/IComponent.h>
 #include <Smp/IContainer.h>
+#include <Smp/PrimitiveTypes.h>
 #include <string>
-#include <typeinfo>
 
 inline void RegisterIContainer(const py::module_ &m) {
     py::class_<::Smp::IContainer, ::Smp::IObject>(m, "IContainer",

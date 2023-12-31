@@ -16,7 +16,6 @@
 #define PYTHON_SMP_IFAILURE_H_
 
 #include <python/ecss_smp.h>
-
 #include <Smp/IFailure.h>
 
 inline void RegisterIFailure(const py::module_ &m) {

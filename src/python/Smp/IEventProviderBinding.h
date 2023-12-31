@@ -17,8 +17,6 @@
 
 #include <python/ecss_smp.h>
 #include <Smp/IEventProvider.h>
-#include <string>
-#include <typeinfo>
 
 inline void RegisterIEventProvider(const py::module_ &m) {
     py::class_<::Smp::IEventProvider, ::Smp::IComponent>(m, "IEventProvider",

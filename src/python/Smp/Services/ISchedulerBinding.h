@@ -16,7 +16,6 @@
 #define PYTHON_SMP_SERVICES_ISCHEDULER_H_
 
 #include <python/ecss_smp.h>
-
 #include <Smp/Services/IScheduler.h>
 
 inline void RegisterIScheduler(const py::module_ &m) {

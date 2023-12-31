@@ -16,7 +16,6 @@
 #define PYTHON_SMP_IMODEL_H_
 
 #include <python/ecss_smp.h>
-
 #include <Smp/IModel.h>
 
 inline void RegisterIModel(const py::module_ &m) {

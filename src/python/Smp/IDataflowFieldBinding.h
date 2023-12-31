@@ -15,8 +15,8 @@
 #ifndef PYTHON_SMP_IDATAFLOWFIELD_H_
 #define PYTHON_SMP_IDATAFLOWFIELD_H_
 
-#include <python/ecss_smp.h>
 
+#include <python/ecss_smp.h>
 #include <Smp/IField.h>
 #include <Smp/IDataflowField.h>
 

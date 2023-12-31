@@ -17,8 +17,6 @@
 
 #include <python/ecss_smp.h>
 #include <Smp/IComposite.h>
-#include <string>
-#include <typeinfo>
 
 inline void RegisterIComposite(const py::module_ &m) {
     py::class_<::Smp::IComposite, ::Smp::IObject>(m, "IComposite",

@@ -16,7 +16,6 @@
 #define PYTHON_SMP_SERVICES_IRESOLVER_H_
 
 #include <python/ecss_smp.h>
-
 #include <Smp/Services/IResolver.h>
 
 inline void RegisterIResolver(const py::module_ &m) {

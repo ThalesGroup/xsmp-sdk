@@ -17,8 +17,6 @@
 
 #include <python/ecss_smp.h>
 #include <Smp/IComponent.h>
-#include <string>
-#include <typeinfo>
 
 inline void RegisterIComponent(const py::module_ &m) {
     py::class_<::Smp::IComponent, ::Smp::IObject>(m, "IComponent",

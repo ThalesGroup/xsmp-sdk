@@ -16,7 +16,6 @@
 #define PYTHON_SMP_SIMULATORSTATEKIND_H_
 
 #include <python/ecss_smp.h>
-
 #include <Smp/SimulatorStateKind.h>
 
 inline void RegisterSimulatorStateKind(const py::module_ &m) {

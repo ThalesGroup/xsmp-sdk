@@ -16,7 +16,7 @@
 #define PYTHON_SMP_SERVICES_ILOGGER_H_
 
 #include <python/ecss_smp.h>
-
+#include <Smp/PrimitiveTypes.h>
 #include <Smp/Services/ILogger.h>
 
 inline void RegisterILogger(const py::module_ &m) {

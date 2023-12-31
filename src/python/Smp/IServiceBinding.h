@@ -16,7 +16,6 @@
 #define PYTHON_SMP_ISERVICE_H_
 
 #include <python/ecss_smp.h>
-
 #include <Smp/IService.h>
 
 inline void RegisterIService(const py::module_ &m) {

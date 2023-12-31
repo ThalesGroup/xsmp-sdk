@@ -16,7 +16,6 @@
 #define PYTHON_SMP_IFIELD_H_
 
 #include <python/ecss_smp.h>
-
 #include <Smp/IField.h>
 
 inline void RegisterIField(const py::module_ &m) {

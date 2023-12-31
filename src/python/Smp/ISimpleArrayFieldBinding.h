@@ -16,7 +16,11 @@
 #define PYTHON_SMP_ISIMPLEARRAYFIELD_H_
 
 #include <python/ecss_smp.h>
+#include <Smp/AnySimple.h>
 #include <Smp/ISimpleArrayField.h>
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/IArrayType.h>
+#include <string>
 
 inline void RegisterISimpleArrayField(const py::module_ &m) {
 

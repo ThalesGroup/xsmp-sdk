@@ -15,18 +15,45 @@
 #ifndef PYTHON_SMP_ISIMULATOR_H_
 #define PYTHON_SMP_ISIMULATOR_H_
 
-#include <python/ecss_smp.h>
 
+#include <python/ecss_smp.h>
+#include <Smp/IAggregate.h>
+#include <Smp/IArrayField.h>
+#include <Smp/IContainer.h>
+#include <Smp/IDataflowField.h>
+#include <Smp/IDynamicInvocation.h>
+#include <Smp/IEntryPointPublisher.h>
+#include <Smp/IEventConsumer.h>
+#include <Smp/IEventProvider.h>
+#include <Smp/IEventSink.h>
+#include <Smp/IEventSource.h>
+#include <Smp/IFailure.h>
+#include <Smp/IForcibleField.h>
+#include <Smp/ILinkingComponent.h>
+#include <Smp/IModel.h>
+#include <Smp/IOperation.h>
+#include <Smp/IProperty.h>
+#include <Smp/IReference.h>
+#include <Smp/ISimpleArrayField.h>
 #include <Smp/ISimulator.h>
+#include <Smp/IStructureField.h>
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Services/IEventManager.h>
+#include <Smp/Services/ILinkRegistry.h>
+#include <Smp/Services/ILogger.h>
+#include <Smp/Services/IResolver.h>
+#include <Smp/Services/IScheduler.h>
+#include <Smp/Services/ITimeKeeper.h>
+#include <Smp/SimulatorStateKind.h>
 #include <Xsmp/EntryPoint.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/LibraryHelper.h>
-#include <string>
 #include <chrono>
-#include <thread>
 #include <fstream>
-#include <iostream>
-#include <vector>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <thread>
 
 std::unique_ptr<::Smp::ISimulator> createSimulator(::Smp::String8 libraryName,
         ::Smp::String8 factoryName, ::Smp::String8 name,
@@ -47,10 +74,7 @@ std::unique_ptr<::Smp::ISimulator> createSimulator(::Smp::String8 libraryName,
                 ::Xsmp::GetLastError());
     }
 
-    auto *simulator = (*factory)(name, description);
-
-    py::Register(simulator);
-    return std::unique_ptr<::Smp::ISimulator>(simulator);
+    return std::unique_ptr<::Smp::ISimulator>((*factory)(name, description));
 }
 
 void Run(::Smp::ISimulator &self, double ns, double us, double ms, double s,
@@ -310,7 +334,9 @@ This method must only be called when in Standby state, and enters Executing stat
     .def("Run", &Run, py::arg("nanoseconds") = 0., py::arg("microseconds") = 0.,
             py::arg("milliseconds") = 0., py::arg("seconds") = 0.,
             py::arg("minutes") = 0., py::arg("hours") = 0., py::arg("days") =
-                    0., py::arg("weeks") = 0.)
+                    0., py::arg("weeks") = 0.,
+            R"(This method changes from Standby to Executing state for the specified duration.
+                    This method must only be called when in Standby state, and enters Executing state.))
 
     .def("Hold", &::Smp::ISimulator::Hold, py::arg("immediate"),
             R"(This method changes from Executing to Standby state.
@@ -360,62 +386,33 @@ This method raises an exception of type DuplicateName if the name of the new ser
 The container for the services has no upper limit and thus the ContainerFull exception will never be thrown.
 The method will never throw the InvalidObjectType exception either, as it gets a component implementing the IService interface.)")
 
-    .def("GetLogger", [](const ::Smp::ISimulator &self) {
-        auto *service = self.GetLogger();
-        py::Register(service);
-        return service;
-    }, py::return_value_policy::reference,
+    .def("GetLogger", &::Smp::ISimulator::GetLogger,
+            py::return_value_policy::reference,
             R"(Return interface to logger service.)")
 
-    .def("GetTimeKeeper", [](const ::Smp::ISimulator &self) {
-        auto *service = self.GetTimeKeeper();
-        py::Register(service);
-        return service;
-    },
-    py::return_value_policy::reference,
+    .def("GetTimeKeeper", &::Smp::ISimulator::GetTimeKeeper,
+            py::return_value_policy::reference,
             R"(Return interface to time keeper service.)")
 
-    .def("GetScheduler", [](const ::Smp::ISimulator &self) {
-        auto *service = self.GetScheduler();
-        py::Register(service);
-        return service;
-    },
-    py::return_value_policy::reference,
+    .def("GetScheduler", &::Smp::ISimulator::GetScheduler,
+            py::return_value_policy::reference,
             R"(Return interface to scheduler service.)")
 
-    .def("GetEventManager", [](const ::Smp::ISimulator &self) {
-        auto *service = self.GetEventManager();
-        py::Register(service);
-        return service;
-    },
-    py::return_value_policy::reference,
+    .def("GetEventManager", &::Smp::ISimulator::GetEventManager,
+            py::return_value_policy::reference,
             R"(Return interface to event manager service.)")
 
-    .def("GetResolver", [](const ::Smp::ISimulator &self) {
-        auto *service = self.GetResolver();
-        py::Register(service);
-        return service;
-    },
-    py::return_value_policy::reference,
+    .def("GetResolver", &::Smp::ISimulator::GetResolver,
+            py::return_value_policy::reference,
             R"(Return interface to resolver service.)")
 
-    .def("GetLinkRegistry", [](const ::Smp::ISimulator &self) {
-        auto *service = self.GetLinkRegistry();
-        py::Register(service);
-        return service;
-    },
-    py::return_value_policy::reference,
+    .def("GetLinkRegistry", &::Smp::ISimulator::GetLinkRegistry,
+            py::return_value_policy::reference,
             R"(Return interface to link registry service.)")
 
-    .def("CreateInstance",
-            [](::Smp::ISimulator &self, ::Smp::Uuid uuid, ::Smp::String8 name,
-                    ::Smp::String8 description, ::Smp::IComposite *parent) {
-                auto *cmp = self.CreateInstance(uuid, name, description,
-                        parent);
-                py::Register(cmp);
-                return cmp;
-            }, py::arg("uuid"), py::arg("name"), py::arg("description") = "",
-            py::arg("parent"), py::return_value_policy::reference,
+    .def("CreateInstance", &::Smp::ISimulator::CreateInstance, py::arg("uuid"),
+            py::arg("name"), py::arg("description") = "", py::arg("parent"),
+            py::return_value_policy::reference,
             R"(This method creates an instance of the component with the given unique identifier.)")
 
     .def("LoadLibrary",

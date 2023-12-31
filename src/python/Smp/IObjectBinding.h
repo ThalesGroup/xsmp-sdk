@@ -15,15 +15,14 @@
 #ifndef PYTHON_SMP_IOBJECT_H_
 #define PYTHON_SMP_IOBJECT_H_
 
-#include <python/ecss_smp.h>
 
-#include <Xsmp/Helper.h>
+#include <python/ecss_smp.h>
 #include <Smp/AnySimple.h>
-#include <Smp/IObject.h>
 #include <Smp/IProperty.h>
 #include <Smp/ISimpleField.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Publication/IType.h>
+#include <Xsmp/Helper.h>
 
 static bool SetValue(::Smp::IObject &self, ::Smp::String8 name,
         const py::handle &value) {
@@ -61,7 +60,6 @@ inline void RegisterIObject(const py::module_ &m) {
 
     .def("__getattr__", [](::Smp::IObject &self, ::Smp::String8 name) {
         if (auto *child = ::Xsmp::Helper::Resolve(&self, name)) {
-            py::Register(child);
             return child;
         }
         throw py::attribute_error(name);
@@ -76,7 +74,6 @@ inline void RegisterIObject(const py::module_ &m) {
 
     .def("__getitem__", [](::Smp::IObject &self, ::Smp::String8 name) {
         if (auto *child = ::Xsmp::Helper::Resolve(&self, name)) {
-            py::Register(child);
             return child;
         }
         throw py::key_error(name);

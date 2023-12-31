@@ -15,15 +15,11 @@
 #ifndef PYTHON_SMP_IFORCIBLEFIELD_H_
 #define PYTHON_SMP_IFORCIBLEFIELD_H_
 
+
 #include <python/ecss_smp.h>
-
-#include <Smp/ISimpleField.h>
-
+#include <Smp/AnySimple.h>
 #include <Smp/IForcibleField.h>
-#include <Smp/Publication/IType.h>
-#include <Xsmp/Helper.h>
-#include <sstream>
-#include <string>
+#include <Smp/PrimitiveTypes.h>
 
 inline void RegisterIForcibleField(const py::module_ &m) {
     py::class_<::Smp::IForcibleField, ::Smp::ISimpleField>(m, "IForcibleField",

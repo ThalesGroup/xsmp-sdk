@@ -16,7 +16,6 @@
 #define PYTHON_SMP_SERVICES_ILINKREGISTRY_H_
 
 #include <python/ecss_smp.h>
-
 #include <Smp/Services/ILinkRegistry.h>
 
 inline void RegisterILinkRegistry(const py::module_ &m) {

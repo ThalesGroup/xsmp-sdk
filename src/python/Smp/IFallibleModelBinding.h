@@ -16,7 +16,6 @@
 #define PYTHON_SMP_IFALLIBLEMODEL_H_
 
 #include <python/ecss_smp.h>
-
 #include <Smp/IFallibleModel.h>
 
 inline void RegisterIFallibleModel(const py::module_ &m) {

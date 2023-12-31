@@ -16,7 +16,6 @@
 #define PYTHON_SMP_SERVICES_IEVENTMANAGER_H_
 
 #include <python/ecss_smp.h>
-
 #include <Smp/Services/IEventManager.h>
 
 inline void RegisterIEventManager(const py::module_ &m) {

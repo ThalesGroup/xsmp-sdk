@@ -16,10 +16,13 @@
 #define PYTHON_SMP_IPROPERTY_H_
 
 #include <python/ecss_smp.h>
+#include <Smp/AnySimple.h>
 #include <Smp/IProperty.h>
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/IType.h>
 #include <Xsmp/Helper.h>
+#include <sstream>
 #include <string>
-#include <typeinfo>
 
 inline void RegisterIProperty(const py::module_ &m) {
     py::class_<::Smp::IProperty, ::Smp::IObject>(m, "IProperty",
@@ -163,7 +166,12 @@ inline void RegisterIProperty(const py::module_ &m) {
 
     .def("__repr__", [](const ::Smp::IProperty &self) {
         std::stringstream ss;
-        ss << "<" << ::Xsmp::Helper::GetPath(&self) << ": " << self.GetType()->GetName()<<" = " <<self.GetValue()<<">";
+        ss << "<" << ::Xsmp::Helper::GetPath(&self) << ": " << self.GetAccess()<< " " << self.GetType()->GetName();
+
+        if (self.GetAccess() != ::Smp::AccessKind::AK_WriteOnly)
+            ss << " = " << self.GetValue();
+
+        ss << ">";
         return ss.str();
 
     })

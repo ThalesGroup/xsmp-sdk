@@ -16,7 +16,6 @@
 #define PYTHON_SMP_IPERSIST_H_
 
 #include <python/ecss_smp.h>
-
 #include <Smp/IPersist.h>
 
 inline void RegisterIPersist(const py::module_ &m) {

@@ -15,10 +15,10 @@
 #ifndef PYTHON_SMP_ISIMPLEFIELD_H_
 #define PYTHON_SMP_ISIMPLEFIELD_H_
 
+
 #include <python/ecss_smp.h>
-
+#include <Smp/AnySimple.h>
 #include <Smp/ISimpleField.h>
-
 #include <Smp/Publication/IType.h>
 #include <Xsmp/Helper.h>
 #include <sstream>

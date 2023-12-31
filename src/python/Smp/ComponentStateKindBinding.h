@@ -16,7 +16,6 @@
 #define PYTHON_SMP_COMPONENTSTATEKIND_H_
 
 #include <python/ecss_smp.h>
-
 #include <Smp/ComponentStateKind.h>
 
 inline void RegisterComponentStateKind(const py::module_ &m) {
