@@ -35,6 +35,8 @@ public:
     using iterator = typename ::Smp::ICollection<T>::iterator;
 
     T* at(::Smp::String8 name) const override {
+        if (!name)
+            return nullptr;
         auto it = _map.find(name);
         return it == _map.cend() ? nullptr : it->second;
 
@@ -110,6 +112,8 @@ public:
     using iterator = typename ::Smp::ICollection<T>::iterator;
 
     T* at(::Smp::String8 name) const override {
+        if (!name)
+            return nullptr;
         auto it = _map.find(name);
         return it == _map.cend() ? nullptr : it->second.get();
 

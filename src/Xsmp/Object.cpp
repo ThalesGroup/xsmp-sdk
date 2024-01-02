@@ -28,20 +28,17 @@ namespace {
     if (!name)
         ::Xsmp::Exception::throwInvalidObjectName(parent, "<nullptr>");
 
-    // the name must start with a letter and Not be an ISO/ANSI C++ keyword.
-
+    // the name must start with a letter
     if (!std::isalpha(static_cast<unsigned char>(name[0])))
         ::Xsmp::Exception::throwInvalidObjectName(parent, name);
 
     std::size_t i = 1;
+    // skip following letters, digits and "_"
     while (std::isalnum(static_cast<unsigned char>(name[i])) || (name[i] == '_')) {
         ++i;
     }
 
-    if (name[i] == '\0')
-        return name;
-
-    // parse an array
+    // parse an optional array
     while (name[i] == '[') {
         ++i;
         // index must start with a digit
@@ -58,6 +55,7 @@ namespace {
             ::Xsmp::Exception::throwInvalidObjectName(parent, name);
     }
 
+    // check end of name
     if (name[i] != '\0')
         ::Xsmp::Exception::throwInvalidObjectName(parent, name);
 
@@ -85,7 +83,7 @@ Object::Object(::Smp::String8 name, ::Smp::String8 description,
 }
 
 void Object::SetDescription(::Smp::String8 description) noexcept {
-    _description = description;
+    _description = description ? description : "";
 }
 
 } // namespace Xsmp

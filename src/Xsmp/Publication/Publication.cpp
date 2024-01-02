@@ -208,10 +208,10 @@ void Publication::PublishProperty(::Smp::String8 name,
 }
 
 ::Smp::IField* Publication::GetField(::Smp::String8 fullName) const {
-
-    if (auto *field = dynamic_cast<::Smp::IField*>(::Xsmp::Helper::Resolve(
-            GetFields(), fullName)))
-        return field;
+    if (fullName)
+        if (auto *field = dynamic_cast<::Smp::IField*>(::Xsmp::Helper::Resolve(
+                GetFields(), fullName)))
+            return field;
 
     ::Xsmp::Exception::throwInvalidFieldName(_parent, fullName);
 }

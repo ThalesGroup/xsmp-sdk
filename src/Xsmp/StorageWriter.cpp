@@ -29,10 +29,10 @@ namespace Xsmp {
 namespace {
 std::ofstream createOutputStream(::Smp::String8 path, ::Smp::String8 filename,
         const ::Smp::IObject *object) {
-    if (!fs::is_directory(path))
-        fs::create_directories(path);
+    if (!fs::is_directory(path ? path : ""))
+        fs::create_directories(path ? path : "");
 
-    auto fullPath = fs::path(path) / filename;
+    auto fullPath = fs::path(path ? path : "") / (filename ? filename : "");
     std::ofstream os { fullPath, std::ios::binary };
 
     if (!os.good())
@@ -44,8 +44,8 @@ std::ofstream createOutputStream(::Smp::String8 path, ::Smp::String8 filename,
 
 StorageWriter::StorageWriter(::Smp::String8 path, ::Smp::String8 filename,
         const ::Smp::IObject *object) :
-        _path(path), _filename(filename), _object { object }, _os {
-                createOutputStream(path, filename, object) } {
+        _path(path ? path : ""), _filename(filename ? filename : ""), _object {
+                object }, _os { createOutputStream(path, filename, object) } {
 
 }
 

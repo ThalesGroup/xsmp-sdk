@@ -136,8 +136,6 @@
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 
-namespace PYBIND11_NAMESPACE {
-
 struct TypeHierarchy {
 
     template<typename T>
@@ -269,21 +267,21 @@ static inline const TypeHierarchy IObjectHierarchy =
 
                 });
 
-class IObjectClass: public detail::generic_type {
+class IObjectClass: public py::detail::generic_type {
 
 public:
     using type = ::Smp::IObject;
     using holder_type = std::unique_ptr<type>;
     explicit IObjectClass(const type *obj) {
 
-        detail::type_record record;
-        auto type_name = detail::clean_type_id(typeid(*obj).name());
+        py::detail::type_record record;
+        auto type_name = py::detail::clean_type_id(typeid(*obj).name());
         record.name = type_name.c_str(); // TODO add random ID ?
         record.type = &typeid(*obj);
         record.type_size = sizeof(*obj);
         record.type_align = alignof(type);
         // Store the dynamic class in the root module ecss_smp
-        record.scope = module_::import("ecss_smp");
+        record.scope = py::module_::import("ecss_smp");
 
         record.holder_size = sizeof(holder_type);
         record.init_instance = init_instance;
@@ -296,12 +294,12 @@ public:
 
         processHierarchy(IObjectHierarchy, obj, record);
 
-        detail::generic_type::initialize(record);
+        py::detail::generic_type::initialize(record);
 
     }
 
     static bool processHierarchy(const TypeHierarchy &hierarchy,
-            const type *object, detail::type_record &rec) {
+            const type *object, py::detail::type_record &rec) {
         bool ignore = false;
 
         for (const auto &elem : hierarchy.childs) {
@@ -318,9 +316,10 @@ public:
     /// instance.  Should be called as soon as the `type` value_ptr is set for an instance.  Takes
     /// an optional pointer to an existing holder to use; if not specified and the instance is
     /// `.owned`, a new holder will be constructed to manage the value pointer.
-    static void init_instance(detail::instance *inst, const void *holder_ptr) {
-        auto v_h = detail::value_and_holder(inst,
-                detail::get_type_info(typeid(type)), 0, 0);
+    static void init_instance(py::detail::instance *inst,
+            const void *holder_ptr) {
+        auto v_h = py::detail::value_and_holder(inst,
+                py::detail::get_type_info(typeid(type)), 0, 0);
         if (!v_h.instance_registered()) {
             register_instance(inst, v_h.value_ptr(), v_h.type);
             v_h.set_instance_registered();
@@ -330,20 +329,20 @@ public:
     }
 
     /// Deallocates an instance; via holder, if constructed; otherwise via operator delete.
-    static void dealloc(detail::value_and_holder &v_h) {
+    static void dealloc(py::detail::value_and_holder &v_h) {
         // We could be deallocating because we are cleaning up after a Python exception.
         // If so, the Python error indicator will be set. We need to clear that before
         // running the destructor, in case the destructor code calls more Python.
         // If we don't, the Python API will exit with an exception, and pybind11 will
         // throw error_already_set from the C++ destructor which is forbidden and triggers
         // std::terminate().
-        error_scope scope;
+        py::error_scope scope;
         if (v_h.holder_constructed()) {
             v_h.holder<holder_type>().~holder_type();
             v_h.set_holder_constructed(false);
         }
         else {
-            detail::call_operator_delete(v_h.value_ptr<type>(),
+            py::detail::call_operator_delete(v_h.value_ptr<type>(),
                     v_h.type->type_size, v_h.type->type_align);
         }
         v_h.value_ptr() = nullptr;
@@ -351,7 +350,8 @@ public:
 
 private:
 
-    static void init_holder_from_existing(const detail::value_and_holder &v_h,
+    static void init_holder_from_existing(
+            const py::detail::value_and_holder &v_h,
             const holder_type *holder_ptr,
             std::false_type /*is_copy_constructible*/) {
         new (std::addressof(v_h.holder<holder_type>())) holder_type(
@@ -360,15 +360,15 @@ private:
 
     /// Initialize holder object, variant 2: try to construct from existing holder object, if
     /// possible
-    static void init_holder(const detail::instance *inst,
-            detail::value_and_holder &v_h, const holder_type *holder_ptr,
+    static void init_holder(const py::detail::instance *inst,
+            py::detail::value_and_holder &v_h, const holder_type *holder_ptr,
             const void* /* dummy -- not enable_shared_from_this<T>) */) {
         if (holder_ptr) {
             init_holder_from_existing(v_h, holder_ptr,
                     std::is_copy_constructible<holder_type>());
             v_h.set_holder_constructed();
         }
-        else if (detail::always_construct_holder<holder_type>::value
+        else if (py::detail::always_construct_holder<holder_type>::value
                 || inst->owned) {
             new (std::addressof(v_h.holder<holder_type>())) holder_type(
                     v_h.value_ptr<type>());
@@ -376,7 +376,6 @@ private:
         }
     }
 };
-} // namespace PYBIND11_NAMESPACE
 
 const void* IObjectHook(const ::Smp::IObject *src,
         const std::type_info *&type) {
@@ -384,12 +383,12 @@ const void* IObjectHook(const ::Smp::IObject *src,
     if (src) {
         type = &typeid(*src);
         if (py::detail::get_local_type_info(*type) == nullptr) {
-            py::IObjectClass(src).doc() = "Automatic Python binding for '"
+            IObjectClass(src).doc() = "Automatic Python binding for '"
                     + Xsmp::Helper::TypeName(src) + "'.";
         }
 
         // return a pointer to IObject (instead of dynamic_cast<const void*> )
-        return static_cast<const Smp::IObject*>(src);
+        return static_cast<const void*>(src);
     }
     type = nullptr;
     return nullptr;

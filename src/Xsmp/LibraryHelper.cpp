@@ -30,7 +30,7 @@ namespace {
 /// - windows: <libraryName>.dll
 std::string LibraryFileName(const char *libraryName) {
 #if (defined(_WIN32) || defined(_WIN64))
-    return libraryName + std::string(".dll");
+    return std::string(libraryName) + ".dll";
 #elif defined(__APPLE__)
     return std::string("lib") + libraryName + ".dylib";
 #else
@@ -51,7 +51,7 @@ void* LoadLibrary(const char *libraryName) {
 }
 
 void CloseLibrary(void *handle) {
-#ifdef _WIN32
+#if (defined(_WIN32) || defined(_WIN64))
     FreeLibrary(static_cast<HMODULE>(handle));
 #else
     dlclose(handle);

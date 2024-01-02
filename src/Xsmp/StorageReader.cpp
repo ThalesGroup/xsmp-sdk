@@ -29,7 +29,7 @@ namespace {
 std::ifstream createInputStream(::Smp::String8 path, ::Smp::String8 filename,
         const ::Smp::IObject *object) {
 
-    auto fullPath = fs::path(path) / filename;
+    auto fullPath = fs::path(path ? path : "") / (filename ? filename : "");
     std::ifstream is { fullPath, std::ios::binary };
 
     if (!is.good())
@@ -41,8 +41,8 @@ std::ifstream createInputStream(::Smp::String8 path, ::Smp::String8 filename,
 
 StorageReader::StorageReader(::Smp::String8 path, ::Smp::String8 filename,
         const ::Smp::IObject *object) :
-        _path(path), _filename(filename), _object { object }, _is(
-                createInputStream(path, filename, object)) {
+        _path(path ? path : ""), _filename(filename ? filename : ""), _object {
+                object }, _is(createInputStream(path, filename, object)) {
 
 }
 
