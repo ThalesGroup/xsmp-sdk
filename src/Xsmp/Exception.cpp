@@ -90,8 +90,8 @@ namespace Xsmp::Exception {
 class Exception: public virtual ::Smp::Exception {
 public:
     template<typename ... Args>
-    Exception(const ::Smp::IObject *sender, const std::string &name,
-            const std::string &description, Args &&... args) noexcept :
+    Exception(const ::Smp::IObject *sender, std::string_view name,
+            std::string_view description, Args &&... args) noexcept :
             _sender(sender), _name(name), _description(description), _message(
                     Xsmp::Exception::detail::FormatString(
                             std::forward<Args>( args )...)), _whatStr(
@@ -189,7 +189,7 @@ private:
 
 class CannotStore final: public Exception, public ::Smp::CannotStore {
 public:
-    CannotStore(const ::Smp::IObject *sender, const std::string &msg) :
+    CannotStore(const ::Smp::IObject *sender, std::string_view msg) :
             Exception(sender, __func__,
                     "This exception is raised when the component cannot store its data to the storage writer given to the Store() method",
                     msg) {
@@ -201,7 +201,7 @@ public:
 
 class CannotRestore final: public Exception, public ::Smp::CannotRestore {
 public:
-    CannotRestore(const ::Smp::IObject *sender, const std::string &msg) :
+    CannotRestore(const ::Smp::IObject *sender, std::string_view msg) :
             Exception(sender, __func__,
                     "This exception is raised when the content of the storage reader passed to the Restore() method contains invalid data",
                     msg) {
@@ -213,7 +213,7 @@ public:
 
 class InvalidObjectName final: public Exception, public ::Smp::InvalidObjectName {
 public:
-    InvalidObjectName(const ::Smp::IObject *sender, const std::string &name) :
+    InvalidObjectName(const ::Smp::IObject *sender, std::string_view name) :
             Exception(sender, __func__,
                     "Cannot set an object's name to an invalid name",
                     "The object's name '", name, "' is invalid."),
@@ -261,8 +261,8 @@ private:
 
 class DuplicateName final: public Exception, public ::Smp::DuplicateName {
 public:
-    DuplicateName(const ::Smp::IObject *sender,
-            const std::string &duplicateName, const ::Smp::IObject *collection) :
+    DuplicateName(const ::Smp::IObject *sender, std::string_view duplicateName,
+            const ::Smp::IObject *collection) :
             Exception(sender, __func__,
                     "Cannot add an object to a collection of objects, which have to have unique names, but another object with the same name does exist already in this collection. This would lead to duplicate names",
                     "Tried to add an object named '", duplicateName, "' in '",
@@ -597,7 +597,7 @@ class InvalidOperationName final: public Exception,
         public ::Smp::InvalidOperationName {
 public:
     InvalidOperationName(const ::Smp::IObject *sender,
-            const std::string &operationName) :
+            std::string_view operationName) :
             Exception(sender, __func__,
                     "This exception is raised by the Invoke() method when trying to invoke a method that does not exist, or that does not support dynamic invocation",
 
@@ -659,7 +659,7 @@ class InvalidParameterType final: public Exception,
         public ::Smp::InvalidParameterType {
 public:
     InvalidParameterType(const ::Smp::IObject *sender,
-            const std::string &operationName, const std::string &parameterName,
+            std::string_view operationName, std::string_view parameterName,
             ::Smp::PrimitiveTypeKind invalidType,
             ::Smp::PrimitiveTypeKind expectedType) :
             Exception(sender, __func__,
@@ -880,7 +880,7 @@ class EntryPointNotSubscribed final: public Exception,
         public ::Smp::Services::EntryPointNotSubscribed {
 public:
     EntryPointNotSubscribed(const ::Smp::IObject *sender,
-            const ::Smp::IEntryPoint *entryPoint, const std::string &eventName) :
+            const ::Smp::IEntryPoint *entryPoint, std::string_view eventName) :
             Exception(sender, __func__,
                     "Cannot unsubscribe an entry point from an event that is not subscribed to it",
 
@@ -909,7 +909,7 @@ class EntryPointAlreadySubscribed final: public Exception,
         public ::Smp::Services::EntryPointAlreadySubscribed {
 public:
     EntryPointAlreadySubscribed(const ::Smp::IObject *sender,
-            const ::Smp::IEntryPoint *entryPoint, const std::string &eventName) :
+            const ::Smp::IEntryPoint *entryPoint, std::string_view eventName) :
             Exception(sender, __func__,
                     "Cannot subscribe an entry point to an event that is already subscribed",
 
@@ -936,7 +936,7 @@ private:
 
 class InvalidFieldName final: public Exception, public ::Smp::InvalidFieldName {
 public:
-    InvalidFieldName(const ::Smp::IObject *sender, const std::string &name) :
+    InvalidFieldName(const ::Smp::IObject *sender, std::string_view name) :
             Exception(sender, __func__,
                     "This exception is raised when an invalid field name is specified",
                     "'", sender, "' does no contains a field named '", name,
@@ -1083,7 +1083,7 @@ class InvalidParameterValue final: public Exception,
         public ::Smp::InvalidParameterValue {
 public:
     InvalidParameterValue(const ::Smp::IObject *sender,
-            const std::string &parameterName, const ::Smp::AnySimple &value) :
+            std::string_view parameterName, const ::Smp::AnySimple &value) :
             Exception(sender, __func__,
                     "Cannot assign an illegal value to a parameter of an operation in a request using SetParameterValue()",
                     "The value '", value, "' is invalid for parameter '",
@@ -1122,7 +1122,7 @@ public:
 class DuplicateUuid final: public Exception, public ::Smp::DuplicateUuid {
 public:
     DuplicateUuid(const ::Smp::IObject *sender,
-            const ::Smp::IFactory *oldFactory, const std::string &newName) :
+            const ::Smp::IFactory *oldFactory, std::string_view newName) :
             Exception(sender, __func__,
                     "Cannot register a factory under a Uuid that has already been used to register another (or the same) factory. This would lead to duplicate implementation Uuids",
                     "The Uuid '", oldFactory->GetUuid(), "' of Factory '",
@@ -1149,8 +1149,8 @@ private:
 
 class LibraryNotFound final: public Exception, public ::Smp::LibraryNotFound {
 public:
-    LibraryNotFound(const ::Smp::IObject *sender,
-            const std::string &libraryName, const std::string &error) :
+    LibraryNotFound(const ::Smp::IObject *sender, std::string_view libraryName,
+            std::string_view error) :
             Exception(sender, __func__,
                     "Cannot load a library that does not exist", error),
 
@@ -1169,8 +1169,8 @@ private:
 
 class InvalidLibrary final: public Exception, public ::Smp::InvalidLibrary {
 public:
-    InvalidLibrary(const ::Smp::IObject *sender, const std::string &libraryName,
-            const std::string &msg) :
+    InvalidLibrary(const ::Smp::IObject *sender, std::string_view libraryName,
+            std::string_view msg) :
             Exception(sender, __func__,
                     "Cannot load an undefined symbol from a library", msg), _libraryName(
                     libraryName) {
@@ -1224,7 +1224,7 @@ class TypeAlreadyRegistered final: public Exception,
         public ::Smp::Publication::TypeAlreadyRegistered {
 public:
     TypeAlreadyRegistered(const ::Smp::IObject *sender,
-            const std::string &typeName, const ::Smp::Publication::IType *type) :
+            std::string_view typeName, const ::Smp::Publication::IType *type) :
             Exception(sender, __func__,
                     "Cannot register a type with a Uuid that has already been registered",
                     "Cannot register '", typeName, "' with Uuid '",
@@ -1252,8 +1252,8 @@ private:
 class DuplicateLiteral final: public Exception,
         public ::Smp::Publication::DuplicateLiteral {
 public:
-    DuplicateLiteral(const ::Smp::IObject *sender,
-            const std::string &literalName, ::Smp::Int32 literalValue) :
+    DuplicateLiteral(const ::Smp::IObject *sender, std::string_view literalName,
+            ::Smp::Int32 literalValue) :
             Exception(sender, __func__,
                     "Cannot add a literal to an enumeration using a value that has been used for another literal before.",
                     "Value '", literalValue, "' is already used by '",
@@ -1284,7 +1284,7 @@ class InvalidPrimitiveType final: public Exception,
 public:
 
     InvalidPrimitiveType(const ::Smp::IObject *sender,
-            const std::string &typeName, ::Smp::PrimitiveTypeKind type) :
+            std::string_view typeName, ::Smp::PrimitiveTypeKind type) :
             Exception(sender, __func__,
                     "Cannot use an invalid primitive type kind as parameter for a user-defined float or integer type",
 
@@ -1334,8 +1334,8 @@ namespace detail {
 std::ostream& operator <<(std::ostream &os, const ::Smp::IObject *obj) {
     return os << ::Xsmp::Helper::GetPath(obj);
 }
-void throwException(const ::Smp::IObject *sender, const std::string &name,
-        const std::string &description, const std::string &message) {
+void throwException(const ::Smp::IObject *sender, std::string_view name,
+        std::string_view description, std::string_view message) {
     throw Exception(sender, name, description, message);
 }
 
@@ -1351,16 +1351,16 @@ void throwInvalidTarget(const ::Smp::IObject *sender,
     throw InvalidTarget(sender, source, target);
 }
 
-void throwCannotStore(const ::Smp::IObject *sender, const std::string &msg) {
+void throwCannotStore(const ::Smp::IObject *sender, std::string_view msg) {
     throw CannotStore(sender, msg);
 }
 
-void throwCannotRestore(const ::Smp::IObject *sender, const std::string &msg) {
+void throwCannotRestore(const ::Smp::IObject *sender, std::string_view msg) {
     throw CannotRestore(sender, msg);
 }
 
 void throwInvalidObjectName(const ::Smp::IObject *sender,
-        const std::string &name) {
+        std::string_view name) {
     throw InvalidObjectName(sender, name);
 }
 
@@ -1369,7 +1369,7 @@ void throwContainerFull(const ::Smp::IContainer *sender) {
 }
 
 void throwDuplicateName(const ::Smp::IObject *sender,
-        const std::string &duplicateName, const ::Smp::IObject *collection) {
+        std::string_view duplicateName, const ::Smp::IObject *collection) {
     throw DuplicateName(sender, duplicateName, collection);
 }
 
@@ -1428,7 +1428,7 @@ void throwEventSinkNotSubscribed(const ::Smp::IObject *sender,
 }
 
 void throwInvalidOperationName(const ::Smp::IObject *sender,
-        const std::string &operationName) {
+        std::string_view operationName) {
     throw InvalidOperationName(sender, operationName);
 }
 
@@ -1438,7 +1438,7 @@ void throwInvalidParameterCount(const ::Smp::IOperation *sender,
 }
 
 void throwInvalidParameterType(const ::Smp::IObject *sender,
-        const std::string &operationName, const std::string &parameterName,
+        std::string_view operationName, std::string_view parameterName,
         ::Smp::PrimitiveTypeKind invalidType,
         ::Smp::PrimitiveTypeKind expectedType) {
     throw InvalidParameterType(sender, operationName, parameterName,
@@ -1496,17 +1496,17 @@ void throwInvalidEventTime(const ::Smp::IObject *sender,
 }
 
 void throwEntryPointNotSubscribed(const ::Smp::IObject *sender,
-        const ::Smp::IEntryPoint *entryPoint, const std::string &eventName) {
+        const ::Smp::IEntryPoint *entryPoint, std::string_view eventName) {
     throw EntryPointNotSubscribed(sender, entryPoint, eventName);
 }
 
 void throwEntryPointAlreadySubscribed(const ::Smp::IObject *sender,
-        const ::Smp::IEntryPoint *entryPoint, const std::string &eventName) {
+        const ::Smp::IEntryPoint *entryPoint, std::string_view eventName) {
     throw EntryPointAlreadySubscribed(sender, entryPoint, eventName);
 }
 
 void throwInvalidFieldName(const ::Smp::IObject *sender,
-        const std::string &invalidFieldName) {
+        std::string_view invalidFieldName) {
     throw InvalidFieldName(sender, invalidFieldName);
 }
 
@@ -1535,7 +1535,7 @@ void throwInvalidReturnValue(const ::Smp::IObject *sender,
 }
 
 void throwInvalidParameterValue(const ::Smp::IObject *sender,
-        const std::string &parameterName, const ::Smp::AnySimple &value) {
+        std::string_view parameterName, const ::Smp::AnySimple &value) {
     throw InvalidParameterValue(sender, parameterName, value);
 }
 
@@ -1543,17 +1543,17 @@ void throwInvalidFieldType(const ::Smp::IObject *sender) {
     throw InvalidFieldType(sender);
 }
 void throwDuplicateUuid(const ::Smp::IObject *sender,
-        const ::Smp::IFactory *oldFactory, const std::string &newName) {
+        const ::Smp::IFactory *oldFactory, std::string_view newName) {
     throw DuplicateUuid(sender, oldFactory, newName);
 }
 
 void throwLibraryNotFound(const ::Smp::IObject *sender,
-        const std::string &libraryName, const std::string &msg) {
+        std::string_view libraryName, std::string_view msg) {
     throw LibraryNotFound(sender, libraryName, msg);
 }
 
 void throwInvalidLibrary(const ::Smp::IObject *sender,
-        const std::string &libraryName, const std::string &msg) {
+        std::string_view libraryName, std::string_view msg) {
     throw InvalidLibrary(sender, libraryName, msg);
 }
 
@@ -1563,13 +1563,13 @@ void throwInvalidSimulationTime(const ::Smp::IObject *sender,
     throw InvalidSimulationTime(sender, current, provided, max);
 }
 void throwTypeAlreadyRegistered(const ::Smp::IObject *sender,
-        const std::string &newTypeName,
+        std::string_view newTypeName,
         const ::Smp::Publication::IType *existingType) {
     throw TypeAlreadyRegistered(sender, newTypeName, existingType);
 }
 
 void throwInvalidPrimitiveType(const ::Smp::IObject *sender,
-        const std::string &typeName, const ::Smp::PrimitiveTypeKind kind) {
+        std::string_view typeName, const ::Smp::PrimitiveTypeKind kind) {
     throw InvalidPrimitiveType(sender, typeName, kind);
 }
 
@@ -1579,7 +1579,7 @@ void throwInvalidSimulatorState(const ::Smp::IObject *sender,
 }
 
 void throwDuplicateLiteral(const ::Smp::IObject *sender,
-        const std::string &literalName, ::Smp::Int32 literalValue) {
+        std::string_view literalName, ::Smp::Int32 literalValue) {
     throw DuplicateLiteral(sender, literalName, literalValue);
 }
 } // namespace Xsmp::Exception
