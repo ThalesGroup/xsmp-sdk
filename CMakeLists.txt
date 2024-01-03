@@ -61,7 +61,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(ecss_smp date_src)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 option(XSMP_BUILD_TESTS           "whether or not tests should be built"            ${XSMP_MASTER_PROJECT})
 option(XSMP_BUILD_PYTHON_BINDINGS "whether or not Python bindings should be built"  ON)

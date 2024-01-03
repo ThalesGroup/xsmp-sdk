@@ -18,7 +18,7 @@ if(NOT PARENT_PROJECT_NAME)
     )
     
     FetchContent_MakeAvailable(xsmp-sdk)
-    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${xsmp-sdk_SOURCE_DIR}/cmake)
+    list(APPEND CMAKE_MODULE_PATH "${xsmp-sdk_SOURCE_DIR}/cmake")
 endif()
 
 file(GLOB_RECURSE SRC CONFIGURE_DEPENDS src/*.cpp src-gen/*.cpp)

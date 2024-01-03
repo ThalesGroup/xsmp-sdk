@@ -20,7 +20,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(xsmp-sdk)
 #use cmake modules from xsmp-sdk
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${xsmp-sdk_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH "${xsmp-sdk_SOURCE_DIR}/cmake")
 
 ...
 ```
@@ -67,7 +67,7 @@ FetchContent_Declare(
     
 FetchContent_MakeAvailable(xsmp-sdk)
 #use cmake modules from xsmp-sdk
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${xsmp-sdk_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH "${xsmp-sdk_SOURCE_DIR}/cmake")
 
 
 file(GLOB_RECURSE SRC CONFIGURE_DEPENDS src/*.cpp src-gen/*.cpp)
