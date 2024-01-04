@@ -82,7 +82,7 @@ SimpleType::SimpleType(::Smp::String8 name, ::Smp::String8 description,
 }
 
 namespace {
-::Smp::PrimitiveTypeKind kind(::Smp::Int16 memorySize) {
+::Smp::PrimitiveTypeKind kind(::Smp::String8 name, ::Smp::Int16 memorySize) {
     switch (memorySize) {
     case sizeof(::Smp::Int8):
         return ::Smp::PrimitiveTypeKind::PTK_Int8;
@@ -93,8 +93,7 @@ namespace {
     case sizeof(::Smp::Int64):
         return ::Smp::PrimitiveTypeKind::PTK_Int64;
     default:
-        ::Xsmp::Exception::throwInvalidPrimitiveType(nullptr,
-                "Unsupported enumeration memory size.",
+        ::Xsmp::Exception::throwInvalidPrimitiveType(nullptr, name,
                 ::Smp::PrimitiveTypeKind::PTK_None);
     }
 
@@ -103,7 +102,7 @@ namespace {
 EnumerationType::EnumerationType(::Smp::String8 name,
         ::Smp::String8 description, ::Xsmp::Publication::TypeRegistry *parent,
         ::Smp::Uuid typeUuid, ::Smp::Int16 memorySize) :
-        SimpleType(name, description, parent, kind(memorySize), typeUuid) {
+        SimpleType(name, description, parent, kind(name, memorySize), typeUuid) {
 }
 
 void EnumerationType::AddLiteral(::Smp::String8 name,

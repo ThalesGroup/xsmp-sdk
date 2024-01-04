@@ -10,7 +10,9 @@
 
 import ecss_smp
 
-class M1:
+class Counter:
     uuid: ecss_smp.Smp.Uuid = ecss_smp.Smp.Uuid("2386045d-5cff-46b5-b6da-3ff6e2cfd792")
+class CounterManager:
+    uuid: ecss_smp.Smp.Uuid = ecss_smp.Smp.Uuid("4af1a890-220e-4af8-a0a9-2c03aadcfc9d")
 
 del ecss_smp

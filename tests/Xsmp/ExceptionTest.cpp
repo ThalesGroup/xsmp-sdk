@@ -229,6 +229,29 @@ TEST(ExceptionTest, InvalidObjectName) {
     FAIL();
 }
 
+TEST(ExceptionTest, InvalidObjectNameNull) {
+
+    Object sender { "name" };
+
+    try {
+        throwInvalidObjectName(&sender, nullptr);
+    }
+    catch (const Smp::InvalidObjectName &e) {
+        EXPECT_STREQ(e.GetName(), "InvalidObjectName");
+        EXPECT_STREQ(e.GetDescription(),
+                "Cannot set an object's name to an invalid name");
+        EXPECT_EQ(e.GetSender(), &sender);
+        EXPECT_STREQ(e.GetMessage(), "The object's name '<null>' is invalid.");
+
+        EXPECT_STREQ(e.GetInvalidName(), "<null>");
+        return;
+    }
+    catch (...) {
+        FAIL();
+    }
+    FAIL();
+}
+
 TEST(ExceptionTest, ContainerFull) {
 
     Object parent { "parent" };
@@ -965,6 +988,29 @@ TEST(ExceptionTest, InvalidFieldName) {
         EXPECT_STREQ(e.GetMessage(),
                 "'<null>.name' does no contains a field named 'test'.");
         EXPECT_STREQ(e.GetFieldName(), "test");
+
+        return;
+    }
+    catch (...) {
+        FAIL();
+    }
+    FAIL();
+}
+
+TEST(ExceptionTest, InvalidFieldNameNull) {
+    Object sender { "name" };
+
+    try {
+        throwInvalidFieldName(&sender, nullptr);
+    }
+    catch (const Smp::InvalidFieldName &e) {
+        EXPECT_STREQ(e.GetName(), "InvalidFieldName");
+        EXPECT_STREQ(e.GetDescription(),
+                "This exception is raised when an invalid field name is specified");
+        EXPECT_EQ(e.GetSender(), &sender);
+        EXPECT_STREQ(e.GetMessage(),
+                "'<null>.name' does no contains a field named '<null>'.");
+        EXPECT_STREQ(e.GetFieldName(), "<null>");
 
         return;
     }

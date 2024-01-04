@@ -13,10 +13,11 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include "Example/M1.h"
-#include "Xsmp/Factory.h"
-#include "xsmp_example_project1.h"
+#include <Example/Counter.h>
+#include <Example/CounterManager.h>
+#include <Xsmp/Factory.h>
 #include <unordered_set>
+#include <xsmp_example_project1.h>
 
 // ----------------------------------------------------------------------------------
 // ----------------------------- Global variables ------------------------------
@@ -47,12 +48,21 @@ bool Initialise_xsmp_example_project1(::Smp::ISimulator *simulator,
         return true;
     }
 
-    // Register factory for Model M1
-    simulator->RegisterFactory(::Xsmp::Factory::Create < ::Example::M1 > ("M1", // name
-    "", // description
-    simulator, // simulator
-    ::Example::Uuid_M1 // UUID
-            ));
+    // Register factory for Model Counter
+    simulator->RegisterFactory(
+            ::Xsmp::Factory::Create < ::Example::Counter > ("Counter", // name
+            "", // description
+            simulator, // simulator
+            ::Example::Uuid_Counter // UUID
+                    ));
+    // Register factory for Model CounterManager
+    simulator->RegisterFactory(
+            ::Xsmp::Factory::Create < ::Example::CounterManager
+                    > ("CounterManager", // name
+                    "", // description
+                    simulator, // simulator
+                    ::Example::Uuid_CounterManager // UUID
+                    ));
 
     return true;
 }

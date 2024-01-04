@@ -1,21 +1,47 @@
 <?xml version="1.0" encoding="ASCII"?>
-<Catalogue:Catalogue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Catalogue="http://www.ecss.nl/smp/2019/Smdl/Catalogue" xmlns:xlink="http://www.w3.org/1999/xlink" Id="_xsmp_example_project1" Name="xsmp_example_project1" Date="2023-06-02T15:08:16.000Z" Creator="Y.Daveluy">
+<Catalogue:Catalogue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Catalogue="http://www.ecss.nl/smp/2019/Smdl/Catalogue" xmlns:Types="http://www.ecss.nl/smp/2019/Core/Types" xmlns:xlink="http://www.w3.org/1999/xlink" Id="_xsmp_example_project1" Name="xsmp_example_project1" Date="2024-01-04T12:29:45.000Z" Creator="Y.Daveluy">
   <Description>Catalogue xsmp_example_project1</Description>
   <Namespace Id="Example" Name="Example">
     <Description></Description>
-    <Type xsi:type="Catalogue:Model" Id="Example.M1" Name="M1" Uuid="2386045d-5cff-46b5-b6da-3ff6e2cfd792">
+    <Type xsi:type="Catalogue:EventType" Id="Example.CountEvent" Name="CountEvent" Uuid="f80c5d8e-deb4-492a-a5c0-4d37eadebe24">
       <Description></Description>
-      <Field Id="Example.M1.integer1" Name="integer1" State="true" Input="false" Output="false">
+      <EventArgs xlink:title="Int32" xlink:href="http://www.ecss.nl/smp/2019/Smdl#Smp.Int32"/>
+    </Type>
+    <Type xsi:type="Catalogue:Model" Id="Example.Counter" Name="Counter" Uuid="2386045d-5cff-46b5-b6da-3ff6e2cfd792">
+      <Description></Description>
+      <Operation Id="Example.Counter.ResetCount" Name="ResetCount">
         <Description></Description>
-        <Type xlink:title="Int8" xlink:href="http://www.ecss.nl/smp/2019/Smdl#Smp.Int8"/>
+      </Operation>
+      <EntryPoint Id="Example.Counter.IncrementCount" Name="IncrementCount">
+        <Description></Description>
+      </EntryPoint>
+      <EventSink Id="Example.Counter.Add" Name="Add">
+        <Description></Description>
+        <Type xlink:title="CountEvent" xlink:href="#Example.CountEvent"/>
+      </EventSink>
+      <Field Id="Example.Counter.count" Name="count" Visibility="protected" State="true" Input="false" Output="false">
+        <Description></Description>
+        <Type xlink:title="Int32" xlink:href="http://www.ecss.nl/smp/2019/Smdl#Smp.Int32"/>
+        <Default xsi:type="Types:Int32Value" Value="0"/>
       </Field>
-      <Field Id="Example.M1.integer2" Name="integer2" State="true" Input="false" Output="false">
-        <Description></Description>
-        <Type xlink:title="Int16" xlink:href="http://www.ecss.nl/smp/2019/Smdl#Smp.Int16"/>
-      </Field>
-      <Container Id="Example.M1.subModels" Name="subModels" Lower="0" Upper="-1">
-        <Description></Description>
-        <Type xlink:title="M1" xlink:href="#Example.M1"/>
+    </Type>
+    <Type xsi:type="Catalogue:Model" Id="Example.CounterManager" Name="CounterManager" Uuid="4af1a890-220e-4af8-a0a9-2c03aadcfc9d">
+      <Description></Description>
+      <Property Id="Example.CounterManager.sum" Name="sum" Access="readOnly" Category="Properties">
+        <Description>sum of all contained counters</Description>
+        <Type xlink:title="Int32" xlink:href="http://www.ecss.nl/smp/2019/Smdl#Smp.Int32"/>
+      </Property>
+      <Property Id="Example.CounterManager.average" Name="average" Access="readOnly" Category="Properties">
+        <Description>average of all contained counters</Description>
+        <Type xlink:title="Float64" xlink:href="http://www.ecss.nl/smp/2019/Smdl#Smp.Float64"/>
+      </Property>
+      <Property Id="Example.CounterManager.count" Name="count" Access="writeOnly" Category="Properties">
+        <Description>set all counter value</Description>
+        <Type xlink:title="Int32" xlink:href="http://www.ecss.nl/smp/2019/Smdl#Smp.Int32"/>
+      </Property>
+      <Container Id="Example.CounterManager.counters" Name="counters" Lower="0" Upper="-1">
+        <Description>list of handled counters</Description>
+        <Type xlink:title="Counter" xlink:href="#Example.Counter"/>
       </Container>
     </Type>
   </Namespace>

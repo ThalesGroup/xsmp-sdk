@@ -41,6 +41,8 @@ std::string LibraryFileName(const char *libraryName) {
 } // namespace
 
 void* LoadLibrary(const char *libraryName) {
+    if (!libraryName)
+        return nullptr;
 #if (defined(_WIN32) || defined(_WIN64))
     return LoadLibraryA(LibraryFileName(libraryName).c_str());
 #else
@@ -59,8 +61,10 @@ void CloseLibrary(void *handle) {
 }
 
 void* GetSymbol(void *handle, const char *symbolName) {
+    if (!symbolName)
+        return nullptr;
 #if (defined(_WIN32) || defined(_WIN64))
-   return GetProcAddress(static_cast<HMODULE>(handle), symbolName);
+    return GetProcAddress(static_cast<HMODULE>(handle), symbolName);
 #else
     dlerror(); // Clear any existing error
     return dlsym(handle, symbolName);

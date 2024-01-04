@@ -53,6 +53,7 @@ DLL_EXPORT bool Initialise(::Smp::ISimulator *simulator,
 
 extern "C" {
 /// Global Finalise function of Package xsmp_link_registry.
+/// @param simulator Simulator.
 /// @return True if finalisation was successful, false otherwise.
 DLL_EXPORT bool Finalise(::Smp::ISimulator *simulator) {
     return Finalise_xsmp_link_registry(simulator);

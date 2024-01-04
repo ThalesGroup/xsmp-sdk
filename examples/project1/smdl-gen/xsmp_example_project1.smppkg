@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="ASCII"?>
-<Package:Package xmlns:Catalogue="http://www.ecss.nl/smp/2019/Smdl/Catalogue" xmlns:Package="http://www.ecss.nl/smp/2019/Smdl/Package" xmlns:xlink="http://www.w3.org/1999/xlink" Id="_xsmp_example_project1" Name="xsmp_example_project1" Date="2023-06-02T15:08:16.000Z" Creator="Y.Daveluy">
+<Package:Package xmlns:Catalogue="http://www.ecss.nl/smp/2019/Smdl/Catalogue" xmlns:Package="http://www.ecss.nl/smp/2019/Smdl/Package" xmlns:xlink="http://www.w3.org/1999/xlink" Id="_xsmp_example_project1" Name="xsmp_example_project1" Date="2024-01-04T12:29:45.000Z" Creator="Y.Daveluy">
   <Description>Catalogue xsmp_example_project1</Description>
-  <Implementation xlink:title="M1" xlink:href="Catalogue:Model xsmp_example_project1.smpcat#Example.M1"/>
+  <Implementation xlink:title="CountEvent" xlink:href="Catalogue:EventType xsmp_example_project1.smpcat#Example.CountEvent"/>
+  <Implementation xlink:title="Counter" xlink:href="Catalogue:Model xsmp_example_project1.smpcat#Example.Counter"/>
+  <Implementation xlink:title="CounterManager" xlink:href="Catalogue:Model xsmp_example_project1.smpcat#Example.CounterManager"/>
 </Package:Package>

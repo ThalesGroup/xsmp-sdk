@@ -26,7 +26,7 @@ namespace {
 
     // the name cannot be null
     if (!name)
-        ::Xsmp::Exception::throwInvalidObjectName(parent, "<nullptr>");
+        ::Xsmp::Exception::throwInvalidObjectName(parent, name);
 
     // the name must start with a letter
     if (!std::isalpha(static_cast<unsigned char>(name[0])))

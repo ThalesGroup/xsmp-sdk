@@ -91,7 +91,7 @@ void Component::Disconnect() {
 
 void Component::Invoke(::Smp::IRequest *request) {
     ::Xsmp::Exception::throwInvalidOperationName(this,
-            request ? request->GetOperationName() : "");
+            request ? request->GetOperationName() : nullptr);
 }
 
 ::Smp::IRequest* Component::CreateRequest(::Smp::String8 operationName) {

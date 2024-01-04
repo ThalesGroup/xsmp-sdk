@@ -283,6 +283,38 @@ target_include_directories(
 
 
 # --------------------------------------------------------------------
+# Create Python bindings
+# --------------------------------------------------------------------
+if(XSMP_BUILD_PYTHON_BINDINGS)
+    find_package(Python COMPONENTS Interpreter Development)
+    FetchContent_Declare(
+      pybind11
+      GIT_REPOSITORY https://github.com/pybind/pybind11.git
+      GIT_TAG        v2.11.1
+    )
+    FetchContent_MakeAvailable(pybind11)
+
+
+    pybind11_add_module(Python src/python/ecss_smp.cpp)
+    set_target_properties(Python PROPERTIES OUTPUT_NAME "ecss_smp")
+
+    if(APPLE)
+        set_target_properties(Python PROPERTIES INSTALL_RPATH "@loader_path/${CMAKE_INSTALL_LIBDIR}")
+    elseif(UNIX)
+        set_target_properties(Python PROPERTIES INSTALL_RPATH "$ORIGIN/${CMAKE_INSTALL_LIBDIR}")
+    endif()
+
+    add_library(Xsmp::Python ALIAS Python)
+    target_include_directories(Python PRIVATE src/)
+    target_link_libraries(Python PRIVATE Xsmp::Cdk Xsmp::LibraryHelper)
+    target_compile_definitions(Python PRIVATE VERSION_INFO=${PROJECT_VERSION})
+    target_compile_options(Python PRIVATE ${XSMP_COMPILE_OPTIONS})
+    install(TARGETS Python DESTINATION .)
+endif(XSMP_BUILD_PYTHON_BINDINGS)
+
+
+
+# --------------------------------------------------------------------
 # Create EventManager library
 # --------------------------------------------------------------------
 add_library(EventManager SHARED 
@@ -485,37 +517,6 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_L
     target_link_libraries(Simulator PUBLIC stdc++fs)
 endif()
 
-
-
-# --------------------------------------------------------------------
-# Create Python bindings
-# --------------------------------------------------------------------
-if(XSMP_BUILD_PYTHON_BINDINGS)
-    find_package(Python COMPONENTS Interpreter Development)
-    FetchContent_Declare(
-      pybind11
-      GIT_REPOSITORY https://github.com/pybind/pybind11.git
-      GIT_TAG        v2.11.1
-    )
-    FetchContent_MakeAvailable(pybind11)
-
-
-    pybind11_add_module(Python src/python/ecss_smp.cpp)
-    set_target_properties(Python PROPERTIES OUTPUT_NAME "ecss_smp")
-
-    if(APPLE)
-        set_target_properties(Python PROPERTIES INSTALL_RPATH "@loader_path/${CMAKE_INSTALL_LIBDIR}")
-    elseif(UNIX)
-        set_target_properties(Python PROPERTIES INSTALL_RPATH "$ORIGIN/${CMAKE_INSTALL_LIBDIR}")
-    endif()
-
-    add_library(Xsmp::Python ALIAS Python)
-    target_include_directories(Python PRIVATE src/)
-    target_link_libraries(Python PRIVATE Xsmp::Cdk Xsmp::LibraryHelper)
-    target_compile_definitions(Python PRIVATE VERSION_INFO=${PROJECT_VERSION})
-    target_compile_options(Python PRIVATE ${XSMP_COMPILE_OPTIONS})
-    install(TARGETS Python DESTINATION .)
-endif(XSMP_BUILD_PYTHON_BINDINGS)
 
 
 

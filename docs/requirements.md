@@ -19,7 +19,7 @@ Others compilers with C++ 17 support may works too.
  
 ## Python
 
-The XSMP-SDK unit-test framework is based on Python. A minimal version of Python 3.7 is required.
+The XSMP-SDK unit-test framework is based on Python and `pytest`. A minimal version of Python 3.7 is required.
 
  
 ## Build System

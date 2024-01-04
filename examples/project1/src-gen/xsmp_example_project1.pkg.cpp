@@ -12,8 +12,8 @@
 // -------------------------------------------------------------------------------
 // --------------------------------- Includes ----------------------------------
 // -------------------------------------------------------------------------------
-#include "xsmp_example_project1.h"
-#include "Smp/Publication/ITypeRegistry.h"
+#include <xsmp_example_project1.h>
+#include <Smp/Publication/ITypeRegistry.h>
 
 #ifdef  WIN32
 #define DLL_EXPORT __declspec(dllexport) // %RELAX<mconst> Visual Studio requires a define
@@ -43,6 +43,7 @@ DLL_EXPORT bool Initialise(::Smp::ISimulator *simulator,
 
 extern "C" {
 /// Global Finalise function of Package xsmp_example_project1.
+/// @param simulator Simulator.
 /// @return True if finalisation was successful, false otherwise.
 DLL_EXPORT bool Finalise(::Smp::ISimulator *simulator) {
     return Finalise_xsmp_example_project1(simulator);

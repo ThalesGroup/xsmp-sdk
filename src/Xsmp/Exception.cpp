@@ -116,7 +116,10 @@ public:
     const ::Smp::IObject* GetSender() const noexcept final {
         return _sender;
     }
-
+protected:
+    static ::Smp::String8 nullCheck(::Smp::String8 str) {
+        return str ? str : "<null>";
+    }
 private:
 
     const ::Smp::IObject *_sender;
@@ -213,12 +216,12 @@ public:
 
 class InvalidObjectName final: public Exception, public ::Smp::InvalidObjectName {
 public:
-    InvalidObjectName(const ::Smp::IObject *sender, std::string_view name) :
+    InvalidObjectName(const ::Smp::IObject *sender, ::Smp::String8 name) :
             Exception(sender, __func__,
                     "Cannot set an object's name to an invalid name",
-                    "The object's name '", name, "' is invalid."),
+                    "The object's name '", nullCheck(name), "' is invalid."),
 
-            _name(name) {
+            _name(nullCheck(name)) {
     }
     ~InvalidObjectName() noexcept override = default;
     InvalidObjectName(const InvalidObjectName&) = default;
@@ -261,15 +264,15 @@ private:
 
 class DuplicateName final: public Exception, public ::Smp::DuplicateName {
 public:
-    DuplicateName(const ::Smp::IObject *sender, std::string_view duplicateName,
+    DuplicateName(const ::Smp::IObject *sender, ::Smp::String8 duplicateName,
             const ::Smp::IObject *collection) :
             Exception(sender, __func__,
                     "Cannot add an object to a collection of objects, which have to have unique names, but another object with the same name does exist already in this collection. This would lead to duplicate names",
-                    "Tried to add an object named '", duplicateName, "' in '",
-                    collection,
+                    "Tried to add an object named '", nullCheck(duplicateName),
+                    "' in '", collection,
                     "' collection already containing an object with this name."),
 
-            _duplicateName(duplicateName) {
+            _duplicateName(nullCheck(duplicateName)) {
     }
 
     ~DuplicateName() noexcept override = default;
@@ -597,14 +600,14 @@ class InvalidOperationName final: public Exception,
         public ::Smp::InvalidOperationName {
 public:
     InvalidOperationName(const ::Smp::IObject *sender,
-            std::string_view operationName) :
+            ::Smp::String8 operationName) :
             Exception(sender, __func__,
                     "This exception is raised by the Invoke() method when trying to invoke a method that does not exist, or that does not support dynamic invocation",
 
                     "Tried to invoke a method that does not exist, or that does not support dynamic invocation in operation: ",
-                    operationName),
+                    nullCheck(operationName)),
 
-            _operationName(operationName) {
+            _operationName(nullCheck(operationName)) {
     }
 
     ~InvalidOperationName() noexcept override = default;
@@ -815,8 +818,7 @@ public:
             ::Smp::String8 eventName) :
             Exception(sender, __func__,
                     "This exception is thrown by the QueryEventId() method of the event manager when an empty event name has been provided",
-                    "The Event Name '", eventName ? eventName : "<null>",
-                    "' is invalid.") {
+                    "The Event Name '", nullCheck(eventName), "' is invalid.") {
     }
     ~InvalidEventName() noexcept override = default;
     InvalidEventName(const InvalidEventName&) = default;
@@ -936,13 +938,13 @@ private:
 
 class InvalidFieldName final: public Exception, public ::Smp::InvalidFieldName {
 public:
-    InvalidFieldName(const ::Smp::IObject *sender, std::string_view name) :
+    InvalidFieldName(const ::Smp::IObject *sender, ::Smp::String8 name) :
             Exception(sender, __func__,
                     "This exception is raised when an invalid field name is specified",
-                    "'", sender, "' does no contains a field named '", name,
-                    "'."),
+                    "'", sender, "' does no contains a field named '",
+                    nullCheck(name), "'."),
 
-            _fieldName(name) {
+            _fieldName(nullCheck(name)) {
     }
     ~InvalidFieldName() noexcept override = default;
     InvalidFieldName(const InvalidFieldName&) = default;
@@ -1122,14 +1124,15 @@ public:
 class DuplicateUuid final: public Exception, public ::Smp::DuplicateUuid {
 public:
     DuplicateUuid(const ::Smp::IObject *sender,
-            const ::Smp::IFactory *oldFactory, std::string_view newName) :
+            const ::Smp::IFactory *oldFactory, ::Smp::String8 newName) :
             Exception(sender, __func__,
                     "Cannot register a factory under a Uuid that has already been used to register another (or the same) factory. This would lead to duplicate implementation Uuids",
                     "The Uuid '", oldFactory->GetUuid(), "' of Factory '",
-                    newName, "' collides with the existing factory '",
+                    nullCheck(newName),
+                    "' collides with the existing factory '",
                     oldFactory->GetName(), "'."),
 
-            _oldFactory(oldFactory), _newName(newName) {
+            _oldFactory(oldFactory), _newName(nullCheck(newName)) {
     }
     ~DuplicateUuid() noexcept override = default;
     DuplicateUuid(const DuplicateUuid&) = default;
@@ -1149,12 +1152,12 @@ private:
 
 class LibraryNotFound final: public Exception, public ::Smp::LibraryNotFound {
 public:
-    LibraryNotFound(const ::Smp::IObject *sender, std::string_view libraryName,
+    LibraryNotFound(const ::Smp::IObject *sender, ::Smp::String8 libraryName,
             std::string_view error) :
             Exception(sender, __func__,
                     "Cannot load a library that does not exist", error),
 
-            _libraryName(libraryName) {
+            _libraryName(nullCheck(libraryName)) {
     }
     ~LibraryNotFound() noexcept override = default;
     LibraryNotFound(const LibraryNotFound&) = default;
@@ -1169,11 +1172,11 @@ private:
 
 class InvalidLibrary final: public Exception, public ::Smp::InvalidLibrary {
 public:
-    InvalidLibrary(const ::Smp::IObject *sender, std::string_view libraryName,
+    InvalidLibrary(const ::Smp::IObject *sender, ::Smp::String8 libraryName,
             std::string_view msg) :
             Exception(sender, __func__,
                     "Cannot load an undefined symbol from a library", msg), _libraryName(
-                    libraryName) {
+                    nullCheck(libraryName)) {
     }
     ~InvalidLibrary() noexcept override = default;
     InvalidLibrary(const InvalidLibrary&) = default;
@@ -1223,15 +1226,15 @@ private:
 class TypeAlreadyRegistered final: public Exception,
         public ::Smp::Publication::TypeAlreadyRegistered {
 public:
-    TypeAlreadyRegistered(const ::Smp::IObject *sender,
-            std::string_view typeName, const ::Smp::Publication::IType *type) :
+    TypeAlreadyRegistered(const ::Smp::IObject *sender, ::Smp::String8 typeName,
+            const ::Smp::Publication::IType *type) :
             Exception(sender, __func__,
                     "Cannot register a type with a Uuid that has already been registered",
-                    "Cannot register '", typeName, "' with Uuid '",
+                    "Cannot register '", nullCheck(typeName), "' with Uuid '",
                     type->GetUuid(),
                     "'. This Uuid has already been registered."),
 
-            _typeName(typeName), _type(type) {
+            _typeName(nullCheck(typeName)), _type(type) {
     }
     ~TypeAlreadyRegistered() noexcept override = default;
     TypeAlreadyRegistered(const TypeAlreadyRegistered&) = default;
@@ -1252,14 +1255,14 @@ private:
 class DuplicateLiteral final: public Exception,
         public ::Smp::Publication::DuplicateLiteral {
 public:
-    DuplicateLiteral(const ::Smp::IObject *sender, std::string_view literalName,
+    DuplicateLiteral(const ::Smp::IObject *sender, ::Smp::String8 literalName,
             ::Smp::Int32 literalValue) :
             Exception(sender, __func__,
                     "Cannot add a literal to an enumeration using a value that has been used for another literal before.",
                     "Value '", literalValue, "' is already used by '",
-                    literalName, "' literal."),
+                    nullCheck(literalName), "' literal."),
 
-            _literalName(literalName), _literalValue(literalValue) {
+            _literalName(nullCheck(literalName)), _literalValue(literalValue) {
     }
     ~DuplicateLiteral() noexcept override = default;
     DuplicateLiteral(const DuplicateLiteral&) = default;
@@ -1283,15 +1286,15 @@ class InvalidPrimitiveType final: public Exception,
         public ::Smp::Publication::InvalidPrimitiveType {
 public:
 
-    InvalidPrimitiveType(const ::Smp::IObject *sender,
-            std::string_view typeName, ::Smp::PrimitiveTypeKind type) :
+    InvalidPrimitiveType(const ::Smp::IObject *sender, ::Smp::String8 typeName,
+            ::Smp::PrimitiveTypeKind type) :
             Exception(sender, __func__,
                     "Cannot use an invalid primitive type kind as parameter for a user-defined float or integer type",
 
                     "The primitive type '", type, "' is invalid for '",
-                    typeName, "'."),
+                    nullCheck(typeName), "'."),
 
-            _typeName(typeName), _type(type) {
+            _typeName(nullCheck(typeName)), _type(type) {
     }
     ~InvalidPrimitiveType() noexcept override = default;
     InvalidPrimitiveType(const InvalidPrimitiveType&) = default;
@@ -1359,8 +1362,7 @@ void throwCannotRestore(const ::Smp::IObject *sender, std::string_view msg) {
     throw CannotRestore(sender, msg);
 }
 
-void throwInvalidObjectName(const ::Smp::IObject *sender,
-        std::string_view name) {
+void throwInvalidObjectName(const ::Smp::IObject *sender, ::Smp::String8 name) {
     throw InvalidObjectName(sender, name);
 }
 
@@ -1369,7 +1371,7 @@ void throwContainerFull(const ::Smp::IContainer *sender) {
 }
 
 void throwDuplicateName(const ::Smp::IObject *sender,
-        std::string_view duplicateName, const ::Smp::IObject *collection) {
+        ::Smp::String8 duplicateName, const ::Smp::IObject *collection) {
     throw DuplicateName(sender, duplicateName, collection);
 }
 
@@ -1428,7 +1430,7 @@ void throwEventSinkNotSubscribed(const ::Smp::IObject *sender,
 }
 
 void throwInvalidOperationName(const ::Smp::IObject *sender,
-        std::string_view operationName) {
+        ::Smp::String8 operationName) {
     throw InvalidOperationName(sender, operationName);
 }
 
@@ -1506,7 +1508,7 @@ void throwEntryPointAlreadySubscribed(const ::Smp::IObject *sender,
 }
 
 void throwInvalidFieldName(const ::Smp::IObject *sender,
-        std::string_view invalidFieldName) {
+        ::Smp::String8 invalidFieldName) {
     throw InvalidFieldName(sender, invalidFieldName);
 }
 
@@ -1543,17 +1545,17 @@ void throwInvalidFieldType(const ::Smp::IObject *sender) {
     throw InvalidFieldType(sender);
 }
 void throwDuplicateUuid(const ::Smp::IObject *sender,
-        const ::Smp::IFactory *oldFactory, std::string_view newName) {
+        const ::Smp::IFactory *oldFactory, ::Smp::String8 newName) {
     throw DuplicateUuid(sender, oldFactory, newName);
 }
 
 void throwLibraryNotFound(const ::Smp::IObject *sender,
-        std::string_view libraryName, std::string_view msg) {
+        ::Smp::String8 libraryName, std::string_view msg) {
     throw LibraryNotFound(sender, libraryName, msg);
 }
 
 void throwInvalidLibrary(const ::Smp::IObject *sender,
-        std::string_view libraryName, std::string_view msg) {
+        ::Smp::String8 libraryName, std::string_view msg) {
     throw InvalidLibrary(sender, libraryName, msg);
 }
 
@@ -1563,13 +1565,13 @@ void throwInvalidSimulationTime(const ::Smp::IObject *sender,
     throw InvalidSimulationTime(sender, current, provided, max);
 }
 void throwTypeAlreadyRegistered(const ::Smp::IObject *sender,
-        std::string_view newTypeName,
+        ::Smp::String8 newTypeName,
         const ::Smp::Publication::IType *existingType) {
     throw TypeAlreadyRegistered(sender, newTypeName, existingType);
 }
 
 void throwInvalidPrimitiveType(const ::Smp::IObject *sender,
-        std::string_view typeName, const ::Smp::PrimitiveTypeKind kind) {
+        ::Smp::String8 typeName, const ::Smp::PrimitiveTypeKind kind) {
     throw InvalidPrimitiveType(sender, typeName, kind);
 }
 
@@ -1579,7 +1581,7 @@ void throwInvalidSimulatorState(const ::Smp::IObject *sender,
 }
 
 void throwDuplicateLiteral(const ::Smp::IObject *sender,
-        std::string_view literalName, ::Smp::Int32 literalValue) {
+        ::Smp::String8 literalName, ::Smp::Int32 literalValue) {
     throw DuplicateLiteral(sender, literalName, literalValue);
 }
 } // namespace Xsmp::Exception

@@ -9,7 +9,7 @@ find_package(Python COMPONENTS Interpreter Development)
 function(pytest_discover_tests)
     cmake_parse_arguments(
         PARSE_ARGV 0 "" ""
-        "NAME;WORKING_DIRECTORY;TRIM_FROM_NAME;BUNDLE_TESTS"
+        "NAME;WORKING_DIRECTORY;BUNDLE_TESTS"
         "LIBRARY_PATH_PREPEND;PYTHON_PATH_PREPEND;ENVIRONMENT"
     )
 
@@ -66,16 +66,14 @@ function(pytest_discover_tests)
     if (NOT _WORKING_DIRECTORY)
         set(_WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python)
     endif()
-    if (NOT _TRIM_FROM_NAME)
-        set(_TRIM_FROM_NAME "^test_")
-    endif()
+
     # Override option by environment variable if available.
     if (DEFINED ENV{BUNDLE_PYTHON_TESTS})
         set(_BUNDLE_TESTS $ENV{BUNDLE_PYTHON_TESTS})
     endif()
 
     if (NOT _NAME)
-        set(_NAME "pytest")
+        set(_NAME "py")
     endif()
     
     set(ctest_file_base "${CMAKE_CURRENT_BINARY_DIR}/${_NAME}")
@@ -97,7 +95,6 @@ function(pytest_discover_tests)
       "    LIB_ENV_PATH"          " [==[" "${LIB_ENV_PATH}"       "]==]" "\n"
       "    LIBRARY_PATH"          " [==[" "${libpath}"            "]==]" "\n"
       "    PYTHON_PATH"           " [==[" "${pythonpath}"         "]==]" "\n"
-      "    TRIM_FROM_NAME"        " [==[" "${_TRIM_FROM_NAME}"    "]==]" "\n"
       "    WORKING_DIRECTORY"     " [==[" "${_WORKING_DIRECTORY}" "]==]" "\n"
       "    ENVIRONMENT"           " [==[" "${_ENVIRONMENT}"       "]==]" "\n"
       "    CTEST_FILE"            " [==[" "${ctest_tests_file}"    "]==]" "\n"

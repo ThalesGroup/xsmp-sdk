@@ -53,6 +53,7 @@ DLL_EXPORT bool Initialise(::Smp::ISimulator *simulator,
 
 extern "C" {
 /// Global Finalise function of Package xsmp_scheduler.
+/// @param simulator Simulator.
 /// @return True if finalisation was successful, false otherwise.
 DLL_EXPORT bool Finalise(::Smp::ISimulator *simulator) {
     return Finalise_xsmp_scheduler(simulator);

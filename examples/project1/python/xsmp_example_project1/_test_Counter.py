@@ -39,21 +39,18 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
 
     _Models: ecss_smp.Smp.IContainer
 
-    class __name(ecss_smp.Smp.IModel, ecss_smp.Smp.IDynamicInvocation, ecss_smp.Smp.ILinkingComponent, ecss_smp.Smp.IComposite, ):
-        class __integer1(ecss_smp.Smp.ISimpleField, ):
+    class __counter(ecss_smp.Smp.IModel, ecss_smp.Smp.IDynamicInvocation, ecss_smp.Smp.IEventConsumer, ecss_smp.Smp.ILinkingComponent, ecss_smp.Smp.IEntryPointPublisher, ):
+        def ResetCount(self, ): ...
+        Add: ecss_smp.Smp.IEventSink
+
+        class __count(ecss_smp.Smp.ISimpleField, ):
             pass
 
-        integer1: __integer1
+        count: __count
 
-        class __integer2(ecss_smp.Smp.ISimpleField, ):
-            pass
+        IncrementCount: ecss_smp.Smp.IEntryPoint
 
-        integer2: __integer2
-
-        _subModels: ecss_smp.Smp.IContainer
-
-
-    name: __name
+    counter: __counter
 
 
 

@@ -83,7 +83,8 @@ class TestCase(unittest.TestCase):
 
     def tearDown(self):
         if hasattr(self, "sim"):
-            self.sim.Exit()
+            if self.sim.GetState()== ecss_smp.Smp.SimulatorStateKind.SSK_Standby:
+                self.sim.Exit()
             # deallocate the simulator
             del self.sim
 

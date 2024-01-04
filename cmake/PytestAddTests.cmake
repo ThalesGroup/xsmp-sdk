@@ -6,7 +6,7 @@ function(pytest_discover_tests_impl)
     cmake_parse_arguments(
         ""
         ""
-        "PYTHON_EXECUTABLE;TEST_GROUP_NAME;BUNDLE_TESTS;LIB_ENV_PATH;LIBRARY_PATH;PYTHON_PATH;TRIM_FROM_NAME;WORKING_DIRECTORY;ENVIRONMENT;CTEST_FILE"
+        "PYTHON_EXECUTABLE;TEST_GROUP_NAME;BUNDLE_TESTS;LIB_ENV_PATH;LIBRARY_PATH;PYTHON_PATH;WORKING_DIRECTORY;ENVIRONMENT;CTEST_FILE"
         ""
         ${ARGN}
     )
@@ -73,18 +73,19 @@ function(pytest_discover_tests_impl)
             set(_class ${CMAKE_MATCH_3})
             set(_func ${CMAKE_MATCH_4})
 
+
+            string(REGEX REPLACE "^test_?" "" _func "${_func}")
+
             if (_class)
+                #string(REGEX REPLACE "^Test|Test$" "" _class "${_class}")
                 set(test_name "${_class}.${_func}")
             else()
                 set(test_name "${_func}")
             endif()
 
-            if (_TRIM_FROM_NAME)
-                string(REGEX REPLACE
-                        "${_TRIM_FROM_NAME}" "" test_name "${test_name}")
-            endif()
 
-            set(test_name "${_TEST_GROUP_NAME}/${test_name}")
+
+            set(test_name "${_TEST_GROUP_NAME}:${test_name}")
             set(test_case "${_WORKING_DIRECTORY}/${test_case}")
 
             string(APPEND _content
@@ -128,7 +129,6 @@ if(CMAKE_SCRIPT_MODE_FILE)
         LIB_ENV_PATH ${LIB_ENV_PATH}
         LIBRARY_PATH ${LIBRARY_PATH}
         PYTHON_PATH ${PYTHON_PATH}
-        TRIM_FROM_NAME ${TRIM_FROM_NAME}
         WORKING_DIRECTORY ${WORKING_DIRECTORY}
         ENVIRONMENT ${ENVIRONMENT}
         CTEST_FILE ${CTEST_FILE}

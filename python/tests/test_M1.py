@@ -29,8 +29,8 @@ def create_assembly(sim:ecss_smp.Smp.ISimulator):
     toto._subModels += sim.CreateInstance(uuid=xsmp_tests.Xsmp.Tests.ModelWithSimpleFields.uuid, name="s2", description="s2", parent=toto)
     toto._subModels += sim.CreateInstance(uuid=xsmp_tests.Xsmp.Tests.ModelWithSimpleFields.uuid, name="s3", description="s3", parent=toto)
 
-#help(xsmp.unittest)
-class M1Test(xsmp.unittest.TestCase):
+
+class TestM1(xsmp.unittest.TestCase):
     try:
         sim: tests._test_M1.Simulator
     except AttributeError:
@@ -58,7 +58,6 @@ class M1Test(xsmp.unittest.TestCase):
         self.loadAssembly(sim2)
         sim2.Connect()
         del sim2
-        del self.sim
         
     def testLogger(self):
         logger = self.sim.GetLogger()

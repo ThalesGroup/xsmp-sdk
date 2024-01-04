@@ -647,11 +647,10 @@ void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
             initialiseSymbol);
 
     if (!initialise) {
-        auto error = ::Xsmp::GetLastError();
         std::string msg =
                 std::string("Library '") + libraryPath
                         + "' does not provide function 'bool Initialize(::Smp::ISimulator *, ::Smp::Publication::ITypeRegistry *)': "
-                        + error;
+                        + ::Xsmp::GetLastError();
         if (_logger)
             _logger->Log(this, msg.c_str(),
                     ::Smp::Services::ILogger::LMK_Error);
@@ -661,13 +660,12 @@ void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
     // check that Finalise exist
     if (!::Xsmp::GetSymbol<bool (*)(::Smp::ISimulator *simulator)>(handle,
             finaliseSymbol)) {
-        auto error = ::Xsmp::GetLastError();
         std::string msg = std::string("Library '") + libraryPath
-                + "' does not provide function 'bool Finalise()': " + error;
+                + "' does not provide function 'bool Finalise()': " + ::Xsmp::GetLastError();
         if (_logger)
             _logger->Log(this, msg.c_str(),
                     ::Smp::Services::ILogger::LMK_Error);
-        ::Xsmp::Exception::throwInvalidLibrary(this, libraryPath, error);
+        ::Xsmp::Exception::throwInvalidLibrary(this, libraryPath, msg);
     }
 
     if ((*initialise)(this, &_typeRegistry)) {

@@ -29,6 +29,11 @@
     eso.Unsubscribe(&self);
     return self;
 }
+void NotifyEventSink(::Smp::IEventSink &self, ::Smp::IObject *sender,
+        const py::handle &arg) {
+    self.Notify(sender, convert(arg, self.GetEventArgType()));
+
+}
 
 inline void RegisterIEventSink(const py::module_ &m) {
     py::class_<::Smp::IEventSink, ::Smp::IObject>(m, "IEventSink",
@@ -50,6 +55,19 @@ An event sink can only be unsubscribed if it has been subscribed before.)")
 
     .def("__isub__", &UnsubscribeEventSink, py::arg("event_source"),
             py::return_value_policy::reference)
+
+    .def("GetEventArgType", &::Smp::IEventSink::GetEventArgType,
+            R"(Get the primitive type kind of the event argument.
+Use PTK_None for an event without an argument.
+This operation allows for type checking between an Event Source (implementing IEventSource) and an event sink (implementing IEventSink) during Subscribe.)")
+
+    .def("Notify", &NotifyEventSink, py::arg("sender") = py::none(),
+            py::arg("arg") = py::none(),
+            R"(This event handler method is called when an event is emitted.
+Components providing event sinks must ensure that these event sinks do not throw exceptions.)")
+
+    .def("__call__", &NotifyEventSink, py::arg("sender") = py::none(),
+            py::arg("arg") = py::none(), "Notify the EventSink.")
 
     .doc() =
             R"(Interface of an event sink that can be subscribed to an event source (IEventSource).

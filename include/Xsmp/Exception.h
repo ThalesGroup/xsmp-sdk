@@ -85,12 +85,12 @@ template<typename ... Args>
         std::string_view msg = "The component can't be restored");
 
 [[ noreturn ]] void throwInvalidObjectName(const ::Smp::IObject *sender,
-        std::string_view name);
+        ::Smp::String8 name);
 
 [[ noreturn ]] void throwContainerFull(const ::Smp::IContainer *sender);
 
 [[ noreturn ]] void throwDuplicateName(const ::Smp::IObject *sender,
-        std::string_view duplicateName, const ::Smp::IObject *collection);
+        ::Smp::String8 duplicateName, const ::Smp::IObject *collection);
 
 [[ noreturn ]] void throwNotContained(const ::Smp::IContainer *container,
         ::Smp::IComponent *component);
@@ -133,7 +133,7 @@ template<typename T>
         const ::Smp::IEventSink *eventSink);
 
 [[ noreturn ]] void throwInvalidOperationName(const ::Smp::IObject *sender,
-        std::string_view operationName);
+        ::Smp::String8 operationName);
 
 [[ noreturn ]] void throwInvalidParameterCount(const ::Smp::IOperation *sender,
         ::Smp::Int32 requestedNbParameters);
@@ -182,7 +182,7 @@ template<typename T>
         std::string_view eventName);
 
 [[ noreturn ]] void throwInvalidFieldName(const ::Smp::IObject *sender,
-        std::string_view invalidFieldName);
+        ::Smp::String8 invalidFieldName);
 
 [[ noreturn ]] void throwTypeNotRegistered(const ::Smp::IObject *sender,
         ::Smp::Uuid uuid);
@@ -205,29 +205,29 @@ template<typename T>
 [[ noreturn ]] void throwInvalidFieldType(const ::Smp::IObject *sender);
 
 [[ noreturn ]] void throwDuplicateUuid(const ::Smp::IObject *sender,
-        const Smp::IFactory *oldFactory, std::string_view newName);
+        const Smp::IFactory *oldFactory, ::Smp::String8 newName);
 
 [[ noreturn ]] void throwLibraryNotFound(const ::Smp::IObject *sender,
-        std::string_view libraryName, std::string_view msg = "");
+        ::Smp::String8 libraryName, std::string_view msg = "");
 
 [[ noreturn ]] void throwInvalidLibrary(const ::Smp::IObject *sender,
-        std::string_view libraryName, std::string_view msg);
+        ::Smp::String8 libraryName, std::string_view msg);
 
 [[ noreturn ]] void throwInvalidSimulationTime(const ::Smp::IObject *sender,
         ::Smp::Duration current, ::Smp::Duration provided, ::Smp::Duration max);
 
 [[ noreturn ]] void throwTypeAlreadyRegistered(const ::Smp::IObject *sender,
-        std::string_view newTypeName,
+        ::Smp::String8 newTypeName,
         const ::Smp::Publication::IType *existingType);
 
 [[ noreturn ]] void throwInvalidPrimitiveType(const ::Smp::IObject *sender,
-        std::string_view typeName, const ::Smp::PrimitiveTypeKind kind);
+        ::Smp::String8 typeName, const ::Smp::PrimitiveTypeKind kind);
 
 [[ noreturn ]] void throwInvalidSimulatorState(const ::Smp::IObject *sender,
         ::Smp::SimulatorStateKind state);
 
 [[ noreturn ]] void throwDuplicateLiteral(const ::Smp::IObject *sender,
-        std::string_view literalName, ::Smp::Int32 literalValue);
+        ::Smp::String8 literalName, ::Smp::Int32 literalValue);
 
 } // namespace Xsmp::Exception
 

@@ -23,7 +23,7 @@ import sys
 
 SmpException = RuntimeError if sys.platform.startswith("darwin") else ecss_smp.Smp.Exception
 
-class ModelWithPropertiesTest(xsmp.unittest.TestCase):
+class TestModelWithProperties(xsmp.unittest.TestCase):
     try:
         sim: tests._test_ModelWithProperties.Simulator
     except AttributeError:

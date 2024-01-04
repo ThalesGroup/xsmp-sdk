@@ -388,7 +388,7 @@ const void* IObjectHook(const ::Smp::IObject *src,
         }
 
         // return a pointer to IObject (instead of dynamic_cast<const void*> )
-        return static_cast<const void*>(src);
+        return src;
     }
     type = nullptr;
     return nullptr;

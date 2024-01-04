@@ -31,8 +31,6 @@ static bool SetValue(::Smp::IObject &self, ::Smp::String8 name,
 
         try {
             if (child == value.cast<::Smp::IObject*>()) {
-                // increment the reference:
-                //value.inc_ref();
                 return true;
             }
         }
@@ -56,7 +54,7 @@ static bool SetValue(::Smp::IObject &self, ::Smp::String8 name,
 }
 
 inline void RegisterIObject(const py::module_ &m) {
-    py::class_<::Smp::IObject>(m, "IObject"/*, py::dynamic_attr()*/)
+    py::class_<::Smp::IObject>(m, "IObject")
 
     .def("__getattr__", [](::Smp::IObject &self, ::Smp::String8 name) {
         if (auto *child = ::Xsmp::Helper::Resolve(&self, name)) {

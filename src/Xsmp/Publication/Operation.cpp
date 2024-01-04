@@ -111,11 +111,12 @@ void Operation::Invoke(::Smp::IRequest *request) {
 
     auto *component = dynamic_cast<::Smp::IDynamicInvocation*>(GetParent());
 
+    auto *operationName = request ? request->GetOperationName() : nullptr;
+
     // check operation is invokable and name is ok
-    if (!component
-            || std::string_view { GetName() } != request->GetOperationName())
-        ::Xsmp::Exception::throwInvalidOperationName(this,
-                request->GetOperationName());
+    if (!component || !operationName
+            || std::string_view { GetName() } != operationName)
+        ::Xsmp::Exception::throwInvalidOperationName(this, operationName);
 
     // check parameter count
     if (static_cast<std::size_t>(request->GetParameterCount())
@@ -145,13 +146,14 @@ void Operation::Invoke(::Smp::IRequest *request) {
 }
 
 void Operation::DeleteRequest(::Smp::IRequest *request) {
-   delete request;
+    delete request;
 }
 
-void Operation::Update(::Smp::String8 description,::Smp::ViewKind view) noexcept {
+void Operation::Update(::Smp::String8 description,
+        ::Smp::ViewKind view) noexcept {
     SetDescription(description);
     _view = view;
-    _returnParameter = {};
+    _returnParameter = { };
     _parameters.clear();
 }
 

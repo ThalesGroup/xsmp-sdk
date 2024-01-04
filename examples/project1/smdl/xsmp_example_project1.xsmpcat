@@ -7,20 +7,38 @@
  * Catalogue xsmp_example_project1
  * 
  * @creator Y.Daveluy
- * @date 2023-06-02T17:08:16.000+0200
+ * @date 2024-01-04T13:29:45.000+0100
  */
 catalogue xsmp_example_project1
 
 
 namespace Example
 {
-    /** @uuid 2386045d-5cff-46b5-b6da-3ff6e2cfd792 */
-    model M1
-    {
-        field Int8 integer1
-        field Int16 integer2
+    /** @uuid f80c5d8e-deb4-492a-a5c0-4d37eadebe24 */
+    event CountEvent extends Int32
 
-        container M1[*] subModels
+    /** @uuid 2386045d-5cff-46b5-b6da-3ff6e2cfd792 */
+    model Counter
+    {
+        protected field Int32 count = 0
+
+        entrypoint IncrementCount
+        def void ResetCount ()
+        eventsink CountEvent Add
+    }
+
+    /** @uuid 4af1a890-220e-4af8-a0a9-2c03aadcfc9d */
+    model CounterManager
+    {
+        /** list of handled counters */
+        container Counter[*] counters
+
+        /** sum of all contained counters */
+        readOnly property Int32 sum
+        /** average of all contained counters */
+        readOnly property Float64 average
+        /** set all counter value */
+        writeOnly property Int32 count
     }
 }
 
