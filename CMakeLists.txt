@@ -71,7 +71,6 @@ option(XSMP_BUILD_EXAMPLES        "whether or not examples should be built"     
 option(XSMP_ENABLE_INSTALL        "whether or not to enable the install rule"       ${XSMP_MASTER_PROJECT})
 option(XSMP_ENABLE_CODECOVERAGE   "Enable code coverage testing support"            OFF)
 option(XSMP_BUILD_WITH_WARNINGS   "Enable all compiler warnings"                    OFF)
-set(XSMP_BUILD_EXAMPLES ON)
 
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
