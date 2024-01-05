@@ -25,7 +25,7 @@
 namespace py = pybind11;
 
 /// Customized hook for IObject
-const void* IObjectHook(const ::Smp::IObject *src, const std::type_info *&type);
+const ::Smp::IObject* IObjectHook(const ::Smp::IObject *src, const std::type_info *&type);
 
 /// Convert an AnySimple to python type
 py::object convert(const ::Smp::AnySimple &value);
@@ -43,7 +43,7 @@ namespace PYBIND11_NAMESPACE {
 template<typename itype>
 struct polymorphic_type_hook<itype,
         std::enable_if_t<std::is_base_of_v<Smp::IObject, itype>>> {
-    static const void* get(const itype *src, const std::type_info *&type) {
+    static const ::Smp::IObject* get(const itype *src, const std::type_info *&type) {
         return IObjectHook(src, type);
     }
 };

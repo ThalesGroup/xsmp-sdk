@@ -141,7 +141,10 @@ struct TypeHierarchy {
     template<typename T>
     static TypeHierarchy of(std::vector<TypeHierarchy> _derived = { }) {
         return TypeHierarchy { typeid(T), [](void *src) -> void* {
-            return dynamic_cast<T*>(static_cast<::Smp::IObject*>(src));
+            if constexpr (std::is_same_v<T, ::Smp::IObject>)
+                return static_cast<::Smp::IObject*>(src);
+            else
+                return dynamic_cast<T*>(static_cast<::Smp::IObject*>(src));
         },
         [](const ::Smp::IObject *src) -> bool {
             return dynamic_cast<const T*>(src);
@@ -324,7 +327,7 @@ public:
             register_instance(inst, v_h.value_ptr(), v_h.type);
             v_h.set_instance_registered();
         }
-        init_holder(inst, v_h, static_cast<const holder_type*>(holder_ptr), //TODO cast
+        init_holder(inst, v_h, static_cast<const holder_type*>(holder_ptr),
                 v_h.value_ptr<type>());
     }
 
@@ -377,7 +380,7 @@ private:
     }
 };
 
-const void* IObjectHook(const ::Smp::IObject *src,
+const ::Smp::IObject* IObjectHook(const ::Smp::IObject *src,
         const std::type_info *&type) {
 
     if (src) {
@@ -387,11 +390,11 @@ const void* IObjectHook(const ::Smp::IObject *src,
                     + Xsmp::Helper::TypeName(src) + "'.";
         }
 
-        // return a pointer to IObject (instead of dynamic_cast<const void*> )
-        return src;
     }
-    type = nullptr;
-    return nullptr;
+    else {
+        type = nullptr;
+    }
+    return src;
 
 }
 
@@ -478,7 +481,7 @@ py::object convert(const ::Smp::AnySimple &value) {
     }
     switch (kind) {
     case ::Smp::PrimitiveTypeKind::PTK_String8:
-        return {kind, handle.cast<std::string>().c_str()}; // TODO if it is an ::Smp::IObject, return the path !
+        return {kind, handle.cast<std::string>().c_str()};
     case ::Smp::PrimitiveTypeKind::PTK_Char8:
         return {kind, handle.cast<::Smp::Char8>()};
     case ::Smp::PrimitiveTypeKind::PTK_Bool:

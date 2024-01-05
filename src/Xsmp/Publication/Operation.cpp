@@ -109,13 +109,15 @@ const ::Smp::ParameterCollection* Operation::GetParameters() const {
 
 void Operation::Invoke(::Smp::IRequest *request) {
 
-    auto *component = dynamic_cast<::Smp::IDynamicInvocation*>(GetParent());
-
     auto *operationName = request ? request->GetOperationName() : nullptr;
 
-    // check operation is invokable and name is ok
-    if (!component || !operationName
-            || std::string_view { GetName() } != operationName)
+    // check operation name
+    if (!operationName || std::string_view { GetName() } != operationName)
+        ::Xsmp::Exception::throwInvalidOperationName(this, operationName);
+
+    auto *component = dynamic_cast<::Smp::IDynamicInvocation*>(GetParent());
+    // check dynamic invocation
+    if (!component)
         ::Xsmp::Exception::throwInvalidOperationName(this, operationName);
 
     // check parameter count
@@ -135,8 +137,8 @@ void Operation::Invoke(::Smp::IRequest *request) {
         auto kind = request->GetParameterValue(
                 request->GetParameterIndex(param->GetName())).GetType();
         if (kind != param->GetType()->GetPrimitiveTypeKind())
-            ::Xsmp::Exception::throwInvalidParameterType(this,
-                    request->GetOperationName(), param->GetName(), kind,
+            ::Xsmp::Exception::throwInvalidParameterType(this, operationName,
+                    param->GetName(), kind,
                     param->GetType()->GetPrimitiveTypeKind());
 
     }
