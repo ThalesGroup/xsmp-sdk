@@ -26,12 +26,12 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include <Smp/IEventSink.h>
 #include <Smp/ISimulator.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Publication/ITypeRegistry.h>
 #include <Xsmp/EventConsumer.h>
 #include <Xsmp/EventProvider.h>
+#include <Xsmp/EventSink.h>
 #include <Xsmp/EventSource.h>
 #include <Xsmp/Model.h>
 #include <type_traits>
@@ -105,56 +105,56 @@ public:
     /// @return Universally Unique Identifier of the Model.
     const Smp::Uuid& GetUuid() const override;
 
-    ::Smp::IEventSink *void_esi;
+    ::Xsmp::EventSink<> void_esi;
     virtual void _void_esi(::Smp::IObject *sender) = 0;
-    ::Smp::IEventSink *bool_esi;
+    ::Xsmp::EventSink<::Smp::Bool> bool_esi;
     virtual void _bool_esi(::Smp::IObject *sender, ::Smp::Bool value) = 0;
-    ::Smp::IEventSink *char8_esi;
+    ::Xsmp::EventSink<::Smp::Char8> char8_esi;
     virtual void _char8_esi(::Smp::IObject *sender, ::Smp::Char8 value) = 0;
-    ::Smp::IEventSink *dateTime_esi;
+    ::Xsmp::EventSink<::Smp::DateTime> dateTime_esi;
     virtual void _dateTime_esi(::Smp::IObject *sender,
             ::Smp::DateTime value) = 0;
-    ::Smp::IEventSink *duration_esi;
+    ::Xsmp::EventSink<::Smp::Duration> duration_esi;
     virtual void _duration_esi(::Smp::IObject *sender,
             ::Smp::Duration value) = 0;
-    ::Smp::IEventSink *float32_esi;
+    ::Xsmp::EventSink<::Smp::Float32> float32_esi;
     virtual void _float32_esi(::Smp::IObject *sender, ::Smp::Float32 value) = 0;
-    ::Smp::IEventSink *float64_esi;
+    ::Xsmp::EventSink<::Smp::Float64> float64_esi;
     virtual void _float64_esi(::Smp::IObject *sender, ::Smp::Float64 value) = 0;
-    ::Smp::IEventSink *int16_esi;
+    ::Xsmp::EventSink<::Smp::Int16> int16_esi;
     virtual void _int16_esi(::Smp::IObject *sender, ::Smp::Int16 value) = 0;
-    ::Smp::IEventSink *int32_esi;
+    ::Xsmp::EventSink<::Smp::Int32> int32_esi;
     virtual void _int32_esi(::Smp::IObject *sender, ::Smp::Int32 value) = 0;
-    ::Smp::IEventSink *int64_esi;
+    ::Xsmp::EventSink<::Smp::Int64> int64_esi;
     virtual void _int64_esi(::Smp::IObject *sender, ::Smp::Int64 value) = 0;
-    ::Smp::IEventSink *int8_esi;
+    ::Xsmp::EventSink<::Smp::Int8> int8_esi;
     virtual void _int8_esi(::Smp::IObject *sender, ::Smp::Int8 value) = 0;
-    ::Smp::IEventSink *string8_esi;
+    ::Xsmp::EventSink<::Smp::String8> string8_esi;
     virtual void _string8_esi(::Smp::IObject *sender, ::Smp::String8 value) = 0;
-    ::Smp::IEventSink *uint16_esi;
+    ::Xsmp::EventSink<::Smp::UInt16> uint16_esi;
     virtual void _uint16_esi(::Smp::IObject *sender, ::Smp::UInt16 value) = 0;
-    ::Smp::IEventSink *uint32_esi;
+    ::Xsmp::EventSink<::Smp::UInt32> uint32_esi;
     virtual void _uint32_esi(::Smp::IObject *sender, ::Smp::UInt32 value) = 0;
-    ::Smp::IEventSink *uint64_esi;
+    ::Xsmp::EventSink<::Smp::UInt64> uint64_esi;
     virtual void _uint64_esi(::Smp::IObject *sender, ::Smp::UInt64 value) = 0;
-    ::Smp::IEventSink *uint8_esi;
+    ::Xsmp::EventSink<::Smp::UInt8> uint8_esi;
     virtual void _uint8_esi(::Smp::IObject *sender, ::Smp::UInt8 value) = 0;
-    ::Xsmp::EventSource<> *void_eso;
-    ::Xsmp::EventSource<::Smp::Bool> *bool_eso;
-    ::Xsmp::EventSource<::Smp::Char8> *char8_eso;
-    ::Xsmp::EventSource<::Smp::DateTime> *dateTime_eso;
-    ::Xsmp::EventSource<::Smp::Duration> *duration_eso;
-    ::Xsmp::EventSource<::Smp::Float32> *float32_eso;
-    ::Xsmp::EventSource<::Smp::Float64> *float64_eso;
-    ::Xsmp::EventSource<::Smp::Int16> *int16_eso;
-    ::Xsmp::EventSource<::Smp::Int32> *int32_eso;
-    ::Xsmp::EventSource<::Smp::Int64> *int64_eso;
-    ::Xsmp::EventSource<::Smp::Int8> *int8_eso;
-    ::Xsmp::EventSource<::Smp::String8> *string8_eso;
-    ::Xsmp::EventSource<::Smp::UInt16> *uint16_eso;
-    ::Xsmp::EventSource<::Smp::UInt32> *uint32_eso;
-    ::Xsmp::EventSource<::Smp::UInt64> *uint64_eso;
-    ::Xsmp::EventSource<::Smp::UInt8> *uint8_eso;
+    ::Xsmp::EventSource<> void_eso;
+    ::Xsmp::EventSource<::Smp::Bool> bool_eso;
+    ::Xsmp::EventSource<::Smp::Char8> char8_eso;
+    ::Xsmp::EventSource<::Smp::DateTime> dateTime_eso;
+    ::Xsmp::EventSource<::Smp::Duration> duration_eso;
+    ::Xsmp::EventSource<::Smp::Float32> float32_eso;
+    ::Xsmp::EventSource<::Smp::Float64> float64_eso;
+    ::Xsmp::EventSource<::Smp::Int16> int16_eso;
+    ::Xsmp::EventSource<::Smp::Int32> int32_eso;
+    ::Xsmp::EventSource<::Smp::Int64> int64_eso;
+    ::Xsmp::EventSource<::Smp::Int8> int8_eso;
+    ::Xsmp::EventSource<::Smp::String8> string8_eso;
+    ::Xsmp::EventSource<::Smp::UInt16> uint16_eso;
+    ::Xsmp::EventSource<::Smp::UInt32> uint32_eso;
+    ::Xsmp::EventSource<::Smp::UInt64> uint64_eso;
+    ::Xsmp::EventSource<::Smp::UInt8> uint8_eso;
 };
 } // namespace Xsmp::Tests
 

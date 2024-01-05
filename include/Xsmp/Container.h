@@ -49,7 +49,6 @@ public:
 
     void AddComponent(::Smp::IComponent *component) override;
     void DeleteComponent(::Smp::IComponent *component) override;
-
 private:
     class ContainerCollection final : public ::Smp::ComponentCollection {
     public:

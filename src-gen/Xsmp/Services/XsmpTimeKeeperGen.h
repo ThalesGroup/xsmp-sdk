@@ -26,11 +26,11 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include <Smp/IEntryPoint.h>
 #include <Smp/IPersist.h>
 #include <Smp/ISimulator.h>
 #include <Smp/Publication/ITypeRegistry.h>
 #include <Smp/Services/ITimeKeeper.h>
+#include <Xsmp/EntryPoint.h>
 #include <Xsmp/EntryPointPublisher.h>
 #include <Xsmp/Service.h>
 #include <type_traits>
@@ -105,9 +105,9 @@ public:
     /// @return Universally Unique Identifier of the Model.
     const Smp::Uuid& GetUuid() const override;
 
-    ::Smp::IEntryPoint *PreSimTimeChange;
+    ::Xsmp::EntryPoint PreSimTimeChange;
     virtual void _PreSimTimeChange() = 0;
-    ::Smp::IEntryPoint *PostSimTimeChange;
+    ::Xsmp::EntryPoint PostSimTimeChange;
     virtual void _PostSimTimeChange() = 0;
 };
 } // namespace Xsmp::Services

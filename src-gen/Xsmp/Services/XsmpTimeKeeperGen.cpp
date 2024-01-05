@@ -25,7 +25,6 @@
 
 #include <Smp/IPublication.h>
 #include <Xsmp/ComponentHelper.h>
-#include <Xsmp/EntryPoint.h>
 #include <Xsmp/Services/XsmpTimeKeeper.h>
 
 namespace Xsmp::Services {
@@ -36,19 +35,15 @@ XsmpTimeKeeperGen::XsmpTimeKeeperGen(::Smp::String8 name,
         // Base class initialization
         ::Xsmp::Service(name, description, parent, simulator),
         // EntryPoint: PreSimTimeChange
-        PreSimTimeChange { new ::Xsmp::EntryPoint("PreSimTimeChange", "", this,
-                std::bind(&XsmpTimeKeeperGen::_PreSimTimeChange, this)) },
+        PreSimTimeChange { "PreSimTimeChange", "", this, std::bind(
+                &XsmpTimeKeeperGen::_PreSimTimeChange, this) },
         // EntryPoint: PostSimTimeChange
-        PostSimTimeChange { new ::Xsmp::EntryPoint("PostSimTimeChange", "",
-                this, std::bind(&XsmpTimeKeeperGen::_PostSimTimeChange, this)) } {
+        PostSimTimeChange { "PostSimTimeChange", "", this, std::bind(
+                &XsmpTimeKeeperGen::_PostSimTimeChange, this) } {
 }
 
 /// Virtual destructor that is called by inherited classes as well.
 XsmpTimeKeeperGen::~XsmpTimeKeeperGen() {
-    delete PreSimTimeChange;
-    PreSimTimeChange = nullptr;
-    delete PostSimTimeChange;
-    PostSimTimeChange = nullptr;
 }
 
 void XsmpTimeKeeperGen::Publish(::Smp::IPublication *receiver) {

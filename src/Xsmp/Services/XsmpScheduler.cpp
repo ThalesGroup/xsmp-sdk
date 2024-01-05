@@ -64,7 +64,7 @@ XsmpScheduler::XsmpScheduler(::Smp::String8 name, ::Smp::String8 description,
 
     //post an event to Hold the simulation at the maximal duration
     const ::Smp::Services::EventId holdId = -2;
-    _events.try_emplace(holdId, Event { HoldEvent, MaxDuration, MaxDuration, 0,
+    _events.try_emplace(holdId, Event { &HoldEvent, MaxDuration, MaxDuration, 0,
             0, ::Smp::Services::TimeKind::TK_SimulationTime, holdId });
     _events_table.try_emplace(MaxDuration, EventList { holdId });
 
@@ -80,10 +80,10 @@ void XsmpScheduler::DoConnect(const ::Smp::ISimulator *simulator) {
 
     simulator->GetEventManager()->Subscribe(
             ::Smp::Services::IEventManager::SMP_EnterExecutingId,
-            EnterExecuting);
+            &EnterExecuting);
     simulator->GetEventManager()->Subscribe(
             ::Smp::Services::IEventManager::SMP_LeaveExecutingId,
-            LeaveExecuting);
+            &LeaveExecuting);
 
     _zuluThread = std::thread(&XsmpScheduler::InternalZuluRun, this, simulator);
 }

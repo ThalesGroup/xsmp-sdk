@@ -16,8 +16,6 @@
 #include <Example/Counter.h>
 #include <Smp/IPublication.h>
 #include <Xsmp/ComponentHelper.h>
-#include <Xsmp/EntryPoint.h>
-#include <Xsmp/EventSink.h>
 #include <Xsmp/Request.h>
 
 namespace Example {
@@ -27,23 +25,18 @@ CounterGen::CounterGen(::Smp::String8 name, ::Smp::String8 description,
         // Base class initialization
         ::Xsmp::Model(name, description, parent, simulator),
         // EntryPoint: IncrementCount
-        IncrementCount { new ::Xsmp::EntryPoint("IncrementCount", "", this,
-                std::bind(&CounterGen::_IncrementCount, this)) },
+        IncrementCount { "IncrementCount", "", this, std::bind(
+                &CounterGen::_IncrementCount, this) },
         // Event Sink: Add
-        Add { new ::Xsmp::EventSink<::Smp::Int32>("Add", "", this,
-                std::bind(&CounterGen::_Add, this, std::placeholders::_1,
-                        std::placeholders::_2),
-                ::Smp::PrimitiveTypeKind::PTK_Int32) },
+        Add { "Add", "", this, std::bind(&CounterGen::_Add, this,
+                std::placeholders::_1, std::placeholders::_2),
+                ::Smp::PrimitiveTypeKind::PTK_Int32 },
         // count initialization
         count { 0 } {
 }
 
 /// Virtual destructor that is called by inherited classes as well.
 CounterGen::~CounterGen() {
-    delete IncrementCount;
-    IncrementCount = nullptr;
-    delete Add;
-    Add = nullptr;
 }
 
 void CounterGen::Publish(::Smp::IPublication *receiver) {

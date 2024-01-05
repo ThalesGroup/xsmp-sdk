@@ -122,7 +122,7 @@ private:
     virtual void set_count(::Smp::Int32 value)=0;
 public:
     /// list of handled counters
-    ::Xsmp::Container<::Example::Counter> *counters;
+    ::Xsmp::Container<::Example::Counter> counters;
 };
 } // namespace Example
 

@@ -25,7 +25,6 @@
 
 #include <Smp/IPublication.h>
 #include <Xsmp/ComponentHelper.h>
-#include <Xsmp/EntryPoint.h>
 #include <Xsmp/Services/XsmpScheduler.h>
 
 namespace Xsmp::Services {
@@ -36,24 +35,18 @@ XsmpSchedulerGen::XsmpSchedulerGen(::Smp::String8 name,
         // Base class initialization
         ::Xsmp::Service(name, description, parent, simulator),
         // EntryPoint: HoldEvent
-        HoldEvent { new ::Xsmp::EntryPoint("HoldEvent", "", this,
-                std::bind(&XsmpSchedulerGen::_HoldEvent, this)) },
+        HoldEvent { "HoldEvent", "", this, std::bind(
+                &XsmpSchedulerGen::_HoldEvent, this) },
         // EntryPoint: EnterExecuting
-        EnterExecuting { new ::Xsmp::EntryPoint("EnterExecuting", "", this,
-                std::bind(&XsmpSchedulerGen::_EnterExecuting, this)) },
+        EnterExecuting { "EnterExecuting", "", this, std::bind(
+                &XsmpSchedulerGen::_EnterExecuting, this) },
         // EntryPoint: LeaveExecuting
-        LeaveExecuting { new ::Xsmp::EntryPoint("LeaveExecuting", "", this,
-                std::bind(&XsmpSchedulerGen::_LeaveExecuting, this)) } {
+        LeaveExecuting { "LeaveExecuting", "", this, std::bind(
+                &XsmpSchedulerGen::_LeaveExecuting, this) } {
 }
 
 /// Virtual destructor that is called by inherited classes as well.
 XsmpSchedulerGen::~XsmpSchedulerGen() {
-    delete HoldEvent;
-    HoldEvent = nullptr;
-    delete EnterExecuting;
-    EnterExecuting = nullptr;
-    delete LeaveExecuting;
-    LeaveExecuting = nullptr;
 }
 
 void XsmpSchedulerGen::Publish(::Smp::IPublication *receiver) {

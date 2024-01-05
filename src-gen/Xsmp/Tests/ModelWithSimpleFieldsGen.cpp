@@ -25,7 +25,6 @@
 
 #include <Smp/IPublication.h>
 #include <Xsmp/ComponentHelper.h>
-#include <Xsmp/EventSink.h>
 #include <Xsmp/Tests/ModelWithSimpleFields.h>
 
 namespace Xsmp::Tests {
@@ -36,11 +35,10 @@ ModelWithSimpleFieldsGen::ModelWithSimpleFieldsGen(::Smp::String8 name,
         // Base class initialization
         ::Xsmp::Model(name, description, parent, simulator),
         // Event Sink: esi
-        esi { new ::Xsmp::EventSink<>("esi", "", this,
-                std::bind(&ModelWithSimpleFieldsGen::_esi, this,
-                        std::placeholders::_1)) },
+        esi { "esi", "", this, std::bind(&ModelWithSimpleFieldsGen::_esi, this,
+                std::placeholders::_1) },
         // Event Source: eso
-        eso { new ::Xsmp::EventSource<>("eso", "", this) },
+        eso { "eso", "", this },
         // boolean initialization
         boolean { },
         // char8 initialization
@@ -180,18 +178,11 @@ ModelWithSimpleFieldsGen::ModelWithSimpleFieldsGen(::Smp::String8 name,
                 ::Xsmp::Tests::Types::Uuid_Integer1, "integer1All", "", this,
                 ::Smp::ViewKind::VK_None },
         // Container: subModels
-        subModels { new ::Xsmp::Container<::Smp::IModel>("subModels", "", this,
-                0, -1) } {
+        subModels { "subModels", "", this, 0, -1 } {
 }
 
 /// Virtual destructor that is called by inherited classes as well.
 ModelWithSimpleFieldsGen::~ModelWithSimpleFieldsGen() {
-    delete subModels;
-    subModels = nullptr;
-    delete esi;
-    esi = nullptr;
-    delete eso;
-    eso = nullptr;
 }
 
 void ModelWithSimpleFieldsGen::Publish(::Smp::IPublication *receiver) {

@@ -26,14 +26,11 @@ CounterManagerGen::CounterManagerGen(::Smp::String8 name,
         // Base class initialization
         ::Xsmp::Model(name, description, parent, simulator),
         // Container: counters
-        counters { new ::Xsmp::Container<::Example::Counter>("counters",
-                "list of handled counters", this, 0, -1) } {
+        counters { "counters", "list of handled counters", this, 0, -1 } {
 }
 
 /// Virtual destructor that is called by inherited classes as well.
 CounterManagerGen::~CounterManagerGen() {
-    delete counters;
-    counters = nullptr;
 }
 
 void CounterManagerGen::Publish(::Smp::IPublication *receiver) {

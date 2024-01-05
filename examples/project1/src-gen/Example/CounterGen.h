@@ -16,15 +16,15 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include <Smp/IEntryPoint.h>
-#include <Smp/IEventSink.h>
 #include <Smp/IRequest.h>
 #include <Smp/ISimulator.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Publication/IPublishOperation.h>
 #include <Smp/Publication/ITypeRegistry.h>
+#include <Xsmp/EntryPoint.h>
 #include <Xsmp/EntryPointPublisher.h>
 #include <Xsmp/EventConsumer.h>
+#include <Xsmp/EventSink.h>
 #include <Xsmp/Model.h>
 #include <functional>
 #include <map>
@@ -113,9 +113,9 @@ public:
 private:
     virtual void ResetCount()=0;
 public:
-    ::Smp::IEntryPoint *IncrementCount;
+    ::Xsmp::EntryPoint IncrementCount;
     virtual void _IncrementCount() = 0;
-    ::Smp::IEventSink *Add;
+    ::Xsmp::EventSink<::Smp::Int32> Add;
     virtual void _Add(::Smp::IObject *sender, ::Smp::Int32 value) = 0;
 protected:
     ::Smp::Int32 count;

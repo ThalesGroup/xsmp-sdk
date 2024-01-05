@@ -42,7 +42,7 @@ public:
     ::Smp::Int64 GetUpper() const final;
     ::Smp::Int64 GetLower() const final;
     ::Smp::IComponent* GetComponent(::Smp::String8 name) const override = 0;
-    virtual ::Smp::IComponent* GetComponent(std::size_t index) const noexcept= 0;
+    virtual ::Smp::IComponent* GetComponent(std::size_t index) const noexcept = 0;
 protected:
     // Extensions for ILinkingComponent
     /// Asks a Reference to remove all its links to the given target

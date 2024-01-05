@@ -26,7 +26,6 @@
 // ---------------------------- Include Header Files --------------------
 // ----------------------------------------------------------------------------
 
-#include <Smp/IEventSink.h>
 #include <Smp/IModel.h>
 #include <Smp/ISimulator.h>
 #include <Smp/PrimitiveTypes.h>
@@ -35,6 +34,7 @@
 #include <Xsmp/Container.h>
 #include <Xsmp/EventConsumer.h>
 #include <Xsmp/EventProvider.h>
+#include <Xsmp/EventSink.h>
 #include <Xsmp/EventSource.h>
 #include <Xsmp/FallibleModel.h>
 #include <Xsmp/Field.h>
@@ -117,9 +117,9 @@ public:
     /// @return Universally Unique Identifier of the Model.
     const Smp::Uuid& GetUuid() const override;
 
-    ::Smp::IEventSink *esi;
+    ::Xsmp::EventSink<> esi;
     virtual void _esi(::Smp::IObject *sender) = 0;
-    ::Xsmp::EventSource<> *eso;
+    ::Xsmp::EventSource<> eso;
 private:
     ::Smp::Bool boolean;
     ::Smp::Char8 char8;
@@ -169,7 +169,7 @@ private:
     ::Xsmp::Field<::Xsmp::Tests::Types::Float1>::transient::input::output::forcible::failure float1All;
     ::Xsmp::Field<::Xsmp::Tests::Types::Integer1>::transient::input::output::forcible::failure integer1All;
 public:
-    ::Xsmp::Container<::Smp::IModel> *subModels;
+    ::Xsmp::Container<::Smp::IModel> subModels;
 };
 } // namespace Xsmp::Tests
 

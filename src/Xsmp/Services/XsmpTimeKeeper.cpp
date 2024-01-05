@@ -28,11 +28,11 @@ void XsmpTimeKeeper::DoConnect(const ::Smp::ISimulator *simulator) const {
 
     simulator->GetEventManager()->Subscribe(
             ::Smp::Services::IEventManager::SMP_PreSimTimeChangeId,
-            PreSimTimeChange);
+            &PreSimTimeChange);
 
     simulator->GetEventManager()->Subscribe(
             ::Smp::Services::IEventManager::SMP_PostSimTimeChangeId,
-            PostSimTimeChange);
+            &PostSimTimeChange);
 }
 ::Smp::Duration XsmpTimeKeeper::GetSimulationTime() const {
     std::scoped_lock lck { _mutex };

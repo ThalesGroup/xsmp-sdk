@@ -25,18 +25,18 @@ void CounterManager::DoDisconnect() {
 }
 
 ::Smp::Int32 CounterManager::get_sum() {
-	return std::accumulate(counters->begin(), counters->end(), 0,
+	return std::accumulate(counters.begin(), counters.end(), 0,
 			[](::Smp::Int32 count, Counter *counter) {
 				return count + counter->count;
 			});
 }
 ::Smp::Float64 CounterManager::get_average() {
-	if (auto size = counters->size())
-		return static_cast<::Smp::Float64>(get_sum()) / counters->size();
+	if (auto size = counters.size())
+		return static_cast<::Smp::Float64>(get_sum()) / counters.size();
 	return 0;
 }
 void CounterManager::set_count(::Smp::Int32 value) {
-	for (auto *counter : *counters)
+	for (auto *counter : counters)
 		counter->count = value;
 }
 } // namespace Example
