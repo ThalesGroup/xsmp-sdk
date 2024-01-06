@@ -1,4 +1,4 @@
-// Copyright 2023 THALES ALENIA SPACE FRANCE. All rights reserved.
+// Copyright 2023-2024 THALES ALENIA SPACE FRANCE. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,6 +30,9 @@ inline void RegisterIField(const py::module_ &m) {
     .def("IsState", &::Smp::IField::IsState, "Return State flag of the field.")
 
     .def("GetView", &::Smp::IField::GetView, "Return View kind of the field.")
+
+    .def("GetType", &::Smp::IField::GetType, "Returns the type of this field.",
+            py::return_value_policy::reference)
 
     .doc() = R"(Interface of a field.)";
 }

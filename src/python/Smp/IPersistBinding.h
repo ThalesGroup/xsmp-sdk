@@ -1,4 +1,4 @@
-// Copyright 2023 THALES ALENIA SPACE FRANCE. All rights reserved.
+// Copyright 2023-2024 THALES ALENIA SPACE FRANCE. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,8 @@ inline void RegisterIPersist(const py::module_ &m) {
 
     .doc() =
             R"(Interface of a self-persisting object that provides operations to allow for storing and restoring its state.
-An object may implement this interface if it wants to have control over storing and restoring of its state. This is an optional interface which needs to be implemented by objects with self-persistence only.)";
+An object may implement this interface if it wants to have control over storing and restoring of its state.
+This is an optional interface which needs to be implemented by objects with self-persistence only.)";
 }
 
 #endif // PYTHON_SMP_IPERSIST_H_

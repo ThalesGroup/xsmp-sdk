@@ -1,4 +1,4 @@
-// Copyright 2023 THALES ALENIA SPACE FRANCE. All rights reserved.
+// Copyright 2023-2024 THALES ALENIA SPACE FRANCE. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #include <python/Smp/ComponentStateKindBinding.h>
 #include <python/Smp/IAggregateBinding.h>
 #include <python/Smp/IArrayFieldBinding.h>
+#include <python/Smp/ICollectionBinding.h>
 #include <python/Smp/IComponentBinding.h>
 #include <python/Smp/ICompositeBinding.h>
 #include <python/Smp/IContainerBinding.h>
@@ -28,6 +29,7 @@
 #include <python/Smp/IEventProviderBinding.h>
 #include <python/Smp/IEventSinkBinding.h>
 #include <python/Smp/IEventSourceBinding.h>
+#include <python/Smp/IFactoryBinding.h>
 #include <python/Smp/IFailureBinding.h>
 #include <python/Smp/IFallibleModelBinding.h>
 #include <python/Smp/IFieldBinding.h>
@@ -36,6 +38,7 @@
 #include <python/Smp/IModelBinding.h>
 #include <python/Smp/IObjectBinding.h>
 #include <python/Smp/IOperationBinding.h>
+#include <python/Smp/IParameterBinding.h>
 #include <python/Smp/IPersistBinding.h>
 #include <python/Smp/IPropertyBinding.h>
 #include <python/Smp/IReferenceBinding.h>
@@ -44,6 +47,14 @@
 #include <python/Smp/ISimpleFieldBinding.h>
 #include <python/Smp/ISimulatorBinding.h>
 #include <python/Smp/IStructureFieldBinding.h>
+#include <python/Smp/PrimitiveTypeKindBinding.h>
+#include <python/Smp/Publication/IArrayTypeBinding.h>
+#include <python/Smp/Publication/IClassTypeBinding.h>
+#include <python/Smp/Publication/IEnumerationTypeBinding.h>
+#include <python/Smp/Publication/IStructureTypeBinding.h>
+#include <python/Smp/Publication/ITypeBinding.h>
+#include <python/Smp/Publication/ITypeRegistryBinding.h>
+#include <python/Smp/Publication/ParameterDirectionKindBinding.h>
 #include <python/Smp/Services/IEventManagerBinding.h>
 #include <python/Smp/Services/ILinkRegistryBinding.h>
 #include <python/Smp/Services/ILoggerBinding.h>
@@ -100,6 +111,7 @@
 #include <Smp/InvalidSimulatorState.h>
 #include <Smp/InvalidTarget.h>
 #include <Smp/IOperation.h>
+#include <Smp/IParameter.h>
 #include <Smp/IProperty.h>
 #include <Smp/IReference.h>
 #include <Smp/ISimpleArrayField.h>
@@ -109,6 +121,9 @@
 #include <Smp/NotContained.h>
 #include <Smp/NotReferenced.h>
 #include <Smp/Publication/DuplicateLiteral.h>
+#include <Smp/Publication/IArrayType.h>
+#include <Smp/Publication/IClassType.h>
+#include <Smp/Publication/IEnumerationType.h>
 #include <Smp/Publication/InvalidPrimitiveType.h>
 #include <Smp/Publication/TypeAlreadyRegistered.h>
 #include <Smp/Publication/TypeNotRegistered.h>
@@ -267,6 +282,28 @@ static inline const TypeHierarchy IObjectHierarchy =
                         TypeHierarchy::template of<::Smp::IProperty>(),
 
                         TypeHierarchy::template of<::Smp::IReference>(),
+
+                        TypeHierarchy::template of<::Smp::IParameter>(),
+
+                        TypeHierarchy::template of<::Smp::Publication::IType>(
+                                {
+                                        //IType
+                                        TypeHierarchy::template of<
+                                                ::Smp::Publication::IArrayType>(),
+
+                                        TypeHierarchy::template of<
+                                                ::Smp::Publication::IEnumerationType>(),
+
+                                        TypeHierarchy::template of<
+                                                ::Smp::Publication::IStructureType>(
+                                                {
+                                                //IStructure
+                                                        TypeHierarchy::template of<
+                                                                ::Smp::Publication::IClassType>(),
+
+                                                }),
+
+                                }),
 
                 });
 
@@ -665,26 +702,47 @@ This exception is raised when trying to publish a field with invalid type.
             "This exception is raised when trying to read (GetReturnValue()) or write (SetReturnValue()) the return value of a void operation.";
 
 #undef SMP_EXCEPTION
+    auto publication = smp.def_submodule("Publication",
+            "Namespace for publication");
 
+    auto services = smp.def_submodule("Services",
+            "Namespace for simulation services");
+
+    //register simple types and enums
     RegisterUuid(smp);
     RegisterAccessKind(smp);
     RegisterComponentStateKind(smp);
     RegisterSimulatorStateKind(smp);
     RegisterViewKind(smp);
+    RegisterPrimitiveTypeKind(smp);
+    RegisterParameterDirectionKind(publication);
+    RegisterTimeKind(services);
 
+    //register classes
     RegisterIObject(smp);
 
+    RegisterIFactory(smp);
+
+    RegisterIParameter(smp);
+    RegisterICollection<::Smp::IParameter>(smp, "ParameterCollection");
     RegisterIOperation(smp);
+    RegisterICollection<::Smp::IOperation>(smp, "OperationCollection");
     RegisterIEntryPointPublisher(smp);
 
     RegisterIEntryPoint(smp);
+    RegisterICollection<::Smp::IEntryPoint>(smp, "EntryPointCollection");
     RegisterIProperty(smp);
+    RegisterICollection<::Smp::IProperty>(smp, "PropertyCollection");
     RegisterIEventSink(smp);
+    RegisterICollection<::Smp::IEventSink>(smp, "EventSinkCollection");
     RegisterIEventSource(smp);
+    RegisterICollection<::Smp::IEventSource>(smp, "EventSourceCollection");
 
     RegisterIPersist(smp);
     RegisterIFailure(smp);
+    RegisterICollection<::Smp::IFailure>(smp, "FailureCollection");
     RegisterIField(smp);
+    RegisterICollection<::Smp::IField>(smp, "FieldCollection");
     RegisterIDataflowField(smp);
     RegisterISimpleField(smp);
     RegisterIForcibleField(smp);
@@ -693,9 +751,12 @@ This exception is raised when trying to publish a field with invalid type.
     RegisterIStructureField(smp);
 
     RegisterIContainer(smp);
+    RegisterICollection<::Smp::IContainer>(smp, "ContainerCollection");
     RegisterIReference(smp);
+    RegisterICollection<::Smp::IReference>(smp, "ReferenceCollection");
 
     RegisterIComponent(smp);
+    RegisterICollection<::Smp::IComponent>(smp, "ComponentCollection");
     RegisterIAggregate(smp);
     RegisterIDynamicInvocation(smp);
     RegisterIEventConsumer(smp);
@@ -703,14 +764,21 @@ This exception is raised when trying to publish a field with invalid type.
     RegisterILinkingComponent(smp);
 
     RegisterIModel(smp);
+    RegisterICollection<::Smp::IModel>(smp, "ModelCollection");
     RegisterIFallibleModel(smp);
 
     RegisterIService(smp);
+    RegisterICollection<::Smp::IService>(smp, "ServiceCollection");
 
     RegisterIComposite(smp);
 
-    auto publication = smp.def_submodule("Publication",
-            "Namespace for publication");
+    RegisterIType(publication);
+    RegisterIArrayType(publication);
+    RegisterIEnumerationType(publication);
+    RegisterIStructureType(publication);
+    RegisterIClassType(publication);
+
+    RegisterITypeRegistry(publication);
 
     py::register_exception<::Smp::Publication::DuplicateLiteral>(publication,
             "DuplicateLiteral", Exception).doc() =
@@ -727,9 +795,6 @@ This exception is raised when trying to publish a field with invalid type.
     py::register_exception<::Smp::Publication::TypeNotRegistered>(publication,
             "TypeNotRegistered", Exception).doc() =
             "This exception is raised when trying to publish a feature with a type Uuid that has not been registered.";
-
-    auto services = smp.def_submodule("Services",
-            "Namespace for simulation services");
 
     py::register_exception<::Smp::Services::EntryPointAlreadySubscribed>(
             services, "EntryPointAlreadySubscribed", Exception).doc() =
@@ -764,7 +829,6 @@ This exception is raised when trying to publish a field with invalid type.
             "This exception is thrown by SetSimulationTime if the new simulation time is not between the current simulation "
                     "time and the simulation time of the next event on the scheduler.";
 
-    RegisterTimeKind(services);
     RegisterIEventManager(services);
     RegisterILinkRegistry(services);
     RegisterILogger(services);

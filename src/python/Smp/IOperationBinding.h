@@ -1,4 +1,4 @@
-// Copyright 2023 THALES ALENIA SPACE FRANCE. All rights reserved.
+// Copyright 2023-2024 THALES ALENIA SPACE FRANCE. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -104,6 +104,14 @@ inline void RegisterIOperation(const py::module_ &m) {
 
     .def("GetView", &::Smp::IOperation::GetView,
             "Provides the view kind of the operation.")
+
+    .def("GetParameter", &::Smp::IOperation::GetParameter, py::arg("name"),
+            py::return_value_policy::reference,
+            "Return a parameter by name. This works both for parameters in the collection of GetParameters(), and for the optional return parameter.")
+
+    .def("GetReturnParameter", &::Smp::IOperation::GetReturnParameter,
+            py::return_value_policy::reference,
+            "This operation returns the return parameter, or nullptr if no return parameter exists (for a void operation).")
 
     .doc() = "This interface describes a published operation.";
 }

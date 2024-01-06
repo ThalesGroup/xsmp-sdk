@@ -1,4 +1,4 @@
-// Copyright 2023 THALES ALENIA SPACE FRANCE. All rights reserved.
+// Copyright 2023-2024 THALES ALENIA SPACE FRANCE. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 
 #ifndef PYTHON_SMP_ISIMULATOR_H_
 #define PYTHON_SMP_ISIMULATOR_H_
-
 
 #include <python/ecss_smp.h>
 #include <Smp/IAggregate.h>
@@ -414,6 +413,19 @@ The method will never throw the InvalidObjectType exception either, as it gets a
             py::arg("name"), py::arg("description") = "", py::arg("parent"),
             py::return_value_policy::reference,
             R"(This method creates an instance of the component with the given unique identifier.)")
+
+    .def("GetFactory", &::Smp::ISimulator::GetFactory, py::arg("uuid"),
+            py::return_value_policy::reference,
+            R"(This method returns the factory of the component with the given implementation identifier.)")
+
+    .def("GetFactories", &::Smp::ISimulator::GetFactories,
+            py::return_value_policy::reference,
+            R"(This method returns all factories that have been registered with the simulator.)")
+
+    .def("GetTypeRegistry", &::Smp::ISimulator::GetTypeRegistry,
+            py::return_value_policy::reference,
+            R"(Give access to the global type registry.
+        The type registry is typically a singleton, and must not be null, to allow use of existing types, and registration of new types.)")
 
     .def("LoadLibrary",
             [](::Smp::ISimulator &self, ::Smp::String8 libraryName) {
