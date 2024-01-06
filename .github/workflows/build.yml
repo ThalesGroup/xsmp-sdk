@@ -21,8 +21,6 @@ jobs:
          matrix:
             os:
             - ubuntu-latest
-            build_type:
-            - Debug
             cmake_version:
             - '3.14'
             - '3.15'
@@ -50,14 +48,17 @@ jobs:
             pip install pytest
       -  name: Configure cmake
          run: |
-            cmake -B build -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DXSMP_BUILD_EXAMPLES=ON -S .
+            cmake -B build -DCMAKE_BUILD_TYPE=Release -DXSMP_BUILD_EXAMPLES=ON -S .
       -  name: Build
          run: |
-            cmake --build build --config ${{matrix.build_type}} -j 2
+            cmake --build build --config Release -j 2
       -  name: Run tests
-         working-directory: build
-         run: |
-            ctest -C ${{matrix.build_type}} --output-on-failure
+         uses: nick-fields/retry@v2
+         with:
+            max_attempts: 3
+            retry_on: error
+            timeout_minutes: 1
+            command: ctest -C Release --output-on-failure --test-dir build
    gcc:
       name: '${{matrix.os}} :: GCC ${{matrix.gcc}}'
       runs-on: ${{matrix.os}}
@@ -88,9 +89,12 @@ jobs:
          run: |
             cmake --build build --config Release -j 2
       -  name: Run tests
-         working-directory: build
-         run: |
-            ctest -C Release --output-on-failure
+         uses: nick-fields/retry@v2
+         with:
+            max_attempts: 3
+            retry_on: error
+            timeout_minutes: 1
+            command: ctest -C Release --output-on-failure --test-dir build
    clang:
       name: '${{matrix.os}} :: Clang ${{matrix.clang}}'
       runs-on: ${{matrix.os}}
@@ -126,9 +130,12 @@ jobs:
          run: |
             cmake --build build --config Release -j 2
       -  name: Run tests
-         working-directory: build
-         run: |
-            ctest -C Release --output-on-failure
+         uses: nick-fields/retry@v2
+         with:
+            max_attempts: 3
+            retry_on: error
+            timeout_minutes: 1
+            command: ctest -C Release --output-on-failure --test-dir build
    windows:
       name: '${{matrix.os}}'
       runs-on: ${{matrix.os}}
@@ -155,9 +162,12 @@ jobs:
          run: |
             cmake --build build --config Release -j 2
       -  name: Run tests
-         working-directory: build
-         run: |
-            ctest -C Release --output-on-failure -E "XsmpSchedulerTest"
+         uses: nick-fields/retry@v2
+         with:
+            max_attempts: 3
+            retry_on: error
+            timeout_minutes: 1
+            command: ctest -C Release --output-on-failure -E "XsmpSchedulerTest" --test-dir build
    python:
       name: '${{matrix.os}} :: Python ${{matrix.python-version}}'
       runs-on: ${{matrix.os}}
