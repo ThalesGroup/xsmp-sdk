@@ -31,9 +31,9 @@ This allows keeping names as short as possible, and avoids a dependency on the n
 
     .def("ResolveRelative", &::Smp::Services::IResolver::ResolveRelative,
             py::arg("relative_path"), py::arg("sender"),
-            R"(Resolve reference to an object via relative path.)")
+            "Resolve reference to an object via relative path.")
 
-    .doc() = R"(This interface gives access to the Resolver Service.)";
+    .doc() = "This interface gives access to the Resolver Service.";
 }
 
 #endif // PYTHON_SMP_SERVICES_IRESOLVER_H_

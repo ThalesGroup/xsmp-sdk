@@ -186,7 +186,7 @@ inline void RegisterISimpleField(const py::module_ &m) {
 
     })
 
-    .doc() = R"(Interface of a field of simple type.)";
+    .doc() = "Interface of a field of simple type.";
 }
 
 #endif // PYTHON_SMP_ISIMPLEFIELD_H_

@@ -23,7 +23,7 @@ inline void RegisterIDynamicInvocation(const py::module_ &m) {
             "IDynamicInvocation", py::multiple_inheritance())
 
     .doc() =
-            R"(Interface for a component that supports dynamic invocation of operations.)";
+            "Interface for a component that supports dynamic invocation of operations.";
 }
 
 #endif // PYTHON_SMP_IDYNAMICINVOCATION_H_

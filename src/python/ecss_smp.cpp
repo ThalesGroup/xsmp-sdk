@@ -297,7 +297,7 @@ static inline const TypeHierarchy IObjectHierarchy =
                                         TypeHierarchy::template of<
                                                 ::Smp::Publication::IStructureType>(
                                                 {
-                                                //IStructure
+                                                //IStructureType
                                                         TypeHierarchy::template of<
                                                                 ::Smp::Publication::IClassType>(),
 
@@ -316,12 +316,13 @@ public:
 
         py::detail::type_record record;
         auto type_name = py::detail::clean_type_id(typeid(*obj).name());
-        record.name = type_name.c_str(); // TODO add random ID ?
+        record.name = type_name.c_str();
         record.type = &typeid(*obj);
         record.type_size = sizeof(*obj);
         record.type_align = alignof(type);
-        // Store the dynamic class in the root module ecss_smp
-        record.scope = py::module_::import("ecss_smp");
+        // Do not store the class to avoid duplicate type name in case
+        // of types with identical names defined in different libraries.
+        // => do not do: record.scope = py::module_::import("ecss_smp")
 
         record.holder_size = sizeof(holder_type);
         record.init_instance = init_instance;
@@ -560,7 +561,7 @@ py::object convert(const ::Smp::AnySimple &value) {
     return static_cast<::Smp::UInt64>(result);
 }
 PYBIND11_MODULE(ecss_smp, ecss_smp) {
-    ecss_smp.doc() = R"(Specifies the SMP Component Model as SMDL Catalogue.)";
+    ecss_smp.doc() = "Specifies the SMP Component Model as SMDL Catalogue.";
 
 #ifdef VERSION_INFO
     ecss_smp.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);
@@ -837,6 +838,5 @@ This exception is raised when trying to publish a field with invalid type.
     RegisterITimeKeeper(services);
 
     RegisterISimulator(smp);
-
 }
 

@@ -24,12 +24,12 @@ inline void RegisterIType(const py::module_ &m) {
 
     .def("GetPrimitiveTypeKind",
             &::Smp::Publication::IType::GetPrimitiveTypeKind,
-            R"(Get primitive type kind that this type maps to, or PTK_None when the type cannot be mapped to a primitive type.)")
+            "Get primitive type kind that this type maps to, or PTK_None when the type cannot be mapped to a primitive type.")
 
     .def("GetUuid", &::Smp::Publication::IType::GetUuid,
-            R"(Get Universally Unique Identifier of type.)")
+            "Get Universally Unique Identifier of type.")
 
-    .doc() = R"(This base interface defines a type in the type registry.)";
+    .doc() = "This base interface defines a type in the type registry.";
 }
 
 #endif // PYTHON_SMP_PUBLICATION_ITYPE_H_

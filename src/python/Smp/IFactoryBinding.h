@@ -36,7 +36,7 @@ inline void RegisterIFactory(const py::module_ &m) {
     .def("DeleteInstance", &::Smp::IFactory::DeleteInstance,
             py::arg("instance"), "Delete an existing instance.")
 
-    .doc() = R"(Interface for a component factory.)";
+    .doc() = "Interface for a component factory.";
 }
 
 #endif // PYTHON_SMP_IFACTORY_H_

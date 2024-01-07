@@ -23,7 +23,7 @@ inline void RegisterIClassType(const py::module_ &m) {
             ::Smp::Publication::IStructureType>(m, "IClassType",
             py::multiple_inheritance())
 
-    .doc() = R"(This interface defines a user defined class type.)";
+    .doc() = "This interface defines a user defined class type.";
 }
 
 #endif // PYTHON_SMP_PUBLICATION_ICLASSTYPE_H_

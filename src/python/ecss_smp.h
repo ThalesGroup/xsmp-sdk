@@ -25,7 +25,8 @@
 namespace py = pybind11;
 
 /// Customized hook for IObject
-const ::Smp::IObject* IObjectHook(const ::Smp::IObject *src, const std::type_info *&type);
+const ::Smp::IObject* IObjectHook(const ::Smp::IObject *src,
+        const std::type_info *&type);
 
 /// Convert an AnySimple to python type
 py::object convert(const ::Smp::AnySimple &value);
@@ -37,13 +38,20 @@ py::object convert(const ::Smp::AnySimple &value);
 /// Get the index with support for negative index (python like)
 ::Smp::UInt64 GetIndex(::Smp::Int64 index, ::Smp::UInt64 size);
 
+
+void RegisterClasses(py::module_ &smp, py::module_ &publication,
+        py::module_ &services);
+void RegisterClasses2(py::module_ &smp, py::module_ &publication,
+        py::module_ &services);
+
 namespace PYBIND11_NAMESPACE {
 
 /// Use a customized type_hook for IObject
 template<typename itype>
 struct polymorphic_type_hook<itype,
         std::enable_if_t<std::is_base_of_v<Smp::IObject, itype>>> {
-    static const ::Smp::IObject* get(const itype *src, const std::type_info *&type) {
+    static const ::Smp::IObject* get(const itype *src,
+            const std::type_info *&type) {
         return IObjectHook(src, type);
     }
 };

@@ -20,7 +20,7 @@
 
 inline void RegisterAccessKind(const py::module_ &m) {
     py::enum_<::Smp::AccessKind>(m, "AccessKind",
-            R"(The Access Kind of a property defines whether it has getter and setter.)")
+            "The Access Kind of a property defines whether it has getter and setter.")
 
     .value("AK_ReadWrite", ::Smp::AccessKind::AK_ReadWrite,
             "Read/Write access, i.e. getter and setter.")

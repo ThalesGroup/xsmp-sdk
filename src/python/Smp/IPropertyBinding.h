@@ -176,7 +176,7 @@ inline void RegisterIProperty(const py::module_ &m) {
 
     })
 
-    .doc()=R"(This interface describes a published property.)"
+    .doc()= "This interface describes a published property."
     ;
 }
 

@@ -26,9 +26,9 @@ inline void RegisterIStructureType(const py::module_ &m) {
             py::arg("name"), py::arg("description"), py::arg("uuid"),
             py::arg("offset"), py::arg("view") = ::Smp::ViewKind::VK_All,
             py::arg("state") = true, py::arg("input") = false,
-            py::arg("output") = false, R"(Add a field to the Structure.)")
+            py::arg("output") = false, "Add a field to the Structure.")
 
-    .doc() = R"(This interface defines a user defined structure type.)";
+    .doc() = "This interface defines a user defined structure type.";
 }
 
 #endif // PYTHON_SMP_PUBLICATION_ISTRUCTURETYPE_H_

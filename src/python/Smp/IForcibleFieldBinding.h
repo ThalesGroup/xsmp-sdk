@@ -40,7 +40,7 @@ This method raises an exception of type InvalidFieldValue if called with an inva
     .def("Freeze", &::Smp::IForcibleField::Freeze,
             "Force field to its current value.")
 
-    .doc() = R"(Interface of a forcible field.)";
+    .doc() = "Interface of a forcible field.";
 }
 
 #endif // PYTHON_SMP_IFORCIBLEFIELD_H_

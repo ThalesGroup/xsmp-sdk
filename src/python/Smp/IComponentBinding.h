@@ -32,7 +32,7 @@ This method raises an exception of type InvalidFieldName if called with a field 
 This method can be used both for fields of simple types (when it returns an instance of ISimpleField), and for complex fields (when it returns IArrayField or IStructureField).)")
 
     .def("GetUuid", &::Smp::IComponent::GetUuid,
-            R"(Get Universally Unique Identifier of Component Type.)")
+            "Get Universally Unique Identifier of Component Type.")
 
     .doc() =
             R"(This is the base interface for all SMP components.

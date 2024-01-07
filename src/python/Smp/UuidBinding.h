@@ -123,7 +123,7 @@ For a unique identification of types (and hence models), SMP uses Universally Un
             "Unique Identifier of type SimulatorStateKind.")
 
     .doc() =
-            R"(Placeholder class with universally unique identifiers of pre-defined SMP types.)";
+            "Placeholder class with universally unique identifiers of pre-defined SMP types.";
 
 }
 

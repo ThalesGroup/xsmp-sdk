@@ -54,7 +54,7 @@ inline void RegisterISimpleArrayField(const py::module_ &m) {
             })
 
     .doc() =
-            R"(Interface to an array where each array item is of a simple type.)";
+            "Interface to an array where each array item is of a simple type.";
 }
 
 #endif // PYTHON_SMP_ISIMPLEARRAYFIELD_H_

@@ -23,13 +23,13 @@ inline void RegisterIArrayType(const py::module_ &m) {
             "IArrayType", py::multiple_inheritance())
 
     .def("GetSize", &::Smp::Publication::IArrayType::GetSize,
-            R"(Get the size (number of array items) of the array type.)")
+            "Get the size (number of array items) of the array type.")
 
     .def("GetItemType", &::Smp::Publication::IArrayType::GetItemType,
-            R"(Get the type of each array item.)",
+            "Get the type of each array item.",
             py::return_value_policy::reference)
 
-    .doc() = R"(This interface defines a user defined array type.)";
+    .doc() = "This interface defines a user defined array type.";
 }
 
 #endif // PYTHON_SMP_PUBLICATION_IARRAYTYPE_H_

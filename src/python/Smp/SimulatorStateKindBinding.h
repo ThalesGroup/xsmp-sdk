@@ -77,11 +77,7 @@ This state is entered using the Exit() state transition. After exiting, the simu
 // SSK_Aborting
     .value("SSK_Aborting", ::Smp::SimulatorStateKind::SSK_Aborting,
             R"(In this state, the simulation environment performs an abnormal simulation shut-down.
-This state is entered using the Abort() state transition. After aborting, the simulator is in an undefined state.)")
-
-            // .doc() =
-            //         R"(This is an enumeration of the available states of the simulator. The Setup phase is split into three different states, the Execution phase has five different states, and the Termination phase has two states.)"
-            ;
+This state is entered using the Abort() state transition. After aborting, the simulator is in an undefined state.)");
 }
 
 #endif // PYTHON_SMP_SIMULATORSTATEKIND_H_

@@ -37,7 +37,7 @@ Epoch time is an absolute time with a fixed offset to simulation time. Epoch tim
 
     .def("GetMissionStartTime",
             &::Smp::Services::ITimeKeeper::GetMissionStartTime,
-            R"(Get mission start time.)")
+            "Get mission start time.")
 
     .def("GetZuluTime", &::Smp::Services::ITimeKeeper::GetZuluTime,
             R"(Return Zulu time.

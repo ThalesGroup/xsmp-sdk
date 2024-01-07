@@ -22,7 +22,7 @@ inline void RegisterIModel(const py::module_ &m) {
     py::class_<::Smp::IModel, ::Smp::IComponent>(m, "IModel",
             py::multiple_inheritance())
 
-    .doc() = R"(Interface for a model.)";
+    .doc() = "Interface for a model.";
 }
 
 #endif // PYTHON_SMP_IMODEL_H_

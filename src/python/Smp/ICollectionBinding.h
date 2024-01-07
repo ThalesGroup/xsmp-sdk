@@ -15,7 +15,6 @@
 #ifndef PYTHON_SMP_ICOLLECTION_H_
 #define PYTHON_SMP_ICOLLECTION_H_
 
-
 #include <python/ecss_smp.h>
 #include <Smp/ICollection.h>
 #include <Smp/PrimitiveTypes.h>
@@ -36,12 +35,12 @@ inline void RegisterICollection(const py::module_ &m, ::Smp::String8 name) {
             py::overload_cast<std::size_t>(&::Smp::ICollection<T>::at,
                     py::const_), py::arg("index"),
             py::return_value_policy::reference,
-            R"(Retrieve element by position in the sequence (based on order of insertion).)")
+            "Retrieve element by position in the sequence (based on order of insertion).")
 
     .def("at",
             py::overload_cast<::Smp::String8>(&::Smp::ICollection<T>::at,
                     py::const_), py::arg("name"),
-            py::return_value_policy::reference, R"(Retrieve element by name)")
+            py::return_value_policy::reference, "Retrieve element by name")
 
     .def("__getitem__",
             [](const ::Smp::ICollection<T> &self, ::Smp::Int64 index) {

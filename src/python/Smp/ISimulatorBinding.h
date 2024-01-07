@@ -387,40 +387,40 @@ The method will never throw the InvalidObjectType exception either, as it gets a
 
     .def("GetLogger", &::Smp::ISimulator::GetLogger,
             py::return_value_policy::reference,
-            R"(Return interface to logger service.)")
+            "Return interface to logger service.")
 
     .def("GetTimeKeeper", &::Smp::ISimulator::GetTimeKeeper,
             py::return_value_policy::reference,
-            R"(Return interface to time keeper service.)")
+            "Return interface to time keeper service.")
 
     .def("GetScheduler", &::Smp::ISimulator::GetScheduler,
             py::return_value_policy::reference,
-            R"(Return interface to scheduler service.)")
+            "Return interface to scheduler service.")
 
     .def("GetEventManager", &::Smp::ISimulator::GetEventManager,
             py::return_value_policy::reference,
-            R"(Return interface to event manager service.)")
+            "Return interface to event manager service.")
 
     .def("GetResolver", &::Smp::ISimulator::GetResolver,
             py::return_value_policy::reference,
-            R"(Return interface to resolver service.)")
+            "Return interface to resolver service.")
 
     .def("GetLinkRegistry", &::Smp::ISimulator::GetLinkRegistry,
             py::return_value_policy::reference,
-            R"(Return interface to link registry service.)")
+            "Return interface to link registry service.")
 
     .def("CreateInstance", &::Smp::ISimulator::CreateInstance, py::arg("uuid"),
             py::arg("name"), py::arg("description") = "", py::arg("parent"),
             py::return_value_policy::reference,
-            R"(This method creates an instance of the component with the given unique identifier.)")
+            "This method creates an instance of the component with the given unique identifier.")
 
     .def("GetFactory", &::Smp::ISimulator::GetFactory, py::arg("uuid"),
             py::return_value_policy::reference,
-            R"(This method returns the factory of the component with the given implementation identifier.)")
+            "This method returns the factory of the component with the given implementation identifier.")
 
     .def("GetFactories", &::Smp::ISimulator::GetFactories,
             py::return_value_policy::reference,
-            R"(This method returns all factories that have been registered with the simulator.)")
+            "This method returns all factories that have been registered with the simulator.")
 
     .def("GetTypeRegistry", &::Smp::ISimulator::GetTypeRegistry,
             py::return_value_policy::reference,

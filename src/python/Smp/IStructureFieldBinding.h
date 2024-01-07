@@ -22,7 +22,7 @@ inline void RegisterIStructureField(const py::module_ &m) {
     py::class_<::Smp::IStructureField, ::Smp::IField>(m, "IStructureField",
             py::multiple_inheritance())
 
-    .doc() = R"(Interface of a structure field.)";
+    .doc() = "Interface of a structure field.";
 }
 
 #endif // PYTHON_SMP_ISTRUCTUREFIELD_H_

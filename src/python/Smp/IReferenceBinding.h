@@ -35,7 +35,7 @@ inline void RegisterIReference(const py::module_ &m) {
 A return value of -1 indicates that the collection has no upper limit.)")
 
     .def("GetLower", &::Smp::IReference::GetLower,
-            R"(Query the minimum number of components in the collection.)")
+            "Query the minimum number of components in the collection.")
 
     .def("__getitem__",
             [](const ::Smp::IReference &self, ::Smp::Int64 index) {

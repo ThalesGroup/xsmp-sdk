@@ -26,13 +26,13 @@ inline void RegisterITypeRegistry(const py::module_ &m) {
             py::overload_cast<::Smp::PrimitiveTypeKind>(
                     &::Smp::Publication::ITypeRegistry::GetType, py::const_),
             py::arg("type"), py::return_value_policy::reference,
-            R"(Returns a type by its primitive type kind.)")
+            "Returns a type by its primitive type kind.")
 
     .def("GetType",
             py::overload_cast<::Smp::Uuid>(
                     &::Smp::Publication::ITypeRegistry::GetType, py::const_),
             py::arg("typeUuid"), py::return_value_policy::reference,
-            R"(Returns a type by universally unique identifier.)")
+            "Returns a type by universally unique identifier.")
 
     .def("AddFloatType", &::Smp::Publication::ITypeRegistry::AddFloatType,
             py::arg("name"), py::arg("description"), py::arg("typeUuid"),
@@ -40,44 +40,42 @@ inline void RegisterITypeRegistry(const py::module_ &m) {
             py::arg("maxInclusive"), py::arg("unit"), py::arg("type") =
                     ::Smp::PrimitiveTypeKind::PTK_Float64,
             py::return_value_policy::reference,
-            R"(Add a float type to the registry.
-IComponent and IDynamicInvocation support fields, parameters and operations of Float types via the PTK_Float32 and PTK_Float64 primitive type, as a Float is mapped either to Float32 or Float64.)")
+            "Add a float type to the registry. IComponent and IDynamicInvocation support fields, parameters and operations of Float types via the PTK_Float32 and PTK_Float64 primitive type, as a Float is mapped either to Float32 or Float64.")
 
     .def("AddIntegerType", &::Smp::Publication::ITypeRegistry::AddIntegerType,
             py::arg("name"), py::arg("description"), py::arg("typeUuid"),
             py::arg("minimum"), py::arg("maximum"), py::arg("unit"),
             py::arg("type") = ::Smp::PrimitiveTypeKind::PTK_Int32,
             py::return_value_policy::reference,
-            R"(Add an integer type to the registry.
-IComponent and IDynamicInvocation support fields, parameters and operations of Integer types via the PTK_Int primitive types, as an Integer is mapped to one of Int8 / Int16 / Int32 / Int64 / UInt8 / UInt16 / UInt32 / UInt64.)")
+            "Add an integer type to the registry. IComponent and IDynamicInvocation support fields, parameters and operations of Integer types via the PTK_Int primitive types, as an Integer is mapped to one of Int8 / Int16 / Int32 / Int64 / UInt8 / UInt16 / UInt32 / UInt64.")
 
     .def("AddEnumerationType",
             &::Smp::Publication::ITypeRegistry::AddEnumerationType,
             py::arg("name"), py::arg("description"), py::arg("typeUuid"),
             py::arg("memorySize") = 4, py::return_value_policy::reference,
-            R"(Add an enumeration type to the registry.)")
+            "Add an enumeration type to the registry.")
 
     .def("AddArrayType", &::Smp::Publication::ITypeRegistry::AddArrayType,
             py::arg("name"), py::arg("description"), py::arg("typeUuid"),
             py::arg("itemTypeUuid"), py::arg("itemSize"), py::arg("arrayCount"),
             py::arg("simpleArray") = false, py::return_value_policy::reference,
-            R"(Add an array type to the registry.)")
+            "Add an array type to the registry.")
 
     .def("AddStringType", &::Smp::Publication::ITypeRegistry::AddStringType,
             py::arg("name"), py::arg("description"), py::arg("typeUuid"),
             py::arg("length"), py::return_value_policy::reference,
-            R"(Add a string type to the registry.)")
+            "Add a string type to the registry.")
 
     .def("AddStructureType",
             &::Smp::Publication::ITypeRegistry::AddStructureType,
             py::arg("name"), py::arg("description"), py::arg("typeUuid"),
             py::return_value_policy::reference,
-            R"(Add a structure type to the registry.)")
+            "Add a structure type to the registry.")
 
     .def("AddClassType", &::Smp::Publication::ITypeRegistry::AddClassType,
             py::arg("name"), py::arg("description"), py::arg("typeUuid"),
             py::arg("baseClassUuid"), py::return_value_policy::reference,
-            R"(Add a class type to the registry.)")
+            "Add a class type to the registry.")
 
     .doc() =
             R"(This interface defines a registration mechanism for user defined types.

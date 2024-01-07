@@ -32,7 +32,7 @@ As the Push() operation only requires to set a value, the target field can be an
             "Push the current field value to all connected target fields.")
 
     .doc() =
-            R"(This interface is implemented by a Field that can take part in direct inter-component data flow.)";
+            "This interface is implemented by a Field that can take part in direct inter-component data flow.";
 }
 
 #endif // PYTHON_SMP_IDATAFLOWFIELD_H_
