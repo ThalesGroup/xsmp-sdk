@@ -58,7 +58,7 @@ jobs:
             max_attempts: 3
             retry_on: error
             timeout_minutes: 1
-            command: ctest -C Release --output-on-failure --test-dir build
+            command: cd build && ctest -C Release --output-on-failure
    gcc:
       name: '${{matrix.os}} :: GCC ${{matrix.gcc}}'
       runs-on: ${{matrix.os}}
@@ -94,7 +94,7 @@ jobs:
             max_attempts: 3
             retry_on: error
             timeout_minutes: 1
-            command: ctest -C Release --output-on-failure --test-dir build
+            command: cd build && ctest -C Release --output-on-failure
    clang:
       name: '${{matrix.os}} :: Clang ${{matrix.clang}}'
       runs-on: ${{matrix.os}}
@@ -135,7 +135,7 @@ jobs:
             max_attempts: 3
             retry_on: error
             timeout_minutes: 1
-            command: ctest -C Release --output-on-failure --test-dir build
+            command: cd build && ctest -C Release --output-on-failure
    windows:
       name: '${{matrix.os}}'
       runs-on: ${{matrix.os}}
@@ -167,7 +167,7 @@ jobs:
             max_attempts: 3
             retry_on: error
             timeout_minutes: 1
-            command: ctest -C Release --output-on-failure -E "XsmpSchedulerTest" --test-dir build
+            command: cd build ; ctest -C Release --output-on-failure -E "XsmpSchedulerTest"
    python:
       name: '${{matrix.os}} :: Python ${{matrix.python-version}}'
       runs-on: ${{matrix.os}}

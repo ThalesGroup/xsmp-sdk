@@ -46,7 +46,7 @@ jobs:
             max_attempts: 3
             retry_on: error
             timeout_minutes: 1
-            command: ctest -C ${{env.BUILD_TYPE}} --output-on-failure --test-dir build
+            command: cd build && ctest -C ${{env.BUILD_TYPE}} --output-on-failure
       -  name: Collect coverage into one XML report
          run: |
             gcovr --sonarqube coverage.xml
