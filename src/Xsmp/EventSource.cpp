@@ -15,9 +15,9 @@
 #include <Xsmp/EventProvider.h>
 #include <Xsmp/EventSource.h>
 #include <Xsmp/Exception.h>
+#include <Xsmp/Helper.h>
 #include <algorithm>
-#include <map>
-#include <utility>
+#include <iterator>
 
 namespace Xsmp {
 namespace detail {
@@ -32,8 +32,20 @@ AbstractEventSource::AbstractEventSource(::Smp::String8 name,
 AbstractEventSource::AbstractEventSource(::Smp::String8 name,
         ::Smp::String8 description, ::Smp::IObject *parent,
         ::Smp::PrimitiveTypeKind eventArgType) :
-        Object(name, description, parent), _eventArgType { eventArgType } {
+        _name(::Xsmp::Helper::checkName(name, parent)), _description(
+                description ? description : ""), _parent(parent), _eventArgType {
+                eventArgType } {
+}
+::Smp::String8 AbstractEventSource::GetName() const {
+    return _name.c_str();
+}
 
+::Smp::String8 AbstractEventSource::GetDescription() const {
+    return _description.c_str();
+}
+
+::Smp::IObject* AbstractEventSource::GetParent() const {
+    return _parent;
 }
 void AbstractEventSource::Subscribe(::Smp::IEventSink *eventSink) {
     // Check if the type matches

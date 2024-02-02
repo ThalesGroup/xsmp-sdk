@@ -40,7 +40,7 @@ TEST(ComponentTest, Component) {
 
     component.DeleteRequest(nullptr);
 
-    Publication::TypeRegistry registry { "TypeRegistry", "", nullptr };
+    Publication::TypeRegistry registry;
 
     Publication::Publication publication { &component, &registry };
 

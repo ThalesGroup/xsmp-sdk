@@ -27,13 +27,11 @@ public:
             ::Smp::IObject *parent = nullptr);
     Object(const Object&) = delete;
     Object& operator=(const Object&) = delete;
-
+    ~Object() noexcept override = default;
     ::Smp::String8 GetName() const final;
     ::Smp::String8 GetDescription() const final;
     ::Smp::IObject* GetParent() const final;
 
-protected:
-    void SetDescription(::Smp::String8 description) noexcept;
 private:
     std::string _name;
     std::string _description;

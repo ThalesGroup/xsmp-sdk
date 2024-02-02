@@ -15,6 +15,7 @@
 #include <Smp/AnySimple.h>
 #include <Smp/IDynamicInvocation.h>
 #include <Xsmp/Exception.h>
+#include <Xsmp/Helper.h>
 #include <Xsmp/Publication/Property.h>
 #include <Xsmp/Publication/Request.h>
 #include <algorithm>
@@ -133,11 +134,22 @@ private:
 Property::Property(::Smp::String8 name, ::Smp::String8 description,
         ::Smp::IObject *parent, ::Smp::Publication::IType *type,
         ::Smp::AccessKind accessKind, ::Smp::ViewKind view) :
-        Object(name, description, parent), _type(type), _accessKind(accessKind), _view(
-                view) {
+        _name(::Xsmp::Helper::checkName(name, parent)), _description(
+                description ? description : ""), _parent(parent), _type(type), _accessKind(
+                accessKind), _view(view) {
 
 }
+::Smp::String8 Property::GetName() const {
+    return _name.c_str();
+}
 
+::Smp::String8 Property::GetDescription() const {
+    return _description.c_str();
+}
+
+::Smp::IObject* Property::GetParent() const {
+    return _parent;
+}
 ::Smp::Publication::IType* Property::GetType() const {
     return _type;
 }
@@ -152,7 +164,7 @@ Property::Property(::Smp::String8 name, ::Smp::String8 description,
 
 ::Smp::AnySimple Property::GetValue() const {
 
-    auto *invoker = dynamic_cast<::Smp::IDynamicInvocation*>(GetParent());
+    auto *invoker = dynamic_cast<::Smp::IDynamicInvocation*>(_parent);
     if (_accessKind == ::Smp::AccessKind::AK_WriteOnly || !invoker)
         ::Xsmp::Exception::throwException(this, "InvalidAccessKind", "",
                 "The property getter is not invokable: ", this);
@@ -164,7 +176,7 @@ Property::Property(::Smp::String8 name, ::Smp::String8 description,
 }
 
 void Property::SetValue(::Smp::AnySimple value) {
-    auto *invoker = dynamic_cast<::Smp::IDynamicInvocation*>(GetParent());
+    auto *invoker = dynamic_cast<::Smp::IDynamicInvocation*>(_parent);
     if (_accessKind == ::Smp::AccessKind::AK_ReadOnly || !invoker)
         ::Xsmp::Exception::throwException(this, "InvalidAccessKind", "",
                 "The property setter is not invokable: ", this);
@@ -175,9 +187,10 @@ void Property::SetValue(::Smp::AnySimple value) {
 
 }
 
-void Property::Update(::Smp::String8 description, ::Smp::Publication::IType *type,
-            ::Smp::AccessKind accessKind, ::Smp::ViewKind view) noexcept {
-    SetDescription(description);
+void Property::Update(::Smp::String8 description,
+        ::Smp::Publication::IType *type, ::Smp::AccessKind accessKind,
+        ::Smp::ViewKind view) noexcept {
+    _description = description;
     _type = type;
     _accessKind = accessKind;
     _view = view;

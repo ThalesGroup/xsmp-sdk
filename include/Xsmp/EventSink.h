@@ -19,21 +19,30 @@
 #include <Smp/IEventSink.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/AnySimpleConverter.h>
-#include <Xsmp/Object.h>
-
 #include <functional>
+#include <string>
 
 namespace Xsmp {
 
 class EventConsumer;
 
 namespace detail {
-class AbstractEventSink: public Object, public ::Smp::IEventSink {
+class AbstractEventSink: public ::Smp::IEventSink {
 public:
     AbstractEventSink(::Smp::String8 name, ::Smp::String8 description,
             ::Xsmp::EventConsumer *parent);
     AbstractEventSink(::Smp::String8 name, ::Smp::String8 description,
             ::Smp::IObject *parent);
+    AbstractEventSink(const AbstractEventSink&) = delete;
+    AbstractEventSink& operator=(const AbstractEventSink&) = delete;
+    ~AbstractEventSink() noexcept override = default;
+    ::Smp::String8 GetName() const final;
+    ::Smp::String8 GetDescription() const final;
+    ::Smp::IObject* GetParent() const final;
+private:
+    std::string _name;
+    std::string _description;
+    ::Smp::IObject *_parent;
 };
 } // namespace detail
 

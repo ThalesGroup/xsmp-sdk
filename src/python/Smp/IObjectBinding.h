@@ -15,7 +15,6 @@
 #ifndef PYTHON_SMP_IOBJECT_H_
 #define PYTHON_SMP_IOBJECT_H_
 
-
 #include <python/ecss_smp.h>
 #include <Smp/AnySimple.h>
 #include <Smp/IProperty.h>

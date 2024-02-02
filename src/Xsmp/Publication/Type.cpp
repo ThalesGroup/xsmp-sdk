@@ -14,18 +14,29 @@
 
 #include <Smp/IPublication.h>
 #include <Xsmp/Exception.h>
+#include <Xsmp/Helper.h>
 #include <Xsmp/Publication/Type.h>
 #include <Xsmp/Publication/TypeRegistry.h>
-#include <stdexcept>
-#include <utility>
 
 namespace Xsmp::Publication {
 
 Type::Type(::Smp::String8 name, ::Smp::String8 description,
         ::Xsmp::Publication::TypeRegistry *typeRegistry, ::Smp::Uuid uuid) :
-        Object(name, description, typeRegistry), _uuid(uuid) {
+        _name(::Xsmp::Helper::checkName(name, typeRegistry)), _description(
+                description ? description : ""), _parent(typeRegistry), _uuid(
+                uuid) {
+}
+::Smp::String8 Type::GetName() const {
+    return _name.c_str();
 }
 
+::Smp::String8 Type::GetDescription() const {
+    return _description.c_str();
+}
+
+::Smp::IObject* Type::GetParent() const {
+    return _parent;
+}
 ::Smp::PrimitiveTypeKind Type::GetPrimitiveTypeKind() const {
     return ::Smp::PrimitiveTypeKind::PTK_None;
 }
@@ -33,8 +44,8 @@ Type::Type(::Smp::String8 name, ::Smp::String8 description,
 ::Smp::Uuid Type::GetUuid() const {
     return _uuid;
 }
-::Xsmp::Publication::TypeRegistry* Type::GetTypeRegistry() const {
-    return dynamic_cast<::Xsmp::Publication::TypeRegistry*>(this->GetParent());
+::Xsmp::Publication::TypeRegistry* Type::GetTypeRegistry() const noexcept {
+    return _parent;
 }
 
 void Type::Publish(::Smp::IPublication *receiver, ::Smp::String8 name,

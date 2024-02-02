@@ -22,13 +22,11 @@
 #include <Xsmp/Publication/Type.h>
 #include <Xsmp/Publication/TypeRegistry.h>
 #include <limits>
-#include <string>
 
 namespace Xsmp::Publication {
 
-TypeRegistry::TypeRegistry(::Smp::String8 name, ::Smp::String8 description,
-        ::Smp::IObject *parent) :
-        Object(name, description, parent) {
+TypeRegistry::TypeRegistry(::Smp::IObject *parent) :
+        _parent(parent) {
 
     AddType<PrimitiveType>("Char8", "8 bit character", this,
             ::Smp::PrimitiveTypeKind::PTK_Char8, ::Smp::Uuids::Uuid_Char8);
@@ -276,6 +274,17 @@ The element is not visible to end users. If the simulation infrastructure suppor
                     "This state is entered using the Abort() state transition. After aborting, the simulator is in an undefined state.",
             9);
 
+}
+::Smp::String8 TypeRegistry::GetName() const {
+    return "TypeRegistry";
+}
+
+::Smp::String8 TypeRegistry::GetDescription() const {
+    return "Xsmp Type Registry";
+}
+
+::Smp::IObject* TypeRegistry::GetParent() const {
+    return _parent;
 }
 
 ::Smp::Publication::IType* TypeRegistry::GetType(

@@ -15,28 +15,30 @@
 #ifndef XSMP_FACTORYCOLLECTION_H_
 #define XSMP_FACTORYCOLLECTION_H_
 
-#include <cstddef>
 #include <Smp/IFactory.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Uuid.h>
-#include <Xsmp/Object.h>
+#include <cstddef>
 #include <memory>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 namespace Xsmp {
 
-class FactoryCollection final: public ::Xsmp::Object,
-        public virtual ::Smp::FactoryCollection {
+class FactoryCollection final:
+public ::Smp::FactoryCollection {
 public:
     using const_iterator= typename ::Smp::FactoryCollection::const_iterator;
     using iterator= typename ::Smp::FactoryCollection::iterator;
 
     explicit FactoryCollection(::Smp::IObject *parent);
-
+    FactoryCollection(const FactoryCollection&) = delete;
+    FactoryCollection& operator=(const FactoryCollection&) = delete;
     ~FactoryCollection() noexcept override = default;
-
+    ::Smp::String8 GetName() const override;
+    ::Smp::String8 GetDescription() const override;
+    ::Smp::IObject* GetParent() const override;
     ::Smp::IFactory* at(::Smp::String8 name) const override;
 
     ::Smp::IFactory* at(std::size_t index) const override;
@@ -50,6 +52,7 @@ public:
     void Add(::Smp::IFactory *factory);
 
 private:
+    ::Smp::IObject *_parent;
     std::unordered_map<::Smp::Uuid, std::unique_ptr<::Smp::IFactory>> _uuid_map { };
     std::unordered_map<std::string, ::Smp::IFactory*> _factory_map { };
     std::vector<::Smp::IFactory*> _factories { };

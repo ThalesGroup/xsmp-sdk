@@ -35,9 +35,12 @@
 #include <Smp/ISimulator.h>
 #include <Smp/IStructureField.h>
 #include <Smp/Services/ILogger.h>
+
+#include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
 #include <algorithm>
 #include <cstring>
+#include <string>
 #include <memory>
 
 #if defined(__GNUG__)
@@ -342,9 +345,9 @@ static inline ::Smp::IObject* ResolveComponent(const ::Smp::IObject *object,
     return nullptr;
 }
 
-inline void erase_all(std::string& string, std::string_view search) {
-    for (std::size_t pos = 0;;) {
-        pos = string.find(search, pos);
+inline void erase_all(std::string &string, std::string_view search) {
+    while (true) {
+        auto pos = string.find(search);
         if (pos == std::string::npos) {
             break;
         }
@@ -390,43 +393,53 @@ void CopyString(::Smp::Char8 *destination, std::size_t size,
 
 static inline bool AreEquivalent(const ::Smp::ISimpleArrayField *source,
         const ::Smp::ISimpleArrayField *target) {
-
+    const auto size = source->GetSize();
+    if (target->GetSize() != size) {
+        return false;
+    }
     // the type is possibly null in case of an anonymous simple array
     // the Smp::IsimpleArray interface should provide a Smp::PrimitiveTypeKind GetItemKind() const; method
     // && simpleArrayTarget->GetType()->GetPrimitiveTypeKind() == simpleArraySource->GetType()->GetPrimitiveTypeKind()
-    if (target->GetSize() == source->GetSize()) {
-        for (std::size_t i = 0; i < source->GetSize(); ++i) {
-            if (source->GetValue(i).GetType() != target->GetValue(i).GetType())
-                return false;
-        }
-        return true;
+
+    for (::Smp::UInt64 i = 0; i < size; ++i) {
+        if (source->GetValue(i).GetType() != target->GetValue(i).GetType())
+            return false;
     }
-    return false;
+    return true;
 }
 static inline bool AreEquivalent(const ::Smp::IArrayField *source,
         const ::Smp::IArrayField *target) {
-    if (target->GetSize() == source->GetSize()) {
-        for (std::size_t i = 0; i < source->GetSize(); ++i) {
-            if (!AreEquivalent(source->GetItem(i), target->GetItem(i)))
-                return false;
-        }
-        return true;
+    const auto size = source->GetSize();
+    if (target->GetSize() != size) {
+        return false;
     }
-    return false;
+    for (::Smp::UInt64 i = 0; i < size; ++i) {
+        if (!AreEquivalent(source->GetItem(i), target->GetItem(i))) {
+            return false;
+        }
+    }
+    return true;
 }
+
 static inline bool AreEquivalent(const ::Smp::IStructureField *source,
         const ::Smp::IStructureField *target) {
-    if (target->GetFields()->size() == source->GetFields()->size()) {
-        std::size_t index = 0;
-        for (auto const *f : *source->GetFields()) {
-            if (!AreEquivalent(f, target->GetFields()->at(index)))
-                return false;
-            ++index;
-        }
-        return true;
+    if (target->GetFields()->size() != source->GetFields()->size()) {
+        return false;
     }
-    return false;
+    auto source_it = source->GetFields()->begin();
+    auto target_it = target->GetFields()->begin();
+    const auto end = source->GetFields()->end();
+
+    while (source_it != end) {
+        if (!AreEquivalent(*source_it, *target_it)) {
+            return false;
+        }
+        ++source_it;
+        ++target_it;
+    }
+    return true;
 }
+
 bool AreEquivalent(const ::Smp::IField *source, const ::Smp::IField *target) {
 
     // check a simple field
@@ -468,5 +481,47 @@ bool AreEquivalent(const ::Smp::IField *source, const ::Smp::IField *target) {
         //ignore
     }
     return false;
+}
+
+///Check that an Object name is valid
+std::string checkName(::Smp::String8 name, ::Smp::IObject const *parent) {
+
+    // the name cannot be null
+    if (!name)
+        ::Xsmp::Exception::throwInvalidObjectName(parent, name);
+
+    // the name must start with a letter
+    if (!std::isalpha(static_cast<unsigned char>(name[0])))
+        ::Xsmp::Exception::throwInvalidObjectName(parent, name);
+
+    std::size_t i = 1;
+    // skip following letters, digits and "_"
+    while (std::isalnum(static_cast<unsigned char>(name[i])) || (name[i] == '_')) {
+        ++i;
+    }
+
+    // parse an optional array
+    while (name[i] == '[') {
+        ++i;
+        // index must start with a digit
+        if (!std::isdigit(static_cast<unsigned char>(name[i])))
+            ::Xsmp::Exception::throwInvalidObjectName(parent, name);
+        ++i;
+        // skip following digits
+        while (std::isdigit(static_cast<unsigned char>(name[i]))) {
+            ++i;
+        }
+
+        // check closing bracket
+        if (name[i++] != ']')
+            ::Xsmp::Exception::throwInvalidObjectName(parent, name);
+    }
+
+    // check end of name
+    if (name[i] != '\0')
+        ::Xsmp::Exception::throwInvalidObjectName(parent, name);
+
+    return std::string { name, i };
+
 }
 } // namespace Xsmp::Helper

@@ -21,7 +21,6 @@
 #include <Smp/Publication/IEnumerationType.h>
 #include <Smp/Uuid.h>
 #include <Smp/ViewKind.h>
-#include <Xsmp/Object.h>
 #include <map>
 #include <string>
 #include <vector>
@@ -33,13 +32,18 @@ class IPublication;
 namespace Xsmp::Publication {
 class TypeRegistry;
 
-class Type: public ::Xsmp::Object, public virtual ::Smp::Publication::IType {
+class Type: public virtual ::Smp::Publication::IType {
 public:
     Type(::Smp::String8 name, ::Smp::String8 description,
             ::Xsmp::Publication::TypeRegistry *typeRegistry, ::Smp::Uuid uuid);
-
+    /// Type cannot be copied
+    Type(const Type&) = delete;
+    /// Type cannot be copied
+    Type& operator=(const Type&) = delete;
     ~Type() noexcept override = default;
-
+    ::Smp::String8 GetName() const final;
+    ::Smp::String8 GetDescription() const final;
+    ::Smp::IObject* GetParent() const final;
     ::Smp::PrimitiveTypeKind GetPrimitiveTypeKind() const override;
 
     ::Smp::Uuid GetUuid() const final;
@@ -48,8 +52,11 @@ public:
             ::Smp::String8 description, void *address, ::Smp::ViewKind view =
                     ::Smp::ViewKind::VK_All, ::Smp::Bool state = true,
             ::Smp::Bool input = false, ::Smp::Bool output = false) final;
-    ::Xsmp::Publication::TypeRegistry* GetTypeRegistry() const;
+    ::Xsmp::Publication::TypeRegistry* GetTypeRegistry() const noexcept;
 private:
+    std::string _name;
+    std::string _description;
+    ::Xsmp::Publication::TypeRegistry *_parent;
     ::Smp::Uuid _uuid;
 };
 
@@ -92,7 +99,7 @@ private:
     ::Smp::PrimitiveTypeKind _kind;
 };
 
-class EnumerationType: public SimpleType,
+class EnumerationType final: public SimpleType,
         public ::Smp::Publication::IEnumerationType {
 public:
     EnumerationType(::Smp::String8 name, ::Smp::String8 description,

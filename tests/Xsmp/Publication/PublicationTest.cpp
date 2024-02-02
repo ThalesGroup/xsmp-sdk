@@ -46,7 +46,7 @@
 namespace Xsmp {
 namespace Publication {
 TEST(PublicationTest, init) {
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     Component component { "component" };
 
@@ -60,7 +60,7 @@ TEST(PublicationTest, init) {
 }
 TEST(PublicationTest, PublishField) {
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     Component component { "component" };
 
@@ -99,7 +99,7 @@ TEST(PublicationTest, PublishField) {
 template<typename T>
 void TestPublishSimpleField(Smp::PrimitiveTypeKind kind, Smp::ViewKind view,
         T default_value, T check_Value) {
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     Component component { "component" };
 
@@ -199,7 +199,7 @@ TEST(PublicationTest, PublishSimpleField) {
     TestPublishSimpleField<Smp::UInt64>(Smp::PrimitiveTypeKind::PTK_UInt64,
             Smp::ViewKind::VK_None, 0, 100);
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     Component component { "component" };
 
@@ -216,7 +216,7 @@ TEST(PublicationTest, PublishSimpleField) {
 template<typename T>
 void TestPublishSimpleArray(Smp::PrimitiveTypeKind kind, Smp::ViewKind view,
         T default_value, T check_Value) {
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     Component component { "component" };
 
@@ -363,7 +363,7 @@ TEST(PublicationTest, PublishSimpleArray) {
 
 TEST(PublicationTest, PublishArray) {
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     Component component { "component" };
 
@@ -401,7 +401,7 @@ TEST(PublicationTest, PublishArray) {
 
 TEST(PublicationTest, PublishStructure) {
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     Component component { "component" };
 
@@ -431,7 +431,7 @@ TEST(PublicationTest, PublishStructure) {
 
 TEST(PublicationTest, PublishOperation) {
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     Component component { "component" };
 
@@ -516,7 +516,7 @@ TEST(PublicationTest, PublishOperation) {
 
 TEST(PublicationTest, PublishProperty) {
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     Component component { "component" };
 
@@ -548,13 +548,13 @@ TEST(PublicationTest, PublishProperty) {
     EXPECT_EQ(property->GetType(), registry.GetType(Smp::Uuids::Uuid_Int8));
 
     EXPECT_THROW(property->GetValue(), Smp::Exception);
-    EXPECT_THROW(property->SetValue({}), Smp::Exception);
+    EXPECT_THROW(property->SetValue( { }), Smp::Exception);
 
 }
 
 TEST(PublicationTest, Request) {
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     Component component { "component" };
 

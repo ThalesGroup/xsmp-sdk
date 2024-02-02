@@ -20,6 +20,7 @@
 #include <Smp/IFallibleModel.h>
 #include <Xsmp/Composite.h>
 #include <Xsmp/Container.h>
+#include <Xsmp/Helper.h>
 
 namespace Xsmp::detail {
 
@@ -65,8 +66,20 @@ AbstractContainer::AbstractContainer(::Smp::String8 name,
 AbstractContainer::AbstractContainer(::Smp::String8 name,
         ::Smp::String8 description, ::Smp::IObject *parent, ::Smp::Int64 lower,
         ::Smp::Int64 upper) :
-        Object(name, description, parent), _collection(*this), _lower(lower), _upper(
-                upper) {
+        _name(::Xsmp::Helper::checkName(name, parent)), _description(
+                description ? description : ""), _parent(parent), _collection(
+                *this), _lower(lower), _upper(upper) {
+}
+::Smp::String8 AbstractContainer::GetName() const {
+    return _name.c_str();
+}
+
+::Smp::String8 AbstractContainer::GetDescription() const {
+    return _description.c_str();
+}
+
+::Smp::IObject* AbstractContainer::GetParent() const {
+    return _parent;
 }
 const ::Smp::ComponentCollection* AbstractContainer::GetComponents() const {
     return &_collection;

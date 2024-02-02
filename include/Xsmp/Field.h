@@ -43,6 +43,7 @@
 #include <set>
 #include <string>
 #include <type_traits>
+#include <utility>
 
 namespace Smp {
 class IComponent;
@@ -214,16 +215,25 @@ private:
     Collection<::Smp::IField> _fields;
 };
 
-class AbstractField: public ::Xsmp::Object, public virtual ::Smp::IField {
+class AbstractField: public virtual ::Smp::IField {
 public:
+    AbstractField(const AbstractField&) = delete;
+    AbstractField& operator=(const AbstractField&) = delete;
+    ~AbstractField() noexcept override = default;
+    ::Smp::String8 GetName() const final;
+    ::Smp::String8 GetDescription() const final;
+    ::Smp::IObject* GetParent() const final;
     Smp::ViewKind GetView() const final;
 protected:
     AbstractField(::Smp::String8 name, ::Smp::String8 description,
             ::Smp::IObject *parent, ::Smp::ViewKind view);
 private:
+    std::string _name;
+    std::string _description;
+    ::Smp::IObject *_parent;
     Smp::ViewKind _view;
-
 };
+
 template<typename T, typename ... Annotations>
 class Field: public AbstractField,
 

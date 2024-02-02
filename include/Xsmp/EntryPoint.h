@@ -17,26 +17,34 @@
 
 #include <Smp/IEntryPoint.h>
 #include <Smp/PrimitiveTypes.h>
-#include <Xsmp/Object.h>
 #include <functional>
+#include <string>
 
 namespace Xsmp {
 
 class EntryPointPublisher;
 
-class EntryPoint final: public Object, public ::Smp::IEntryPoint {
+class EntryPoint final: public ::Smp::IEntryPoint {
 public:
     EntryPoint(::Smp::String8 name, ::Smp::String8 description,
             ::Xsmp::EntryPointPublisher *parent,
             std::function<void()> &&callback);
     EntryPoint(::Smp::String8 name, ::Smp::String8 description,
             ::Smp::IObject *parent, std::function<void()> &&callback);
-
+    EntryPoint(const EntryPoint&) = delete;
+    EntryPoint& operator=(const EntryPoint&) = delete;
+    ~EntryPoint() noexcept override = default;
+    ::Smp::String8 GetName() const override;
+    ::Smp::String8 GetDescription() const override;
+    ::Smp::IObject* GetParent() const override;
     void Execute() const override;
     inline void operator()() const {
         std::invoke(_callback);
     }
 private:
+    std::string _name;
+    std::string _description;
+    ::Smp::IObject *_parent;
     std::function<void()> _callback;
 };
 

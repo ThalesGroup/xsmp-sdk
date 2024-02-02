@@ -19,14 +19,12 @@
 #include <Smp/Services/IScheduler.h>
 #include <Smp/Uuid.h>
 #include <Xsmp/Exception.h>
+#include <Xsmp/Helper.h>
 #include <Xsmp/LibraryHelper.h>
 #include <Xsmp/Simulator.h>
 #include <Xsmp/StorageReader.h>
 #include <Xsmp/StorageWriter.h>
-#include <algorithm>
 #include <iterator>
-#include <memory>
-#include <stdexcept>
 #include <type_traits>
 
 extern "C" ::Smp::ISimulator* createSimulator(::Smp::String8 name,
@@ -37,12 +35,15 @@ extern "C" ::Smp::ISimulator* createSimulator(::Smp::String8 name,
 namespace Xsmp {
 
 Simulator::Simulator(::Smp::String8 name, ::Smp::String8 description) :
-        Object(name, description, nullptr),
+        _name(::Xsmp::Helper::checkName(name, nullptr)), _description(
+                description ? description : ""),
 
         // initialize Services Container
-        _services { "Services", "", this, 0, -1 },
+        _services { SMP_SimulatorServices,
+                "Services collection of the simulator", this, 0, -1 },
         // initialize Models Container
-        _models { "Models", "", this, 0, -1 },
+        _models { SMP_SimulatorModels, "Models collection of the simulator",
+                this, 0, -1 },
         // initialize factories
         _factories { this },
         // Hold Immediately Entry Point
@@ -53,7 +54,7 @@ Simulator::Simulator(::Smp::String8 name, ::Smp::String8 description) :
             this->Hold(true);
         } },
         //initialize the Type Registry
-        _typeRegistry { "TypeRegistry", "Xsmp Type Registry", this } {
+        _typeRegistry { this } {
 }
 
 namespace {
@@ -135,6 +136,17 @@ Simulator::~Simulator() {
         // remove the library handle
         _libraries.pop_back();
     }
+}
+::Smp::String8 Simulator::GetName() const {
+    return _name.c_str();
+}
+
+::Smp::String8 Simulator::GetDescription() const {
+    return _description.c_str();
+}
+
+::Smp::IObject* Simulator::GetParent() const {
+    return nullptr;
 }
 
 ::Xsmp::Publication::Publication* Simulator::CreatePublication(
@@ -661,7 +673,8 @@ void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
     if (!::Xsmp::GetSymbol<bool (*)(::Smp::ISimulator *simulator)>(handle,
             finaliseSymbol)) {
         std::string msg = std::string("Library '") + libraryPath
-                + "' does not provide function 'bool Finalise()': " + ::Xsmp::GetLastError();
+                + "' does not provide function 'bool Finalise()': "
+                + ::Xsmp::GetLastError();
         if (_logger)
             _logger->Log(this, msg.c_str(),
                     ::Smp::Services::ILogger::LMK_Error);

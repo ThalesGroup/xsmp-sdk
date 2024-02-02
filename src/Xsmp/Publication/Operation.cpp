@@ -18,6 +18,7 @@
 #include <Smp/Publication/ITypeRegistry.h>
 #include <Smp/Uuid.h>
 #include <Xsmp/Exception.h>
+#include <Xsmp/Helper.h>
 #include <Xsmp/Publication/Operation.h>
 #include <Xsmp/Publication/Request.h>
 #include <cstddef>
@@ -29,9 +30,21 @@ namespace Xsmp::Publication {
 Operation::Parameter::Parameter(::Smp::String8 name, ::Smp::String8 description,
         ::Smp::IObject *parent, ::Smp::Publication::IType *type,
         ::Smp::Publication::ParameterDirectionKind direction) :
-        Object(name, description, parent), _type(type), _direction(direction) {
+        _name(::Xsmp::Helper::checkName(name, parent)), _description(
+                description ? description : ""), _parent(parent), _type(type), _direction(
+                direction) {
+}
+::Smp::String8 Operation::Parameter::GetName() const {
+    return _name.c_str();
 }
 
+::Smp::String8 Operation::Parameter::GetDescription() const {
+    return _description.c_str();
+}
+
+::Smp::IObject* Operation::Parameter::GetParent() const {
+    return _parent;
+}
 ::Smp::Publication::IType* Operation::Parameter::GetType() const {
     return _type;
 }
@@ -43,11 +56,23 @@ Operation::Parameter::Parameter(::Smp::String8 name, ::Smp::String8 description,
 Operation::Operation(::Smp::String8 name, ::Smp::String8 description,
         ::Smp::IObject *parent, ::Smp::ViewKind view,
         ::Smp::Publication::ITypeRegistry *typeRegistry) :
-        Object(name, description, parent), _parameters { "Parameters", "",
-                parent }, _typeRegistry { typeRegistry }, _view(view) {
+        _name(::Xsmp::Helper::checkName(name, parent)), _description(
+                description ? description : ""), _parent(parent), _parameters {
+                "Parameters", "", parent }, _typeRegistry { typeRegistry }, _view(
+                view) {
 
 }
+::Smp::String8 Operation::GetName() const {
+    return _name.c_str();
+}
 
+::Smp::String8 Operation::GetDescription() const {
+    return _description.c_str();
+}
+
+::Smp::IObject* Operation::GetParent() const {
+    return _parent;
+}
 void Operation::PublishParameter(::Smp::String8 name,
         ::Smp::String8 description, ::Smp::Uuid typeUuid,
         ::Smp::Publication::ParameterDirectionKind direction) {
@@ -115,7 +140,7 @@ void Operation::Invoke(::Smp::IRequest *request) {
     if (!operationName || std::string_view { GetName() } != operationName)
         ::Xsmp::Exception::throwInvalidOperationName(this, operationName);
 
-    auto *component = dynamic_cast<::Smp::IDynamicInvocation*>(GetParent());
+    auto *component = dynamic_cast<::Smp::IDynamicInvocation*>(_parent);
     // check dynamic invocation
     if (!component)
         ::Xsmp::Exception::throwInvalidOperationName(this, operationName);
@@ -153,7 +178,7 @@ void Operation::DeleteRequest(::Smp::IRequest *request) {
 
 void Operation::Update(::Smp::String8 description,
         ::Smp::ViewKind view) noexcept {
-    SetDescription(description);
+    _description = description;
     _view = view;
     _returnParameter = { };
     _parameters.clear();

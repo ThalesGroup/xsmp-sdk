@@ -15,12 +15,11 @@
 #ifndef XSMP_REFERENCE_H_
 #define XSMP_REFERENCE_H_
 
-#include <cstddef>
 #include <Smp/IComponent.h>
 #include <Smp/IReference.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Exception.h>
-#include <Xsmp/Object.h>
+#include <cstddef>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -31,13 +30,18 @@ class Aggregate;
 class Component;
 namespace detail {
 
-class AbstractReference: public Object, public ::Smp::IReference {
+class AbstractReference: public ::Smp::IReference {
 public:
     AbstractReference(::Smp::String8 name, ::Smp::String8 description,
             ::Xsmp::Aggregate *parent, ::Smp::Int64 lower, ::Smp::Int64 upper);
     AbstractReference(::Smp::String8 name, ::Smp::String8 description,
             ::Smp::IObject *parent, ::Smp::Int64 lower, ::Smp::Int64 upper);
-
+    AbstractReference(const AbstractReference&) = delete;
+    AbstractReference& operator=(const AbstractReference&) = delete;
+    ~AbstractReference() noexcept override = default;
+    ::Smp::String8 GetName() const final;
+    ::Smp::String8 GetDescription() const final;
+    ::Smp::IObject* GetParent() const final;
     const ::Smp::ComponentCollection* GetComponents() const final;
     ::Smp::Int64 GetUpper() const final;
     ::Smp::Int64 GetLower() const final;
@@ -71,6 +75,9 @@ private:
     private:
         AbstractReference &_parent;
     };
+    std::string _name;
+    std::string _description;
+    ::Smp::IObject *_parent;
     RefCollection _collection;
     ::Smp::Int64 _lower;
     ::Smp::Int64 _upper;

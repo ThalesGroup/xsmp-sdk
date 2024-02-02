@@ -48,14 +48,14 @@ inline py::object callOperation(::Smp::IOperation &self, const py::args &args,
                         + " positional arguments but "
                         + std::to_string(args.size()) + " were given");
     ::Smp::Int32 index = -1;
-    for (const auto &arg : args) {
+    for (auto arg : args) {
         ++index;
         request->SetParameterValue(index,
                 convert(arg,
                         parameters->at(static_cast<std::size_t>(index))->GetType()->GetPrimitiveTypeKind()));
     }
 
-    for (const auto& [name, value] : kwargs) {
+    for (auto [name, value] : kwargs) {
         auto _name = name.cast<std::string>();
         auto i = request->GetParameterIndex(_name.c_str());
         if (i == -1)

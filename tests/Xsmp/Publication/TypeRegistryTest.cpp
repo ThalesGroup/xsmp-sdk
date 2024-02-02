@@ -23,7 +23,7 @@
 namespace Xsmp::Publication {
 TEST(TypeRegistryTest, PrimitiveTypes) {
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     EXPECT_TRUE(registry.GetType(Smp::PrimitiveTypeKind::PTK_Bool));
     EXPECT_TRUE(registry.GetType(Smp::PrimitiveTypeKind::PTK_Char8));
@@ -58,7 +58,7 @@ TEST(TypeRegistryTest, PrimitiveTypes) {
 
 TEST(TypeRegistryTest, IntegerType) {
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     EXPECT_TRUE(registry.AddIntegerType("integer", "", Smp::Uuid { 0, 0, 0, 0,
             16 }, 0, 1, "", Smp::PrimitiveTypeKind::PTK_Int16));
@@ -125,7 +125,7 @@ TEST(TypeRegistryTest, IntegerType) {
 
 TEST(TypeRegistryTest, FloatType) {
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     EXPECT_TRUE(registry.AddFloatType("floatType", "", Smp::Uuid { 0, 0, 0, 0,
             32 }, 0, 1, true, true, "", Smp::PrimitiveTypeKind::PTK_Float32));
@@ -212,14 +212,14 @@ TEST(TypeRegistryTest, FloatType) {
 
 TEST(TypeRegistryTest, StructureType) {
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     EXPECT_TRUE(registry.AddStructureType("structure", "", Smp::Uuid { 0, 0, 0,
             0, 32 }));
 }
 TEST(TypeRegistryTest, ClassType) {
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     EXPECT_TRUE(
             registry.AddClassType("cls", "", Smp::Uuid { 0, 0, 0, 0, 32 },

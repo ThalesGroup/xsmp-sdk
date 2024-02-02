@@ -38,7 +38,6 @@ py::object convert(const ::Smp::AnySimple &value);
 /// Get the index with support for negative index (python like)
 ::Smp::UInt64 GetIndex(::Smp::Int64 index, ::Smp::UInt64 size);
 
-
 void RegisterClasses(py::module_ &smp, py::module_ &publication,
         py::module_ &services);
 void RegisterClasses2(py::module_ &smp, py::module_ &publication,

@@ -16,15 +16,10 @@
 #define XSMP_CONTAINER_H_
 
 #include <Smp/IComponent.h>
-#include <Smp/IComposite.h>
 #include <Smp/IContainer.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Exception.h>
-#include <Xsmp/Object.h>
-#include <Xsmp/Helper.h>
-#include <algorithm>
 #include <cstddef>
-#include <memory>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -34,12 +29,18 @@ namespace Xsmp {
 class Composite;
 namespace detail {
 
-class AbstractContainer: public Object, public ::Smp::IContainer {
+class AbstractContainer: public ::Smp::IContainer {
 public:
     AbstractContainer(::Smp::String8 name, ::Smp::String8 description,
             ::Xsmp::Composite *parent, ::Smp::Int64 lower, ::Smp::Int64 upper);
     AbstractContainer(::Smp::String8 name, ::Smp::String8 description,
             ::Smp::IObject *parent, ::Smp::Int64 lower, ::Smp::Int64 upper);
+    AbstractContainer(const AbstractContainer&) = delete;
+    AbstractContainer& operator=(const AbstractContainer&) = delete;
+    ~AbstractContainer() noexcept override = default;
+    ::Smp::String8 GetName() const final;
+    ::Smp::String8 GetDescription() const final;
+    ::Smp::IObject* GetParent() const final;
 
     const ::Smp::ComponentCollection* GetComponents() const final;
     ::Smp::Int64 GetUpper() const final;
@@ -67,7 +68,9 @@ private:
     private:
         AbstractContainer &_parent;
     };
-
+    std::string _name;
+    std::string _description;
+    ::Smp::IObject *_parent;
     ContainerCollection _collection;
     ::Smp::Int64 _lower;
     ::Smp::Int64 _upper;

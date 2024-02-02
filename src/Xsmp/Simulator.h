@@ -45,9 +45,7 @@ extern "C" ::Smp::ISimulator* createSimulator(::Smp::String8 name,
 
 namespace Xsmp {
 
-class Simulator final: public ::Xsmp::Object,
-        public ::Xsmp::Composite,
-        public ::Smp::ISimulator {
+class Simulator final: public ::Xsmp::Composite, public ::Smp::ISimulator {
 public:
     Simulator(::Smp::String8 name = "XsmpSimulator",
             ::Smp::String8 description = "Simulator implementation from XSMP.");
@@ -56,6 +54,10 @@ public:
     Simulator(const Simulator&) = delete;
     /// Simulator cannot be copied
     Simulator& operator=(const Simulator&) = delete;
+
+    ::Smp::String8 GetName() const override;
+    ::Smp::String8 GetDescription() const override;
+    ::Smp::IObject* GetParent() const override;
 
     /// This method asks the simulation environment to call all
     /// initialisation entry points again.
@@ -372,6 +374,9 @@ private:
 
     [[nodiscard]] ::Xsmp::Publication::Publication* CreatePublication(
             ::Smp::IComponent *component);
+
+    std::string _name;
+    std::string _description;
 
     std::vector<std::pair<std::string, void*>> _libraries { };
 

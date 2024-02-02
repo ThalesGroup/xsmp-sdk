@@ -17,25 +17,33 @@
 #include <Smp/IStorageWriter.h>
 #include <Smp/Uuid.h>
 #include <Xsmp/Exception.h>
+#include <Xsmp/Helper.h>
 #include <Xsmp/Publication/Field.h>
 #include <Xsmp/Publication/Type.h>
 #include <Xsmp/Publication/TypeRegistry.h>
-#include <Xsmp/Helper.h>
-#include <map>
-#include <stdexcept>
-#include <string>
-#include <utility>
 
 namespace Xsmp::Publication {
 Field::Field(::Smp::String8 name, ::Smp::String8 description,
         ::Smp::IObject *parent, void *address,
         const ::Smp::Publication::IType *type, ::Smp::ViewKind view,
         ::Smp::Bool state, ::Smp::Bool input, ::Smp::Bool output) :
-        Object(name, description, parent), _address(address), _type(type), _view(
-                view), _state(state), _input(input), _output(output) {
+        _name(::Xsmp::Helper::checkName(name, parent)), _description(
+                description ? description : ""), _parent(parent), _address(
+                address), _type(type), _view(view), _state(state), _input(
+                input), _output(output) {
 
 }
+::Smp::String8 Field::GetName() const {
+    return _name.c_str();
+}
 
+::Smp::String8 Field::GetDescription() const {
+    return _description.c_str();
+}
+
+::Smp::IObject* Field::GetParent() const {
+    return _parent;
+}
 ::Smp::ViewKind Field::GetView() const {
     return _view;
 }

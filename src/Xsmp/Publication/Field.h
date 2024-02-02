@@ -15,7 +15,6 @@
 #ifndef XSMP_PUBLICATION_FIELD_H_
 #define XSMP_PUBLICATION_FIELD_H_
 
-#include <cstddef>
 #include <Smp/AnySimpleArray.h>
 #include <Smp/IArrayField.h>
 #include <Smp/IDataflowField.h>
@@ -27,8 +26,10 @@
 #include <Smp/ViewKind.h>
 #include <Xsmp/Collection.h>
 #include <Xsmp/Publication/Publication.h>
+#include <cstddef>
 #include <memory>
 #include <set>
+#include <string>
 #include <vector>
 
 namespace Smp {
@@ -46,7 +47,7 @@ class EnumerationType;
 class ArrayType;
 
 class StructureType;
-class Field: public ::Xsmp::Object, public virtual ::Smp::IField {
+class Field: public virtual ::Smp::IField {
 public:
     Field(::Smp::String8 name, ::Smp::String8 description,
             ::Smp::IObject *parent, void *address,
@@ -68,6 +69,9 @@ public:
             const ::Smp::Publication::IType *type, ::Smp::ViewKind view,
             ::Smp::Bool state, ::Smp::Bool input, ::Smp::Bool output);
 
+    ::Smp::String8 GetName() const final;
+    ::Smp::String8 GetDescription() const final;
+    ::Smp::IObject* GetParent() const final;
     ::Smp::ViewKind GetView() const final;
 
     ::Smp::Bool IsState() const final;
@@ -84,6 +88,9 @@ protected:
         return _address;
     }
 private:
+    std::string _name;
+    std::string _description;
+    ::Smp::IObject *_parent;
     void *_address;
     const ::Smp::Publication::IType *_type;
     ::Smp::ViewKind _view;

@@ -19,7 +19,7 @@
 #include <Smp/IProperty.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/ViewKind.h>
-#include <Xsmp/Object.h>
+#include <string>
 
 namespace Smp {
 class AnySimple;
@@ -32,7 +32,7 @@ namespace Xsmp::Publication {
 
 class Publication;
 
-class Property: public ::Xsmp::Object, public virtual ::Smp::IProperty {
+class Property: public virtual ::Smp::IProperty {
 
 public:
     Property(::Smp::String8 name, ::Smp::String8 description,
@@ -48,6 +48,10 @@ public:
     Property(Property&&) = delete;
     /// Property cannot be moved
     Property& operator=(const Property&&) = delete;
+
+    ::Smp::String8 GetName() const final;
+    ::Smp::String8 GetDescription() const final;
+    ::Smp::IObject* GetParent() const final;
 
     /// Provides the type of the property.
     /// @return  Type of the property.
@@ -70,11 +74,6 @@ public:
     /// Throws InvalidAccess if the property is Read Only.
     /// @param   value New value of the property.
     void SetValue(::Smp::AnySimple value) override;
-
-    using ::Xsmp::Object::SetDescription;
-    void SetType(::Smp::Publication::IType *type) noexcept;
-    void SetAccess(::Smp::AccessKind accessKind) noexcept;
-    void SetView(::Smp::ViewKind view) noexcept;
 private:
     /// provide access to Update method to Publication class
     friend class ::Xsmp::Publication::Publication;
@@ -86,7 +85,9 @@ private:
     /// @param view the new Property view
     void Update(::Smp::String8 description, ::Smp::Publication::IType *type,
             ::Smp::AccessKind accessKind, ::Smp::ViewKind view) noexcept;
-
+    std::string _name;
+    std::string _description;
+    ::Smp::IObject *_parent;
     ::Smp::Publication::IType *_type;
     ::Smp::AccessKind _accessKind;
     ::Smp::ViewKind _view;

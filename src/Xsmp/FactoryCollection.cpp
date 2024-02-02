@@ -15,15 +15,25 @@
 #include <Smp/CollectionIterator.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/FactoryCollection.h>
-#include <string>
+#include <algorithm>
 
 namespace Xsmp {
 
 FactoryCollection::FactoryCollection(::Smp::IObject *parent) :
-        Object("Factories", "", parent) {
+        _parent { parent } {
 
 }
+::Smp::String8 FactoryCollection::GetName() const {
+    return "Factories";
+}
 
+::Smp::String8 FactoryCollection::GetDescription() const {
+    return "";
+}
+
+::Smp::IObject* FactoryCollection::GetParent() const {
+    return _parent;
+}
 ::Smp::IFactory* FactoryCollection::at(::Smp::String8 name) const {
     if (!name)
         return nullptr;

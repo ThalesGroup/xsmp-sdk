@@ -15,10 +15,10 @@
 #ifndef XSMP_PUBLICATION_TYPEREGISTRY_H_
 #define XSMP_PUBLICATION_TYPEREGISTRY_H_
 
+#include <Smp/IObject.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Publication/ITypeRegistry.h>
 #include <Smp/Uuid.h>
-#include <Xsmp/Object.h>
 #include <memory>
 #include <unordered_map>
 
@@ -30,13 +30,19 @@ class IStructureType;
 
 namespace Xsmp::Publication {
 
-class TypeRegistry final: public ::Xsmp::Object,
+class TypeRegistry final: public ::Smp::IObject,
         public ::Smp::Publication::ITypeRegistry {
 public:
-    TypeRegistry(::Smp::String8 name = "TypeRegistry",
-            ::Smp::String8 description = "", ::Smp::IObject *parent = nullptr);
+    explicit TypeRegistry(::Smp::IObject *parent = nullptr);
+    /// TypeRegistry cannot be copied
+    TypeRegistry(const TypeRegistry&) = delete;
+    /// TypeRegistry cannot be copied
+    TypeRegistry& operator=(const TypeRegistry&) = delete;
     ~TypeRegistry() noexcept override = default;
 
+    ::Smp::String8 GetName() const override;
+    ::Smp::String8 GetDescription() const override;
+    ::Smp::IObject* GetParent() const override;
     /// Returns a type by its primitive type kind.
     /// @remarks This method can be used to map primitive types to the
     ///          IType interface, to treat all types identically.
@@ -174,10 +180,11 @@ public:
             ::Smp::Uuid baseClassUuid) override;
 
 private:
+    ::Smp::IObject *_parent;
     std::unordered_map<::Smp::Uuid, std::unique_ptr<::Smp::Publication::IType>> _types { };
 
     /// Add a type to the registry.
-    /// @param   type the type.
+    /// @param   args type parameters.
     /// @return  the added type.
     /// @throws  ::Smp::Publication::TypeAlreadyRegistered
     template<typename T, class ...Args>

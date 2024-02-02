@@ -14,6 +14,7 @@
 
 #include <Smp/CollectionIterator.h>
 #include <Xsmp/Aggregate.h>
+#include <Xsmp/Helper.h>
 #include <Xsmp/Reference.h>
 
 namespace Xsmp::detail {
@@ -34,7 +35,8 @@ AbstractReference::RefCollection::RefCollection(AbstractReference &parent) :
         ::Smp::String8 name) const {
     return _parent.GetComponent(name);
 }
-::Smp::IComponent* AbstractReference::RefCollection::at(std::size_t index) const {
+::Smp::IComponent* AbstractReference::RefCollection::at(
+        std::size_t index) const {
     return _parent.GetComponent(index);
 }
 std::size_t AbstractReference::RefCollection::size() const {
@@ -57,8 +59,20 @@ AbstractReference::AbstractReference(::Smp::String8 name,
 AbstractReference::AbstractReference(::Smp::String8 name,
         ::Smp::String8 description, ::Smp::IObject *parent, ::Smp::Int64 lower,
         ::Smp::Int64 upper) :
-        Object(name, description, parent), _collection(*this), _lower(lower), _upper(
-                upper) {
+        _name(::Xsmp::Helper::checkName(name, parent)), _description(
+                description ? description : ""), _parent(parent), _collection(
+                *this), _lower(lower), _upper(upper) {
+}
+::Smp::String8 AbstractReference::GetName() const {
+    return _name.c_str();
+}
+
+::Smp::String8 AbstractReference::GetDescription() const {
+    return _description.c_str();
+}
+
+::Smp::IObject* AbstractReference::GetParent() const {
+    return _parent;
 }
 const ::Smp::ComponentCollection* AbstractReference::GetComponents() const {
     return &_collection;

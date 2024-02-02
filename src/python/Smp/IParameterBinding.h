@@ -29,8 +29,7 @@ inline void RegisterIParameter(const py::module_ &m) {
     .def("GetDirection", &::Smp::IParameter::GetDirection,
             "Provides the parameter direction kind of the parameter.")
 
-    .doc() =
-            "This interface describes a parameter of a published operation.";
+    .doc() = "This interface describes a parameter of a published operation.";
 }
 
 #endif // PYTHON_SMP_IPARAMETER_H_

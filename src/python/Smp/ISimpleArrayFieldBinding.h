@@ -53,8 +53,7 @@ inline void RegisterISimpleArrayField(const py::module_ &m) {
                 throw py::value_error("Could not find Item PrimitiveTypeKind.");
             })
 
-    .doc() =
-            "Interface to an array where each array item is of a simple type.";
+    .doc() = "Interface to an array where each array item is of a simple type.";
 }
 
 #endif // PYTHON_SMP_ISIMPLEARRAYFIELD_H_

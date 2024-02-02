@@ -22,12 +22,26 @@
 #include <Xsmp/EventSource.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Field.h>
+#include <Xsmp/Helper.h>
 #include <Xsmp/Reference.h>
 
 namespace Xsmp {
 Component::Component(::Smp::String8 name, ::Smp::String8 description,
         ::Smp::IObject *parent, ::Smp::ISimulator *simulator) :
-        Object(name, description, parent), _simulator { simulator } {
+        _name(::Xsmp::Helper::checkName(name, parent)), _description(
+                description ? description : ""), _parent(parent), _simulator {
+                simulator } {
+}
+::Smp::String8 Component::GetName() const {
+    return _name.c_str();
+}
+
+::Smp::String8 Component::GetDescription() const {
+    return _description.c_str();
+}
+
+::Smp::IObject* Component::GetParent() const {
+    return _parent;
 }
 
 ::Smp::ComponentStateKind Component::GetState() const {

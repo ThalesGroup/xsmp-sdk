@@ -752,7 +752,7 @@ TEST(ExceptionTest, InvalidFieldValue) {
 
 TEST(ExceptionTest, InvalidArrayValue) {
 
-    Xsmp::Publication::TypeRegistry registry { "name", "", nullptr };
+    Xsmp::Publication::TypeRegistry registry;
 
     auto *type =
             dynamic_cast<Xsmp::Publication::ArrayType*>(registry.AddArrayType(
@@ -788,7 +788,7 @@ TEST(ExceptionTest, InvalidArrayValue) {
 
 TEST(ExceptionTest, InvalidArraySize) {
 
-    Xsmp::Publication::TypeRegistry registry { "name", "", nullptr };
+    Xsmp::Publication::TypeRegistry registry;
 
     auto *type =
             dynamic_cast<Xsmp::Publication::ArrayType*>(registry.AddArrayType(
@@ -1302,7 +1302,7 @@ TEST(ExceptionTest, InvalidSimulationTime) {
 TEST(ExceptionTest, TypeAlreadyRegistered) {
     Xsmp::Object parent { "parent" };
 
-    Xsmp::Publication::TypeRegistry registry { "name", "", nullptr };
+    Xsmp::Publication::TypeRegistry registry;
     auto *type = registry.AddEnumerationType("Enum", "", { },
             sizeof(Smp::Int32));
 

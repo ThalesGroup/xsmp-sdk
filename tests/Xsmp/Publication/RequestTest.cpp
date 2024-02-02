@@ -23,7 +23,7 @@ namespace Publication {
 
 TEST(RequestTest, VoidOperation) {
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     Component component { "component" };
 
@@ -54,7 +54,7 @@ TEST(RequestTest, VoidOperation) {
 
 TEST(RequestTest, EnumOperation) {
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     Component component { "component" };
 
@@ -88,7 +88,7 @@ TEST(RequestTest, EnumOperation) {
 
 TEST(RequestTest, StringOperation) {
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     Component component { "component" };
 
@@ -123,7 +123,7 @@ TEST(RequestTest, StringOperation) {
 
 TEST(RequestTest, IntOperation) {
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     Component component { "component" };
 
@@ -160,7 +160,7 @@ TEST(RequestTest, IntOperation) {
 
 TEST(RequestTest, FloatOperation) {
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     Component component { "component" };
 
@@ -204,7 +204,7 @@ TEST(RequestTest, FloatOperation) {
 
 TEST(RequestTest, FloatExclusiveOperation) {
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     Component component { "component" };
 
@@ -248,7 +248,7 @@ TEST(RequestTest, FloatExclusiveOperation) {
 
 TEST(RequestTest, OperationWithParameters) {
 
-    TypeRegistry registry { "TypeRegistry", "", nullptr };
+    TypeRegistry registry;
 
     Component component { "component" };
 

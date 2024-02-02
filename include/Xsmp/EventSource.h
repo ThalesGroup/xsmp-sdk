@@ -15,13 +15,12 @@
 #ifndef XSMP_EVENTSOURCE_H_
 #define XSMP_EVENTSOURCE_H_
 
-#include <Smp/AnySimple.h>
 #include <Smp/IEventSink.h>
 #include <Smp/IEventSource.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/AnySimpleConverter.h>
-#include <Xsmp/Object.h>
 #include <set>
+#include <string>
 
 namespace Smp {
 class IComponent;
@@ -32,14 +31,19 @@ class Component;
 class EventProvider;
 namespace detail {
 
-class AbstractEventSource: public Object, public ::Smp::IEventSource {
+class AbstractEventSource: public ::Smp::IEventSource {
 public:
     AbstractEventSource(::Smp::String8 name, ::Smp::String8 description,
             ::Xsmp::EventProvider *parent,
             ::Smp::PrimitiveTypeKind eventArgType);
     AbstractEventSource(::Smp::String8 name, ::Smp::String8 description,
             ::Smp::IObject *parent, ::Smp::PrimitiveTypeKind eventArgType);
-
+    AbstractEventSource(const AbstractEventSource&) = delete;
+    AbstractEventSource& operator=(const AbstractEventSource&) = delete;
+    ~AbstractEventSource() noexcept override = default;
+    ::Smp::String8 GetName() const final;
+    ::Smp::String8 GetDescription() const final;
+    ::Smp::IObject* GetParent() const final;
     void Subscribe(::Smp::IEventSink *eventSink) final;
     void Unsubscribe(::Smp::IEventSink *eventSink) final;
 protected:
@@ -48,7 +52,11 @@ protected:
     }
 
     void DoEmit(::Smp::IObject *sender, const ::Smp::AnySimple &value) const;
+
 private:
+    std::string _name;
+    std::string _description;
+    ::Smp::IObject *_parent;
     std::set<::Smp::IEventSink*> _event_sinks { };
     ::Smp::PrimitiveTypeKind _eventArgType;
     // Extensions for ILinkingComponent

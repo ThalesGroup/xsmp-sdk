@@ -15,6 +15,9 @@
 #include <Xsmp/EventConsumer.h>
 #include <Xsmp/EventSink.h>
 #include <Xsmp/Exception.h>
+#include <Xsmp/Helper.h>
+#include <algorithm>
+#include <string>
 
 namespace Xsmp {
 namespace detail {
@@ -27,9 +30,20 @@ AbstractEventSink::AbstractEventSink(::Smp::String8 name,
 }
 AbstractEventSink::AbstractEventSink(::Smp::String8 name,
         ::Smp::String8 description, ::Smp::IObject *parent) :
-        Object(name, description, parent) {
+        _name(::Xsmp::Helper::checkName(name, parent)), _description(
+                description ? description : ""), _parent(parent) {
+}
+::Smp::String8 AbstractEventSink::GetName() const {
+    return _name.c_str();
 }
 
+::Smp::String8 AbstractEventSink::GetDescription() const {
+    return _description.c_str();
+}
+
+::Smp::IObject* AbstractEventSink::GetParent() const {
+    return _parent;
+}
 } // namespace detail
 
 ::Smp::PrimitiveTypeKind EventSink<void>::GetEventArgType() const {

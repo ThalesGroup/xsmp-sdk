@@ -22,7 +22,7 @@
 #include <Smp/IOperation.h>
 #include <Smp/IProperty.h>
 #include <Smp/PrimitiveTypes.h>
-#include <Xsmp/Object.h>
+#include <string>
 
 namespace Smp {
 class IAggregate;
@@ -37,8 +37,7 @@ class ILogger;
 
 namespace Xsmp {
 
-class Component: public ::Xsmp::Object,
-        public virtual ::Smp::ILinkingComponent,
+class Component: public virtual ::Smp::ILinkingComponent,
         public virtual ::Smp::IDynamicInvocation {
 public:
     Component(::Smp::String8 name, ::Smp::String8 description = "",
@@ -46,7 +45,10 @@ public:
                     nullptr);
     Component(const Component&) = delete;
     Component& operator=(const Component&) = delete;
-
+    ~Component() noexcept override = default;
+    ::Smp::String8 GetName() const final;
+    ::Smp::String8 GetDescription() const final;
+    ::Smp::IObject* GetParent() const final;
     ::Smp::ComponentStateKind GetState() const final;
     ::Smp::IField* GetField(::Smp::String8) const override;
     const ::Smp::FieldCollection* GetFields() const override;
@@ -69,7 +71,9 @@ protected:
 
     class Helper;
 private:
-
+    std::string _name;
+    std::string _description;
+    ::Smp::IObject *_parent;
     void RemoveEventProviderLinks(::Smp::IEventProvider const *eventProvider,
             const ::Smp::IComponent *target) const noexcept;
 

@@ -21,7 +21,7 @@ namespace Xsmp {
 
 namespace {
 class TestEntryPointPublisher: public Xsmp::Component,
-        public virtual Xsmp::EntryPointPublisher {
+        public Xsmp::EntryPointPublisher {
 public:
     using Xsmp::Component::Component;
 };

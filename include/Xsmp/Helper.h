@@ -15,7 +15,9 @@
 #ifndef XSMP_HELPER_H_
 #define XSMP_HELPER_H_
 
-#include <Smp/AnySimple.h>
+#include <Smp/ICollection.h>
+#include <Smp/IField.h>
+#include <Smp/IObject.h>
 #include <Smp/PrimitiveTypes.h>
 #include <array>
 #include <cstddef>
@@ -25,9 +27,12 @@
 #include <typeinfo>
 
 namespace Smp {
+class AnySimple;
+} /* namespace Smp */
+
+namespace Smp {
 class IEntryPoint;
 class IField;
-class IObject;
 class ISimulator;
 template<typename >
 class ICollection;
@@ -85,6 +90,8 @@ template<typename T>
 
 [[nodiscard]] bool AreEquivalent(const ::Smp::IField *first,
         const ::Smp::IField *second);
+
+std::string checkName(::Smp::String8 name, ::Smp::IObject const *parent);
 
 /// helper to check if a type is an smp string of the form
 /// struct MyStr {::Smp::Char8 internalString[42];};

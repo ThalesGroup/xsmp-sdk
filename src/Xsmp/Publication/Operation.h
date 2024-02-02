@@ -23,6 +23,7 @@
 #include <Smp/ViewKind.h>
 #include <Xsmp/Collection.h>
 #include <memory>
+#include <string>
 
 namespace Smp::Publication {
 class IType;
@@ -31,8 +32,7 @@ class ITypeRegistry;
 
 namespace Xsmp::Publication {
 class Publication;
-class Operation final: public ::Xsmp::Object,
-        public ::Smp::Publication::IPublishOperation,
+class Operation final:public ::Smp::Publication::IPublishOperation,
         public ::Smp::IOperation {
 public:
     Operation(::Smp::String8 name, ::Smp::String8 description = "",
@@ -50,6 +50,9 @@ public:
     /// Operation cannot be moved
     Operation& operator=(const Operation&&) = delete;
 
+    ::Smp::String8 GetName() const override;
+    ::Smp::String8 GetDescription() const override;
+    ::Smp::IObject* GetParent() const override;
     /// Publish a parameter of an operation with the given name,
     /// description, type and direction.
     /// If a parameter with the same name has already been published,
@@ -130,7 +133,6 @@ public:
     /// @param   request Request object to destroy.
     void DeleteRequest(::Smp::IRequest *request) override;
 
-
 private:
     /// provide access to Update method to Publication class
     friend class ::Xsmp::Publication::Publication;
@@ -139,12 +141,9 @@ private:
     /// The parameters(including the return parameter) are reinitialized
     /// @param description the new Operation description
     /// @param view the new Operation view
-    void Update(::Smp::String8 description,::Smp::ViewKind view) noexcept;
+    void Update(::Smp::String8 description, ::Smp::ViewKind view) noexcept;
 
-    class Parameter final: public ::Xsmp::Object,
-            public virtual ::Smp::IParameter {
-        ::Smp::Publication::IType *_type;
-        ::Smp::Publication::ParameterDirectionKind _direction;
+    class Parameter final: public ::Smp::IParameter {
     public:
         Parameter(::Smp::String8 name, ::Smp::String8 description,
                 ::Smp::IObject *parent, ::Smp::Publication::IType *type,
@@ -160,6 +159,11 @@ private:
         Parameter(Parameter&&) = delete;
         /// Parameter cannot be moved
         Parameter& operator=(const Parameter&&) = delete;
+
+        ::Smp::String8 GetName() const override;
+        ::Smp::String8 GetDescription() const override;
+        ::Smp::IObject* GetParent() const override;
+
         /// Provides the type of the parameter.
         /// @return  Type of the parameter.
         ::Smp::Publication::IType* GetType() const override;
@@ -168,7 +172,16 @@ private:
         /// @return  Parameter direction kind of the parameter.
         ::Smp::Publication::ParameterDirectionKind GetDirection() const
                 override;
+    private:
+        std::string _name;
+        std::string _description;
+        ::Smp::IObject *_parent;
+        ::Smp::Publication::IType *_type;
+        ::Smp::Publication::ParameterDirectionKind _direction;
     };
+    std::string _name;
+    std::string _description;
+    ::Smp::IObject *_parent;
     std::unique_ptr<::Smp::IParameter> _returnParameter { };
     ::Xsmp::ContainingCollection<::Smp::IParameter> _parameters;
     ::Smp::Publication::ITypeRegistry *_typeRegistry;
