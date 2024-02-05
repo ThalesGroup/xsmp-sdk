@@ -53,7 +53,7 @@ jobs:
          run: |
             cmake --build build --config Release -j 2
       -  name: Run tests
-         uses: nick-fields/retry@v2
+         uses: nick-fields/retry@v3
          with:
             max_attempts: 3
             retry_on: error
@@ -89,7 +89,7 @@ jobs:
          run: |
             cmake --build build --config Release -j 2
       -  name: Run tests
-         uses: nick-fields/retry@v2
+         uses: nick-fields/retry@v3
          with:
             max_attempts: 3
             retry_on: error
@@ -130,7 +130,7 @@ jobs:
          run: |
             cmake --build build --config Release -j 2
       -  name: Run tests
-         uses: nick-fields/retry@v2
+         uses: nick-fields/retry@v3
          with:
             max_attempts: 3
             retry_on: error
@@ -162,7 +162,7 @@ jobs:
          run: |
             cmake --build build --config Release -j 2
       -  name: Run tests
-         uses: nick-fields/retry@v2
+         uses: nick-fields/retry@v3
          with:
             max_attempts: 3
             retry_on: error
@@ -193,7 +193,7 @@ jobs:
          run: |
             python -m pip install .[test] -v
       -  name: Run Python tests
-         uses: nick-fields/retry@v2
+         uses: nick-fields/retry@v3
          with:
             max_attempts: 3
             retry_on: error
