@@ -58,11 +58,11 @@ protected:
 
     friend ::Xsmp::Component;
 private:
-    class RefCollection final : public ::Smp::ComponentCollection {
+    class Collection final : public ::Smp::ComponentCollection {
     public:
         using const_iterator= typename ::Smp::ComponentCollection::const_iterator;
         using iterator= typename ::Smp::ComponentCollection::iterator;
-        explicit RefCollection(AbstractReference &parent);
+        explicit Collection(AbstractReference &parent);
 
         ::Smp::String8 GetName() const override;
         ::Smp::String8 GetDescription() const override;
@@ -78,7 +78,7 @@ private:
     std::string _name;
     std::string _description;
     ::Smp::IObject *_parent;
-    RefCollection _collection;
+    Collection _collection;
     ::Smp::Int64 _lower;
     ::Smp::Int64 _upper;
 
@@ -114,8 +114,7 @@ public:
 
     ::Smp::IComponent* GetComponent(::Smp::String8 name) const override {
         if (name) {
-            auto it = find(name);
-            if (it != end())
+            if (auto it = find(name); it != end())
                 return dynamic_cast<::Smp::IComponent*>(*it);
         }
         return nullptr;

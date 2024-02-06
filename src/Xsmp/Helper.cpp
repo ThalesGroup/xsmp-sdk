@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/AnySimple.h>
+#include <Smp/CollectionIterator.h>
 #include <Smp/Exception.h>
 #include <Smp/IAggregate.h>
 #include <Smp/IArrayField.h>
-#include <Smp/ICollection.h>
 #include <Smp/IContainer.h>
 #include <Smp/IDynamicInvocation.h>
 #include <Smp/IEntryPoint.h>
@@ -26,7 +27,6 @@
 #include <Smp/IEventSource.h>
 #include <Smp/IFailure.h>
 #include <Smp/IFallibleModel.h>
-#include <Smp/IField.h>
 #include <Smp/IOperation.h>
 #include <Smp/IProperty.h>
 #include <Smp/IReference.h>
@@ -35,13 +35,13 @@
 #include <Smp/ISimulator.h>
 #include <Smp/IStructureField.h>
 #include <Smp/Services/ILogger.h>
-
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
 #include <algorithm>
+#include <cctype>
 #include <cstring>
-#include <string>
 #include <memory>
+#include <string_view>
 
 #if defined(__GNUG__)
 #    include <cxxabi.h>
@@ -93,27 +93,6 @@ void SafeExecute(::Smp::ISimulator *simulator,
         entryPoint->Execute();
 }
 namespace {
-std::string ComputePath(const ::Smp::IObject *obj) {
-
-    if (!obj)
-        return "<null>";
-
-    if (dynamic_cast<const ::Smp::ISimulator*>(obj))
-        return "/";
-
-    auto *parent = obj->GetParent();
-
-    if (dynamic_cast<::Smp::ISimulator*>(parent))
-        return ComputePath(parent) + obj->GetName();
-
-    // use '/' separator between components
-    if (dynamic_cast<const ::Smp::IComponent*>(obj))
-        return ComputePath(parent) + "/" + obj->GetName();
-
-    // use '.' separator between all others elements : fields, entry points, event sink/sources, ...
-    return ComputePath(parent) + "." + obj->GetName();
-}
-
 std::string GetNextSegment(::Smp::String8 *path, ::Smp::Char8 *separator) {
     *separator = '\0';
     if (!(*path) || *path[0] == '\0')
@@ -158,7 +137,24 @@ std::string GetNextSegment(::Smp::String8 *path, ::Smp::Char8 *separator) {
 } // namespace
 
 std::string GetPath(const ::Smp::IObject *obj) {
-    return ComputePath(obj);
+
+    if (!obj)
+        return "<null>";
+
+    if (dynamic_cast<const ::Smp::ISimulator*>(obj))
+        return "/";
+
+    auto *parent = obj->GetParent();
+
+    if (dynamic_cast<::Smp::ISimulator*>(parent))
+        return GetPath(parent) + obj->GetName();
+
+    // use '/' separator between components
+    if (dynamic_cast<const ::Smp::IComponent*>(obj))
+        return GetPath(parent) + "/" + obj->GetName();
+
+    // use '.' separator between all others elements : fields, entry points, event sink/sources, ...
+    return GetPath(parent) + "." + obj->GetName();
 }
 
 ::Smp::IObject* Resolve(const ::Smp::FieldCollection *fields,
@@ -490,38 +486,38 @@ std::string checkName(::Smp::String8 name, ::Smp::IObject const *parent) {
     if (!name)
         ::Xsmp::Exception::throwInvalidObjectName(parent, name);
 
+    auto* next = name;
     // the name must start with a letter
-    if (!std::isalpha(static_cast<unsigned char>(name[0])))
+    if (!std::isalpha(static_cast<unsigned char>(*next)))
         ::Xsmp::Exception::throwInvalidObjectName(parent, name);
 
-    std::size_t i = 1;
+    ++next;
+    
     // skip following letters, digits and "_"
-    while (std::isalnum(static_cast<unsigned char>(name[i])) || (name[i] == '_')) {
-        ++i;
-    }
+    while (std::isalnum(static_cast<unsigned char>(*next)) || (*next == '_'))
+        ++next;
 
     // parse an optional array
-    while (name[i] == '[') {
-        ++i;
+    while (*next == '[') {
+        ++next;
         // index must start with a digit
-        if (!std::isdigit(static_cast<unsigned char>(name[i])))
+        if (!std::isdigit(static_cast<unsigned char>(*next)))
             ::Xsmp::Exception::throwInvalidObjectName(parent, name);
-        ++i;
+        ++next;
         // skip following digits
-        while (std::isdigit(static_cast<unsigned char>(name[i]))) {
-            ++i;
-        }
+        while (std::isdigit(static_cast<unsigned char>(*next)))
+            ++next;
 
         // check closing bracket
-        if (name[i++] != ']')
+        if (*next != ']')
             ::Xsmp::Exception::throwInvalidObjectName(parent, name);
+        ++next;
     }
 
     // check end of name
-    if (name[i] != '\0')
+    if (*next != '\0')
         ::Xsmp::Exception::throwInvalidObjectName(parent, name);
 
-    return std::string { name, i };
-
+    return std::string{name, static_cast<std::size_t>(next - name)};
 }
 } // namespace Xsmp::Helper

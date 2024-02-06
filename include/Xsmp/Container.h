@@ -51,11 +51,11 @@ public:
     void AddComponent(::Smp::IComponent *component) override;
     void DeleteComponent(::Smp::IComponent *component) override;
 private:
-    class ContainerCollection final : public ::Smp::ComponentCollection {
+    class Collection final : public ::Smp::ComponentCollection {
     public:
         using const_iterator = typename ::Smp::ComponentCollection::const_iterator;
         using iterator= typename ::Smp::ComponentCollection::iterator;
-        explicit ContainerCollection(AbstractContainer &parent);
+        explicit Collection(AbstractContainer &parent);
 
         ::Smp::String8 GetName() const override;
         ::Smp::String8 GetDescription() const override;
@@ -71,7 +71,7 @@ private:
     std::string _name;
     std::string _description;
     ::Smp::IObject *_parent;
-    ContainerCollection _collection;
+    Collection _collection;
     ::Smp::Int64 _lower;
     ::Smp::Int64 _upper;
 };
@@ -116,8 +116,7 @@ public:
 
     ::Smp::IComponent* GetComponent(::Smp::String8 name) const override {
         if (name) {
-            auto it = find(name);
-            if (it != end())
+            if (auto it = find(name); it != end())
                 return dynamic_cast<::Smp::IComponent*>(*it);
         }
         return nullptr;
@@ -139,15 +138,13 @@ public:
             ::Xsmp::Exception::throwInvalidObjectType<T>(this, component);
     }
     void DeleteComponent(::Smp::IComponent *component) override {
-        auto *casted = dynamic_cast<T*>(component);
-        auto it = find(casted);
-        if (it == end())
+        if (auto it = find(dynamic_cast<T*>(component)); it != end()) {
+            AbstractContainer::DeleteComponent(component);
+            _vector.erase(it);
+        }
+        else {
             ::Xsmp::Exception::throwNotContained(this, component);
-
-        AbstractContainer::DeleteComponent(component);
-
-        delete *it;
-        _vector.erase(it);
+        }
     }
     ::Smp::Int64 GetCount() const override {
         return static_cast<::Smp::Int64>(size());

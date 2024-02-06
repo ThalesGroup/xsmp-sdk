@@ -19,33 +19,33 @@
 
 namespace Xsmp::detail {
 
-AbstractReference::RefCollection::RefCollection(AbstractReference &parent) :
+AbstractReference::Collection::Collection(AbstractReference &parent) :
         _parent(parent) {
 }
-::Smp::String8 AbstractReference::RefCollection::GetName() const {
+::Smp::String8 AbstractReference::Collection::GetName() const {
     return "Collection";
 }
-::Smp::String8 AbstractReference::RefCollection::GetDescription() const {
+::Smp::String8 AbstractReference::Collection::GetDescription() const {
     return "Collection of component";
 }
-::Smp::IObject* AbstractReference::RefCollection::GetParent() const {
+::Smp::IObject* AbstractReference::Collection::GetParent() const {
     return &_parent;
 }
-::Smp::IComponent* AbstractReference::RefCollection::at(
+::Smp::IComponent* AbstractReference::Collection::at(
         ::Smp::String8 name) const {
     return _parent.GetComponent(name);
 }
-::Smp::IComponent* AbstractReference::RefCollection::at(
+::Smp::IComponent* AbstractReference::Collection::at(
         std::size_t index) const {
     return _parent.GetComponent(index);
 }
-std::size_t AbstractReference::RefCollection::size() const {
+std::size_t AbstractReference::Collection::size() const {
     return static_cast<std::size_t>(_parent.GetCount());
 }
-AbstractReference::RefCollection::const_iterator AbstractReference::RefCollection::begin() const {
+AbstractReference::Collection::const_iterator AbstractReference::Collection::begin() const {
     return const_iterator(*this, 0);
 }
-AbstractReference::RefCollection::const_iterator AbstractReference::RefCollection::end() const {
+AbstractReference::Collection::const_iterator AbstractReference::Collection::end() const {
     return const_iterator(*this, size());
 }
 

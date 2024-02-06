@@ -24,35 +24,35 @@
 
 namespace Xsmp::detail {
 
-AbstractContainer::ContainerCollection::ContainerCollection(
+AbstractContainer::Collection::Collection(
         AbstractContainer &parent) :
         _parent(parent) {
 }
-::Smp::String8 AbstractContainer::ContainerCollection::GetName() const {
+::Smp::String8 AbstractContainer::Collection::GetName() const {
     return "Collection";
 }
-::Smp::String8 AbstractContainer::ContainerCollection::GetDescription() const {
+::Smp::String8 AbstractContainer::Collection::GetDescription() const {
     return "Collection of component";
 }
-::Smp::IObject* AbstractContainer::ContainerCollection::GetParent() const {
+::Smp::IObject* AbstractContainer::Collection::GetParent() const {
     return &_parent;
 }
-::Smp::IComponent* AbstractContainer::ContainerCollection::at(
+::Smp::IComponent* AbstractContainer::Collection::at(
         ::Smp::String8 name) const {
     return _parent.GetComponent(name);
 }
-::Smp::IComponent* AbstractContainer::ContainerCollection::at(
+::Smp::IComponent* AbstractContainer::Collection::at(
         std::size_t index) const {
 
     return _parent.GetComponent(index);
 }
-std::size_t AbstractContainer::ContainerCollection::size() const {
+std::size_t AbstractContainer::Collection::size() const {
     return static_cast<std::size_t>(_parent.GetCount());
 }
-AbstractContainer::ContainerCollection::const_iterator AbstractContainer::ContainerCollection::begin() const {
+AbstractContainer::Collection::const_iterator AbstractContainer::Collection::begin() const {
     return const_iterator(*this, 0);
 }
-AbstractContainer::ContainerCollection::const_iterator AbstractContainer::ContainerCollection::end() const {
+AbstractContainer::Collection::const_iterator AbstractContainer::Collection::end() const {
     return const_iterator(*this, size());
 }
 
@@ -182,8 +182,10 @@ void AbstractContainer::AddComponent(::Smp::IComponent *component) {
 }
 void AbstractContainer::DeleteComponent(::Smp::IComponent *component) {
     if (static_cast<std::size_t>(GetCount())
-            <= static_cast<std::size_t>(GetLower()))
+            <= static_cast<std::size_t>(GetLower())) {
         ::Xsmp::Exception::throwCannotDelete(this, component);
+    }
+    delete component;
 }
 
 } // namespace Xsmp::detail
