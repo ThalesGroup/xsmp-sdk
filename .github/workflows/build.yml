@@ -36,6 +36,7 @@ jobs:
             - '3.25'
             - '3.26'
             - '3.27'
+            - '3.28'
             - latest
       steps:
       -  uses: actions/checkout@v4
@@ -117,6 +118,7 @@ jobs:
             - 14
             - 15
             - 16
+            - 17
       steps:
       -  uses: actions/checkout@v4
       -  name: Setup CMake
@@ -184,6 +186,7 @@ jobs:
             - '3.9'
             - '3.10'
             - '3.11'
+            - '3.12'
       steps:
       -  uses: actions/checkout@v4
       -  uses: actions/setup-python@v5

@@ -165,7 +165,7 @@ Property::Property(::Smp::String8 name, ::Smp::String8 description,
 ::Smp::AnySimple Property::GetValue() const {
 
     auto *invoker = dynamic_cast<::Smp::IDynamicInvocation*>(_parent);
-    if (_accessKind == ::Smp::AccessKind::AK_WriteOnly || !invoker)
+    if (!invoker || _accessKind == ::Smp::AccessKind::AK_WriteOnly)
         ::Xsmp::Exception::throwException(this, "InvalidAccessKind", "",
                 "The property getter is not invokable: ", this);
 
@@ -177,7 +177,7 @@ Property::Property(::Smp::String8 name, ::Smp::String8 description,
 
 void Property::SetValue(::Smp::AnySimple value) {
     auto *invoker = dynamic_cast<::Smp::IDynamicInvocation*>(_parent);
-    if (_accessKind == ::Smp::AccessKind::AK_ReadOnly || !invoker)
+    if (!invoker || _accessKind == ::Smp::AccessKind::AK_ReadOnly)
         ::Xsmp::Exception::throwException(this, "InvalidAccessKind", "",
                 "The property setter is not invokable: ", this);
 
