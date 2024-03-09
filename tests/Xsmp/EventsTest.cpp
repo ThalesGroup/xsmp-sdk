@@ -24,6 +24,7 @@
 #include <Xsmp/EventProvider.h>
 #include <Xsmp/EventSink.h>
 #include <Xsmp/EventSource.h>
+#include <Xsmp/Simulator.h>
 #include <type_traits>
 
 namespace Xsmp {
@@ -43,7 +44,7 @@ public:
 
 TEST(EventsTest, auto_register) {
 
-    Object sender { "sender", "", nullptr };
+    Simulator sender;
     TestEventProvider event_sources { "collection" };
 
     EXPECT_EQ(0, event_sources.GetEventSources()->size());
@@ -64,7 +65,7 @@ TEST(EventsTest, auto_register) {
 
 TEST(EventsTest, void_emit) {
 
-    Object sender { "sender", "", nullptr };
+    Simulator sender;
     TestEventProvider event_sources { "collection", "", &sender };
 
     EventSource eso { "eso1", "", &event_sources };
@@ -96,7 +97,7 @@ TEST(EventsTest, void_emit) {
 
 TEST(EventsTest, bool_emit) {
 
-    Object sender { "sender", "", nullptr };
+    Simulator sender;
     TestEventProvider event_sources { "collection", "", &sender };
 
     EventSource<::Smp::Bool> eso { "eso1", "", &event_sources,
@@ -129,7 +130,7 @@ TEST(EventsTest, bool_emit) {
 
 TEST(EventsTest, exceptions) {
 
-    Object sender { "sender", "", nullptr };
+    Simulator sender;
     TestEventProvider event_sources { "collection", "", &sender };
 
     EventSource<::Smp::Bool> eso { "eso1", "", &event_sources,

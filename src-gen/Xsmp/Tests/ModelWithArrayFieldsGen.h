@@ -66,7 +66,7 @@ public:
     /// @param parent Parent of new model instance.
     /// @param simulator The simulator instance.
     ModelWithArrayFieldsGen(::Smp::String8 name, ::Smp::String8 description,
-            ::Smp::IObject *parent, ::Smp::ISimulator *simulator);
+            ::Smp::IComposite *parent, ::Smp::ISimulator *simulator);
     /// deleted copy constructor
     ModelWithArrayFieldsGen(const ModelWithArrayFieldsGen&) = delete;
     /// deleted move constructor
@@ -77,7 +77,7 @@ public:
     ModelWithArrayFieldsGen& operator=(ModelWithArrayFieldsGen&&) = delete;
 
     /// Virtual destructor to release memory.
-    ~ModelWithArrayFieldsGen() override;
+    ~ModelWithArrayFieldsGen() override = default;
 
     // ----------------------------------------------------------------------------------
     // -------------------------------- IComponent ---------------------------------

@@ -14,6 +14,7 @@
 
 #include <Smp/IAggregate.h>
 #include <Smp/IArrayField.h>
+#include <Smp/IComposite.h>
 #include <Smp/IEventProvider.h>
 #include <Smp/IPublication.h>
 #include <Smp/IRequest.h>
@@ -27,7 +28,7 @@
 
 namespace Xsmp {
 Component::Component(::Smp::String8 name, ::Smp::String8 description,
-        ::Smp::IObject *parent, ::Smp::ISimulator *simulator) :
+        ::Smp::IComposite *parent, ::Smp::ISimulator *simulator) :
         _name(::Xsmp::Helper::checkName(name, parent)), _description(
                 description ? description : ""), _parent(parent), _simulator {
                 simulator } {

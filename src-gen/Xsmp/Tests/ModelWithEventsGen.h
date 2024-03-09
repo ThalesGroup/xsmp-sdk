@@ -64,7 +64,7 @@ public:
     /// @param parent Parent of new model instance.
     /// @param simulator The simulator instance.
     ModelWithEventsGen(::Smp::String8 name, ::Smp::String8 description,
-            ::Smp::IObject *parent, ::Smp::ISimulator *simulator);
+            ::Smp::IComposite *parent, ::Smp::ISimulator *simulator);
     /// deleted copy constructor
     ModelWithEventsGen(const ModelWithEventsGen&) = delete;
     /// deleted move constructor
@@ -75,7 +75,7 @@ public:
     ModelWithEventsGen& operator=(ModelWithEventsGen&&) = delete;
 
     /// Virtual destructor to release memory.
-    ~ModelWithEventsGen() override;
+    ~ModelWithEventsGen() override = default;
 
     // ----------------------------------------------------------------------------------
     // -------------------------------- IComponent ---------------------------------

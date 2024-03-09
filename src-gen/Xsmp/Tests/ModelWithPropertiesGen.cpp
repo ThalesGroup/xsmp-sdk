@@ -31,7 +31,7 @@
 namespace Xsmp::Tests {
 //--------------------------- Constructor -------------------------
 ModelWithPropertiesGen::ModelWithPropertiesGen(::Smp::String8 name,
-        ::Smp::String8 description, ::Smp::IObject *parent,
+        ::Smp::String8 description, ::Smp::IComposite *parent,
         ::Smp::ISimulator *simulator) :
         // Base class initialization
         ::Xsmp::Model(name, description, parent, simulator),
@@ -43,10 +43,6 @@ ModelWithPropertiesGen::ModelWithPropertiesGen(::Smp::String8 name,
         int_field { },
         // float_field initialization
         float_field { } {
-}
-
-/// Virtual destructor that is called by inherited classes as well.
-ModelWithPropertiesGen::~ModelWithPropertiesGen() {
 }
 
 void ModelWithPropertiesGen::Publish(::Smp::IPublication *receiver) {

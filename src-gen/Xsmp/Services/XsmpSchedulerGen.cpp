@@ -30,7 +30,7 @@
 namespace Xsmp::Services {
 //--------------------------- Constructor -------------------------
 XsmpSchedulerGen::XsmpSchedulerGen(::Smp::String8 name,
-        ::Smp::String8 description, ::Smp::IObject *parent,
+        ::Smp::String8 description, ::Smp::IComposite *parent,
         ::Smp::ISimulator *simulator) :
         // Base class initialization
         ::Xsmp::Service(name, description, parent, simulator),
@@ -43,10 +43,6 @@ XsmpSchedulerGen::XsmpSchedulerGen(::Smp::String8 name,
         // EntryPoint: LeaveExecuting
         LeaveExecuting { "LeaveExecuting", "", this, std::bind(
                 &XsmpSchedulerGen::_LeaveExecuting, this) } {
-}
-
-/// Virtual destructor that is called by inherited classes as well.
-XsmpSchedulerGen::~XsmpSchedulerGen() {
 }
 
 void XsmpSchedulerGen::Publish(::Smp::IPublication *receiver) {

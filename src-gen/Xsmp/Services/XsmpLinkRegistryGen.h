@@ -59,7 +59,7 @@ public:
     /// @param parent Parent of new model instance.
     /// @param simulator The simulator instance.
     XsmpLinkRegistryGen(::Smp::String8 name, ::Smp::String8 description,
-            ::Smp::IObject *parent, ::Smp::ISimulator *simulator);
+            ::Smp::IComposite *parent, ::Smp::ISimulator *simulator);
     /// deleted copy constructor
     XsmpLinkRegistryGen(const XsmpLinkRegistryGen&) = delete;
     /// deleted move constructor
@@ -70,7 +70,7 @@ public:
     XsmpLinkRegistryGen& operator=(XsmpLinkRegistryGen&&) = delete;
 
     /// Virtual destructor to release memory.
-    ~XsmpLinkRegistryGen() override;
+    ~XsmpLinkRegistryGen() override = default;
 
     // ----------------------------------------------------------------------------------
     // -------------------------------- IComponent ---------------------------------

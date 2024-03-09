@@ -59,7 +59,7 @@ static constexpr ::Smp::Duration MaxDuration = std::numeric_limits<
         ::Smp::Duration>::max();
 
 XsmpScheduler::XsmpScheduler(::Smp::String8 name, ::Smp::String8 description,
-        ::Smp::IObject *parent, ::Smp::ISimulator *simulator) :
+        ::Smp::IComposite *parent, ::Smp::ISimulator *simulator) :
         XsmpSchedulerGen::XsmpSchedulerGen(name, description, parent, simulator) {
 
     //post an event to Hold the simulation at the maximal duration

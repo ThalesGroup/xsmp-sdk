@@ -59,7 +59,7 @@ public:
     /// @param parent Parent of new model instance.
     /// @param simulator The simulator instance.
     XsmpResolverGen(::Smp::String8 name, ::Smp::String8 description,
-            ::Smp::IObject *parent, ::Smp::ISimulator *simulator);
+            ::Smp::IComposite *parent, ::Smp::ISimulator *simulator);
     /// deleted copy constructor
     XsmpResolverGen(const XsmpResolverGen&) = delete;
     /// deleted move constructor
@@ -70,7 +70,7 @@ public:
     XsmpResolverGen& operator=(XsmpResolverGen&&) = delete;
 
     /// Virtual destructor to release memory.
-    ~XsmpResolverGen() override;
+    ~XsmpResolverGen() override = default;
 
     // ----------------------------------------------------------------------------------
     // -------------------------------- IComponent ---------------------------------

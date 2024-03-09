@@ -28,7 +28,7 @@ namespace Xsmp {
 class FallibleModeltest: public Model, public FallibleModel {
 public:
     FallibleModeltest(::Smp::String8 name, ::Smp::String8 description,
-            ::Smp::IObject *parent, ::Smp::ISimulator *simulator) :
+            ::Smp::IComposite *parent, ::Smp::ISimulator *simulator) :
             Model(name, description, parent, simulator),
 
             failure { simulator->GetTypeRegistry(), ::Smp::Uuids::Uuid_Bool,

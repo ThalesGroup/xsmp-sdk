@@ -28,7 +28,7 @@ namespace Xsmp::Services {
 
 using namespace ::Smp::Services;
 XsmpEventManager::XsmpEventManager(::Smp::String8 name,
-        ::Smp::String8 description, ::Smp::IObject *parent,
+        ::Smp::String8 description, ::Smp::IComposite *parent,
         ::Smp::ISimulator *simulator) :
         XsmpEventManagerGen::XsmpEventManagerGen(name, description, parent,
                 simulator) {

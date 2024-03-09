@@ -21,7 +21,7 @@
 namespace Example {
 //--------------------------- Constructor -------------------------
 CounterGen::CounterGen(::Smp::String8 name, ::Smp::String8 description,
-        ::Smp::IObject *parent, ::Smp::ISimulator *simulator) :
+        ::Smp::IComposite *parent, ::Smp::ISimulator *simulator) :
         // Base class initialization
         ::Xsmp::Model(name, description, parent, simulator),
         // EntryPoint: IncrementCount
@@ -33,10 +33,6 @@ CounterGen::CounterGen(::Smp::String8 name, ::Smp::String8 description,
                 ::Smp::PrimitiveTypeKind::PTK_Int32 },
         // count initialization
         count { 0 } {
-}
-
-/// Virtual destructor that is called by inherited classes as well.
-CounterGen::~CounterGen() {
 }
 
 void CounterGen::Publish(::Smp::IPublication *receiver) {

@@ -30,7 +30,7 @@
 namespace Xsmp::Tests {
 //--------------------------- Constructor -------------------------
 ModelWithArrayFieldsGen::ModelWithArrayFieldsGen(::Smp::String8 name,
-        ::Smp::String8 description, ::Smp::IObject *parent,
+        ::Smp::String8 description, ::Smp::IComposite *parent,
         ::Smp::ISimulator *simulator) :
         // Base class initialization
         ::Xsmp::Model(name, description, parent, simulator),
@@ -166,10 +166,6 @@ ModelWithArrayFieldsGen::ModelWithArrayFieldsGen(::Smp::String8 name,
         integer1All { simulator->GetTypeRegistry(),
                 ::Xsmp::Tests::Types::Uuid_Integer1Array, "integer1All", "",
                 this, ::Smp::ViewKind::VK_None } {
-}
-
-/// Virtual destructor that is called by inherited classes as well.
-ModelWithArrayFieldsGen::~ModelWithArrayFieldsGen() {
 }
 
 void ModelWithArrayFieldsGen::Publish(::Smp::IPublication *receiver) {

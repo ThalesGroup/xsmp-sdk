@@ -30,13 +30,9 @@
 namespace Xsmp::Services {
 //--------------------------- Constructor -------------------------
 XsmpLoggerGen::XsmpLoggerGen(::Smp::String8 name, ::Smp::String8 description,
-        ::Smp::IObject *parent, ::Smp::ISimulator *simulator) :
+        ::Smp::IComposite *parent, ::Smp::ISimulator *simulator) :
         // Base class initialization
         ::Xsmp::Service(name, description, parent, simulator) {
-}
-
-/// Virtual destructor that is called by inherited classes as well.
-XsmpLoggerGen::~XsmpLoggerGen() {
 }
 
 void XsmpLoggerGen::Publish(::Smp::IPublication *receiver) {

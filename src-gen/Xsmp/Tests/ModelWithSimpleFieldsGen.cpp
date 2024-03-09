@@ -30,7 +30,7 @@
 namespace Xsmp::Tests {
 //--------------------------- Constructor -------------------------
 ModelWithSimpleFieldsGen::ModelWithSimpleFieldsGen(::Smp::String8 name,
-        ::Smp::String8 description, ::Smp::IObject *parent,
+        ::Smp::String8 description, ::Smp::IComposite *parent,
         ::Smp::ISimulator *simulator) :
         // Base class initialization
         ::Xsmp::Model(name, description, parent, simulator),
@@ -179,10 +179,6 @@ ModelWithSimpleFieldsGen::ModelWithSimpleFieldsGen(::Smp::String8 name,
                 ::Smp::ViewKind::VK_None },
         // Container: subModels
         subModels { "subModels", "", this, 0, -1 } {
-}
-
-/// Virtual destructor that is called by inherited classes as well.
-ModelWithSimpleFieldsGen::~ModelWithSimpleFieldsGen() {
 }
 
 void ModelWithSimpleFieldsGen::Publish(::Smp::IPublication *receiver) {

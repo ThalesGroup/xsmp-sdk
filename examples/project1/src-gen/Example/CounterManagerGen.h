@@ -55,7 +55,7 @@ public:
     /// @param parent Parent of new model instance.
     /// @param simulator The simulator instance.
     CounterManagerGen(::Smp::String8 name, ::Smp::String8 description,
-            ::Smp::IObject *parent, ::Smp::ISimulator *simulator);
+            ::Smp::IComposite *parent, ::Smp::ISimulator *simulator);
     /// deleted copy constructor
     CounterManagerGen(const CounterManagerGen&) = delete;
     /// deleted move constructor
@@ -66,7 +66,7 @@ public:
     CounterManagerGen& operator=(CounterManagerGen&&) = delete;
 
     /// Virtual destructor to release memory.
-    ~CounterManagerGen() override;
+    ~CounterManagerGen() override = default;
 
     // ----------------------------------------------------------------------------------
     // -------------------------------- IComponent ---------------------------------

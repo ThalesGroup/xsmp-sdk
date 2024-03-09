@@ -61,7 +61,7 @@ public:
     /// @param parent Parent of new model instance.
     /// @param simulator The simulator instance.
     XsmpLoggerGen(::Smp::String8 name, ::Smp::String8 description,
-            ::Smp::IObject *parent, ::Smp::ISimulator *simulator);
+            ::Smp::IComposite *parent, ::Smp::ISimulator *simulator);
     /// deleted copy constructor
     XsmpLoggerGen(const XsmpLoggerGen&) = delete;
     /// deleted move constructor
@@ -72,7 +72,7 @@ public:
     XsmpLoggerGen& operator=(XsmpLoggerGen&&) = delete;
 
     /// Virtual destructor to release memory.
-    ~XsmpLoggerGen() override;
+    ~XsmpLoggerGen() override = default;
 
     // ----------------------------------------------------------------------------------
     // -------------------------------- IComponent ---------------------------------

@@ -64,7 +64,7 @@ public:
     /// @param parent Parent of new model instance.
     /// @param simulator The simulator instance.
     XsmpSchedulerGen(::Smp::String8 name, ::Smp::String8 description,
-            ::Smp::IObject *parent, ::Smp::ISimulator *simulator);
+            ::Smp::IComposite *parent, ::Smp::ISimulator *simulator);
     /// deleted copy constructor
     XsmpSchedulerGen(const XsmpSchedulerGen&) = delete;
     /// deleted move constructor
@@ -75,7 +75,7 @@ public:
     XsmpSchedulerGen& operator=(XsmpSchedulerGen&&) = delete;
 
     /// Virtual destructor to release memory.
-    ~XsmpSchedulerGen() override;
+    ~XsmpSchedulerGen() override = default;
 
     // ----------------------------------------------------------------------------------
     // -------------------------------- IComponent ---------------------------------

@@ -30,8 +30,8 @@
 namespace Xsmp::Tests {
 //--------------------------- Constructor -------------------------
 ModelWithSimpleArrayFieldsGen::ModelWithSimpleArrayFieldsGen(
-        ::Smp::String8 name, ::Smp::String8 description, ::Smp::IObject *parent,
-        ::Smp::ISimulator *simulator) :
+        ::Smp::String8 name, ::Smp::String8 description,
+        ::Smp::IComposite *parent, ::Smp::ISimulator *simulator) :
         // Base class initialization
         ::Xsmp::Model(name, description, parent, simulator),
         // boolean initialization
@@ -142,10 +142,6 @@ ModelWithSimpleArrayFieldsGen::ModelWithSimpleArrayFieldsGen(
         integer1All { simulator->GetTypeRegistry(),
                 ::Xsmp::Tests::Types::Uuid_SimpleInteger1Array, "integer1All",
                 "", this, ::Smp::ViewKind::VK_None } {
-}
-
-/// Virtual destructor that is called by inherited classes as well.
-ModelWithSimpleArrayFieldsGen::~ModelWithSimpleArrayFieldsGen() {
 }
 
 void ModelWithSimpleArrayFieldsGen::Publish(::Smp::IPublication *receiver) {

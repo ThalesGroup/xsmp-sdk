@@ -490,7 +490,7 @@ private:
 };
 
 XsmpLogger::XsmpLogger(::Smp::String8 name, ::Smp::String8 description,
-        ::Smp::IObject *parent, ::Smp::ISimulator *simulator) :
+        ::Smp::IComposite *parent, ::Smp::ISimulator *simulator) :
         XsmpLoggerGen::XsmpLoggerGen(name, description, parent, simulator), _processor {
                 std::make_unique<LoggerProcessor>() } {
 

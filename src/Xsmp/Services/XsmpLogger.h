@@ -42,7 +42,7 @@ public:
     /// @param description Description of new model instance.
     /// @param parent Parent of new model instance.
     XsmpLogger(::Smp::String8 name, ::Smp::String8 description,
-            ::Smp::IObject *parent, ::Smp::ISimulator *simulator);
+            ::Smp::IComposite *parent, ::Smp::ISimulator *simulator);
 
     /// Virtual destructor to release memory.
     ~XsmpLogger() noexcept override = default;

@@ -30,7 +30,7 @@
 namespace Xsmp::Services {
 //--------------------------- Constructor -------------------------
 XsmpTimeKeeperGen::XsmpTimeKeeperGen(::Smp::String8 name,
-        ::Smp::String8 description, ::Smp::IObject *parent,
+        ::Smp::String8 description, ::Smp::IComposite *parent,
         ::Smp::ISimulator *simulator) :
         // Base class initialization
         ::Xsmp::Service(name, description, parent, simulator),
@@ -40,10 +40,6 @@ XsmpTimeKeeperGen::XsmpTimeKeeperGen(::Smp::String8 name,
         // EntryPoint: PostSimTimeChange
         PostSimTimeChange { "PostSimTimeChange", "", this, std::bind(
                 &XsmpTimeKeeperGen::_PostSimTimeChange, this) } {
-}
-
-/// Virtual destructor that is called by inherited classes as well.
-XsmpTimeKeeperGen::~XsmpTimeKeeperGen() {
 }
 
 void XsmpTimeKeeperGen::Publish(::Smp::IPublication *receiver) {

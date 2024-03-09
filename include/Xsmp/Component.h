@@ -26,6 +26,7 @@
 
 namespace Smp {
 class IAggregate;
+class IComposite;
 class IEventProvider;
 class IPublication;
 class ISimulator;
@@ -41,7 +42,7 @@ class Component: public virtual ::Smp::ILinkingComponent,
         public virtual ::Smp::IDynamicInvocation {
 public:
     Component(::Smp::String8 name, ::Smp::String8 description = "",
-            ::Smp::IObject *parent = nullptr, ::Smp::ISimulator *simulator =
+            ::Smp::IComposite *parent = nullptr, ::Smp::ISimulator *simulator =
                     nullptr);
     Component(const Component&) = delete;
     Component& operator=(const Component&) = delete;
@@ -73,7 +74,7 @@ protected:
 private:
     std::string _name;
     std::string _description;
-    ::Smp::IObject *_parent;
+    ::Smp::IComposite *_parent;
     void RemoveEventProviderLinks(::Smp::IEventProvider const *eventProvider,
             const ::Smp::IComponent *target) const noexcept;
 

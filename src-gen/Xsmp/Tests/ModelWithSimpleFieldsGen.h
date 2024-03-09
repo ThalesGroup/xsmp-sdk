@@ -76,7 +76,7 @@ public:
     /// @param parent Parent of new model instance.
     /// @param simulator The simulator instance.
     ModelWithSimpleFieldsGen(::Smp::String8 name, ::Smp::String8 description,
-            ::Smp::IObject *parent, ::Smp::ISimulator *simulator);
+            ::Smp::IComposite *parent, ::Smp::ISimulator *simulator);
     /// deleted copy constructor
     ModelWithSimpleFieldsGen(const ModelWithSimpleFieldsGen&) = delete;
     /// deleted move constructor
@@ -87,7 +87,7 @@ public:
     ModelWithSimpleFieldsGen& operator=(ModelWithSimpleFieldsGen&&) = delete;
 
     /// Virtual destructor to release memory.
-    ~ModelWithSimpleFieldsGen() override;
+    ~ModelWithSimpleFieldsGen() override = default;
 
     // ----------------------------------------------------------------------------------
     // -------------------------------- IComponent ---------------------------------

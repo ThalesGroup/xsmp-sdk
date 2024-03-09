@@ -21,16 +21,12 @@
 namespace Example {
 //--------------------------- Constructor -------------------------
 CounterManagerGen::CounterManagerGen(::Smp::String8 name,
-        ::Smp::String8 description, ::Smp::IObject *parent,
+        ::Smp::String8 description, ::Smp::IComposite *parent,
         ::Smp::ISimulator *simulator) :
         // Base class initialization
         ::Xsmp::Model(name, description, parent, simulator),
         // Container: counters
         counters { "counters", "list of handled counters", this, 0, -1 } {
-}
-
-/// Virtual destructor that is called by inherited classes as well.
-CounterManagerGen::~CounterManagerGen() {
 }
 
 void CounterManagerGen::Publish(::Smp::IPublication *receiver) {

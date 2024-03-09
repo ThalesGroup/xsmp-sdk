@@ -61,7 +61,7 @@ public:
     /// @param parent Parent of new model instance.
     /// @param simulator The simulator instance.
     XsmpEventManagerGen(::Smp::String8 name, ::Smp::String8 description,
-            ::Smp::IObject *parent, ::Smp::ISimulator *simulator);
+            ::Smp::IComposite *parent, ::Smp::ISimulator *simulator);
     /// deleted copy constructor
     XsmpEventManagerGen(const XsmpEventManagerGen&) = delete;
     /// deleted move constructor
@@ -72,7 +72,7 @@ public:
     XsmpEventManagerGen& operator=(XsmpEventManagerGen&&) = delete;
 
     /// Virtual destructor to release memory.
-    ~XsmpEventManagerGen() override;
+    ~XsmpEventManagerGen() override = default;
 
     // ----------------------------------------------------------------------------------
     // -------------------------------- IComponent ---------------------------------

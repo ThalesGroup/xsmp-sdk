@@ -64,7 +64,7 @@ public:
     /// @param parent Parent of new model instance.
     /// @param simulator The simulator instance.
     XsmpTimeKeeperGen(::Smp::String8 name, ::Smp::String8 description,
-            ::Smp::IObject *parent, ::Smp::ISimulator *simulator);
+            ::Smp::IComposite *parent, ::Smp::ISimulator *simulator);
     /// deleted copy constructor
     XsmpTimeKeeperGen(const XsmpTimeKeeperGen&) = delete;
     /// deleted move constructor
@@ -75,7 +75,7 @@ public:
     XsmpTimeKeeperGen& operator=(XsmpTimeKeeperGen&&) = delete;
 
     /// Virtual destructor to release memory.
-    ~XsmpTimeKeeperGen() override;
+    ~XsmpTimeKeeperGen() override = default;
 
     // ----------------------------------------------------------------------------------
     // -------------------------------- IComponent ---------------------------------
