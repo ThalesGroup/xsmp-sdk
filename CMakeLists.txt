@@ -209,11 +209,10 @@ add_library(Xsmp::Smp ALIAS Smp)
 target_compile_features(Smp INTERFACE cxx_std_14)
 
 
-
 target_include_directories(
     Smp
     INTERFACE $<BUILD_INTERFACE:${ecss_smp_SOURCE_DIR}>
-              $<INSTALL_INTERFACE:.>
+              $<INSTALL_INTERFACE:include>
 )
 
 # --------------------------------------------------------------------
@@ -226,7 +225,6 @@ add_library(Xsmp::LibraryHelper ALIAS LibraryHelper)
 target_include_directories(
     LibraryHelper
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-           $<INSTALL_INTERFACE:.>
 )
 target_link_libraries(LibraryHelper INTERFACE ${CMAKE_DL_LIBS})
 
@@ -271,14 +269,11 @@ target_compile_options(Cdk PRIVATE ${XSMP_COMPILE_OPTIONS})
 
 target_compile_features(Cdk PUBLIC cxx_std_17)
 
-
-
 target_include_directories(
     Cdk
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-           $<INSTALL_INTERFACE:.>
+           $<INSTALL_INTERFACE:include>
     PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-            $<INSTALL_INTERFACE:.>
 )
 
 
@@ -305,11 +300,18 @@ if(XSMP_BUILD_PYTHON_BINDINGS)
     endif()
 
     add_library(Xsmp::Python ALIAS Python)
-    target_include_directories(Python PRIVATE src/)
+    target_include_directories(
+        Python
+        PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    )
     target_link_libraries(Python PRIVATE Xsmp::Cdk Xsmp::LibraryHelper)
     target_compile_definitions(Python PRIVATE VERSION_INFO=${PROJECT_VERSION})
     target_compile_options(Python PRIVATE ${XSMP_COMPILE_OPTIONS})
-    install(TARGETS Python DESTINATION .)
+    if(SKBUILD STREQUAL "2")
+        install(TARGETS Python DESTINATION .)
+    else()
+        install(TARGETS Python DESTINATION ${CMAKE_INSTALL_PREFIX}${Python_SITELIB}/)
+    endif()
 endif(XSMP_BUILD_PYTHON_BINDINGS)
 
 
@@ -328,10 +330,9 @@ add_library(Xsmp::EventManager ALIAS EventManager)
 
 target_include_directories(
     EventManager
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
-           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
-           $<INSTALL_INTERFACE:src> 
-           $<INSTALL_INTERFACE:src-gen>)
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src> 
+           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen>
+)
 
 target_link_libraries(EventManager PUBLIC Xsmp::Cdk)
 
@@ -353,10 +354,9 @@ add_library(Xsmp::LinkRegistry ALIAS LinkRegistry)
 
 target_include_directories(
     LinkRegistry
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
-           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
-           $<INSTALL_INTERFACE:src> 
-           $<INSTALL_INTERFACE:src-gen>)
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src> 
+           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen>
+)
 
 target_link_libraries(LinkRegistry PUBLIC Xsmp::Cdk)
 
@@ -377,10 +377,9 @@ add_library(Xsmp::Logger ALIAS Logger)
 
 target_include_directories(
     Logger
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
-           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
-           $<INSTALL_INTERFACE:src> 
-           $<INSTALL_INTERFACE:src-gen>)
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src> 
+           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen>
+)
 
 target_link_libraries(Logger PUBLIC Xsmp::Cdk)
 
@@ -402,10 +401,9 @@ add_library(Xsmp::Resolver ALIAS Resolver)
 
 target_include_directories(
     Resolver
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
-           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
-           $<INSTALL_INTERFACE:src> 
-           $<INSTALL_INTERFACE:src-gen>)
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src> 
+           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen>
+)
 
 target_link_libraries(Resolver PUBLIC Xsmp::Cdk)
 target_compile_options(Resolver PRIVATE ${XSMP_COMPILE_OPTIONS})
@@ -425,10 +423,9 @@ add_library(Xsmp::Scheduler ALIAS Scheduler)
 
 target_include_directories(
     Scheduler
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
-           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
-           $<INSTALL_INTERFACE:src> 
-           $<INSTALL_INTERFACE:src-gen>)
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src> 
+           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen>
+)
 
 target_link_libraries(Scheduler PUBLIC Xsmp::Cdk)
 target_compile_options(Scheduler PRIVATE ${XSMP_COMPILE_OPTIONS})
@@ -449,10 +446,9 @@ add_library(Xsmp::TimeKeeper ALIAS TimeKeeper)
 
 target_include_directories(
     TimeKeeper
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
-           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
-           $<INSTALL_INTERFACE:src> 
-           $<INSTALL_INTERFACE:src-gen>)
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src> 
+           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen>
+)
 
 target_link_libraries(TimeKeeper PUBLIC Xsmp::Cdk)
 target_compile_options(TimeKeeper PRIVATE ${XSMP_COMPILE_OPTIONS})
@@ -471,8 +467,8 @@ add_library(Xsmp::Services ALIAS Services)
 
 target_include_directories(
     Services
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
-           $<INSTALL_INTERFACE:src>)
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+)
 
 target_link_libraries(Services PUBLIC Xsmp::Logger 
                                       Xsmp::Resolver
@@ -506,7 +502,7 @@ add_library(Xsmp::Simulator ALIAS Simulator)
 target_include_directories(
     Simulator
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-           $<INSTALL_INTERFACE:.>)
+)
 
 target_link_libraries(Simulator PUBLIC Xsmp::Cdk Xsmp::LibraryHelper)
 
@@ -555,10 +551,9 @@ if(XSMP_BUILD_TESTS)
     add_library(Xsmp::TestsPackage ALIAS TestsPackage)
     target_include_directories(
         TestsPackage
-        PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/> 
-               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen/>
-               $<INSTALL_INTERFACE:src> 
-               $<INSTALL_INTERFACE:src-gen>)
+        PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src> 
+               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src-gen>
+    )
     target_link_libraries(TestsPackage PUBLIC Xsmp::Cdk)
     target_compile_options(TestsPackage PRIVATE ${XSMP_COMPILE_OPTIONS})
     install(TARGETS TestsPackage)
@@ -613,11 +608,35 @@ endif(XSMP_ENABLE_CODECOVERAGE)
 if(XSMP_ENABLE_INSTALL)
     include(CMakePackageConfigHelpers)
     include(GNUInstallDirs)
+    install(DIRECTORY "${CMAKE_SOURCE_DIR}/cmake"
+            DESTINATION "lib/"
+            FILES_MATCHING
+            PATTERN "*.cmake"
+    )
+    install(DIRECTORY "include/" "${ecss_smp_SOURCE_DIR}/Smp"
+            DESTINATION "include"
+            FILES_MATCHING
+            PATTERN "*.h"
+    )
+    if(NOT SKBUILD STREQUAL "2")
+        install(DIRECTORY "python/xsmp"
+                          "python/xsmp_event_manager"
+                          "python/xsmp_link_registry"
+                          "python/xsmp_logger"
+                          "python/xsmp_resolver"
+                          "python/xsmp_scheduler"
+                          "python/xsmp_time_keeper"
+                DESTINATION "${CMAKE_INSTALL_PREFIX}${Python_SITELIB}/"
+                FILES_MATCHING
+                PATTERN "*.py"
+        )
+    endif()
 
     install(TARGETS Smp Cdk LibraryHelper Simulator EventManager LinkRegistry Logger Resolver Scheduler TimeKeeper
-        EXPORT xsmp.sdk-config)
-
-    install(EXPORT xsmp.sdk-config
+        EXPORT ${PROJECT_NAME}-config
+    )
+    install(EXPORT ${PROJECT_NAME}-config
         NAMESPACE Xsmp::
-        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+    )
 endif(XSMP_ENABLE_INSTALL)

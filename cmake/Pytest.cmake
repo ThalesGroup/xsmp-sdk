@@ -40,7 +40,15 @@ function(pytest_discover_tests)
     get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL
         PROPERTY GENERATOR_IS_MULTI_CONFIG
     )
-
+    
+    # update PATH and PYTHONPATH in case the user use a custom CMAKE_INSTALL_PREFIX
+    if(NOT CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        list(INSERT libpath 0 "${CMAKE_INSTALL_PREFIX}/lib")
+        if (NOT CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
+            list(INSERT pythonpath 0 "${CMAKE_INSTALL_PREFIX}${Python_SITELIB}")
+        endif()
+    endif()
+    
     #add xsmp-sdk python folder to python path
     list(INSERT pythonpath 0 "${xsmp-sdk_SOURCE_DIR}/python")
     
