@@ -85,7 +85,7 @@ template<typename ... Args>
         std::string_view msg = "The component can't be restored");
 
 [[ noreturn ]] void throwInvalidObjectName(const ::Smp::IObject *sender,
-        ::Smp::String8 name);
+        ::Smp::String8 name, std::string_view description);
 
 [[ noreturn ]] void throwContainerFull(const ::Smp::IContainer *sender);
 

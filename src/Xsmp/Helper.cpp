@@ -484,15 +484,18 @@ std::string checkName(::Smp::String8 name, ::Smp::IObject const *parent) {
 
     // the name cannot be null
     if (!name)
-        ::Xsmp::Exception::throwInvalidObjectName(parent, name);
+        ::Xsmp::Exception::throwInvalidObjectName(parent, name,
+                "A name cannot be null.");
 
-    auto* next = name;
+    auto *next = name;
     // the name must start with a letter
     if (!std::isalpha(static_cast<unsigned char>(*next)))
-        ::Xsmp::Exception::throwInvalidObjectName(parent, name);
+        ::Xsmp::Exception::throwInvalidObjectName(parent, name,
+                "Name '" + std::string { name }
+                        + "' shall start with a letter.");
 
     ++next;
-    
+
     // skip following letters, digits and "_"
     while (std::isalnum(static_cast<unsigned char>(*next)) || (*next == '_'))
         ++next;
@@ -502,7 +505,11 @@ std::string checkName(::Smp::String8 name, ::Smp::IObject const *parent) {
         ++next;
         // index must start with a digit
         if (!std::isdigit(static_cast<unsigned char>(*next)))
-            ::Xsmp::Exception::throwInvalidObjectName(parent, name);
+            ::Xsmp::Exception::throwInvalidObjectName(parent, name,
+                    "Name '"
+                            + std::string { name, static_cast<std::size_t>(next
+                                    - name) }
+                            + "' shall be followed by a digit.");
         ++next;
         // skip following digits
         while (std::isdigit(static_cast<unsigned char>(*next)))
@@ -510,14 +517,24 @@ std::string checkName(::Smp::String8 name, ::Smp::IObject const *parent) {
 
         // check closing bracket
         if (*next != ']')
-            ::Xsmp::Exception::throwInvalidObjectName(parent, name);
+            ::Xsmp::Exception::throwInvalidObjectName(parent, name,
+                    "Name '"
+                            + std::string { name, static_cast<std::size_t>(next
+                                    - name) }
+                            + "' shall be followed by a digit or a ']'.");
         ++next;
     }
 
     // check end of name
     if (*next != '\0')
-        ::Xsmp::Exception::throwInvalidObjectName(parent, name);
+        ::Xsmp::Exception::throwInvalidObjectName(parent, name,
+                "Name '"
+                        + std::string { name, static_cast<std::size_t>(next
+                                - name) } + "' shall be followed by "
+                        + ((*(next - 1) != ']') ?
+                                "a letter or a digit or an '_' or " : "")
+                        + "a '[' or null terminated ('\\0').");
 
-    return std::string{name, static_cast<std::size_t>(next - name)};
+    return std::string { name, static_cast<std::size_t>(next - name) };
 }
 } // namespace Xsmp::Helper

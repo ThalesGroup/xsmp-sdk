@@ -211,14 +211,14 @@ TEST(ExceptionTest, InvalidObjectName) {
     Object sender { "name" };
 
     try {
-        throwInvalidObjectName(&sender, "test");
+        throwInvalidObjectName(&sender, "test", "description");
     }
     catch (const Smp::InvalidObjectName &e) {
         EXPECT_STREQ(e.GetName(), "InvalidObjectName");
         EXPECT_STREQ(e.GetDescription(),
                 "Cannot set an object's name to an invalid name");
         EXPECT_EQ(e.GetSender(), &sender);
-        EXPECT_STREQ(e.GetMessage(), "The object's name 'test' is invalid.");
+        EXPECT_STREQ(e.GetMessage(), "The object's name 'test' is invalid. description");
 
         EXPECT_STREQ(e.GetInvalidName(), "test");
         return;
@@ -234,14 +234,14 @@ TEST(ExceptionTest, InvalidObjectNameNull) {
     Object sender { "name" };
 
     try {
-        throwInvalidObjectName(&sender, nullptr);
+        throwInvalidObjectName(&sender, nullptr, "description");
     }
     catch (const Smp::InvalidObjectName &e) {
         EXPECT_STREQ(e.GetName(), "InvalidObjectName");
         EXPECT_STREQ(e.GetDescription(),
                 "Cannot set an object's name to an invalid name");
         EXPECT_EQ(e.GetSender(), &sender);
-        EXPECT_STREQ(e.GetMessage(), "The object's name '<null>' is invalid.");
+        EXPECT_STREQ(e.GetMessage(), "The object's name '<null>' is invalid. description");
 
         EXPECT_STREQ(e.GetInvalidName(), "<null>");
         return;

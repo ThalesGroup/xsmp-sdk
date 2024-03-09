@@ -216,10 +216,12 @@ public:
 
 class InvalidObjectName final: public Exception, public ::Smp::InvalidObjectName {
 public:
-    InvalidObjectName(const ::Smp::IObject *sender, ::Smp::String8 name) :
+    InvalidObjectName(const ::Smp::IObject *sender, ::Smp::String8 name,
+            std::string_view description) :
             Exception(sender, __func__,
                     "Cannot set an object's name to an invalid name",
-                    "The object's name '", nullCheck(name), "' is invalid."),
+                    "The object's name '", nullCheck(name), "' is invalid. ",
+                    description),
 
             _name(nullCheck(name)) {
     }
@@ -1362,8 +1364,9 @@ void throwCannotRestore(const ::Smp::IObject *sender, std::string_view msg) {
     throw CannotRestore(sender, msg);
 }
 
-void throwInvalidObjectName(const ::Smp::IObject *sender, ::Smp::String8 name) {
-    throw InvalidObjectName(sender, name);
+void throwInvalidObjectName(const ::Smp::IObject *sender, ::Smp::String8 name,
+        std::string_view description) {
+    throw InvalidObjectName(sender, name, description);
 }
 
 void throwContainerFull(const ::Smp::IContainer *sender) {
