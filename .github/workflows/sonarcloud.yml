@@ -4,6 +4,8 @@ on:
    push:
       branches:
       - main
+      tags:
+      - '**'
    pull_request:
       branches:
       - main
@@ -20,6 +22,7 @@ jobs:
       env:
          BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
          BUILD_TYPE: Debug
+         CONFIGURE_CMD: cmake -B build -DCMAKE_BUILD_TYPE=Debug -DXSMP_ENABLE_CODECOVERAGE=ON -S ${{github.workspace}}
       steps:
       -  uses: actions/checkout@v4
          with:
@@ -36,10 +39,12 @@ jobs:
          uses: SonarSource/sonarcloud-github-c-cpp@v2
       -  name: Configure cmake
          run: |
-            cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DXSMP_ENABLE_CODECOVERAGE=ON -S ${{github.workspace}}
+            ${{env.CONFIGURE_CMD}}
+            #extract project version
+            echo "PROJECT_VERSION=$(${{env.CONFIGURE_CMD}} | grep -oP 'xsmp-sdk v\K[^ ]+')" >> $GITHUB_ENV
       -  name: Run build-wrapper
          run: |
-            build-wrapper-linux-x86-64 --out-dir ${{env.BUILD_WRAPPER_OUT_DIR}} cmake --build build/ --config ${{env.BUILD_TYPE}} -j 2
+            build-wrapper-linux-x86-64 --out-dir ${{env.BUILD_WRAPPER_OUT_DIR}} cmake --build build --config ${{env.BUILD_TYPE}} -j 2
       -  name: Run tests
          uses: nick-fields/retry@v3
          with:
@@ -58,6 +63,7 @@ jobs:
             sonar-scanner
             -Dsonar.projectKey=ThalesGroup_xsmp-sdk
             -Dsonar.organization=thalesgroup
+            -Dsonar.projectVersion=${{env.PROJECT_VERSION}}
             -Dsonar.cfamily.build-wrapper-output="${{env.BUILD_WRAPPER_OUT_DIR}}"
             -Dsonar.coverageReportPaths=coverage.xml
             -Dsonar.sources=include,src

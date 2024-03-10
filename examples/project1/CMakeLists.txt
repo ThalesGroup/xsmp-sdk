@@ -14,7 +14,7 @@ if(NOT PARENT_PROJECT_NAME)
     FetchContent_Declare(
         xsmp-sdk
         GIT_REPOSITORY https://github.com/ThalesGroup/xsmp-sdk.git
-        GIT_TAG        main # replace with a specific tag
+        GIT_TAG        v1.0.0 # replace with a specific tag
     )
     
     FetchContent_MakeAvailable(xsmp-sdk)
