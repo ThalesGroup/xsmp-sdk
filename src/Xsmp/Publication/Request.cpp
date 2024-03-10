@@ -89,7 +89,7 @@ void Request::init(const std::string &name,
     // init a simple type
     if (type->GetPrimitiveTypeKind() != ::Smp::PrimitiveTypeKind::PTK_None) {
         _values.emplace_back(::Smp::AnySimple { }, type);
-        _indexes.try_emplace(name, _indexes.size());
+        _indexes.try_emplace(name, static_cast<::Smp::Int32>(_indexes.size()));
     }
     // init an array type
     else if (auto *array =

@@ -26,7 +26,7 @@ file(GLOB_RECURSE SRC CONFIGURE_DEPENDS src/*.cpp src-gen/*.cpp)
 add_library(xsmp_example_project1 SHARED ${SRC})
 target_include_directories(xsmp_example_project1 PUBLIC src src-gen)
 target_link_libraries(xsmp_example_project1 PUBLIC Xsmp::Cdk)
-
+target_compile_options(xsmp_example_project1 PRIVATE ${XSMP_COMPILE_OPTIONS})
 
 # --------------------------------------------------------------------
 

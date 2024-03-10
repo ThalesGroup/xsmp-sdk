@@ -108,8 +108,12 @@ if(XSMP_ENABLE_CODECOVERAGE)
     endif()
 endif(XSMP_ENABLE_CODECOVERAGE)
 
+#disable inheritance via dominance warning on MSVC
+if(MSVC)
+    add_compile_options(/wd4250)
+endif(MSVC)
+
 if(XSMP_BUILD_WITH_WARNINGS)
-    
     macro(add_compiler_flags)
         foreach(flag ${ARGV})
             set(XSMP_COMPILE_OPTIONS ${XSMP_COMPILE_OPTIONS} ${flag})
@@ -571,10 +575,14 @@ if(XSMP_BUILD_TESTS)
                                     Xsmp::Services
                                     GTest::gtest_main
     )
+    #disable some warnings on MSVC&Clang with GTest
     if(MSVC)
-        target_compile_options(XsmpTests PRIVATE /bigobj)
+        target_compile_options(XsmpTests PRIVATE /bigobj /wd4250)
     endif(MSVC)
-
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        target_compile_options(XsmpTests PRIVATE -Wno-unused-value)
+    endif()
+    
     gtest_discover_tests(XsmpTests)
     include(Pytest)
     pytest_discover_tests() 
