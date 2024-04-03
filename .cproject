@@ -44,8 +44,8 @@
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
-			<storageModule buildDir="_build/Debug" dirtyTs="1704361644182" moduleId="de.marw.cmake4eclipse.mbs.settings">
-				<options otherArguments="-DCMAKE_CXX_COMPILER=g++&#10;-DXSMP_BUILD_WITH_WARNINGS=ON&#10;-DXSMP_ENABLE_CODECOVERAGE:BOOL=ON&#10;-DXSMP_BUILD_EXAMPLES=ON"/>
+			<storageModule buildDir="_build/Debug" dirtyTs="1709997628524" moduleId="de.marw.cmake4eclipse.mbs.settings">
+				<options otherArguments="-DCMAKE_CXX_COMPILER=g++&#10;-DXSMP_BUILD_WITH_WARNINGS=ON&#10;-DXSMP_ENABLE_CODECOVERAGE:BOOL=ON&#10;-DXSMP_BUILD_EXAMPLES=ON&#10;-DCMAKE_INSTALL_PREFIX=~/cmake_install"/>
 			</storageModule>
 		</cconfiguration>
 		<cconfiguration id="cmake4eclipse.mbs.config.release.1009017204">

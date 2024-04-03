@@ -289,7 +289,7 @@ if(XSMP_BUILD_PYTHON_BINDINGS)
     FetchContent_Declare(
       pybind11
       GIT_REPOSITORY https://github.com/pybind/pybind11.git
-      GIT_TAG        8b48ff878c168b51fe5ef7b8c728815b9e1a9857
+      GIT_TAG        v2.12.0
     )
     FetchContent_MakeAvailable(pybind11)
 

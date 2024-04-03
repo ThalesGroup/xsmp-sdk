@@ -1,0 +1,18 @@
+/**
+ * Example project using XSMP Simulator Development Kit
+ * 
+ * @date 2024-04-03T19:48:10.000+0200
+ */
+project 'xsmp-examples-project1'
+
+// modeling files are located in smdl directory
+source "smdl"
+
+// use XSMP-SDK Profile
+profile "org.eclipse.xsmp.profile.xsmp-sdk"
+
+
+// use Python wrapper
+tool "org.eclipse.xsmp.tool.python"
+tool "org.eclipse.xsmp.tool.smp"
+

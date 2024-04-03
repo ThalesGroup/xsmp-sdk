@@ -1,4 +1,4 @@
-// Copyright 2023 THALES ALENIA SPACE FRANCE. All rights reserved.
+// Copyright 2023-${year} THALES ALENIA SPACE FRANCE. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 /**
  * Catalogue XsmpServices
  * 
- * @date 2023-06-05T18:21:21.000+0200
+ * @date 2024-04-03T19:50:03.000+0200
  * @creator Y.Daveluy
  */
 catalogue xsmp_time_keeper
@@ -23,15 +23,15 @@ catalogue xsmp_time_keeper
 
 namespace Xsmp
 {
-    namespace Services
-    {
-        /** @uuid 00e6747e-2047-4c13-bda5-baf50819e768 */
-        public service XsmpTimeKeeper implements Smp.Services.ITimeKeeper, Smp.IPersist
-        {
-            entrypoint PreSimTimeChange
+	namespace Services
+	{
+		/** @uuid 00e6747e-2047-4c13-bda5-baf50819e768 */
+		public service XsmpTimeKeeper implements Smp.Services.ITimeKeeper, Smp.IPersist
+		{
+			entrypoint PreSimTimeChange
 
-            entrypoint PostSimTimeChange
-        }
-    } // namespace Services
+			entrypoint PostSimTimeChange
+		}
+	} // namespace Services
 } // namespace Xsmp
 

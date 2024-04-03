@@ -1,4 +1,4 @@
-// Copyright 2023 THALES ALENIA SPACE FRANCE. All rights reserved.
+// Copyright 2023-${year} THALES ALENIA SPACE FRANCE. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 /**
  * Catalogue XsmpServices
  * 
- * @date 2023-06-05T18:18:20.000+0200
+ * @date 2024-04-03T19:49:31.000+0200
  * @creator Y.Daveluy
  */
 catalogue xsmp_link_registry
@@ -23,12 +23,12 @@ catalogue xsmp_link_registry
 
 namespace Xsmp
 {
-    namespace Services
-    {
-        /** @uuid cb874041-3bf6-42c0-8a7a-ac8fd2809367 */
-        public service XsmpLinkRegistry implements Smp.Services.ILinkRegistry
-        {
-        }
-    } // namespace Services
+	namespace Services
+	{
+		/** @uuid cb874041-3bf6-42c0-8a7a-ac8fd2809367 */
+		public service XsmpLinkRegistry implements Smp.Services.ILinkRegistry
+		{
+		}
+	} // namespace Services
 } // namespace Xsmp
 

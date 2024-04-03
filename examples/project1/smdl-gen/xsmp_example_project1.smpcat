@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ASCII"?>
-<Catalogue:Catalogue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Catalogue="http://www.ecss.nl/smp/2019/Smdl/Catalogue" xmlns:Types="http://www.ecss.nl/smp/2019/Core/Types" xmlns:xlink="http://www.w3.org/1999/xlink" Id="_xsmp_example_project1" Name="xsmp_example_project1" Date="2024-01-04T12:29:45.000Z" Creator="Y.Daveluy">
+<Catalogue:Catalogue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Catalogue="http://www.ecss.nl/smp/2019/Smdl/Catalogue" xmlns:Types="http://www.ecss.nl/smp/2019/Core/Types" xmlns:xlink="http://www.w3.org/1999/xlink" Id="_xsmp_example_project1" Name="xsmp_example_project1" Date="2024-04-03T17:49:02.000Z" Creator="Y.Daveluy">
   <Description>Catalogue xsmp_example_project1</Description>
   <Namespace Id="Example" Name="Example">
     <Description></Description>
@@ -7,7 +7,7 @@
       <Description></Description>
       <EventArgs xlink:title="Int32" xlink:href="http://www.ecss.nl/smp/2019/Smdl#Smp.Int32"/>
     </Type>
-    <Type xsi:type="Catalogue:Model" Id="Example.Counter" Name="Counter" Uuid="2386045d-5cff-46b5-b6da-3ff6e2cfd792">
+    <Type xsi:type="Catalogue:Model" Id="Example.Counter" Name="Counter" Visibility="public" Uuid="2386045d-5cff-46b5-b6da-3ff6e2cfd792">
       <Description></Description>
       <Operation Id="Example.Counter.ResetCount" Name="ResetCount">
         <Description></Description>
