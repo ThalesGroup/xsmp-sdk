@@ -27,44 +27,42 @@ namespace fs = std::filesystem;
 namespace Xsmp {
 namespace {
 std::ifstream createInputStream(::Smp::String8 path, ::Smp::String8 filename,
-        const ::Smp::IObject *object) {
+                                const ::Smp::IObject *object) {
 
-    auto fullPath = fs::path(path ? path : "") / (filename ? filename : "");
-    std::ifstream is { fullPath, std::ios::binary };
+  auto fullPath = fs::path(path ? path : "") / (filename ? filename : "");
+  std::ifstream is{fullPath, std::ios::binary};
 
-    if (!is.good())
-        ::Xsmp::Exception::throwCannotRestore(object,
-                "Cannot open file: " + fullPath.string());
-    return is;
+  if (!is.good())
+    ::Xsmp::Exception::throwCannotRestore(object, "Cannot open file: " +
+                                                      fullPath.string());
+  return is;
 }
 } // namespace
 
 StorageReader::StorageReader(::Smp::String8 path, ::Smp::String8 filename,
-        const ::Smp::IObject *object) :
-        _path(path ? path : ""), _filename(filename ? filename : ""), _object {
-                object }, _is(createInputStream(path, filename, object)) {
-
-}
+                             const ::Smp::IObject *object)
+    : _path(path ? path : ""), _filename(filename ? filename : ""),
+      _object{object}, _is(createInputStream(path, filename, object)) {}
 
 void StorageReader::Restore(void *address, ::Smp::UInt64 size) {
-    _is.read(static_cast<char*>(address), static_cast<std::streamsize>(size));
-    if (_is.bad())
-        ::Xsmp::Exception::throwCannotRestore(_object,
-                "Read/ error on input operation");
-    if (_is.fail())
-        ::Xsmp::Exception::throwCannotRestore(_object,
-                "Logical error on input operation");
-    if (_is.eof())
-        ::Xsmp::Exception::throwCannotRestore(_object,
-                "End-of-File reached on input operation");
+  _is.read(static_cast<char *>(address), static_cast<std::streamsize>(size));
+  if (_is.bad())
+    ::Xsmp::Exception::throwCannotRestore(_object,
+                                          "Read/ error on input operation");
+  if (_is.fail())
+    ::Xsmp::Exception::throwCannotRestore(_object,
+                                          "Logical error on input operation");
+  if (_is.eof())
+    ::Xsmp::Exception::throwCannotRestore(
+        _object, "End-of-File reached on input operation");
 }
 
 ::Smp::String8 StorageReader::GetStateVectorFileName() const {
-    return _filename.c_str();
+  return _filename.c_str();
 }
 
 ::Smp::String8 StorageReader::GetStateVectorFilePath() const {
-    return _path.c_str();
+  return _path.c_str();
 }
 
 } // namespace Xsmp

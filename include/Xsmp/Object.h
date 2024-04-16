@@ -21,21 +21,21 @@
 
 namespace Xsmp {
 
-class Object: public virtual ::Smp::IObject {
+class Object : public virtual ::Smp::IObject {
 public:
-    Object(::Smp::String8 name, ::Smp::String8 description = "",
-            ::Smp::IObject *parent = nullptr);
-    Object(const Object&) = delete;
-    Object& operator=(const Object&) = delete;
-    ~Object() noexcept override = default;
-    ::Smp::String8 GetName() const final;
-    ::Smp::String8 GetDescription() const final;
-    ::Smp::IObject* GetParent() const final;
+  Object(::Smp::String8 name, ::Smp::String8 description = "",
+         ::Smp::IObject *parent = nullptr);
+  Object(const Object &) = delete;
+  Object &operator=(const Object &) = delete;
+  ~Object() noexcept override = default;
+  ::Smp::String8 GetName() const final;
+  ::Smp::String8 GetDescription() const final;
+  ::Smp::IObject *GetParent() const final;
 
 private:
-    std::string _name;
-    std::string _description;
-    ::Smp::IObject *_parent;
+  std::string _name;
+  std::string _description;
+  ::Smp::IObject *_parent;
 };
 
 } // namespace Xsmp

@@ -19,59 +19,48 @@
 
 namespace Xsmp {
 
-FactoryCollection::FactoryCollection(::Smp::IObject *parent) :
-        _parent { parent } {
+FactoryCollection::FactoryCollection(::Smp::IObject *parent)
+    : _parent{parent} {}
+::Smp::String8 FactoryCollection::GetName() const { return "Factories"; }
 
-}
-::Smp::String8 FactoryCollection::GetName() const {
-    return "Factories";
-}
+::Smp::String8 FactoryCollection::GetDescription() const { return ""; }
 
-::Smp::String8 FactoryCollection::GetDescription() const {
-    return "";
-}
-
-::Smp::IObject* FactoryCollection::GetParent() const {
-    return _parent;
-}
-::Smp::IFactory* FactoryCollection::at(::Smp::String8 name) const {
-    if (!name)
-        return nullptr;
-    auto it = _factory_map.find(name);
-    return (it == _factory_map.end()) ? nullptr : it->second;
+::Smp::IObject *FactoryCollection::GetParent() const { return _parent; }
+::Smp::IFactory *FactoryCollection::at(::Smp::String8 name) const {
+  if (!name)
+    return nullptr;
+  auto it = _factory_map.find(name);
+  return (it == _factory_map.end()) ? nullptr : it->second;
 }
 
-::Smp::IFactory* FactoryCollection::at(std::size_t index) const {
-    return (index < _factories.size() ? _factories[index] : nullptr);
+::Smp::IFactory *FactoryCollection::at(std::size_t index) const {
+  return (index < _factories.size() ? _factories[index] : nullptr);
 }
 
-::Smp::IFactory* FactoryCollection::at(::Smp::Uuid uuid) const {
-    auto it = _uuid_map.find(uuid);
-    return (it == _uuid_map.end()) ? nullptr : it->second.get();
+::Smp::IFactory *FactoryCollection::at(::Smp::Uuid uuid) const {
+  auto it = _uuid_map.find(uuid);
+  return (it == _uuid_map.end()) ? nullptr : it->second.get();
 }
 
-std::size_t FactoryCollection::size() const {
-    return _factories.size();
-}
+std::size_t FactoryCollection::size() const { return _factories.size(); }
 FactoryCollection::const_iterator FactoryCollection::begin() const {
-    return FactoryCollection::const_iterator(*this, 0);
+  return FactoryCollection::const_iterator(*this, 0);
 }
 FactoryCollection::const_iterator FactoryCollection::end() const {
-    return FactoryCollection::const_iterator(*this, _factories.size());
+  return FactoryCollection::const_iterator(*this, _factories.size());
 }
 
-//Add an element to the collection
+// Add an element to the collection
 void FactoryCollection::Add(::Smp::IFactory *factory) {
 
-    auto f = std::unique_ptr<::Smp::IFactory>(factory);
-    if (auto it = _uuid_map.find(factory->GetUuid()); it != _uuid_map.end())
-        ::Xsmp::Exception::throwDuplicateUuid(this, it->second.get(),
-                factory->GetName());
+  auto f = std::unique_ptr<::Smp::IFactory>(factory);
+  if (auto it = _uuid_map.find(factory->GetUuid()); it != _uuid_map.end())
+    ::Xsmp::Exception::throwDuplicateUuid(this, it->second.get(),
+                                          factory->GetName());
 
-    _uuid_map.try_emplace(factory->GetUuid(), std::move(f));
-    _factory_map.try_emplace(factory->GetName(), factory);
-    _factories.push_back(factory);
+  _uuid_map.try_emplace(factory->GetUuid(), std::move(f));
+  _factory_map.try_emplace(factory->GetName(), factory);
+  _factories.push_back(factory);
 }
 
 } // namespace Xsmp
-

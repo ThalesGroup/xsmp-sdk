@@ -30,81 +30,79 @@ namespace {
 /// - windows: <libraryName>.dll
 std::string LibraryFileName(const char *libraryName) {
 #if (defined(_WIN32) || defined(_WIN64))
-    return std::string(libraryName) + ".dll";
+  return std::string(libraryName) + ".dll";
 #elif defined(__APPLE__)
-    return std::string("lib") + libraryName + ".dylib";
+  return std::string("lib") + libraryName + ".dylib";
 #else
-    return std::string("lib") + libraryName + ".so";
+  return std::string("lib") + libraryName + ".so";
 #endif
 }
 
 } // namespace
 
-void* LoadLibrary(const char *libraryName) {
-    if (!libraryName)
-        return nullptr;
+void *LoadLibrary(const char *libraryName) {
+  if (!libraryName)
+    return nullptr;
 #if (defined(_WIN32) || defined(_WIN64))
-    return LoadLibraryA(LibraryFileName(libraryName).c_str());
+  return LoadLibraryA(LibraryFileName(libraryName).c_str());
 #else
-    // On MacOs the default is RTLD_GLOBAL
-    // On Linux the default is RTLD_LOCAL
-    return dlopen(LibraryFileName(libraryName).c_str(), RTLD_NOW);
+  // On MacOs the default is RTLD_GLOBAL
+  // On Linux the default is RTLD_LOCAL
+  return dlopen(LibraryFileName(libraryName).c_str(), RTLD_NOW);
 #endif
 }
 
 void CloseLibrary(void *handle) {
 #if (defined(_WIN32) || defined(_WIN64))
-    FreeLibrary(static_cast<HMODULE>(handle));
+  FreeLibrary(static_cast<HMODULE>(handle));
 #else
-    dlclose(handle);
+  dlclose(handle);
 #endif
 }
 
-void* GetSymbol(void *handle, const char *symbolName) {
-    if (!symbolName)
-        return nullptr;
+void *GetSymbol(void *handle, const char *symbolName) {
+  if (!symbolName)
+    return nullptr;
 #if (defined(_WIN32) || defined(_WIN64))
-    return GetProcAddress(static_cast<HMODULE>(handle), symbolName);
+  return GetProcAddress(static_cast<HMODULE>(handle), symbolName);
 #else
-    dlerror(); // Clear any existing error
-    return dlsym(handle, symbolName);
+  dlerror(); // Clear any existing error
+  return dlsym(handle, symbolName);
 #endif
 }
 
 // Create a string with last error message
 std::string GetLastError() {
 #if (defined(_WIN32) || defined(_WIN64))
-    DWORD error = ::GetLastError();
-    if (error) {
-        LPVOID lpMsgBuf;
-        DWORD bufLen = FormatMessageW(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER |
-            FORMAT_MESSAGE_FROM_SYSTEM |
+  DWORD error = ::GetLastError();
+  if (error) {
+    LPVOID lpMsgBuf;
+    DWORD bufLen = FormatMessageW(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
             FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL,
-            error,
-            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-            (LPWSTR)&lpMsgBuf,
-            0, NULL);
+        NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (LPWSTR)&lpMsgBuf, 0, NULL);
 
-        if (bufLen) {
-            LPCWSTR lpMsgStr = (LPCWSTR)lpMsgBuf;
-            int utf8BufferSize = WideCharToMultiByte(CP_UTF8, 0, lpMsgStr, -1, NULL, 0, NULL, NULL);
-            if (utf8BufferSize > 0) {
-                std::string result(utf8BufferSize, 0);
-                WideCharToMultiByte(CP_UTF8, 0, lpMsgStr, -1, &result[0], utf8BufferSize, NULL, NULL);
+    if (bufLen) {
+      LPCWSTR lpMsgStr = (LPCWSTR)lpMsgBuf;
+      int utf8BufferSize =
+          WideCharToMultiByte(CP_UTF8, 0, lpMsgStr, -1, NULL, 0, NULL, NULL);
+      if (utf8BufferSize > 0) {
+        std::string result(utf8BufferSize, 0);
+        WideCharToMultiByte(CP_UTF8, 0, lpMsgStr, -1, &result[0],
+                            utf8BufferSize, NULL, NULL);
 
-                LocalFree(lpMsgBuf);
+        LocalFree(lpMsgBuf);
 
-                return result;
-            }
-        }
+        return result;
+      }
     }
+  }
 #else
-    if (auto const *error = dlerror())
-        return error;
+  if (auto const *error = dlerror())
+    return error;
 #endif
-    return std::string();
+  return std::string();
 }
 
 } // namespace Xsmp

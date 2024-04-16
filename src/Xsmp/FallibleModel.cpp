@@ -16,23 +16,21 @@
 
 namespace Xsmp {
 
-FallibleModel::FallibleModel() :
-        _failures { "FailuresCollection", "", this } {
-}
+FallibleModel::FallibleModel() : _failures{"FailuresCollection", "", this} {}
 
 ::Smp::Bool FallibleModel::IsFailed() const {
 
-    for (auto const *failure : _failures)
-        if (failure->IsFailed())
-            return true;
-    return false;
+  for (auto const *failure : _failures)
+    if (failure->IsFailed())
+      return true;
+  return false;
 }
-const ::Smp::FailureCollection* FallibleModel::GetFailures() const {
-    return &_failures;
+const ::Smp::FailureCollection *FallibleModel::GetFailures() const {
+  return &_failures;
 }
 
-::Smp::IFailure* FallibleModel::GetFailure(::Smp::String8 name) const {
-    return _failures.at(name);
+::Smp::IFailure *FallibleModel::GetFailure(::Smp::String8 name) const {
+  return _failures.at(name);
 }
 
 } // namespace Xsmp

@@ -24,37 +24,39 @@
 
 namespace Xsmp::Services {
 
-class XsmpResolver final: public XsmpResolverGen {
+class XsmpResolver final : public XsmpResolverGen {
 public:
-    // ------------------------------------------------------------------------------------
-    // -------------------------- Constructors/Destructor --------------------------
-    // ------------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------------
+  // -------------------------- Constructors/Destructor
+  // --------------------------
+  // ------------------------------------------------------------------------------------
 
-    using XsmpResolverGen::XsmpResolverGen;
+  using XsmpResolverGen::XsmpResolverGen;
 
-    /// Virtual destructor to release memory.
-    ~XsmpResolver() noexcept override = default;
+  /// Virtual destructor to release memory.
+  ~XsmpResolver() noexcept override = default;
 
-    /// Resolve reference to an object via absolute path.
-    /// An absolute path contains the name of either a Model or
-    /// Service, but not the name of the simulator, although the
-    /// simulator itself is the top-level object. This allows keeping
-    /// names as short as possible, and avoids a dependency on the name
-    /// of the simulator itself.
-    /// @param   absolutePath Absolute path to object in simulation.
-    /// @return  Object identified by path, or null if no object with
-    ///          the given path could be found.
-    ::Smp::IObject* ResolveAbsolute(::Smp::String8 absolutePath) override;
+  /// Resolve reference to an object via absolute path.
+  /// An absolute path contains the name of either a Model or
+  /// Service, but not the name of the simulator, although the
+  /// simulator itself is the top-level object. This allows keeping
+  /// names as short as possible, and avoids a dependency on the name
+  /// of the simulator itself.
+  /// @param   absolutePath Absolute path to object in simulation.
+  /// @return  Object identified by path, or null if no object with
+  ///          the given path could be found.
+  ::Smp::IObject *ResolveAbsolute(::Smp::String8 absolutePath) override;
 
-    /// Resolve reference to an object via relative path.
-    /// @param   relativePath Relative path to object in simulation.
-    /// @param   sender Component that asks for resolving the reference.
-    /// @return  Component identified by path, or null if no component
-    ///          with the given path could be found.
-    ::Smp::IObject* ResolveRelative(::Smp::String8 relativePath,
-            const ::Smp::IComponent *sender) override;
+  /// Resolve reference to an object via relative path.
+  /// @param   relativePath Relative path to object in simulation.
+  /// @param   sender Component that asks for resolving the reference.
+  /// @return  Component identified by path, or null if no component
+  ///          with the given path could be found.
+  ::Smp::IObject *ResolveRelative(::Smp::String8 relativePath,
+                                  const ::Smp::IComponent *sender) override;
+
 private:
-    friend class ::Xsmp::Component::Helper;
+  friend class ::Xsmp::Component::Helper;
 };
 
 } // namespace Xsmp::Services

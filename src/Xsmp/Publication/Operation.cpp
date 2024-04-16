@@ -27,162 +27,145 @@
 
 namespace Xsmp::Publication {
 
-Operation::Parameter::Parameter(::Smp::String8 name, ::Smp::String8 description,
-        ::Smp::IObject *parent, ::Smp::Publication::IType *type,
-        ::Smp::Publication::ParameterDirectionKind direction) :
-        _name(::Xsmp::Helper::checkName(name, parent)), _description(
-                description ? description : ""), _parent(parent), _type(type), _direction(
-                direction) {
-}
-::Smp::String8 Operation::Parameter::GetName() const {
-    return _name.c_str();
-}
+Operation::Parameter::Parameter(
+    ::Smp::String8 name, ::Smp::String8 description, ::Smp::IObject *parent,
+    ::Smp::Publication::IType *type,
+    ::Smp::Publication::ParameterDirectionKind direction)
+    : _name(::Xsmp::Helper::checkName(name, parent)),
+      _description(description ? description : ""), _parent(parent),
+      _type(type), _direction(direction) {}
+::Smp::String8 Operation::Parameter::GetName() const { return _name.c_str(); }
 
 ::Smp::String8 Operation::Parameter::GetDescription() const {
-    return _description.c_str();
+  return _description.c_str();
 }
 
-::Smp::IObject* Operation::Parameter::GetParent() const {
-    return _parent;
-}
-::Smp::Publication::IType* Operation::Parameter::GetType() const {
-    return _type;
+::Smp::IObject *Operation::Parameter::GetParent() const { return _parent; }
+::Smp::Publication::IType *Operation::Parameter::GetType() const {
+  return _type;
 }
 
-::Smp::Publication::ParameterDirectionKind Operation::Parameter::GetDirection() const {
-    return _direction;
+::Smp::Publication::ParameterDirectionKind
+Operation::Parameter::GetDirection() const {
+  return _direction;
 }
 
 Operation::Operation(::Smp::String8 name, ::Smp::String8 description,
-        ::Smp::IObject *parent, ::Smp::ViewKind view,
-        ::Smp::Publication::ITypeRegistry *typeRegistry) :
-        _name(::Xsmp::Helper::checkName(name, parent)), _description(
-                description ? description : ""), _parent(parent), _parameters {
-                "Parameters", "", parent }, _typeRegistry { typeRegistry }, _view(
-                view) {
-
-}
-::Smp::String8 Operation::GetName() const {
-    return _name.c_str();
-}
+                     ::Smp::IObject *parent, ::Smp::ViewKind view,
+                     ::Smp::Publication::ITypeRegistry *typeRegistry)
+    : _name(::Xsmp::Helper::checkName(name, parent)),
+      _description(description ? description : ""), _parent(parent),
+      _parameters{"Parameters", "", parent}, _typeRegistry{typeRegistry},
+      _view(view) {}
+::Smp::String8 Operation::GetName() const { return _name.c_str(); }
 
 ::Smp::String8 Operation::GetDescription() const {
-    return _description.c_str();
+  return _description.c_str();
 }
 
-::Smp::IObject* Operation::GetParent() const {
-    return _parent;
-}
-void Operation::PublishParameter(::Smp::String8 name,
-        ::Smp::String8 description, ::Smp::Uuid typeUuid,
-        ::Smp::Publication::ParameterDirectionKind direction) {
+::Smp::IObject *Operation::GetParent() const { return _parent; }
+void Operation::PublishParameter(
+    ::Smp::String8 name, ::Smp::String8 description, ::Smp::Uuid typeUuid,
+    ::Smp::Publication::ParameterDirectionKind direction) {
 
-    auto *type = _typeRegistry->GetType(typeUuid);
-    if (!type)
-        ::Xsmp::Exception::throwTypeNotRegistered(this, typeUuid);
+  auto *type = _typeRegistry->GetType(typeUuid);
+  if (!type)
+    ::Xsmp::Exception::throwTypeNotRegistered(this, typeUuid);
 
-    if (direction == ::Smp::Publication::ParameterDirectionKind::PDK_Return) {
-        if (_returnParameter)
-            ::Xsmp::Exception::throwException(this,
-                    "ReturnParameterAlreadyPublished",
-                    "This Exception is thrown when trying to publish a return parameter.",
-                    "The return parameter \'", _returnParameter->GetName(),
-                    "` is already published.");
-        _returnParameter = std::make_unique<Parameter>(name, description, this,
-                type, direction);
-    }
-    else
-        _parameters.Add<Parameter>(name, description, this, type, direction);
-
+  if (direction == ::Smp::Publication::ParameterDirectionKind::PDK_Return) {
+    if (_returnParameter)
+      ::Xsmp::Exception::throwException(
+          this, "ReturnParameterAlreadyPublished",
+          "This Exception is thrown when trying to publish a return parameter.",
+          "The return parameter \'", _returnParameter->GetName(),
+          "` is already published.");
+    _returnParameter =
+        std::make_unique<Parameter>(name, description, this, type, direction);
+  } else
+    _parameters.Add<Parameter>(name, description, this, type, direction);
 }
 
-const ::Smp::ParameterCollection* Operation::GetParameters() const {
-    return &_parameters;
+const ::Smp::ParameterCollection *Operation::GetParameters() const {
+  return &_parameters;
 }
 
-::Smp::IParameter* Operation::GetParameter(::Smp::String8 name) const {
+::Smp::IParameter *Operation::GetParameter(::Smp::String8 name) const {
 
-    if (auto *parameter = _parameters.at(name))
-        return parameter;
-    if (_returnParameter && std::strcmp(_returnParameter->GetName(), name) == 0)
-        return _returnParameter.get();
-    return nullptr;
-}
-
-::Smp::IParameter* Operation::GetReturnParameter() const {
+  if (auto *parameter = _parameters.at(name))
+    return parameter;
+  if (_returnParameter && std::strcmp(_returnParameter->GetName(), name) == 0)
     return _returnParameter.get();
+  return nullptr;
 }
 
-::Smp::ViewKind Operation::GetView() const {
-    return _view;
+::Smp::IParameter *Operation::GetReturnParameter() const {
+  return _returnParameter.get();
 }
 
-::Smp::IRequest* Operation::CreateRequest() {
-    // create the request only if the operation is invokable
-    for (auto const *param : _parameters) {
-        if (param->GetType()->GetPrimitiveTypeKind()
-                == ::Smp::PrimitiveTypeKind::PTK_None)
-            return nullptr;
-    }
-    if (_returnParameter
-            && _returnParameter->GetType()->GetPrimitiveTypeKind()
-                    == ::Smp::PrimitiveTypeKind::PTK_None) {
-        return nullptr;
-    }
-    return new ::Xsmp::Publication::Request(this, _typeRegistry);
+::Smp::ViewKind Operation::GetView() const { return _view; }
+
+::Smp::IRequest *Operation::CreateRequest() {
+  // create the request only if the operation is invokable
+  for (auto const *param : _parameters) {
+    if (param->GetType()->GetPrimitiveTypeKind() ==
+        ::Smp::PrimitiveTypeKind::PTK_None)
+      return nullptr;
+  }
+  if (_returnParameter && _returnParameter->GetType()->GetPrimitiveTypeKind() ==
+                              ::Smp::PrimitiveTypeKind::PTK_None) {
+    return nullptr;
+  }
+  return new ::Xsmp::Publication::Request(this, _typeRegistry);
 }
 
 void Operation::Invoke(::Smp::IRequest *request) {
 
-    auto *operationName = request ? request->GetOperationName() : nullptr;
+  auto *operationName = request ? request->GetOperationName() : nullptr;
 
-    // check operation name
-    if (!operationName || std::string_view { GetName() } != operationName)
-        ::Xsmp::Exception::throwInvalidOperationName(this, operationName);
+  // check operation name
+  if (!operationName || std::string_view{GetName()} != operationName)
+    ::Xsmp::Exception::throwInvalidOperationName(this, operationName);
 
-    auto *component = dynamic_cast<::Smp::IDynamicInvocation*>(_parent);
-    // check dynamic invocation
-    if (!component)
-        ::Xsmp::Exception::throwInvalidOperationName(this, operationName);
+  auto *component = dynamic_cast<::Smp::IDynamicInvocation *>(_parent);
+  // check dynamic invocation
+  if (!component)
+    ::Xsmp::Exception::throwInvalidOperationName(this, operationName);
 
-    // check parameter count
-    if (static_cast<std::size_t>(request->GetParameterCount())
-            != _parameters.size())
-        ::Xsmp::Exception::throwInvalidParameterCount(this,
-                request->GetParameterCount());
+  // check parameter count
+  if (static_cast<std::size_t>(request->GetParameterCount()) !=
+      _parameters.size())
+    ::Xsmp::Exception::throwInvalidParameterCount(this,
+                                                  request->GetParameterCount());
 
-    // check input parameters type
-    for (auto const *param : _parameters) {
+  // check input parameters type
+  for (auto const *param : _parameters) {
 
-        // ignore output parameters
-        if (param->GetDirection()
-                == ::Smp::Publication::ParameterDirectionKind::PDK_Out)
-            continue;
+    // ignore output parameters
+    if (param->GetDirection() ==
+        ::Smp::Publication::ParameterDirectionKind::PDK_Out)
+      continue;
 
-        auto kind = request->GetParameterValue(
-                request->GetParameterIndex(param->GetName())).GetType();
-        if (kind != param->GetType()->GetPrimitiveTypeKind())
-            ::Xsmp::Exception::throwInvalidParameterType(this, operationName,
-                    param->GetName(), kind,
-                    param->GetType()->GetPrimitiveTypeKind());
+    auto kind =
+        request->GetParameterValue(request->GetParameterIndex(param->GetName()))
+            .GetType();
+    if (kind != param->GetType()->GetPrimitiveTypeKind())
+      ::Xsmp::Exception::throwInvalidParameterType(
+          this, operationName, param->GetName(), kind,
+          param->GetType()->GetPrimitiveTypeKind());
+  }
 
-    }
-
-    // invoke the request
-    component->Invoke(request);
+  // invoke the request
+  component->Invoke(request);
 }
 
-void Operation::DeleteRequest(::Smp::IRequest *request) {
-    delete request;
-}
+void Operation::DeleteRequest(::Smp::IRequest *request) { delete request; }
 
 void Operation::Update(::Smp::String8 description,
-        ::Smp::ViewKind view) noexcept {
-    _description = description;
-    _view = view;
-    _returnParameter = { };
-    _parameters.clear();
+                       ::Smp::ViewKind view) noexcept {
+  _description = description;
+  _view = view;
+  _returnParameter = {};
+  _parameters.clear();
 }
 
 } // namespace Xsmp::Publication
-

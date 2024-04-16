@@ -15,28 +15,29 @@
 #ifndef PYTHON_SMP_IFACTORY_H_
 #define PYTHON_SMP_IFACTORY_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/IFactory.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIFactory(const py::module_ &m) {
-    py::class_<::Smp::IFactory, ::Smp::IObject>(m, "IFactory",
-            py::multiple_inheritance())
+  py::class_<::Smp::IFactory, ::Smp::IObject>(m, "IFactory",
+                                              py::multiple_inheritance())
 
-    .def("GetUuid", &::Smp::IFactory::GetUuid,
-            "Get Universally unique identifier of the type instantiated by the factory.")
+      .def("GetUuid", &::Smp::IFactory::GetUuid,
+           "Get Universally unique identifier of the type instantiated by the "
+           "factory.")
 
-    .def("GetTypeName", &::Smp::IFactory::GetTypeName,
-            "Returns the fully qualified C++ name of the type.")
+      .def("GetTypeName", &::Smp::IFactory::GetTypeName,
+           "Returns the fully qualified C++ name of the type.")
 
-    .def("CreateInstance", &::Smp::IFactory::CreateInstance, py::arg("name"),
-            py::arg("description"), py::arg("parent"),
-            py::return_value_policy::reference,
-            "Create a new instance with given name, description and parent.")
+      .def("CreateInstance", &::Smp::IFactory::CreateInstance, py::arg("name"),
+           py::arg("description"), py::arg("parent"),
+           py::return_value_policy::reference,
+           "Create a new instance with given name, description and parent.")
 
-    .def("DeleteInstance", &::Smp::IFactory::DeleteInstance,
-            py::arg("instance"), "Delete an existing instance.")
+      .def("DeleteInstance", &::Smp::IFactory::DeleteInstance,
+           py::arg("instance"), "Delete an existing instance.")
 
-    .doc() = "Interface for a component factory.";
+      .doc() = "Interface for a component factory.";
 }
 
 #endif // PYTHON_SMP_IFACTORY_H_

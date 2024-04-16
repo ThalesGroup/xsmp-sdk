@@ -25,282 +25,252 @@
 namespace Xsmp {
 
 struct Duration {
-    constexpr Duration() :
-            _value { } {
+  constexpr Duration() : _value{} {}
+  constexpr explicit Duration(::Smp::Duration duration) : _value(duration) {}
 
-    }
-    constexpr explicit Duration(::Smp::Duration duration) :
-            _value(duration) {
-    }
+  template <class Rep, class Period>
+  constexpr explicit Duration(const std::chrono::duration<Rep, Period> &d)
+      : _value{
+            std::chrono::duration_cast<std::chrono::nanoseconds>(d).count()} {}
+  Duration(std::string_view date, const char *fmt = _defaultFmt);
 
-    template<class Rep, class Period>
-    constexpr explicit Duration(const std::chrono::duration<Rep, Period> &d) :
-            _value {
-                    std::chrono::duration_cast<std::chrono::nanoseconds>(d).count() } {
+  Duration(std::istream &is, const char *fmt = _defaultFmt);
 
-    }
-    Duration(std::string_view date, const char *fmt = _defaultFmt);
+  std::string format(const char *fmt = _defaultFmt) const;
+  std::string format(const std::string &fmt) const;
 
-    Duration(std::istream &is, const char *fmt = _defaultFmt);
+  std::ostream &to_stream(std::ostream &os,
+                          const char *fmt = _defaultFmt) const;
+  std::ostream &to_stream(std::ostream &os, const std::string &fmt) const;
 
-    std::string format(const char *fmt = _defaultFmt) const;
-    std::string format(const std::string &fmt) const;
+  template <class Rep, class Period>
+  inline Duration &operator=(const std::chrono::duration<Rep, Period> &d) {
+    _value = std::chrono::duration_cast<std::chrono::nanoseconds>(d).count();
+    return *this;
+  }
+  inline Duration &operator=(const ::Smp::Duration &d) {
+    _value = d;
+    return *this;
+  }
 
-    std::ostream& to_stream(std::ostream &os,
-            const char *fmt = _defaultFmt) const;
-    std::ostream& to_stream(std::ostream &os, const std::string &fmt) const;
+  constexpr Duration operator+() const { return *this; }
+  constexpr Duration operator-() const { return Duration(-_value); }
 
-    template<class Rep, class Period>
-    inline Duration& operator =(const std::chrono::duration<Rep, Period> &d) {
-        _value =
-                std::chrono::duration_cast<std::chrono::nanoseconds>(d).count();
-        return *this;
-    }
-    inline Duration& operator =(const ::Smp::Duration &d) {
-        _value = d;
-        return *this;
-    }
+  Duration &operator+=(const ::Smp::Duration &d) noexcept {
+    _value += d;
+    return *this;
+  }
+  template <class Rep, class Period>
+  Duration &operator+=(const std::chrono::duration<Rep, Period> &d) noexcept {
+    _value += std::chrono::duration_cast<std::chrono::nanoseconds>(d).count();
+    return *this;
+  }
+  Duration &operator-=(const ::Smp::Duration &d) noexcept {
+    _value -= d;
+    return *this;
+  }
+  template <class Rep, class Period>
+  Duration &operator-=(const std::chrono::duration<Rep, Period> &d) noexcept {
+    _value -= std::chrono::duration_cast<std::chrono::nanoseconds>(d).count();
+    return *this;
+  }
 
-    constexpr Duration operator +() const {
-        return *this;
-    }
-    constexpr Duration operator -() const {
-        return Duration(-_value);
-    }
+  constexpr operator ::Smp::Duration() const noexcept { return _value; }
 
-    Duration& operator+=(const ::Smp::Duration &d) noexcept {
-        _value += d;
-        return *this;
-    }
-    template<class Rep, class Period>
-    Duration& operator+=(const std::chrono::duration<Rep, Period> &d) noexcept {
-        _value +=
-                std::chrono::duration_cast<std::chrono::nanoseconds>(d).count();
-        return *this;
-    }
-    Duration& operator-=(const ::Smp::Duration &d) noexcept {
-        _value -= d;
-        return *this;
-    }
-    template<class Rep, class Period>
-    Duration& operator-=(const std::chrono::duration<Rep, Period> &d) noexcept {
-        _value -=
-                std::chrono::duration_cast<std::chrono::nanoseconds>(d).count();
-        return *this;
-    }
+  template <class Rep, class Period>
+  constexpr explicit operator std::chrono::duration<Rep, Period>() {
+    return std::chrono::duration_cast<std::chrono::duration<Rep, Period>>(
+        std::chrono::nanoseconds(_value));
+  }
+  // TODO handle operator +,-,*,/,+=,-=,*=,/=, ...
 
-    constexpr operator ::Smp::Duration() const noexcept {
-        return _value;
-    }
+  template <typename T> Duration &operator=(T _i) noexcept {
+    _value = _i;
+    return *this;
+  }
+  Duration operator++(int) noexcept {
+    auto tmp(*this);
+    ++(*this);
+    return tmp;
+  }
+  Duration operator--(int) noexcept {
+    auto tmp(*this);
+    --(*this);
+    return tmp;
+  }
+  Duration &operator++() noexcept {
+    ++_value;
+    return *this;
+  }
+  Duration &operator--() noexcept {
+    --_value;
+    return *this;
+  }
+  template <typename T> Duration &operator<<=(const T &_i) noexcept {
+    _value <<= _i;
+    return *this;
+  }
+  template <typename T> Duration &operator>>=(const T &_i) noexcept {
+    _value >>= _i;
+    return *this;
+  }
+  template <typename T> Duration &operator+=(const T &_i) noexcept {
+    _value += _i;
+    return *this;
+  }
+  template <typename T> Duration &operator-=(const T &_i) noexcept {
+    _value -= _i;
+    return *this;
+  }
+  template <typename T> Duration &operator*=(const T &_i) noexcept {
+    _value *= _i;
+    return *this;
+  }
+  template <typename T> Duration &operator/=(const T &_i) noexcept {
+    _value /= _i;
+    return *this;
+  }
+  template <typename T> Duration &operator%=(const T &_i) noexcept {
+    _value %= _i;
+    return *this;
+  }
+  template <typename T> Duration &operator&=(const T &_i) noexcept {
+    _value &= _i;
+    return *this;
+  }
+  template <typename T> Duration &operator|=(const T &_i) noexcept {
+    _value |= _i;
+    return *this;
+  }
+  template <typename T> Duration &operator^=(const T &_i) noexcept {
+    _value ^= _i;
+    return *this;
+  }
+  template <typename T> constexpr bool operator==(const T &_i) const noexcept {
+    return _value == _i;
+  }
+  template <typename Rep, typename Period>
+  constexpr bool
+  operator==(const std::chrono::duration<Rep, Period> &_i) const noexcept {
+    return _value ==
+           std::chrono::duration_cast<std::chrono::nanoseconds>(_i).count();
+  }
+  template <typename T> constexpr bool operator!=(const T &_i) const noexcept {
+    return !((*this) == _i);
+  }
+  template <typename T> constexpr bool operator<(const T &rhs) const {
+    return _value < rhs;
+  }
+  template <typename Rep, typename Period>
+  constexpr bool
+  operator<(const std::chrono::duration<Rep, Period> &_i) const noexcept {
+    return _value <
+           std::chrono::duration_cast<std::chrono::nanoseconds>(_i).count();
+  }
+  template <typename Rep, typename Period>
+  constexpr bool
+  operator>(const std::chrono::duration<Rep, Period> &_i) const noexcept {
+    return _value >
+           std::chrono::duration_cast<std::chrono::nanoseconds>(_i).count();
+  }
+  template <typename Rep, typename Period>
+  constexpr bool
+  operator<=(const std::chrono::duration<Rep, Period> &_i) const noexcept {
+    return _value <=
+           std::chrono::duration_cast<std::chrono::nanoseconds>(_i).count();
+  }
+  template <typename T> constexpr bool operator>(const T &rhs) const noexcept {
+    return rhs < *this;
+  }
+  template <typename T> constexpr bool operator<=(const T &rhs) const noexcept {
+    return !(*this > rhs);
+  }
+  template <typename T> constexpr bool operator>=(const T &rhs) const noexcept {
+    return !(*this < rhs);
+  }
 
-    template<class Rep, class Period>
-    constexpr explicit operator std::chrono::duration<Rep, Period>() {
-        return std::chrono::duration_cast<std::chrono::duration<Rep, Period>>(
-                std::chrono::nanoseconds(_value));
-    }
-    //TODO handle operator +,-,*,/,+=,-=,*=,/=, ...
+  /// operator for nano seconds (identity)
+  static constexpr ::Xsmp::Duration nanoseconds(::Smp::Int64 value) {
+    return Duration{value};
+  }
+  /// operator for micro seconds (1000 nanoseconds)
+  static constexpr ::Xsmp::Duration microseconds(::Smp::Int64 value) {
+    return Duration{value * nanoseconds(1000)};
+  }
 
-    template<typename T>
-    Duration& operator=(T _i) noexcept {
-        _value = _i;
-        return *this;
-    }
-    Duration operator++(int) noexcept {
-        auto tmp(*this);
-        ++(*this);
-        return tmp;
-    }
-    Duration operator--(int) noexcept {
-        auto tmp(*this);
-        --(*this);
-        return tmp;
-    }
-    Duration& operator++() noexcept {
-        ++_value;
-        return *this;
-    }
-    Duration& operator--() noexcept {
-        --_value;
-        return *this;
-    }
-    template<typename T>
-    Duration& operator<<=(const T &_i) noexcept {
-        _value <<= _i;
-        return *this;
-    }
-    template<typename T>
-    Duration& operator>>=(const T &_i) noexcept {
-        _value >>= _i;
-        return *this;
-    }
-    template<typename T>
-    Duration& operator+=(const T &_i) noexcept {
-        _value += _i;
-        return *this;
-    }
-    template<typename T>
-    Duration& operator-=(const T &_i) noexcept {
-        _value -= _i;
-        return *this;
-    }
-    template<typename T>
-    Duration& operator*=(const T &_i) noexcept {
-        _value *= _i;
-        return *this;
-    }
-    template<typename T>
-    Duration& operator/=(const T &_i) noexcept {
-        _value /= _i;
-        return *this;
-    }
-    template<typename T>
-    Duration& operator%=(const T &_i) noexcept {
-        _value %= _i;
-        return *this;
-    }
-    template<typename T>
-    Duration& operator&=(const T &_i) noexcept {
-        _value &= _i;
-        return *this;
-    }
-    template<typename T>
-    Duration& operator|=(const T &_i) noexcept {
-        _value |= _i;
-        return *this;
-    }
-    template<typename T>
-    Duration& operator^=(const T &_i) noexcept {
-        _value ^= _i;
-        return *this;
-    }
-    template<typename T>
-    constexpr bool operator==(const T &_i) const noexcept {
-        return _value == _i;
-    }
-    template<typename Rep, typename Period>
-    constexpr bool operator==(
-            const std::chrono::duration<Rep, Period> &_i) const noexcept {
-        return _value
-                == std::chrono::duration_cast<std::chrono::nanoseconds>(_i).count();
-    }
-    template<typename T>
-    constexpr bool operator!=(const T &_i) const noexcept {
-        return !((*this) == _i);
-    }
-    template<typename T>
-    constexpr bool operator<(const T &rhs) const {
-        return _value < rhs;
-    }
-    template<typename Rep, typename Period>
-    constexpr bool operator<(
-            const std::chrono::duration<Rep, Period> &_i) const noexcept {
-        return _value
-                < std::chrono::duration_cast<std::chrono::nanoseconds>(_i).count();
-    }
-    template<typename Rep, typename Period>
-    constexpr bool operator>(
-            const std::chrono::duration<Rep, Period> &_i) const noexcept {
-        return _value
-                > std::chrono::duration_cast<std::chrono::nanoseconds>(_i).count();
-    }
-    template<typename Rep, typename Period>
-    constexpr bool operator<=(
-            const std::chrono::duration<Rep, Period> &_i) const noexcept {
-        return _value
-                <= std::chrono::duration_cast<std::chrono::nanoseconds>(_i).count();
-    }
-    template<typename T>
-    constexpr bool operator>(const T &rhs) const noexcept {
-        return rhs < *this;
-    }
-    template<typename T>
-    constexpr bool operator<=(const T &rhs) const noexcept {
-        return !(*this > rhs);
-    }
-    template<typename T>
-    constexpr bool operator>=(const T &rhs) const noexcept {
-        return !(*this < rhs);
-    }
+  /// operator for mili seconds (1000 microseconds)
+  static constexpr ::Xsmp::Duration milliseconds(::Smp::Int64 value) {
+    return Duration{value * microseconds(1000)};
+  }
 
-    /// operator for nano seconds (identity)
-    static constexpr ::Xsmp::Duration nanoseconds(::Smp::Int64 value) {
-        return Duration { value };
-    }
-    /// operator for micro seconds (1000 nanoseconds)
-    static constexpr ::Xsmp::Duration microseconds(::Smp::Int64 value) {
-        return Duration { value * nanoseconds(1000) };
-    }
+  /// operator for seconds (1000 milliseconds)
+  static constexpr ::Xsmp::Duration seconds(::Smp::Int64 value) {
+    return Duration{value * milliseconds(1000)};
+  }
 
-    /// operator for mili seconds (1000 microseconds)
-    static constexpr ::Xsmp::Duration milliseconds(::Smp::Int64 value) {
-        return Duration { value * microseconds(1000) };
-    }
+  /// operator for micro minutes (60 seconds)
+  static constexpr ::Xsmp::Duration minutes(::Smp::Int64 value) {
+    return Duration{value * seconds(60)};
+  }
 
-    /// operator for seconds (1000 milliseconds)
-    static constexpr ::Xsmp::Duration seconds(::Smp::Int64 value) {
-        return Duration { value * milliseconds(1000) };
-    }
+  /// operator for hours (60 minutes)
+  static constexpr ::Xsmp::Duration hours(::Smp::Int64 value) {
+    return Duration{value * minutes(60)};
+  }
+  /// operator for days (24 hours)
+  static constexpr ::Xsmp::Duration days(::Smp::Int64 value) {
+    return Duration{value * hours(24)};
+  }
 
-    /// operator for micro minutes (60 seconds)
-    static constexpr ::Xsmp::Duration minutes(::Smp::Int64 value) {
-        return Duration { value * seconds(60) };
-    }
+  /// operator for weeks (7 days)
+  static constexpr ::Xsmp::Duration weeks(::Smp::Int64 value) {
+    return Duration{value * days(7)};
+  }
 
-    /// operator for hours (60 minutes)
-    static constexpr ::Xsmp::Duration hours(::Smp::Int64 value) {
-        return Duration { value * minutes(60) };
-    }
-    /// operator for days (24 hours)
-    static constexpr ::Xsmp::Duration days(::Smp::Int64 value) {
-        return Duration { value * hours(24) };
-    }
-
-    /// operator for weeks (7 days)
-    static constexpr ::Xsmp::Duration weeks(::Smp::Int64 value) {
-        return Duration { value * days(7) };
-    }
 private:
-    static const constexpr char *_defaultFmt = "%T";
-    ::Smp::Duration _value;
+  static const constexpr char *_defaultFmt = "%T";
+  ::Smp::Duration _value;
 };
 
-static_assert(sizeof(::Smp::Duration)==sizeof(::Xsmp::Duration), "Size of ::Xsmp::Duration shall be identical to ::Smp::Duration");
-static_assert(std::is_standard_layout_v<::Xsmp::Duration>,"::Xsmp::Duration shall be a standard layout class");
+static_assert(sizeof(::Smp::Duration) == sizeof(::Xsmp::Duration),
+              "Size of ::Xsmp::Duration shall be identical to ::Smp::Duration");
+static_assert(std::is_standard_layout_v<::Xsmp::Duration>,
+              "::Xsmp::Duration shall be a standard layout class");
 
 // comparison operator for std::chrono::duration
-template<typename Rep, typename Period>
+template <typename Rep, typename Period>
 constexpr bool operator==(const std::chrono::duration<Rep, Period> &_i,
-        const Duration &d) noexcept {
-    return d == _i;
+                          const Duration &d) noexcept {
+  return d == _i;
 }
-template<typename Rep, typename Period>
+template <typename Rep, typename Period>
 constexpr bool operator!=(const std::chrono::duration<Rep, Period> &_i,
-        const Duration &d) noexcept {
-    return d != _i;
+                          const Duration &d) noexcept {
+  return d != _i;
 }
 
-template<typename Rep, typename Period>
+template <typename Rep, typename Period>
 constexpr bool operator<(const std::chrono::duration<Rep, Period> &_i,
-        const Duration &d) noexcept {
-    return d > _i;
+                         const Duration &d) noexcept {
+  return d > _i;
 }
-template<typename Rep, typename Period>
+template <typename Rep, typename Period>
 constexpr bool operator>(const std::chrono::duration<Rep, Period> &rhs,
-        const Duration &d) noexcept {
-    return d < rhs;
+                         const Duration &d) noexcept {
+  return d < rhs;
 }
-template<typename Rep, typename Period>
+template <typename Rep, typename Period>
 constexpr bool operator<=(const std::chrono::duration<Rep, Period> &rhs,
-        const Duration &d) noexcept {
-    return d >= rhs;
+                          const Duration &d) noexcept {
+  return d >= rhs;
 }
-template<typename Rep, typename Period>
+template <typename Rep, typename Period>
 constexpr bool operator>=(const std::chrono::duration<Rep, Period> &rhs,
-        const Duration &d) noexcept {
-    return d <= rhs;
+                          const Duration &d) noexcept {
+  return d <= rhs;
 }
 
-std::ostream& operator<<(std::ostream &os, const Duration &d);
+std::ostream &operator<<(std::ostream &os, const Duration &d);
 
 /// Provides ::Xsmp::Duration literals for _ns/_us/_ms/_s/_mn/_h/_d
 /// e.g: 5_mn + 10_s + 3_ms
@@ -308,40 +278,40 @@ inline namespace literals {
 
 /// operator for nano seconds (identity)
 constexpr Duration operator"" _ns(unsigned long long int value) {
-    return Duration { static_cast<::Smp::Duration>(value) };
+  return Duration{static_cast<::Smp::Duration>(value)};
 }
 /// operator for micro seconds (1000 nano seconds)
 constexpr Duration operator"" _us(unsigned long long int value) {
-    return Duration { static_cast<::Smp::Duration>(value) * 1000_ns };
+  return Duration{static_cast<::Smp::Duration>(value) * 1000_ns};
 }
 
 /// operator for mili seconds (1000 micro seconds)
 constexpr Duration operator"" _ms(unsigned long long int value) {
-    return Duration { static_cast<::Smp::Duration>(value) * 1000_us };
+  return Duration{static_cast<::Smp::Duration>(value) * 1000_us};
 }
 
 /// operator for seconds (1000 mili seconds)
 constexpr Duration operator"" _s(unsigned long long int value) {
-    return Duration { static_cast<::Smp::Duration>(value) * 1000_ms };
+  return Duration{static_cast<::Smp::Duration>(value) * 1000_ms};
 }
 
 /// operator for micro minutes (60 seconds)
 constexpr Duration operator"" _mn(unsigned long long int value) {
-    return Duration { static_cast<::Smp::Duration>(value) * 60_s };
+  return Duration{static_cast<::Smp::Duration>(value) * 60_s};
 }
 
 /// operator for hours (60 minutes)
 constexpr Duration operator"" _h(unsigned long long int value) {
-    return Duration { static_cast<::Smp::Duration>(value) * 60_mn };
+  return Duration{static_cast<::Smp::Duration>(value) * 60_mn};
 }
 /// operator for days (24 hours)
 constexpr Duration operator"" _d(unsigned long long int value) {
-    return Duration { static_cast<::Smp::Duration>(value) * 24_h };
+  return Duration{static_cast<::Smp::Duration>(value) * 24_h};
 }
 
 /// operator for weeks (7 days)
 constexpr Duration operator"" _w(unsigned long long int value) {
-    return Duration { static_cast<::Smp::Duration>(value) * 7_d };
+  return Duration{static_cast<::Smp::Duration>(value) * 7_d};
 }
 
 } // namespace literals

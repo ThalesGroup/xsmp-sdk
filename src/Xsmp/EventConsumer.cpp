@@ -16,16 +16,15 @@
 
 namespace Xsmp {
 
-EventConsumer::EventConsumer() :
-        _event_sinks { "EventSinksCollection", "", this } {
+EventConsumer::EventConsumer()
+    : _event_sinks{"EventSinksCollection", "", this} {}
+
+const ::Smp::EventSinkCollection *EventConsumer::GetEventSinks() const {
+  return &_event_sinks;
 }
 
-const ::Smp::EventSinkCollection* EventConsumer::GetEventSinks() const {
-    return &_event_sinks;
-}
-
-::Smp::IEventSink* EventConsumer::GetEventSink(::Smp::String8 name) const {
-    return _event_sinks.at(name);
+::Smp::IEventSink *EventConsumer::GetEventSink(::Smp::String8 name) const {
+  return _event_sinks.at(name);
 }
 
 } // namespace Xsmp

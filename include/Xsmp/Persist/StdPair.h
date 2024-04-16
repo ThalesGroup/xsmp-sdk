@@ -20,17 +20,17 @@
 
 namespace Xsmp::Persist {
 
-template<typename K, typename V>
-struct Helper<std::pair<K, V>> {
-    static void Store(const ::Smp::ISimulator *simulator,
-            ::Smp::IStorageWriter *writer, const std::pair<K, V> &value) {
-        ::Xsmp::Persist::Store(simulator, writer, value.first, value.second);
-    }
+template <typename K, typename V> struct Helper<std::pair<K, V>> {
+  static void Store(const ::Smp::ISimulator *simulator,
+                    ::Smp::IStorageWriter *writer,
+                    const std::pair<K, V> &value) {
+    ::Xsmp::Persist::Store(simulator, writer, value.first, value.second);
+  }
 
-    static void Restore(const ::Smp::ISimulator *simulator,
-            ::Smp::IStorageReader *reader, std::pair<K, V> &value) {
-        ::Xsmp::Persist::Restore(simulator, reader, value.first, value.second);
-    }
+  static void Restore(const ::Smp::ISimulator *simulator,
+                      ::Smp::IStorageReader *reader, std::pair<K, V> &value) {
+    ::Xsmp::Persist::Restore(simulator, reader, value.first, value.second);
+  }
 };
 
 } // namespace Xsmp::Persist

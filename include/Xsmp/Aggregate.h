@@ -25,18 +25,20 @@ namespace detail {
 class AbstractReference;
 } // namespace detail
 
-class Aggregate: public virtual ::Smp::IAggregate {
+class Aggregate : public virtual ::Smp::IAggregate {
 public:
-    Aggregate();
-    const ::Smp::ReferenceCollection* GetReferences() const override;
-    ::Smp::IReference* GetReference(::Smp::String8 name) const override;
+  Aggregate();
+  const ::Smp::ReferenceCollection *GetReferences() const override;
+  ::Smp::IReference *GetReference(::Smp::String8 name) const override;
+
 protected:
-    inline void AddReference(::Smp::IReference *reference) {
-        _references.Add(reference);
-    }
+  inline void AddReference(::Smp::IReference *reference) {
+    _references.Add(reference);
+  }
+
 private:
-    friend ::Xsmp::detail::AbstractReference;
-    ::Xsmp::Collection<::Smp::IReference> _references;
+  friend ::Xsmp::detail::AbstractReference;
+  ::Xsmp::Collection<::Smp::IReference> _references;
 };
 
 } // namespace Xsmp

@@ -15,20 +15,20 @@
 #ifndef PYTHON_SMP_IAGGREGATE_H_
 #define PYTHON_SMP_IAGGREGATE_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/IAggregate.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIAggregate(const py::module_ &m) {
-    py::class_<::Smp::IAggregate, ::Smp::IComponent>(m, "IAggregate",
-            py::multiple_inheritance())
+  py::class_<::Smp::IAggregate, ::Smp::IComponent>(m, "IAggregate",
+                                                   py::multiple_inheritance())
 
-    .def("GetReference", &::Smp::IAggregate::GetReference, py::arg("name"),
-            py::return_value_policy::reference,
-            R"(Query for a reference of this aggregate component by its name.
+      .def("GetReference", &::Smp::IAggregate::GetReference, py::arg("name"),
+           py::return_value_policy::reference,
+           R"(Query for a reference of this aggregate component by its name.
 The returned reference may be null if no reference with the given name could be found. If more than one reference with this name exists, it is not defined which one is returned.)")
 
-    .doc() =
-            R"(Interface for an aggregate component.
+      .doc() =
+      R"(Interface for an aggregate component.
 A component with references to other components implements this interface. Referenced components are held in named references.)";
 }
 

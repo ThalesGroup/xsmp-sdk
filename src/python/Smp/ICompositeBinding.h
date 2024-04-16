@@ -15,20 +15,20 @@
 #ifndef PYTHON_SMP_ICOMPOSITE_H_
 #define PYTHON_SMP_ICOMPOSITE_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/IComposite.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIComposite(const py::module_ &m) {
-    py::class_<::Smp::IComposite, ::Smp::IObject>(m, "IComposite",
-            py::multiple_inheritance())
+  py::class_<::Smp::IComposite, ::Smp::IObject>(m, "IComposite",
+                                                py::multiple_inheritance())
 
-    .def("GetContainer", &::Smp::IComposite::GetContainer, py::arg("name"),
-            py::return_value_policy::reference,
-            R"(Query for a container of this composite by its name.
+      .def("GetContainer", &::Smp::IComposite::GetContainer, py::arg("name"),
+           py::return_value_policy::reference,
+           R"(Query for a container of this composite by its name.
 The returned container may be null if no container with the given name could be found.)")
 
-    .doc() =
-            R"(Interface for a composite.
+      .doc() =
+      R"(Interface for a composite.
 An object with components as children implements this interface. Child components are held in named containers.)";
 }
 

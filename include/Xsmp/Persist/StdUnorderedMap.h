@@ -21,32 +21,32 @@
 namespace Xsmp::Persist {
 
 /// Helper implementation for std::map elements
-template<typename K, typename V, typename Compare>
+template <typename K, typename V, typename Compare>
 struct Helper<std::unordered_map<K, V, Compare>> {
-    using type = std::unordered_map<K, V, Compare>;
-    using size_type = typename type::size_type;
-    static void Store(const ::Smp::ISimulator *simulator,
-            ::Smp::IStorageWriter *writer, const type &value) {
-        size_type size = value.size();
-        ::Xsmp::Persist::Store(simulator, writer, size);
-        for (auto &e : value) {
-            K k = e.first;
-            ::Xsmp::Persist::Store(simulator, writer, k, e.second);
-        }
+  using type = std::unordered_map<K, V, Compare>;
+  using size_type = typename type::size_type;
+  static void Store(const ::Smp::ISimulator *simulator,
+                    ::Smp::IStorageWriter *writer, const type &value) {
+    size_type size = value.size();
+    ::Xsmp::Persist::Store(simulator, writer, size);
+    for (auto &e : value) {
+      K k = e.first;
+      ::Xsmp::Persist::Store(simulator, writer, k, e.second);
     }
+  }
 
-    static void Restore(const ::Smp::ISimulator *simulator,
-            ::Smp::IStorageReader *reader, type &value) {
-        value.clear();
-        size_type size;
-        ::Xsmp::Persist::Restore(simulator, reader, size);
-        for (size_type i = 0; i < size; ++i) {
-            K k;
-            V v;
-            ::Xsmp::Persist::Restore(simulator, reader, k, v);
-            value.emplace(k, v);
-        }
+  static void Restore(const ::Smp::ISimulator *simulator,
+                      ::Smp::IStorageReader *reader, type &value) {
+    value.clear();
+    size_type size;
+    ::Xsmp::Persist::Restore(simulator, reader, size);
+    for (size_type i = 0; i < size; ++i) {
+      K k;
+      V v;
+      ::Xsmp::Persist::Restore(simulator, reader, k, v);
+      value.emplace(k, v);
     }
+  }
 };
 
 } // namespace Xsmp::Persist

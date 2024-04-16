@@ -24,19 +24,21 @@ namespace Xsmp {
 
 class EntryPoint;
 
-class EntryPointPublisher: public virtual ::Smp::IEntryPointPublisher {
+class EntryPointPublisher : public virtual ::Smp::IEntryPointPublisher {
 public:
-    EntryPointPublisher();
+  EntryPointPublisher();
 
-    const ::Smp::EntryPointCollection* GetEntryPoints() const override;
-    ::Smp::IEntryPoint* GetEntryPoint(::Smp::String8 name) const override;
+  const ::Smp::EntryPointCollection *GetEntryPoints() const override;
+  ::Smp::IEntryPoint *GetEntryPoint(::Smp::String8 name) const override;
+
 protected:
-    inline void AddEntryPoint(::Smp::IEntryPoint *entryPoint) {
-        _entrypoints.Add(entryPoint);
-    }
+  inline void AddEntryPoint(::Smp::IEntryPoint *entryPoint) {
+    _entrypoints.Add(entryPoint);
+  }
+
 private:
-    friend class ::Xsmp::EntryPoint;
-    ::Xsmp::Collection<::Smp::IEntryPoint> _entrypoints;
+  friend class ::Xsmp::EntryPoint;
+  ::Xsmp::Collection<::Smp::IEntryPoint> _entrypoints;
 };
 
 } // namespace Xsmp

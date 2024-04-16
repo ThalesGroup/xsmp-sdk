@@ -28,163 +28,155 @@
 
 namespace Xsmp {
 Component::Component(::Smp::String8 name, ::Smp::String8 description,
-        ::Smp::IComposite *parent, ::Smp::ISimulator *simulator) :
-        _name(::Xsmp::Helper::checkName(name, parent)), _description(
-                description ? description : ""), _parent(parent), _simulator {
-                simulator } {
-}
-::Smp::String8 Component::GetName() const {
-    return _name.c_str();
-}
+                     ::Smp::IComposite *parent, ::Smp::ISimulator *simulator)
+    : _name(::Xsmp::Helper::checkName(name, parent)),
+      _description(description ? description : ""), _parent(parent),
+      _simulator{simulator} {}
+::Smp::String8 Component::GetName() const { return _name.c_str(); }
 
 ::Smp::String8 Component::GetDescription() const {
-    return _description.c_str();
+  return _description.c_str();
 }
 
-::Smp::IObject* Component::GetParent() const {
-    return _parent;
+::Smp::IObject *Component::GetParent() const { return _parent; }
+
+::Smp::ComponentStateKind Component::GetState() const { return _state; }
+
+::Smp::IField *Component::GetField(::Smp::String8 fullName) const {
+  return _publication ? _publication->GetField(fullName) : nullptr;
 }
 
-::Smp::ComponentStateKind Component::GetState() const {
-    return _state;
-}
-
-::Smp::IField* Component::GetField(::Smp::String8 fullName) const {
-    return _publication ? _publication->GetField(fullName) : nullptr;
-}
-
-const ::Smp::FieldCollection* Component::GetFields() const {
-    return _publication ? _publication->GetFields() : nullptr;
+const ::Smp::FieldCollection *Component::GetFields() const {
+  return _publication ? _publication->GetFields() : nullptr;
 }
 
 void Component::Publish(::Smp::IPublication *receiver) {
-    if (_state != ::Smp::ComponentStateKind::CSK_Created) {
-        ::Xsmp::Exception::throwInvalidComponentState(this, _state,
-                ::Smp::ComponentStateKind::CSK_Created);
-    }
-    if (receiver == nullptr) {
-        ::Xsmp::Exception::throwException(this, "NullPointerException", "",
-                "the publication receiver is null");
-    }
+  if (_state != ::Smp::ComponentStateKind::CSK_Created) {
+    ::Xsmp::Exception::throwInvalidComponentState(
+        this, _state, ::Smp::ComponentStateKind::CSK_Created);
+  }
+  if (receiver == nullptr) {
+    ::Xsmp::Exception::throwException(this, "NullPointerException", "",
+                                      "the publication receiver is null");
+  }
 
-    _publication = receiver;
-    _state = ::Smp::ComponentStateKind::CSK_Publishing;
+  _publication = receiver;
+  _state = ::Smp::ComponentStateKind::CSK_Publishing;
 }
 
-void Component::Configure(::Smp::Services::ILogger*,
-        ::Smp::Services::ILinkRegistry*) {
-    if (_state != ::Smp::ComponentStateKind::CSK_Publishing) {
-        ::Xsmp::Exception::throwInvalidComponentState(this, _state,
-                ::Smp::ComponentStateKind::CSK_Publishing);
-    }
+void Component::Configure(::Smp::Services::ILogger *,
+                          ::Smp::Services::ILinkRegistry *) {
+  if (_state != ::Smp::ComponentStateKind::CSK_Publishing) {
+    ::Xsmp::Exception::throwInvalidComponentState(
+        this, _state, ::Smp::ComponentStateKind::CSK_Publishing);
+  }
 
-    _state = ::Smp::ComponentStateKind::CSK_Configured;
+  _state = ::Smp::ComponentStateKind::CSK_Configured;
 }
 
 void Component::Connect(::Smp::ISimulator *simulator) {
-    if (_state != ::Smp::ComponentStateKind::CSK_Configured) {
-        ::Xsmp::Exception::throwInvalidComponentState(this, _state,
-                ::Smp::ComponentStateKind::CSK_Configured);
-    }
-    _state = ::Smp::ComponentStateKind::CSK_Connected;
+  if (_state != ::Smp::ComponentStateKind::CSK_Configured) {
+    ::Xsmp::Exception::throwInvalidComponentState(
+        this, _state, ::Smp::ComponentStateKind::CSK_Configured);
+  }
+  _state = ::Smp::ComponentStateKind::CSK_Connected;
 
-    _simulator = simulator;
+  _simulator = simulator;
 }
 
 void Component::Disconnect() {
-    if (_state != ::Smp::ComponentStateKind::CSK_Connected) {
-        ::Xsmp::Exception::throwInvalidComponentState(this, _state,
-                ::Smp::ComponentStateKind::CSK_Connected);
-    }
+  if (_state != ::Smp::ComponentStateKind::CSK_Connected) {
+    ::Xsmp::Exception::throwInvalidComponentState(
+        this, _state, ::Smp::ComponentStateKind::CSK_Connected);
+  }
 
-    _state = ::Smp::ComponentStateKind::CSK_Disconnected;
+  _state = ::Smp::ComponentStateKind::CSK_Disconnected;
 
-    _publication->Unpublish();
-    _publication = nullptr;
-    _simulator = nullptr;
+  _publication->Unpublish();
+  _publication = nullptr;
+  _simulator = nullptr;
 }
 
 void Component::Invoke(::Smp::IRequest *request) {
-    ::Xsmp::Exception::throwInvalidOperationName(this,
-            request ? request->GetOperationName() : nullptr);
+  ::Xsmp::Exception::throwInvalidOperationName(
+      this, request ? request->GetOperationName() : nullptr);
 }
 
-::Smp::IRequest* Component::CreateRequest(::Smp::String8 operationName) {
-    return _publication ? _publication->CreateRequest(operationName) : nullptr;
+::Smp::IRequest *Component::CreateRequest(::Smp::String8 operationName) {
+  return _publication ? _publication->CreateRequest(operationName) : nullptr;
 }
 
 void Component::DeleteRequest(::Smp::IRequest *request) {
-    if (_publication)
-        _publication->DeleteRequest(request);
+  if (_publication)
+    _publication->DeleteRequest(request);
 }
 
-const ::Smp::PropertyCollection* Component::GetProperties() const {
-    return _publication ? _publication->GetProperties() : nullptr;
+const ::Smp::PropertyCollection *Component::GetProperties() const {
+  return _publication ? _publication->GetProperties() : nullptr;
 }
 
-const ::Smp::OperationCollection* Component::GetOperations() const {
-    return _publication ? _publication->GetOperations() : nullptr;
+const ::Smp::OperationCollection *Component::GetOperations() const {
+  return _publication ? _publication->GetOperations() : nullptr;
 }
 
-const ::Smp::Uuid& Component::GetUuid() const {
-    Xsmp::Exception::throwException(this, "NotImplemented", "",
-            "GetUuid is not implemented");
+const ::Smp::Uuid &Component::GetUuid() const {
+  Xsmp::Exception::throwException(this, "NotImplemented", "",
+                                  "GetUuid is not implemented");
 }
 
 void Component::RemoveEventProviderLinks(
-        ::Smp::IEventProvider const *eventProvider,
-        const ::Smp::IComponent *target) const noexcept {
-    if (const auto *eventSources = eventProvider->GetEventSources()) {
-        for (auto *eventSource : *eventSources) {
-            // we can disconnect only AbstractEventSource
-            if (auto *eso =
-                    dynamic_cast<detail::AbstractEventSource*>(eventSource))
-                eso->RemoveLinks(target);
-        }
+    ::Smp::IEventProvider const *eventProvider,
+    const ::Smp::IComponent *target) const noexcept {
+  if (const auto *eventSources = eventProvider->GetEventSources()) {
+    for (auto *eventSource : *eventSources) {
+      // we can disconnect only AbstractEventSource
+      if (auto *eso = dynamic_cast<detail::AbstractEventSource *>(eventSource))
+        eso->RemoveLinks(target);
     }
+  }
 }
 
-void Component::RemoveAggregateLinks(::Smp::IAggregate const *aggregate,
-        const ::Smp::IComponent *target) const noexcept {
-    if (const auto *references = aggregate->GetReferences()) {
-        for (auto *reference : *references) {
-            // we can disconnect only AbstractReference
-            if (auto *ref = dynamic_cast<detail::AbstractReference*>(reference))
-                ref->RemoveLinks(target);
-        }
+void Component::RemoveAggregateLinks(
+    ::Smp::IAggregate const *aggregate,
+    const ::Smp::IComponent *target) const noexcept {
+  if (const auto *references = aggregate->GetReferences()) {
+    for (auto *reference : *references) {
+      // we can disconnect only AbstractReference
+      if (auto *ref = dynamic_cast<detail::AbstractReference *>(reference))
+        ref->RemoveLinks(target);
     }
+  }
 }
-void Component::RemoveFieldLinks(::Smp::IField *field,
-        const ::Smp::IComponent *target) const noexcept {
+void Component::RemoveFieldLinks(
+    ::Smp::IField *field, const ::Smp::IComponent *target) const noexcept {
 
-    if (auto *dff = dynamic_cast<detail::DataflowField*>(field))
-        dff->RemoveLinks(target);
+  if (auto *dff = dynamic_cast<detail::DataflowField *>(field))
+    dff->RemoveLinks(target);
 
-    if (auto const *af = dynamic_cast<::Smp::IArrayField*>(field)) {
-        for (::Smp::UInt64 i = 0; i < af->GetSize(); ++i)
-            RemoveFieldLinks(af->GetItem(i), target);
-    }
-    if (auto const *sf = dynamic_cast<::Smp::IStructureField*>(field)) {
-        for (auto *nf : *sf->GetFields())
-            RemoveFieldLinks(nf, target);
-    }
-
+  if (auto const *af = dynamic_cast<::Smp::IArrayField *>(field)) {
+    for (::Smp::UInt64 i = 0; i < af->GetSize(); ++i)
+      RemoveFieldLinks(af->GetItem(i), target);
+  }
+  if (auto const *sf = dynamic_cast<::Smp::IStructureField *>(field)) {
+    for (auto *nf : *sf->GetFields())
+      RemoveFieldLinks(nf, target);
+  }
 }
 
 void Component::RemoveLinks(const ::Smp::IComponent *target) {
 
-    // disconnect event sources
-    if (auto const *eventProvider = dynamic_cast<::Smp::IEventProvider*>(this))
-        RemoveEventProviderLinks(eventProvider, target);
+  // disconnect event sources
+  if (auto const *eventProvider = dynamic_cast<::Smp::IEventProvider *>(this))
+    RemoveEventProviderLinks(eventProvider, target);
 
-    // disconnect references
-    if (auto const *aggregate = dynamic_cast<::Smp::IAggregate*>(this))
-        RemoveAggregateLinks(aggregate, target);
+  // disconnect references
+  if (auto const *aggregate = dynamic_cast<::Smp::IAggregate *>(this))
+    RemoveAggregateLinks(aggregate, target);
 
-    // disconnect fields
-    if (auto const *fields = GetFields())
-        for (auto *field : *fields)
-            RemoveFieldLinks(field, target);
+  // disconnect fields
+  if (auto const *fields = GetFields())
+    for (auto *field : *fields)
+      RemoveFieldLinks(field, target);
 }
 
 } // namespace Xsmp

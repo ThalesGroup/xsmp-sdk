@@ -15,22 +15,23 @@
 #ifndef PYTHON_SMP_SERVICES_TIMEKIND_H_
 #define PYTHON_SMP_SERVICES_TIMEKIND_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/Services/TimeKind.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterTimeKind(const py::module_ &m) {
-    py::enum_<::Smp::Services::TimeKind>(m, "TimeKind")
+  py::enum_<::Smp::Services::TimeKind>(m, "TimeKind")
 
-    .value("TK_SimulationTime", ::Smp::Services::TimeKind::TK_SimulationTime,
-            "Simulation time.")
+      .value("TK_SimulationTime", ::Smp::Services::TimeKind::TK_SimulationTime,
+             "Simulation time.")
 
-    .value("TK_MissionTime", ::Smp::Services::TimeKind::TK_MissionTime,
-            "Mission time.")
+      .value("TK_MissionTime", ::Smp::Services::TimeKind::TK_MissionTime,
+             "Mission time.")
 
-    .value("TK_EpochTime", ::Smp::Services::TimeKind::TK_EpochTime,
-            "Epoch time.")
+      .value("TK_EpochTime", ::Smp::Services::TimeKind::TK_EpochTime,
+             "Epoch time.")
 
-    .value("TK_ZuluTime", ::Smp::Services::TimeKind::TK_ZuluTime, "Zulu time.");
+      .value("TK_ZuluTime", ::Smp::Services::TimeKind::TK_ZuluTime,
+             "Zulu time.");
 }
 
 #endif // PYTHON_SMP_SERVICES_TIMEKIND_H_

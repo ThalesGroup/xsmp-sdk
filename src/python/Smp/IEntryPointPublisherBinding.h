@@ -15,20 +15,20 @@
 #ifndef PYTHON_SMP_IENTRYPOINTPUBLISHER_H_
 #define PYTHON_SMP_IENTRYPOINTPUBLISHER_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/IEntryPointPublisher.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIEntryPointPublisher(const py::module_ &m) {
-    py::class_<::Smp::IEntryPointPublisher, ::Smp::IObject>(m,
-            "IEntryPointPublisher", py::multiple_inheritance())
+  py::class_<::Smp::IEntryPointPublisher, ::Smp::IObject>(
+      m, "IEntryPointPublisher", py::multiple_inheritance())
 
-    .def("GetEntryPoint", &::Smp::IEntryPointPublisher::GetEntryPoint,
-            py::arg("name"), py::return_value_policy::reference,
-            R"(Query for an entry point of this component by its name.
+      .def("GetEntryPoint", &::Smp::IEntryPointPublisher::GetEntryPoint,
+           py::arg("name"), py::return_value_policy::reference,
+           R"(Query for an entry point of this component by its name.
 The returned entry point may be null if no entry point with the given name could be found.)")
 
-    .doc() =
-            R"(Interface of an entry point publisher.
+      .doc() =
+      R"(Interface of an entry point publisher.
 An entry point publisher is a component that publishes entry points.)";
 }
 

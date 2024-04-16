@@ -1,11 +1,11 @@
 // Copyright 2023 THALES ALENIA SPACE FRANCE. All rights reserved.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,66 +22,62 @@
 
 namespace Xsmp {
 namespace Tests {
-void ModelWithEvents::DoPublish(::Smp::IPublication*) {
-}
+void ModelWithEvents::DoPublish(::Smp::IPublication *) {}
 
-void ModelWithEvents::DoConfigure(::Smp::Services::ILogger*,
-        ::Smp::Services::ILinkRegistry*) {
-}
+void ModelWithEvents::DoConfigure(::Smp::Services::ILogger *,
+                                  ::Smp::Services::ILinkRegistry *) {}
 
-void ModelWithEvents::DoConnect(::Smp::ISimulator*) {
-}
+void ModelWithEvents::DoConnect(::Smp::ISimulator *) {}
 
-void ModelWithEvents::DoDisconnect() {
-}
+void ModelWithEvents::DoDisconnect() {}
 
-void ModelWithEvents::_void_esi(::Smp::IObject*) {
-    // TODO implement EventSink void_esi
+void ModelWithEvents::_void_esi(::Smp::IObject *) {
+  // TODO implement EventSink void_esi
 }
-void ModelWithEvents::_bool_esi(::Smp::IObject*, ::Smp::Bool) {
-    // TODO implement EventSink bool_esi
+void ModelWithEvents::_bool_esi(::Smp::IObject *, ::Smp::Bool) {
+  // TODO implement EventSink bool_esi
 }
-void ModelWithEvents::_char8_esi(::Smp::IObject*, ::Smp::Char8) {
-    // TODO implement EventSink char8_esi
+void ModelWithEvents::_char8_esi(::Smp::IObject *, ::Smp::Char8) {
+  // TODO implement EventSink char8_esi
 }
-void ModelWithEvents::_dateTime_esi(::Smp::IObject*, ::Smp::DateTime) {
-    // TODO implement EventSink dateTime_esi
+void ModelWithEvents::_dateTime_esi(::Smp::IObject *, ::Smp::DateTime) {
+  // TODO implement EventSink dateTime_esi
 }
-void ModelWithEvents::_duration_esi(::Smp::IObject*, ::Smp::Duration) {
-    // TODO implement EventSink duration_esi
+void ModelWithEvents::_duration_esi(::Smp::IObject *, ::Smp::Duration) {
+  // TODO implement EventSink duration_esi
 }
-void ModelWithEvents::_float32_esi(::Smp::IObject*, ::Smp::Float32) {
-    // TODO implement EventSink float32_esi
+void ModelWithEvents::_float32_esi(::Smp::IObject *, ::Smp::Float32) {
+  // TODO implement EventSink float32_esi
 }
-void ModelWithEvents::_float64_esi(::Smp::IObject*, ::Smp::Float64) {
-    // TODO implement EventSink float64_esi
+void ModelWithEvents::_float64_esi(::Smp::IObject *, ::Smp::Float64) {
+  // TODO implement EventSink float64_esi
 }
-void ModelWithEvents::_int16_esi(::Smp::IObject*, ::Smp::Int16) {
-    // TODO implement EventSink int16_esi
+void ModelWithEvents::_int16_esi(::Smp::IObject *, ::Smp::Int16) {
+  // TODO implement EventSink int16_esi
 }
-void ModelWithEvents::_int32_esi(::Smp::IObject*, ::Smp::Int32) {
-    // TODO implement EventSink int32_esi
+void ModelWithEvents::_int32_esi(::Smp::IObject *, ::Smp::Int32) {
+  // TODO implement EventSink int32_esi
 }
-void ModelWithEvents::_int64_esi(::Smp::IObject*, ::Smp::Int64) {
-    // TODO implement EventSink int64_esi
+void ModelWithEvents::_int64_esi(::Smp::IObject *, ::Smp::Int64) {
+  // TODO implement EventSink int64_esi
 }
-void ModelWithEvents::_int8_esi(::Smp::IObject*, ::Smp::Int8) {
-    // TODO implement EventSink int8_esi
+void ModelWithEvents::_int8_esi(::Smp::IObject *, ::Smp::Int8) {
+  // TODO implement EventSink int8_esi
 }
-void ModelWithEvents::_string8_esi(::Smp::IObject*, ::Smp::String8) {
-    // TODO implement EventSink string8_esi
+void ModelWithEvents::_string8_esi(::Smp::IObject *, ::Smp::String8) {
+  // TODO implement EventSink string8_esi
 }
-void ModelWithEvents::_uint16_esi(::Smp::IObject*, ::Smp::UInt16) {
-    // TODO implement EventSink uint16_esi
+void ModelWithEvents::_uint16_esi(::Smp::IObject *, ::Smp::UInt16) {
+  // TODO implement EventSink uint16_esi
 }
-void ModelWithEvents::_uint32_esi(::Smp::IObject*, ::Smp::UInt32) {
-    // TODO implement EventSink uint32_esi
+void ModelWithEvents::_uint32_esi(::Smp::IObject *, ::Smp::UInt32) {
+  // TODO implement EventSink uint32_esi
 }
-void ModelWithEvents::_uint64_esi(::Smp::IObject*, ::Smp::UInt64) {
-    // TODO implement EventSink uint64_esi
+void ModelWithEvents::_uint64_esi(::Smp::IObject *, ::Smp::UInt64) {
+  // TODO implement EventSink uint64_esi
 }
-void ModelWithEvents::_uint8_esi(::Smp::IObject*, ::Smp::UInt8) {
-    // TODO implement EventSink uint8_esi
+void ModelWithEvents::_uint8_esi(::Smp::IObject *, ::Smp::UInt8) {
+  // TODO implement EventSink uint8_esi
 }
 } // namespace Tests
 } // namespace Xsmp

@@ -15,14 +15,14 @@
 #ifndef PYTHON_SMP_ISERVICE_H_
 #define PYTHON_SMP_ISERVICE_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/IService.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIService(const py::module_ &m) {
-    py::class_<::Smp::IService, ::Smp::IComponent>(m, "IService",
-            py::multiple_inheritance())
+  py::class_<::Smp::IService, ::Smp::IComponent>(m, "IService",
+                                                 py::multiple_inheritance())
 
-    .doc() = "Interface for a service.";
+      .doc() = "Interface for a service.";
 }
 
 #endif // PYTHON_SMP_ISERVICE_H_

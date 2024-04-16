@@ -20,33 +20,27 @@
 namespace Xsmp {
 
 EntryPoint::EntryPoint(::Smp::String8 name, ::Smp::String8 description,
-        EntryPointPublisher *parent, std::function<void()> &&callback) :
-        EntryPoint(name, description, static_cast<::Smp::IObject*>(parent),
-                std::move(callback)) {
-    parent->AddEntryPoint(this);
+                       EntryPointPublisher *parent,
+                       std::function<void()> &&callback)
+    : EntryPoint(name, description, static_cast<::Smp::IObject *>(parent),
+                 std::move(callback)) {
+  parent->AddEntryPoint(this);
 }
 
 EntryPoint::EntryPoint(::Smp::String8 name, ::Smp::String8 description,
-        ::Smp::IObject *parent, std::function<void()> &&callback) :
-        _name(::Xsmp::Helper::checkName(name, parent)), _description(
-                description ? description : ""), _parent(parent), _callback {
-                std::move(callback) } {
-}
+                       ::Smp::IObject *parent, std::function<void()> &&callback)
+    : _name(::Xsmp::Helper::checkName(name, parent)),
+      _description(description ? description : ""), _parent(parent),
+      _callback{std::move(callback)} {}
 
-::Smp::String8 EntryPoint::GetName() const {
-    return _name.c_str();
-}
+::Smp::String8 EntryPoint::GetName() const { return _name.c_str(); }
 
 ::Smp::String8 EntryPoint::GetDescription() const {
-    return _description.c_str();
+  return _description.c_str();
 }
 
-::Smp::IObject* EntryPoint::GetParent() const {
-    return _parent;
-}
+::Smp::IObject *EntryPoint::GetParent() const { return _parent; }
 
-void EntryPoint::Execute() const {
-    this->operator ()();
-}
+void EntryPoint::Execute() const { this->operator()(); }
 
 } // namespace Xsmp

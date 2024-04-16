@@ -15,25 +15,26 @@
 #ifndef PYTHON_SMP_VIEWKIND_H_
 #define PYTHON_SMP_VIEWKIND_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/ViewKind.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterViewKind(const py::module_ &m) {
-    py::enum_<::Smp::ViewKind>(m, "ViewKind")
+  py::enum_<::Smp::ViewKind>(m, "ViewKind")
 
-    .value("VK_None", ::Smp::ViewKind::VK_None,
-            "The element is not made visible to the user (this is the default).")
+      .value(
+          "VK_None", ::Smp::ViewKind::VK_None,
+          "The element is not made visible to the user (this is the default).")
 
-    .value("VK_Debug", ::Smp::ViewKind::VK_Debug,
-            R"(The element is made visible for debugging purposes.
+      .value("VK_Debug", ::Smp::ViewKind::VK_Debug,
+             R"(The element is made visible for debugging purposes.
 The element is not visible to end users. If the simulation infrastructure supports the selection of different user roles, then the element shall be visible to "Debug" users only.)")
 
-    .value("VK_Expert", ::Smp::ViewKind::VK_Expert,
-            R"(The element is made visible for expert users.
+      .value("VK_Expert", ::Smp::ViewKind::VK_Expert,
+             R"(The element is made visible for expert users.
 The element is not visible to end users. If the simulation infrastructure supports the selection of different user roles, then the element shall be visible to "Debug" and "Expert" users.)")
 
-    .value("VK_All", ::Smp::ViewKind::VK_All,
-            "The element is made visible to all users.");
+      .value("VK_All", ::Smp::ViewKind::VK_All,
+             "The element is made visible to all users.");
 }
 
 #endif // PYTHON_SMP_VIEWKIND_H_

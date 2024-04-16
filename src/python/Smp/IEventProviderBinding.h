@@ -15,20 +15,20 @@
 #ifndef PYTHON_SMP_IEVENTPROVIDER_H_
 #define PYTHON_SMP_IEVENTPROVIDER_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/IEventProvider.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIEventProvider(const py::module_ &m) {
-    py::class_<::Smp::IEventProvider, ::Smp::IComponent>(m, "IEventProvider",
-            py::multiple_inheritance())
+  py::class_<::Smp::IEventProvider, ::Smp::IComponent>(
+      m, "IEventProvider", py::multiple_inheritance())
 
-    .def("GetEventSource", &::Smp::IEventProvider::GetEventSource,
-            py::arg("name"), py::return_value_policy::reference,
-            R"(Query for an event source of this component by its name.
+      .def("GetEventSource", &::Smp::IEventProvider::GetEventSource,
+           py::arg("name"), py::return_value_policy::reference,
+           R"(Query for an event source of this component by its name.
 The returned event source may be null if no event source with the given name could be found.)")
 
-    .doc() =
-            R"(Interface of an event provider.
+      .doc() =
+      R"(Interface of an event provider.
 An event provider is a component that holds event sources, which allow other components to subscribe their event sinks.
 This is an optional interface. It needs to be implemented by components which want to allow access to event sources by name.)";
 }

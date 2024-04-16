@@ -15,26 +15,29 @@
 #ifndef PYTHON_SMP_IFIELD_H_
 #define PYTHON_SMP_IFIELD_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/IField.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIField(const py::module_ &m) {
-    py::class_<::Smp::IField, ::Smp::IPersist>(m, "IField",
-            py::multiple_inheritance())
+  py::class_<::Smp::IField, ::Smp::IPersist>(m, "IField",
+                                             py::multiple_inheritance())
 
-    .def("IsInput", &::Smp::IField::IsInput, "Return Input flag of the field.")
+      .def("IsInput", &::Smp::IField::IsInput,
+           "Return Input flag of the field.")
 
-    .def("IsOutput", &::Smp::IField::IsOutput,
-            "Return Output flag of the field.")
+      .def("IsOutput", &::Smp::IField::IsOutput,
+           "Return Output flag of the field.")
 
-    .def("IsState", &::Smp::IField::IsState, "Return State flag of the field.")
+      .def("IsState", &::Smp::IField::IsState,
+           "Return State flag of the field.")
 
-    .def("GetView", &::Smp::IField::GetView, "Return View kind of the field.")
+      .def("GetView", &::Smp::IField::GetView, "Return View kind of the field.")
 
-    .def("GetType", &::Smp::IField::GetType, "Returns the type of this field.",
-            py::return_value_policy::reference)
+      .def("GetType", &::Smp::IField::GetType,
+           "Returns the type of this field.",
+           py::return_value_policy::reference)
 
-    .doc() = "Interface of a field.";
+      .doc() = "Interface of a field.";
 }
 
 #endif // PYTHON_SMP_IFIELD_H_

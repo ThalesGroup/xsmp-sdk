@@ -30,52 +30,56 @@
 namespace Xsmp::Services {
 
 class LoggerProcessor;
-/// This class is thread safe: it is possible to QueryLogMessageKind and Log at any time
-class XsmpLogger final: public XsmpLoggerGen {
+/// This class is thread safe: it is possible to QueryLogMessageKind and Log at
+/// any time
+class XsmpLogger final : public XsmpLoggerGen {
 public:
-    // ------------------------------------------------------------------------------------
-    // -------------------------- Constructors/Destructor --------------------------
-    // ------------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------------
+  // -------------------------- Constructors/Destructor
+  // --------------------------
+  // ------------------------------------------------------------------------------------
 
-    /// Constructor setting name, description and parent.
-    /// @param name Name of new model instance.
-    /// @param description Description of new model instance.
-    /// @param parent Parent of new model instance.
-    XsmpLogger(::Smp::String8 name, ::Smp::String8 description,
-            ::Smp::IComposite *parent, ::Smp::ISimulator *simulator);
+  /// Constructor setting name, description and parent.
+  /// @param name Name of new model instance.
+  /// @param description Description of new model instance.
+  /// @param parent Parent of new model instance.
+  XsmpLogger(::Smp::String8 name, ::Smp::String8 description,
+             ::Smp::IComposite *parent, ::Smp::ISimulator *simulator);
 
-    /// Virtual destructor to release memory.
-    ~XsmpLogger() noexcept override = default;
+  /// Virtual destructor to release memory.
+  ~XsmpLogger() noexcept override = default;
 
-    /// Return identifier of log message kind by name.
-    ///
-    /// @remarks This method can be used for predefined log message
-    ///          kinds, but is especially useful for user-defined log
-    ///          message kinds.
-    ///          It is guaranteed that this method always returns the
-    ///          same id for the same messageKindName string.
-    /// @param   messageKindName Name of log message kind.
-    /// @return  Identifier of log message kind.
-    ::Smp::Services::LogMessageKind QueryLogMessageKind(
-            ::Smp::String8 messageKindName) override;
+  /// Return identifier of log message kind by name.
+  ///
+  /// @remarks This method can be used for predefined log message
+  ///          kinds, but is especially useful for user-defined log
+  ///          message kinds.
+  ///          It is guaranteed that this method always returns the
+  ///          same id for the same messageKindName string.
+  /// @param   messageKindName Name of log message kind.
+  /// @return  Identifier of log message kind.
+  ::Smp::Services::LogMessageKind
+  QueryLogMessageKind(::Smp::String8 messageKindName) override;
 
-    /// This function logs a message to the simulation log.
-    /// @param   sender Object that sends the message.
-    /// @param   message The message to log.
-    /// @param   kind Kind of message.
-    void Log(const ::Smp::IObject *sender, ::Smp::String8 message,
-            ::Smp::Services::LogMessageKind kind = 0) override;
+  /// This function logs a message to the simulation log.
+  /// @param   sender Object that sends the message.
+  /// @param   message The message to log.
+  /// @param   kind Kind of message.
+  void Log(const ::Smp::IObject *sender, ::Smp::String8 message,
+           ::Smp::Services::LogMessageKind kind = 0) override;
 
-    void Restore(::Smp::IStorageReader *reader) override;
+  void Restore(::Smp::IStorageReader *reader) override;
 
-    void Store(::Smp::IStorageWriter *writer) override;
+  void Store(::Smp::IStorageWriter *writer) override;
+
 private:
-    friend class ::Xsmp::Component::Helper;
-    std::unique_ptr<LoggerProcessor> _processor;
-    // init pre-defined kinds: keep ordered
-    std::vector<std::string> _logMessageKinds { LMK_InformationName,
-            LMK_EventName, LMK_WarningName, LMK_ErrorName, LMK_DebugName };
-    std::mutex _mutex { };
+  friend class ::Xsmp::Component::Helper;
+  std::unique_ptr<LoggerProcessor> _processor;
+  // init pre-defined kinds: keep ordered
+  std::vector<std::string> _logMessageKinds{LMK_InformationName, LMK_EventName,
+                                            LMK_WarningName, LMK_ErrorName,
+                                            LMK_DebugName};
+  std::mutex _mutex{};
 };
 } // namespace Xsmp::Services
 

@@ -15,24 +15,24 @@
 #ifndef PYTHON_SMP_IFAILURE_H_
 #define PYTHON_SMP_IFAILURE_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/IFailure.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIFailure(const py::module_ &m) {
-    py::class_<::Smp::IFailure, ::Smp::IPersist>(m, "IFailure",
-            py::multiple_inheritance())
+  py::class_<::Smp::IFailure, ::Smp::IPersist>(m, "IFailure",
+                                               py::multiple_inheritance())
 
-    .def("Fail", &::Smp::IFailure::Fail,
-            "Sets the state of the failure to failed.")
+      .def("Fail", &::Smp::IFailure::Fail,
+           "Sets the state of the failure to failed.")
 
-    .def("Unfail", &::Smp::IFailure::Unfail,
-            "Sets the state of the failure to unfailed.")
+      .def("Unfail", &::Smp::IFailure::Unfail,
+           "Sets the state of the failure to unfailed.")
 
-    .def("IsFailed", &::Smp::IFailure::IsFailed,
-            "Returns whether the failure's state is set to failed.")
+      .def("IsFailed", &::Smp::IFailure::IsFailed,
+           "Returns whether the failure's state is set to failed.")
 
-    .doc() =
-            R"(Interface for a failure.
+      .doc() =
+      R"(Interface for a failure.
 A Failure allows to query and to set its state to Failed or Unfailed. 
 Failures can be exposed via the IFallibleModel interface.)";
 }

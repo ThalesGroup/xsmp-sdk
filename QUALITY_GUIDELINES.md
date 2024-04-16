@@ -11,7 +11,7 @@ This page lists criteria that code, commits and pull requests should fulfill.
 
 ## Source Code
  1. Readable and understandable source code is good source code.
- 2. Keep the source code well-formatted, use the provided [formatter](formatter-cpp-eclipse.xml) .
+ 2. Keep the source code well-formatted, use clang-format with the provided [formatter](.clang-format) .
  3. Put high-level comments in the code to explain your intention, solved use cases, design decisions, rejected solutions, etc. Do *not* duplicate what is obvious from the code itself. People will read code + documentation, therefore documentation does not need to be self-contained.
 
 

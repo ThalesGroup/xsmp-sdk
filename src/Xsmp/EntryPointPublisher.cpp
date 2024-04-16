@@ -15,17 +15,16 @@
 #include <Xsmp/EntryPointPublisher.h>
 
 namespace Xsmp {
-EntryPointPublisher::EntryPointPublisher() :
-        _entrypoints { "EntryPointsCollection", "", this } {
+EntryPointPublisher::EntryPointPublisher()
+    : _entrypoints{"EntryPointsCollection", "", this} {}
+
+const ::Smp::EntryPointCollection *EntryPointPublisher::GetEntryPoints() const {
+  return &_entrypoints;
 }
 
-const ::Smp::EntryPointCollection* EntryPointPublisher::GetEntryPoints() const {
-    return &_entrypoints;
-}
-
-::Smp::IEntryPoint* EntryPointPublisher::GetEntryPoint(
-        ::Smp::String8 name) const {
-    return _entrypoints.at(name);
+::Smp::IEntryPoint *
+EntryPointPublisher::GetEntryPoint(::Smp::String8 name) const {
+  return _entrypoints.at(name);
 }
 
 } // namespace Xsmp

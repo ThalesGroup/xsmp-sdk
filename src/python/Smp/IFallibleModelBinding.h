@@ -15,23 +15,24 @@
 #ifndef PYTHON_SMP_IFALLIBLEMODEL_H_
 #define PYTHON_SMP_IFALLIBLEMODEL_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/IFallibleModel.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIFallibleModel(const py::module_ &m) {
-    py::class_<::Smp::IFallibleModel, ::Smp::IModel>(m, "IFallibleModel",
-            py::multiple_inheritance())
+  py::class_<::Smp::IFallibleModel, ::Smp::IModel>(m, "IFallibleModel",
+                                                   py::multiple_inheritance())
 
-    .def("IsFailed", &::Smp::IFallibleModel::IsFailed,
-            "Query for whether the model is failed. A model is failed when at least one of its failures is failed.")
+      .def("IsFailed", &::Smp::IFallibleModel::IsFailed,
+           "Query for whether the model is failed. A model is failed when at "
+           "least one of its failures is failed.")
 
-    .def("GetFailure", &::Smp::IFallibleModel::GetFailure, py::arg("name"),
-            py::return_value_policy::reference,
-            R"(Get a failure by name.
+      .def("GetFailure", &::Smp::IFallibleModel::GetFailure, py::arg("name"),
+           py::return_value_policy::reference,
+           R"(Get a failure by name.
 The returned failure may be null if no child with the given name could be found.)")
 
-    .doc() =
-            R"(Interface for a fallible model that exposes its failure state and a collection of failures.
+      .doc() =
+      R"(Interface for a fallible model that exposes its failure state and a collection of failures.
 A fallible model allows querying for its failures by name.)";
 }
 

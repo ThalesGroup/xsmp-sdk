@@ -25,19 +25,21 @@ namespace detail {
 class AbstractContainer;
 } // namespace detail
 
-class Composite: public virtual ::Smp::IComposite {
+class Composite : public virtual ::Smp::IComposite {
 public:
-    Composite();
-    ~Composite() noexcept override = default;
-    const ::Smp::ContainerCollection* GetContainers() const override;
-    ::Smp::IContainer* GetContainer(::Smp::String8 name) const override;
+  Composite();
+  ~Composite() noexcept override = default;
+  const ::Smp::ContainerCollection *GetContainers() const override;
+  ::Smp::IContainer *GetContainer(::Smp::String8 name) const override;
+
 protected:
-    inline void AddContainer(::Smp::IContainer *container) {
-        _containers.Add(container);
-    }
+  inline void AddContainer(::Smp::IContainer *container) {
+    _containers.Add(container);
+  }
+
 private:
-    friend ::Xsmp::detail::AbstractContainer;
-    ::Xsmp::Collection<::Smp::IContainer> _containers;
+  friend ::Xsmp::detail::AbstractContainer;
+  ::Xsmp::Collection<::Smp::IContainer> _containers;
 };
 
 } // namespace Xsmp

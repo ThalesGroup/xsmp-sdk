@@ -15,15 +15,15 @@
 #ifndef PYTHON_SMP_IPERSIST_H_
 #define PYTHON_SMP_IPERSIST_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/IPersist.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIPersist(const py::module_ &m) {
-    py::class_<::Smp::IPersist, ::Smp::IObject>(m, "IPersist",
-            py::multiple_inheritance())
+  py::class_<::Smp::IPersist, ::Smp::IObject>(m, "IPersist",
+                                              py::multiple_inheritance())
 
-    .doc() =
-            R"(Interface of a self-persisting object that provides operations to allow for storing and restoring its state.
+      .doc() =
+      R"(Interface of a self-persisting object that provides operations to allow for storing and restoring its state.
 An object may implement this interface if it wants to have control over storing and restoring of its state.
 This is an optional interface which needs to be implemented by objects with self-persistence only.)";
 }

@@ -15,22 +15,22 @@
 #ifndef PYTHON_SMP_ACCESSKIND_H_
 #define PYTHON_SMP_ACCESSKIND_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/AccessKind.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterAccessKind(const py::module_ &m) {
-    py::enum_<::Smp::AccessKind>(m, "AccessKind",
-            "The Access Kind of a property defines whether it has getter and setter.")
+  py::enum_<::Smp::AccessKind>(
+      m, "AccessKind",
+      "The Access Kind of a property defines whether it has getter and setter.")
 
-    .value("AK_ReadWrite", ::Smp::AccessKind::AK_ReadWrite,
-            "Read/Write access, i.e. getter and setter.")
+      .value("AK_ReadWrite", ::Smp::AccessKind::AK_ReadWrite,
+             "Read/Write access, i.e. getter and setter.")
 
-    .value("AK_ReadOnly", ::Smp::AccessKind::AK_ReadOnly,
-            "Read only access, i.e. only getter method.")
+      .value("AK_ReadOnly", ::Smp::AccessKind::AK_ReadOnly,
+             "Read only access, i.e. only getter method.")
 
-    .value("AK_WriteOnly", ::Smp::AccessKind::AK_WriteOnly,
-            "Write only access, i.e. only setter method.");
-
+      .value("AK_WriteOnly", ::Smp::AccessKind::AK_WriteOnly,
+             "Write only access, i.e. only setter method.");
 }
 
 #endif // PYTHON_SMP_ACCESSKIND_H_

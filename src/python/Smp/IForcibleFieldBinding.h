@@ -15,31 +15,33 @@
 #ifndef PYTHON_SMP_IFORCIBLEFIELD_H_
 #define PYTHON_SMP_IFORCIBLEFIELD_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/AnySimple.h>
 #include <Smp/IForcibleField.h>
 #include <Smp/PrimitiveTypes.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIForcibleField(const py::module_ &m) {
-    py::class_<::Smp::IForcibleField, ::Smp::ISimpleField>(m, "IForcibleField",
-            py::multiple_inheritance())
+  py::class_<::Smp::IForcibleField, ::Smp::ISimpleField>(
+      m, "IForcibleField", py::multiple_inheritance())
 
-    .def("Force", [](::Smp::IForcibleField &self, const py::object &value) {
-        self.Force(convert(value, self.GetPrimitiveTypeKind()));
-
-    },py::arg("value"),
-            R"(Force field to given value.
+      .def(
+          "Force",
+          [](::Smp::IForcibleField &self, const py::object &value) {
+            self.Force(convert(value, self.GetPrimitiveTypeKind()));
+          },
+          py::arg("value"),
+          R"(Force field to given value.
 This method raises an exception of type InvalidFieldValue if called with an invalid value.)")
 
-    .def("Unforce", &::Smp::IForcibleField::Unforce, "Unforce field.")
+      .def("Unforce", &::Smp::IForcibleField::Unforce, "Unforce field.")
 
-    .def("IsForced", &::Smp::IForcibleField::IsForced,
-            "Query for the forced state of the field.")
+      .def("IsForced", &::Smp::IForcibleField::IsForced,
+           "Query for the forced state of the field.")
 
-    .def("Freeze", &::Smp::IForcibleField::Freeze,
-            "Force field to its current value.")
+      .def("Freeze", &::Smp::IForcibleField::Freeze,
+           "Force field to its current value.")
 
-    .doc() = "Interface of a forcible field.";
+      .doc() = "Interface of a forcible field.";
 }
 
 #endif // PYTHON_SMP_IFORCIBLEFIELD_H_

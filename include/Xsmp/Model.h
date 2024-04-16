@@ -20,9 +20,9 @@
 
 namespace Xsmp {
 
-class Model: public Component, public virtual ::Smp::IModel {
+class Model : public Component, public virtual ::Smp::IModel {
 public:
-    using Component::Component;
+  using Component::Component;
 };
 
 } // namespace Xsmp

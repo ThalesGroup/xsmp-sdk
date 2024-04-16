@@ -15,23 +15,23 @@
 #ifndef PYTHON_SMP_IDATAFLOWFIELD_H_
 #define PYTHON_SMP_IDATAFLOWFIELD_H_
 
-#include <python/ecss_smp.h>
-#include <Smp/IField.h>
 #include <Smp/IDataflowField.h>
+#include <Smp/IField.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIDataflowField(const py::module_ &m) {
-    py::class_<::Smp::IDataflowField, ::Smp::IField>(m, "IDataflowField",
-            py::multiple_inheritance())
+  py::class_<::Smp::IDataflowField, ::Smp::IField>(m, "IDataflowField",
+                                                   py::multiple_inheritance())
 
-    .def("Connect", &::Smp::IDataflowField::Connect, py::arg("target"),
-            R"(Connect this field to a target field for direct data flow.
+      .def("Connect", &::Smp::IDataflowField::Connect, py::arg("target"),
+           R"(Connect this field to a target field for direct data flow.
 As the Push() operation only requires to set a value, the target field can be any field (it does not need to be of type IDataflowField).)")
 
-    .def("Push", &::Smp::IDataflowField::Push,
-            "Push the current field value to all connected target fields.")
+      .def("Push", &::Smp::IDataflowField::Push,
+           "Push the current field value to all connected target fields.")
 
-    .doc() =
-            "This interface is implemented by a Field that can take part in direct inter-component data flow.";
+      .doc() = "This interface is implemented by a Field that can take part in "
+               "direct inter-component data flow.";
 }
 
 #endif // PYTHON_SMP_IDATAFLOWFIELD_H_

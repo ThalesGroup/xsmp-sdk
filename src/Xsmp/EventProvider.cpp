@@ -16,16 +16,15 @@
 
 namespace Xsmp {
 
-EventProvider::EventProvider() :
-        _event_sources { "EventSourcesCollection", "", this } {
+EventProvider::EventProvider()
+    : _event_sources{"EventSourcesCollection", "", this} {}
+
+const ::Smp::EventSourceCollection *EventProvider::GetEventSources() const {
+  return &_event_sources;
 }
 
-const ::Smp::EventSourceCollection* EventProvider::GetEventSources() const {
-    return &_event_sources;
-}
-
-::Smp::IEventSource* EventProvider::GetEventSource(::Smp::String8 name) const {
-    return _event_sources.at(name);
+::Smp::IEventSource *EventProvider::GetEventSource(::Smp::String8 name) const {
+  return _event_sources.at(name);
 }
 
 } // namespace Xsmp

@@ -15,17 +15,17 @@
 #ifndef PYTHON_SMP_PUBLICATION_IENUMERATIONTYPE_H_
 #define PYTHON_SMP_PUBLICATION_IENUMERATIONTYPE_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/Publication/IEnumerationType.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIEnumerationType(const py::module_ &m) {
-    py::class_<::Smp::Publication::IEnumerationType, ::Smp::Publication::IType>(
-            m, "IEnumerationType", py::multiple_inheritance())
+  py::class_<::Smp::Publication::IEnumerationType, ::Smp::Publication::IType>(
+      m, "IEnumerationType", py::multiple_inheritance())
 
-    .def("AddLiteral", &::Smp::Publication::IEnumerationType::AddLiteral,
-            "Get the size (number of array items) of the array type.")
+      .def("AddLiteral", &::Smp::Publication::IEnumerationType::AddLiteral,
+           "Get the size (number of array items) of the array type.")
 
-    .doc() = "This interface defines a user defined enumeration type.";
+      .doc() = "This interface defines a user defined enumeration type.";
 }
 
 #endif // PYTHON_SMP_PUBLICATION_IENUMERATIONTYPE_H_

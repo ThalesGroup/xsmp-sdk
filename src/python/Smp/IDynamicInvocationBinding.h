@@ -15,15 +15,15 @@
 #ifndef PYTHON_SMP_IDYNAMICINVOCATION_H_
 #define PYTHON_SMP_IDYNAMICINVOCATION_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/IDynamicInvocation.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIDynamicInvocation(const py::module_ &m) {
-    py::class_<::Smp::IDynamicInvocation, ::Smp::IComponent>(m,
-            "IDynamicInvocation", py::multiple_inheritance())
+  py::class_<::Smp::IDynamicInvocation, ::Smp::IComponent>(
+      m, "IDynamicInvocation", py::multiple_inheritance())
 
-    .doc() =
-            "Interface for a component that supports dynamic invocation of operations.";
+      .doc() = "Interface for a component that supports dynamic invocation of "
+               "operations.";
 }
 
 #endif // PYTHON_SMP_IDYNAMICINVOCATION_H_

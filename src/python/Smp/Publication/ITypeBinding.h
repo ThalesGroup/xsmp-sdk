@@ -15,21 +15,22 @@
 #ifndef PYTHON_SMP_PUBLICATION_ITYPE_H_
 #define PYTHON_SMP_PUBLICATION_ITYPE_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/Publication/IType.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIType(const py::module_ &m) {
-    py::class_<::Smp::Publication::IType, ::Smp::IObject>(m, "IType",
-            py::multiple_inheritance())
+  py::class_<::Smp::Publication::IType, ::Smp::IObject>(
+      m, "IType", py::multiple_inheritance())
 
-    .def("GetPrimitiveTypeKind",
-            &::Smp::Publication::IType::GetPrimitiveTypeKind,
-            "Get primitive type kind that this type maps to, or PTK_None when the type cannot be mapped to a primitive type.")
+      .def("GetPrimitiveTypeKind",
+           &::Smp::Publication::IType::GetPrimitiveTypeKind,
+           "Get primitive type kind that this type maps to, or PTK_None when "
+           "the type cannot be mapped to a primitive type.")
 
-    .def("GetUuid", &::Smp::Publication::IType::GetUuid,
-            "Get Universally Unique Identifier of type.")
+      .def("GetUuid", &::Smp::Publication::IType::GetUuid,
+           "Get Universally Unique Identifier of type.")
 
-    .doc() = "This base interface defines a type in the type registry.";
+      .doc() = "This base interface defines a type in the type registry.";
 }
 
 #endif // PYTHON_SMP_PUBLICATION_ITYPE_H_

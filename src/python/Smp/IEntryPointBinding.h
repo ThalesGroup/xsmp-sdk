@@ -15,20 +15,20 @@
 #ifndef PYTHON_SMP_IENTRYPOINT_H_
 #define PYTHON_SMP_IENTRYPOINT_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/IEntryPoint.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIEntryPoint(const py::module_ &m) {
-    py::class_<::Smp::IEntryPoint, ::Smp::IObject>(m, "IEntryPoint",
-            py::multiple_inheritance())
+  py::class_<::Smp::IEntryPoint, ::Smp::IObject>(m, "IEntryPoint",
+                                                 py::multiple_inheritance())
 
-    .def("__call__", &::Smp::IEntryPoint::Execute, "Call the EntryPoint.")
+      .def("__call__", &::Smp::IEntryPoint::Execute, "Call the EntryPoint.")
 
-    .def("Execute", &::Smp::IEntryPoint::Execute,
-            "This method shall be called when an associated event is emitted.")
+      .def("Execute", &::Smp::IEntryPoint::Execute,
+           "This method shall be called when an associated event is emitted.")
 
-    .doc() =
-            R"(Interface of an entry point.
+      .doc() =
+      R"(Interface of an entry point.
 This interface provides a notification method (event handler) that can be called e.g. by the Scheduler or Event Manager when an event is emitted.)";
 }
 

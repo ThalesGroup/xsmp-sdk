@@ -26,18 +26,20 @@ namespace detail {
 class AbstractEventSink;
 } // namespace detail
 
-class EventConsumer: public virtual ::Smp::IEventConsumer {
+class EventConsumer : public virtual ::Smp::IEventConsumer {
 public:
-    EventConsumer();
-    const ::Smp::EventSinkCollection* GetEventSinks() const override;
-    ::Smp::IEventSink* GetEventSink(::Smp::String8 name) const override;
+  EventConsumer();
+  const ::Smp::EventSinkCollection *GetEventSinks() const override;
+  ::Smp::IEventSink *GetEventSink(::Smp::String8 name) const override;
+
 protected:
-    inline void AddEventSink(::Smp::IEventSink *eventSink) {
-        _event_sinks.Add(eventSink);
-    }
+  inline void AddEventSink(::Smp::IEventSink *eventSink) {
+    _event_sinks.Add(eventSink);
+  }
+
 private:
-    friend ::Xsmp::detail::AbstractEventSink;
-    ::Xsmp::Collection<::Smp::IEventSink> _event_sinks;
+  friend ::Xsmp::detail::AbstractEventSink;
+  ::Xsmp::Collection<::Smp::IEventSink> _event_sinks;
 };
 
 } // namespace Xsmp

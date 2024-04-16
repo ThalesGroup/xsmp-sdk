@@ -38,53 +38,55 @@ class ILogger;
 
 namespace Xsmp {
 
-class Component: public virtual ::Smp::ILinkingComponent,
-        public virtual ::Smp::IDynamicInvocation {
+class Component : public virtual ::Smp::ILinkingComponent,
+                  public virtual ::Smp::IDynamicInvocation {
 public:
-    Component(::Smp::String8 name, ::Smp::String8 description = "",
-            ::Smp::IComposite *parent = nullptr, ::Smp::ISimulator *simulator =
-                    nullptr);
-    Component(const Component&) = delete;
-    Component& operator=(const Component&) = delete;
-    ~Component() noexcept override = default;
-    ::Smp::String8 GetName() const final;
-    ::Smp::String8 GetDescription() const final;
-    ::Smp::IObject* GetParent() const final;
-    ::Smp::ComponentStateKind GetState() const final;
-    ::Smp::IField* GetField(::Smp::String8) const override;
-    const ::Smp::FieldCollection* GetFields() const override;
-    void Publish(::Smp::IPublication *receiver) override;
-    void Configure(::Smp::Services::ILogger *logger,
-            ::Smp::Services::ILinkRegistry* = nullptr) override;
-    void Connect(::Smp::ISimulator *simulator) override;
-    void Disconnect() override;
-    ::Smp::IRequest* CreateRequest(::Smp::String8 operationName) override;
-    [[noreturn]] void Invoke(::Smp::IRequest *request) override;
-    void DeleteRequest(::Smp::IRequest *request) override;
-    const ::Smp::PropertyCollection* GetProperties() const override;
-    const ::Smp::OperationCollection* GetOperations() const override;
-    void RemoveLinks(const Smp::IComponent *target) override;
-    const ::Smp::Uuid& GetUuid() const override;
+  Component(::Smp::String8 name, ::Smp::String8 description = "",
+            ::Smp::IComposite *parent = nullptr,
+            ::Smp::ISimulator *simulator = nullptr);
+  Component(const Component &) = delete;
+  Component &operator=(const Component &) = delete;
+  ~Component() noexcept override = default;
+  ::Smp::String8 GetName() const final;
+  ::Smp::String8 GetDescription() const final;
+  ::Smp::IObject *GetParent() const final;
+  ::Smp::ComponentStateKind GetState() const final;
+  ::Smp::IField *GetField(::Smp::String8) const override;
+  const ::Smp::FieldCollection *GetFields() const override;
+  void Publish(::Smp::IPublication *receiver) override;
+  void Configure(::Smp::Services::ILogger *logger,
+                 ::Smp::Services::ILinkRegistry * = nullptr) override;
+  void Connect(::Smp::ISimulator *simulator) override;
+  void Disconnect() override;
+  ::Smp::IRequest *CreateRequest(::Smp::String8 operationName) override;
+  [[noreturn]] void Invoke(::Smp::IRequest *request) override;
+  void DeleteRequest(::Smp::IRequest *request) override;
+  const ::Smp::PropertyCollection *GetProperties() const override;
+  const ::Smp::OperationCollection *GetOperations() const override;
+  void RemoveLinks(const Smp::IComponent *target) override;
+  const ::Smp::Uuid &GetUuid() const override;
+
 protected:
-    [[nodiscard]] inline ::Smp::ISimulator* GetSimulator() const noexcept {
-        return _simulator;
-    }
+  [[nodiscard]] inline ::Smp::ISimulator *GetSimulator() const noexcept {
+    return _simulator;
+  }
 
-    class Helper;
+  class Helper;
+
 private:
-    std::string _name;
-    std::string _description;
-    ::Smp::IComposite *_parent;
-    void RemoveEventProviderLinks(::Smp::IEventProvider const *eventProvider,
-            const ::Smp::IComponent *target) const noexcept;
+  std::string _name;
+  std::string _description;
+  ::Smp::IComposite *_parent;
+  void RemoveEventProviderLinks(::Smp::IEventProvider const *eventProvider,
+                                const ::Smp::IComponent *target) const noexcept;
 
-    void RemoveAggregateLinks(::Smp::IAggregate const *aggregate,
-            const ::Smp::IComponent *target) const noexcept;
-    void RemoveFieldLinks(::Smp::IField *field,
-            const ::Smp::IComponent *target) const noexcept;
-    ::Smp::ISimulator *_simulator;
-    ::Smp::IPublication *_publication = nullptr;
-    ::Smp::ComponentStateKind _state = ::Smp::ComponentStateKind::CSK_Created;
+  void RemoveAggregateLinks(::Smp::IAggregate const *aggregate,
+                            const ::Smp::IComponent *target) const noexcept;
+  void RemoveFieldLinks(::Smp::IField *field,
+                        const ::Smp::IComponent *target) const noexcept;
+  ::Smp::ISimulator *_simulator;
+  ::Smp::IPublication *_publication = nullptr;
+  ::Smp::ComponentStateKind _state = ::Smp::ComponentStateKind::CSK_Created;
 };
 
 } // namespace Xsmp

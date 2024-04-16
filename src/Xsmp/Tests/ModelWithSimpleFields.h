@@ -1,11 +1,11 @@
 // Copyright 2023 THALES ALENIA SPACE FRANCE. All rights reserved.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,40 +30,40 @@
 
 namespace Xsmp {
 namespace Tests {
-class ModelWithSimpleFields: public ModelWithSimpleFieldsGen {
+class ModelWithSimpleFields : public ModelWithSimpleFieldsGen {
 public:
-    /// Re-use parent constructors
-    using ModelWithSimpleFieldsGen::ModelWithSimpleFieldsGen;
+  /// Re-use parent constructors
+  using ModelWithSimpleFieldsGen::ModelWithSimpleFieldsGen;
 
-    /// Virtual destructor to release memory.
-    ~ModelWithSimpleFields() noexcept override = default;
+  /// Virtual destructor to release memory.
+  ~ModelWithSimpleFields() noexcept override = default;
 
 private:
-    // visibility to call DoPublish/DoConfigure/DoConnect/DoDisconnect
-    friend class ::Xsmp::Component::Helper;
+  // visibility to call DoPublish/DoConfigure/DoConnect/DoDisconnect
+  friend class ::Xsmp::Component::Helper;
 
-    /// Publish fields, operations and properties of the model.
-    /// @param receiver Publication receiver.
-    void DoPublish(::Smp::IPublication *receiver);
+  /// Publish fields, operations and properties of the model.
+  /// @param receiver Publication receiver.
+  void DoPublish(::Smp::IPublication *receiver);
 
-    /// Request for configuration.
-    /// @param logger Logger to use for log messages during Configure().
-    /// @param linkRegistry Link Registry to use for registration of
-    ///         links created during Configure() or later.
-    void DoConfigure(::Smp::Services::ILogger *logger,
-            ::Smp::Services::ILinkRegistry *linkRegistry);
+  /// Request for configuration.
+  /// @param logger Logger to use for log messages during Configure().
+  /// @param linkRegistry Link Registry to use for registration of
+  ///         links created during Configure() or later.
+  void DoConfigure(::Smp::Services::ILogger *logger,
+                   ::Smp::Services::ILinkRegistry *linkRegistry);
 
-    /// Connect model to simulator.
-    /// @param simulator Simulation Environment that hosts the model.
-    ///
-    void DoConnect(::Smp::ISimulator *simulator);
+  /// Connect model to simulator.
+  /// @param simulator Simulation Environment that hosts the model.
+  ///
+  void DoConnect(::Smp::ISimulator *simulator);
 
-    /// Disconnect model to simulator.
-    /// @throws Smp::InvalidComponentState
-    void DoDisconnect();
+  /// Disconnect model to simulator.
+  /// @throws Smp::InvalidComponentState
+  void DoDisconnect();
 
 public:
-    void _esi(::Smp::IObject *sender) override;
+  void _esi(::Smp::IObject *sender) override;
 };
 } // namespace Tests
 } // namespace Xsmp

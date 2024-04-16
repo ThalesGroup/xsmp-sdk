@@ -23,20 +23,21 @@ namespace Xsmp {
 [[nodiscard]] std::string GetLastError();
 
 /// Load a library with the given libraryName
-/// @param libraryName the library name without the platform dependent prefix and suffix
+/// @param libraryName the library name without the platform dependent prefix
+/// and suffix
 /// - linux: lib<libraryName>.so
 /// - macos: lib<libraryName>.dylib
 /// - windows: <libraryName>.dll
-void* LoadLibrary(const char *libraryName);
+void *LoadLibrary(const char *libraryName);
 
 /// Close a library handle
 void CloseLibrary(void *handle);
 
-[[nodiscard]] void* GetSymbol(void *handle, const char *symbolName);
+[[nodiscard]] void *GetSymbol(void *handle, const char *symbolName);
 
-template<typename T>
+template <typename T>
 [[nodiscard]] inline T GetSymbol(void *handle, const char *symbolName) {
-    return reinterpret_cast<T>(GetSymbol(handle, symbolName));
+  return reinterpret_cast<T>(GetSymbol(handle, symbolName));
 }
 } // namespace Xsmp
 

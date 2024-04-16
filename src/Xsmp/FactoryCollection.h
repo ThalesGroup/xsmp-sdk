@@ -26,36 +26,35 @@
 
 namespace Xsmp {
 
-class FactoryCollection final:
-public ::Smp::FactoryCollection {
+class FactoryCollection final : public ::Smp::FactoryCollection {
 public:
-    using const_iterator= typename ::Smp::FactoryCollection::const_iterator;
-    using iterator= typename ::Smp::FactoryCollection::iterator;
+  using const_iterator = typename ::Smp::FactoryCollection::const_iterator;
+  using iterator = typename ::Smp::FactoryCollection::iterator;
 
-    explicit FactoryCollection(::Smp::IObject *parent);
-    FactoryCollection(const FactoryCollection&) = delete;
-    FactoryCollection& operator=(const FactoryCollection&) = delete;
-    ~FactoryCollection() noexcept override = default;
-    ::Smp::String8 GetName() const override;
-    ::Smp::String8 GetDescription() const override;
-    ::Smp::IObject* GetParent() const override;
-    ::Smp::IFactory* at(::Smp::String8 name) const override;
+  explicit FactoryCollection(::Smp::IObject *parent);
+  FactoryCollection(const FactoryCollection &) = delete;
+  FactoryCollection &operator=(const FactoryCollection &) = delete;
+  ~FactoryCollection() noexcept override = default;
+  ::Smp::String8 GetName() const override;
+  ::Smp::String8 GetDescription() const override;
+  ::Smp::IObject *GetParent() const override;
+  ::Smp::IFactory *at(::Smp::String8 name) const override;
 
-    ::Smp::IFactory* at(std::size_t index) const override;
+  ::Smp::IFactory *at(std::size_t index) const override;
 
-    ::Smp::IFactory* at(::Smp::Uuid uuid) const;
+  ::Smp::IFactory *at(::Smp::Uuid uuid) const;
 
-    std::size_t size() const override;
-    const_iterator begin() const override;
-    const_iterator end() const override;
-    /// Add a factory to the collection
-    void Add(::Smp::IFactory *factory);
+  std::size_t size() const override;
+  const_iterator begin() const override;
+  const_iterator end() const override;
+  /// Add a factory to the collection
+  void Add(::Smp::IFactory *factory);
 
 private:
-    ::Smp::IObject *_parent;
-    std::unordered_map<::Smp::Uuid, std::unique_ptr<::Smp::IFactory>> _uuid_map { };
-    std::unordered_map<std::string, ::Smp::IFactory*> _factory_map { };
-    std::vector<::Smp::IFactory*> _factories { };
+  ::Smp::IObject *_parent;
+  std::unordered_map<::Smp::Uuid, std::unique_ptr<::Smp::IFactory>> _uuid_map{};
+  std::unordered_map<std::string, ::Smp::IFactory *> _factory_map{};
+  std::vector<::Smp::IFactory *> _factories{};
 };
 
 } // namespace Xsmp

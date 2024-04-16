@@ -1,5 +1,5 @@
 // Copyright 2023 YOUR ORGANIZATION. All rights reserved.
-// 
+//
 // YOUR NOTICE
 
 // -----------------------------------------------------------------------------
@@ -9,34 +9,31 @@
 /// @file Example/CounterManager.cpp
 
 #include <Example/CounterManager.h>
-#include  <numeric>
+#include <numeric>
 namespace Example {
-void CounterManager::DoPublish(::Smp::IPublication *receiver) {
-}
+void CounterManager::DoPublish(::Smp::IPublication *receiver) {}
 
 void CounterManager::DoConfigure(::Smp::Services::ILogger *logger,
-		::Smp::Services::ILinkRegistry *linkRegistry) {
+                                 ::Smp::Services::ILinkRegistry *linkRegistry) {
 }
 
-void CounterManager::DoConnect(::Smp::ISimulator *simulator) {
-}
+void CounterManager::DoConnect(::Smp::ISimulator *simulator) {}
 
-void CounterManager::DoDisconnect() {
-}
+void CounterManager::DoDisconnect() {}
 
 ::Smp::Int32 CounterManager::get_sum() {
-	return std::accumulate(counters.begin(), counters.end(), 0,
-			[](::Smp::Int32 count, Counter *counter) {
-				return count + counter->count;
-			});
+  return std::accumulate(counters.begin(), counters.end(), 0,
+                         [](::Smp::Int32 count, Counter *counter) {
+                           return count + counter->count;
+                         });
 }
 ::Smp::Float64 CounterManager::get_average() {
-	if (auto size = counters.size())
-		return static_cast<::Smp::Float64>(get_sum()) / counters.size();
-	return 0;
+  if (auto size = counters.size())
+    return static_cast<::Smp::Float64>(get_sum()) / counters.size();
+  return 0;
 }
 void CounterManager::set_count(::Smp::Int32 value) {
-	for (auto *counter : counters)
-		counter->count = value;
+  for (auto *counter : counters)
+    counter->count = value;
 }
 } // namespace Example

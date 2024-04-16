@@ -23,21 +23,21 @@
 namespace Xsmp {
 namespace detail {
 class Failure;
-}  // namespace detail
+} // namespace detail
 
-class FallibleModel: public virtual ::Smp::IFallibleModel {
+class FallibleModel : public virtual ::Smp::IFallibleModel {
 public:
-    FallibleModel();
-    Smp::Bool IsFailed() const override;
-    const Smp::FailureCollection* GetFailures() const override;
-    Smp::IFailure* GetFailure(Smp::String8 name) const override;
+  FallibleModel();
+  Smp::Bool IsFailed() const override;
+  const Smp::FailureCollection *GetFailures() const override;
+  Smp::IFailure *GetFailure(Smp::String8 name) const override;
+
 protected:
-    inline void AddFailure(::Smp::IFailure *failure) {
-        _failures.Add(failure);
-    }
-    friend class ::Xsmp::detail::Failure;
+  inline void AddFailure(::Smp::IFailure *failure) { _failures.Add(failure); }
+  friend class ::Xsmp::detail::Failure;
+
 private:
-    ::Xsmp::Collection<::Smp::IFailure> _failures;
+  ::Xsmp::Collection<::Smp::IFailure> _failures;
 };
 
 } // namespace Xsmp

@@ -15,45 +15,44 @@
 #ifndef PYTHON_SMP_ISIMPLEARRAYFIELD_H_
 #define PYTHON_SMP_ISIMPLEARRAYFIELD_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/AnySimple.h>
 #include <Smp/ISimpleArrayField.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Publication/IArrayType.h>
+#include <python/ecss_smp.h>
 #include <string>
 
 inline void RegisterISimpleArrayField(const py::module_ &m) {
 
-    py::class_<::Smp::ISimpleArrayField, ::Smp::IField>(m, "ISimpleArrayField",
-            py::multiple_inheritance())
+  py::class_<::Smp::ISimpleArrayField, ::Smp::IField>(
+      m, "ISimpleArrayField", py::multiple_inheritance())
 
-    .def("__len__", &::Smp::ISimpleArrayField::GetSize)
+      .def("__len__", &::Smp::ISimpleArrayField::GetSize)
 
-    .def("__getitem__",
-            [](const ::Smp::ISimpleArrayField &self, ::Smp::Int64 index) {
-                try {
-                    return convert(
-                            self.GetValue(GetIndex(index, self.GetSize())));
-                }
-                catch (const std::exception&) {
-                    throw py::index_error(std::to_string(index));
-                }
-            })
+      .def("__getitem__",
+           [](const ::Smp::ISimpleArrayField &self, ::Smp::Int64 index) {
+             try {
+               return convert(self.GetValue(GetIndex(index, self.GetSize())));
+             } catch (const std::exception &) {
+               throw py::index_error(std::to_string(index));
+             }
+           })
 
-    .def("__setitem__",
-            [](::Smp::ISimpleArrayField &self, ::Smp::UInt64 index,
-                    const py::handle &value) {
+      .def("__setitem__",
+           [](::Smp::ISimpleArrayField &self, ::Smp::UInt64 index,
+              const py::handle &value) {
+             if (const auto *type =
+                     dynamic_cast<const ::Smp::Publication::IArrayType *>(
+                         self.GetType()))
+               return self.SetValue(
+                   index,
+                   convert(value, type->GetItemType()->GetPrimitiveTypeKind()));
 
-                if (const auto *type =
-                        dynamic_cast<const ::Smp::Publication::IArrayType*>(self.GetType()))
-                    return self.SetValue(index,
-                            convert(value,
-                                    type->GetItemType()->GetPrimitiveTypeKind()));
+             throw py::value_error("Could not find Item PrimitiveTypeKind.");
+           })
 
-                throw py::value_error("Could not find Item PrimitiveTypeKind.");
-            })
-
-    .doc() = "Interface to an array where each array item is of a simple type.";
+      .doc() =
+      "Interface to an array where each array item is of a simple type.";
 }
 
 #endif // PYTHON_SMP_ISIMPLEARRAYFIELD_H_

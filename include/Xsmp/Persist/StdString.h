@@ -21,28 +21,28 @@
 namespace Xsmp::Persist {
 
 /// Helper implementation for std::string elements
-template<typename CharT, typename Traits, typename Alloc>
-struct Helper<std::basic_string<CharT, Traits, Alloc> > {
-    using type = std::basic_string<CharT, Traits,Alloc>;
-    using size_type = typename type::size_type;
-    static void Store(const ::Smp::ISimulator *simulator,
-            ::Smp::IStorageWriter *writer, const type &value) {
-        size_type size = value.size();
-        ::Xsmp::Persist::Store(simulator, writer, size);
-        if (size) {
-            type v = value;
-            writer->Store(v.data(), size);
-        }
+template <typename CharT, typename Traits, typename Alloc>
+struct Helper<std::basic_string<CharT, Traits, Alloc>> {
+  using type = std::basic_string<CharT, Traits, Alloc>;
+  using size_type = typename type::size_type;
+  static void Store(const ::Smp::ISimulator *simulator,
+                    ::Smp::IStorageWriter *writer, const type &value) {
+    size_type size = value.size();
+    ::Xsmp::Persist::Store(simulator, writer, size);
+    if (size) {
+      type v = value;
+      writer->Store(v.data(), size);
     }
+  }
 
-    static void Restore(const ::Smp::ISimulator *simulator,
-            ::Smp::IStorageReader *reader, type &value) {
-        size_type size;
-        ::Xsmp::Persist::Restore(simulator, reader, size);
-        value.resize(size);
-        if (size)
-            reader->Restore(value.data(), size);
-    }
+  static void Restore(const ::Smp::ISimulator *simulator,
+                      ::Smp::IStorageReader *reader, type &value) {
+    size_type size;
+    ::Xsmp::Persist::Restore(simulator, reader, size);
+    value.resize(size);
+    if (size)
+      reader->Restore(value.data(), size);
+  }
 };
 
 } // namespace Xsmp::Persist

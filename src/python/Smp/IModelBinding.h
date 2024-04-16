@@ -15,14 +15,14 @@
 #ifndef PYTHON_SMP_IMODEL_H_
 #define PYTHON_SMP_IMODEL_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/IModel.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIModel(const py::module_ &m) {
-    py::class_<::Smp::IModel, ::Smp::IComponent>(m, "IModel",
-            py::multiple_inheritance())
+  py::class_<::Smp::IModel, ::Smp::IComponent>(m, "IModel",
+                                               py::multiple_inheritance())
 
-    .doc() = "Interface for a model.";
+      .doc() = "Interface for a model.";
 }
 
 #endif // PYTHON_SMP_IMODEL_H_

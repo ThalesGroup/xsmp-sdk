@@ -15,20 +15,20 @@
 #ifndef PYTHON_SMP_IEVENTCONSUMER_H_
 #define PYTHON_SMP_IEVENTCONSUMER_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/IEventConsumer.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIEventConsumer(const py::module_ &m) {
-    py::class_<::Smp::IEventConsumer, ::Smp::IComponent>(m, "IEventConsumer",
-            py::multiple_inheritance())
+  py::class_<::Smp::IEventConsumer, ::Smp::IComponent>(
+      m, "IEventConsumer", py::multiple_inheritance())
 
-    .def("GetEventSink", &::Smp::IEventConsumer::GetEventSink, py::arg("name"),
-            py::return_value_policy::reference,
-            R"(Query for an event sink of this component by its name.
+      .def("GetEventSink", &::Smp::IEventConsumer::GetEventSink,
+           py::arg("name"), py::return_value_policy::reference,
+           R"(Query for an event sink of this component by its name.
 The returned event sink may be null if no event sink with the given name could be found.)")
 
-    .doc() =
-            R"(Interface of an event consumer.
+      .doc() =
+      R"(Interface of an event consumer.
 An event consumer is a component that holds event sinks, which may be subscribed to other component's event sources.
 This is an optional interface. It needs to be implemented by components which want to allow access to event sinks by name.)";
 }

@@ -16,15 +16,13 @@
 
 namespace Xsmp {
 
-Composite::Composite() :
-        _containers { "ContainersCollection", "", this } {
+Composite::Composite() : _containers{"ContainersCollection", "", this} {}
+
+const ::Smp::ContainerCollection *Composite::GetContainers() const {
+  return &_containers;
 }
 
-const ::Smp::ContainerCollection* Composite::GetContainers() const {
-    return &_containers;
-}
-
-::Smp::IContainer* Composite::GetContainer(::Smp::String8 name) const {
-    return _containers.at(name);
+::Smp::IContainer *Composite::GetContainer(::Smp::String8 name) const {
+  return _containers.at(name);
 }
 } // namespace Xsmp

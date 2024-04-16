@@ -1,11 +1,11 @@
 // Copyright 2023 THALES ALENIA SPACE FRANCE. All rights reserved.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,18 +29,17 @@
 // ----------------------------------------------------------------------------
 
 namespace Xsmp::Tests {
-class ModelWithProperties: public ModelWithPropertiesGen {
+class ModelWithProperties : public ModelWithPropertiesGen {
 public:
-    /// Re-use parent constructors
-    using ModelWithPropertiesGen::ModelWithPropertiesGen;
+  /// Re-use parent constructors
+  using ModelWithPropertiesGen::ModelWithPropertiesGen;
 
-    /// Virtual destructor to release memory.
-    ~ModelWithProperties() noexcept override = default;
+  /// Virtual destructor to release memory.
+  ~ModelWithProperties() noexcept override = default;
 
 private:
-
-    ::Smp::Uuid get_uuid_property() override;
-    void set_uuid_property(::Smp::Uuid uuid_property) override;
+  ::Smp::Uuid get_uuid_property() override;
+  void set_uuid_property(::Smp::Uuid uuid_property) override;
 };
 } // namespace Xsmp::Tests
 

@@ -15,21 +15,21 @@
 #ifndef PYTHON_SMP_PUBLICATION_IARRAYTYPE_H_
 #define PYTHON_SMP_PUBLICATION_IARRAYTYPE_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/Publication/IArrayType.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIArrayType(const py::module_ &m) {
-    py::class_<::Smp::Publication::IArrayType, ::Smp::Publication::IType>(m,
-            "IArrayType", py::multiple_inheritance())
+  py::class_<::Smp::Publication::IArrayType, ::Smp::Publication::IType>(
+      m, "IArrayType", py::multiple_inheritance())
 
-    .def("GetSize", &::Smp::Publication::IArrayType::GetSize,
-            "Get the size (number of array items) of the array type.")
+      .def("GetSize", &::Smp::Publication::IArrayType::GetSize,
+           "Get the size (number of array items) of the array type.")
 
-    .def("GetItemType", &::Smp::Publication::IArrayType::GetItemType,
-            "Get the type of each array item.",
-            py::return_value_policy::reference)
+      .def("GetItemType", &::Smp::Publication::IArrayType::GetItemType,
+           "Get the type of each array item.",
+           py::return_value_policy::reference)
 
-    .doc() = "This interface defines a user defined array type.";
+      .doc() = "This interface defines a user defined array type.";
 }
 
 #endif // PYTHON_SMP_PUBLICATION_IARRAYTYPE_H_

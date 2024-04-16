@@ -12,26 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <Xsmp/Services/XsmpResolver.h>
 #include <Xsmp/Helper.h>
+#include <Xsmp/Services/XsmpResolver.h>
 
 namespace Xsmp::Services {
 
-::Smp::IObject* XsmpResolver::ResolveAbsolute(::Smp::String8 absolutePath) {
+::Smp::IObject *XsmpResolver::ResolveAbsolute(::Smp::String8 absolutePath) {
 
-    if (absolutePath && absolutePath[0] == '/') // an absolute path must start with '/'
-        return ::Xsmp::Helper::Resolve(GetSimulator(), absolutePath);
+  if (absolutePath &&
+      absolutePath[0] == '/') // an absolute path must start with '/'
+    return ::Xsmp::Helper::Resolve(GetSimulator(), absolutePath);
 
-    return nullptr;
+  return nullptr;
 }
 
-::Smp::IObject* XsmpResolver::ResolveRelative(::Smp::String8 relativePath,
-        const ::Smp::IComponent *sender) {
+::Smp::IObject *XsmpResolver::ResolveRelative(::Smp::String8 relativePath,
+                                              const ::Smp::IComponent *sender) {
 
-    if (relativePath && relativePath[0] != '/') // a relative path cannot start with '/'
-        return ::Xsmp::Helper::Resolve(const_cast<::Smp::IComponent*>(sender),
-                relativePath);
-    return nullptr;
+  if (relativePath &&
+      relativePath[0] != '/') // a relative path cannot start with '/'
+    return ::Xsmp::Helper::Resolve(const_cast<::Smp::IComponent *>(sender),
+                                   relativePath);
+  return nullptr;
 }
 
 } // namespace Xsmp::Services

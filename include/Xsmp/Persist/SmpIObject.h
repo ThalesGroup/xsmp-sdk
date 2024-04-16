@@ -17,28 +17,27 @@
 
 #include <Smp/ISimulator.h>
 #include <Smp/Services/IResolver.h>
-#include <Xsmp/Persist.h>
 #include <Xsmp/Helper.h>
+#include <Xsmp/Persist.h>
 #include <string>
 #include <type_traits>
 
 namespace Xsmp::Persist {
 
-//serialize reference to an IObject
-template<typename T>
-struct Helper<T*, std::enable_if_t<std::is_base_of_v<::Smp::IObject, T>>> {
-    static void Store(const ::Smp::ISimulator *simulator,
-            ::Smp::IStorageWriter *writer, T *const&value) {
-        ::Xsmp::Persist::Store(simulator, writer,
-                ::Xsmp::Helper::GetPath(value));
-    }
-    static void Restore(const ::Smp::ISimulator *simulator,
-            ::Smp::IStorageReader *reader, T *&value) {
-        std::string path;
-        ::Xsmp::Persist::Restore(simulator, reader, path);
-        value = dynamic_cast<T*>(simulator->GetResolver()->ResolveAbsolute(
-                path.c_str()));
-    }
+// serialize reference to an IObject
+template <typename T>
+struct Helper<T *, std::enable_if_t<std::is_base_of_v<::Smp::IObject, T>>> {
+  static void Store(const ::Smp::ISimulator *simulator,
+                    ::Smp::IStorageWriter *writer, T *const &value) {
+    ::Xsmp::Persist::Store(simulator, writer, ::Xsmp::Helper::GetPath(value));
+  }
+  static void Restore(const ::Smp::ISimulator *simulator,
+                      ::Smp::IStorageReader *reader, T *&value) {
+    std::string path;
+    ::Xsmp::Persist::Restore(simulator, reader, path);
+    value = dynamic_cast<T *>(
+        simulator->GetResolver()->ResolveAbsolute(path.c_str()));
+  }
 };
 
 } // namespace Xsmp::Persist

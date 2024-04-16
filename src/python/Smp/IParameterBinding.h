@@ -15,21 +15,21 @@
 #ifndef PYTHON_SMP_IPARAMETER_H_
 #define PYTHON_SMP_IPARAMETER_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/IParameter.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIParameter(const py::module_ &m) {
-    py::class_<::Smp::IParameter, ::Smp::IObject>(m, "IParameter",
-            py::multiple_inheritance())
+  py::class_<::Smp::IParameter, ::Smp::IObject>(m, "IParameter",
+                                                py::multiple_inheritance())
 
-    .def("GetType", &::Smp::IParameter::GetType,
-            py::return_value_policy::reference,
-            "Provides the type of the parameter.")
+      .def("GetType", &::Smp::IParameter::GetType,
+           py::return_value_policy::reference,
+           "Provides the type of the parameter.")
 
-    .def("GetDirection", &::Smp::IParameter::GetDirection,
-            "Provides the parameter direction kind of the parameter.")
+      .def("GetDirection", &::Smp::IParameter::GetDirection,
+           "Provides the parameter direction kind of the parameter.")
 
-    .doc() = "This interface describes a parameter of a published operation.";
+      .doc() = "This interface describes a parameter of a published operation.";
 }
 
 #endif // PYTHON_SMP_IPARAMETER_H_

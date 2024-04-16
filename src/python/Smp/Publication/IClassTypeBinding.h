@@ -15,15 +15,15 @@
 #ifndef PYTHON_SMP_PUBLICATION_ICLASSTYPE_H_
 #define PYTHON_SMP_PUBLICATION_ICLASSTYPE_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/Publication/IClassType.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIClassType(const py::module_ &m) {
-    py::class_<::Smp::Publication::IClassType,
-            ::Smp::Publication::IStructureType>(m, "IClassType",
-            py::multiple_inheritance())
+  py::class_<::Smp::Publication::IClassType,
+             ::Smp::Publication::IStructureType>(m, "IClassType",
+                                                 py::multiple_inheritance())
 
-    .doc() = "This interface defines a user defined class type.";
+      .doc() = "This interface defines a user defined class type.";
 }
 
 #endif // PYTHON_SMP_PUBLICATION_ICLASSTYPE_H_

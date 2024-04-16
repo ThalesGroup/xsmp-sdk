@@ -15,44 +15,44 @@
 #ifndef PYTHON_ECSS_SMP_H_
 #define PYTHON_ECSS_SMP_H_
 
-#include <pybind11/pybind11.h>
 #include <Smp/AnySimple.h>
 #include <Smp/IObject.h>
 #include <Smp/PrimitiveTypes.h>
+#include <pybind11/pybind11.h>
 #include <type_traits>
 #include <typeinfo>
 
 namespace py = pybind11;
 
 /// Customized hook for IObject
-const ::Smp::IObject* IObjectHook(const ::Smp::IObject *src,
-        const std::type_info *&type);
+const ::Smp::IObject *IObjectHook(const ::Smp::IObject *src,
+                                  const std::type_info *&type);
 
 /// Convert an AnySimple to python type
 py::object convert(const ::Smp::AnySimple &value);
 
 /// Convert a python type to an AnySimple
 ::Smp::AnySimple convert(const py::handle &handle,
-        ::Smp::PrimitiveTypeKind kind);
+                         ::Smp::PrimitiveTypeKind kind);
 
 /// Get the index with support for negative index (python like)
 ::Smp::UInt64 GetIndex(::Smp::Int64 index, ::Smp::UInt64 size);
 
 void RegisterClasses(py::module_ &smp, py::module_ &publication,
-        py::module_ &services);
+                     py::module_ &services);
 void RegisterClasses2(py::module_ &smp, py::module_ &publication,
-        py::module_ &services);
+                      py::module_ &services);
 
 namespace PYBIND11_NAMESPACE {
 
 /// Use a customized type_hook for IObject
-template<typename itype>
-struct polymorphic_type_hook<itype,
-        std::enable_if_t<std::is_base_of_v<Smp::IObject, itype>>> {
-    static const ::Smp::IObject* get(const itype *src,
-            const std::type_info *&type) {
-        return IObjectHook(src, type);
-    }
+template <typename itype>
+struct polymorphic_type_hook<
+    itype, std::enable_if_t<std::is_base_of_v<Smp::IObject, itype>>> {
+  static const ::Smp::IObject *get(const itype *src,
+                                   const std::type_info *&type) {
+    return IObjectHook(src, type);
+  }
 };
 } // namespace PYBIND11_NAMESPACE
 

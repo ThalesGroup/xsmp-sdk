@@ -21,20 +21,20 @@
 namespace Xsmp::Persist {
 
 /// Helper implementation for std::string elements
-template<typename T>
-struct Helper<std::atomic<T>> {
-    static void Store(const ::Smp::ISimulator *simulator,
-            ::Smp::IStorageWriter *writer, const std::atomic<T> &value) {
-        T v = value;
-        ::Xsmp::Persist::Store(simulator, writer, v);
-    }
+template <typename T> struct Helper<std::atomic<T>> {
+  static void Store(const ::Smp::ISimulator *simulator,
+                    ::Smp::IStorageWriter *writer,
+                    const std::atomic<T> &value) {
+    T v = value;
+    ::Xsmp::Persist::Store(simulator, writer, v);
+  }
 
-    static void Restore(const ::Smp::ISimulator *simulator,
-            ::Smp::IStorageReader *reader, std::atomic<T> &value) {
-        T v;
-        ::Xsmp::Persist::Restore(simulator, reader, v);
-        value = v;
-    }
+  static void Restore(const ::Smp::ISimulator *simulator,
+                      ::Smp::IStorageReader *reader, std::atomic<T> &value) {
+    T v;
+    ::Xsmp::Persist::Restore(simulator, reader, v);
+    value = v;
+  }
 };
 
 } // namespace Xsmp::Persist

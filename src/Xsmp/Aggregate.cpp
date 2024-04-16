@@ -16,16 +16,14 @@
 
 namespace Xsmp {
 
-Aggregate::Aggregate() :
-        _references { "ReferencesCollection", "", this } {
+Aggregate::Aggregate() : _references{"ReferencesCollection", "", this} {}
+
+const ::Smp::ReferenceCollection *Aggregate::GetReferences() const {
+  return &_references;
 }
 
-const ::Smp::ReferenceCollection* Aggregate::GetReferences() const {
-    return &_references;
-}
-
-::Smp::IReference* Aggregate::GetReference(::Smp::String8 name) const {
-    return _references.at(name);
+::Smp::IReference *Aggregate::GetReference(::Smp::String8 name) const {
+  return _references.at(name);
 }
 
 } // namespace Xsmp

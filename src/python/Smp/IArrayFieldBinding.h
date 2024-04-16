@@ -15,31 +15,33 @@
 #ifndef PYTHON_SMP_IARRAYFIELD_H_
 #define PYTHON_SMP_IARRAYFIELD_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/IArrayField.h>
 #include <Smp/PrimitiveTypes.h>
+#include <python/ecss_smp.h>
 #include <string>
 
 inline void RegisterIArrayField(const py::module_ &m) {
-    py::class_<::Smp::IArrayField, ::Smp::IField>(m, "IArrayField",
-            py::multiple_inheritance())
+  py::class_<::Smp::IArrayField, ::Smp::IField>(m, "IArrayField",
+                                                py::multiple_inheritance())
 
-    .def("__len__", &::Smp::IArrayField::GetSize)
+      .def("__len__", &::Smp::IArrayField::GetSize)
 
-    .def("__getitem__", [](const ::Smp::IArrayField &self, ::Smp::Int64 index) {
-        if (auto *result = self.GetItem(GetIndex(index, self.GetSize())))
-            return result;
-        throw py::index_error(std::to_string(index));
-    },
-    py::return_value_policy::reference)
+      .def(
+          "__getitem__",
+          [](const ::Smp::IArrayField &self, ::Smp::Int64 index) {
+            if (auto *result = self.GetItem(GetIndex(index, self.GetSize())))
+              return result;
+            throw py::index_error(std::to_string(index));
+          },
+          py::return_value_policy::reference)
 
-    .def("GetSize", &::Smp::IArrayField::GetSize,
-            "Get the size (number of array items) of the field.")
+      .def("GetSize", &::Smp::IArrayField::GetSize,
+           "Get the size (number of array items) of the field.")
 
-    .def("GetItem", &::Smp::IArrayField::GetItem,
-            py::return_value_policy::reference, "Get an array item by index.")
+      .def("GetItem", &::Smp::IArrayField::GetItem,
+           py::return_value_policy::reference, "Get an array item by index.")
 
-    .doc() = "Interface of a field which is of array type.";
+      .doc() = "Interface of a field which is of array type.";
 }
 
 #endif // PYTHON_SMP_IARRAYFIELD_H_

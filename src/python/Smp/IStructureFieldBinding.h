@@ -15,14 +15,14 @@
 #ifndef PYTHON_SMP_ISTRUCTUREFIELD_H_
 #define PYTHON_SMP_ISTRUCTUREFIELD_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/IStructureField.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterIStructureField(const py::module_ &m) {
-    py::class_<::Smp::IStructureField, ::Smp::IField>(m, "IStructureField",
-            py::multiple_inheritance())
+  py::class_<::Smp::IStructureField, ::Smp::IField>(m, "IStructureField",
+                                                    py::multiple_inheritance())
 
-    .doc() = "Interface of a structure field.";
+      .doc() = "Interface of a structure field.";
 }
 
 #endif // PYTHON_SMP_ISTRUCTUREFIELD_H_

@@ -25,18 +25,20 @@ namespace detail {
 class AbstractEventSource;
 } // namespace detail
 
-class EventProvider: public virtual ::Smp::IEventProvider {
+class EventProvider : public virtual ::Smp::IEventProvider {
 public:
-    EventProvider();
-    const ::Smp::EventSourceCollection* GetEventSources() const override;
-    ::Smp::IEventSource* GetEventSource(::Smp::String8 name) const override;
+  EventProvider();
+  const ::Smp::EventSourceCollection *GetEventSources() const override;
+  ::Smp::IEventSource *GetEventSource(::Smp::String8 name) const override;
+
 protected:
-    inline void AddEventSource(::Smp::IEventSource *eventSource) {
-        _event_sources.Add(eventSource);
-    }
+  inline void AddEventSource(::Smp::IEventSource *eventSource) {
+    _event_sources.Add(eventSource);
+  }
+
 private:
-    friend ::Xsmp::detail::AbstractEventSource;
-    ::Xsmp::Collection<::Smp::IEventSource> _event_sources;
+  friend ::Xsmp::detail::AbstractEventSource;
+  ::Xsmp::Collection<::Smp::IEventSource> _event_sources;
 };
 
 } // namespace Xsmp

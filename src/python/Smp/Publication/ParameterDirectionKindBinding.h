@@ -15,24 +15,29 @@
 #ifndef PYTHON_SMP_PUBLICATION_PARAMETERDIRECTIONKINDKIND_H_
 #define PYTHON_SMP_PUBLICATION_PARAMETERDIRECTIONKINDKIND_H_
 
-#include <python/ecss_smp.h>
 #include <Smp/Publication/ParameterDirectionKind.h>
+#include <python/ecss_smp.h>
 
 inline void RegisterParameterDirectionKind(const py::module_ &m) {
-    py::enum_<::Smp::Publication::ParameterDirectionKind>(m,
-            "ParameterDirectionKind")
+  py::enum_<::Smp::Publication::ParameterDirectionKind>(
+      m, "ParameterDirectionKind")
 
-    .value("PDK_In", ::Smp::Publication::ParameterDirectionKind::PDK_In,
-            "The parameter is read-only to the operation, i.e. its value must be specified on call, and cannot be changed inside the operation.")
+      .value(
+          "PDK_In", ::Smp::Publication::ParameterDirectionKind::PDK_In,
+          "The parameter is read-only to the operation, i.e. its value must be "
+          "specified on call, and cannot be changed inside the operation.")
 
-    .value("PDK_Out", ::Smp::Publication::ParameterDirectionKind::PDK_Out,
-            "The parameter is write-only to the operation, i.e. its value is unspecified on call, and must be set by the operation.")
+      .value("PDK_Out", ::Smp::Publication::ParameterDirectionKind::PDK_Out,
+             "The parameter is write-only to the operation, i.e. its value is "
+             "unspecified on call, and must be set by the operation.")
 
-    .value("PDK_InOut", ::Smp::Publication::ParameterDirectionKind::PDK_InOut,
-            "The parameter must be specified on call, and may be changed by the operation.")
+      .value("PDK_InOut", ::Smp::Publication::ParameterDirectionKind::PDK_InOut,
+             "The parameter must be specified on call, and may be changed by "
+             "the operation.")
 
-    .value("PDK_Return", ::Smp::Publication::ParameterDirectionKind::PDK_Return,
-            "The parameter represents the operation's return value.");
+      .value("PDK_Return",
+             ::Smp::Publication::ParameterDirectionKind::PDK_Return,
+             "The parameter represents the operation's return value.");
 }
 
 #endif // PYTHON_SMP_PUBLICATION_PARAMETERDIRECTIONKINDKIND_H_
