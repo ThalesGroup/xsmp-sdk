@@ -170,7 +170,6 @@ Property::Property(::Smp::String8 name, ::Smp::String8 description,
                 "The property getter is not invokable: ", this);
 
     Getter request { this };
-
     invoker->Invoke(&request);
     return request.GetReturnValue();
 }
@@ -184,7 +183,16 @@ void Property::SetValue(::Smp::AnySimple value) {
     Setter request { this };
     request.SetParameterValue(0, std::move(value));
     invoker->Invoke(&request);
+}
 
+::Smp::IRequest* Property::CreateGetRequest() const noexcept {
+    return _accessKind == ::Smp::AccessKind::AK_WriteOnly ?
+            nullptr : new Getter(this);
+}
+
+::Smp::IRequest* Property::CreateSetRequest() const noexcept {
+    return _accessKind == ::Smp::AccessKind::AK_ReadOnly ?
+            nullptr : new Setter(this);
 }
 
 void Property::Update(::Smp::String8 description,

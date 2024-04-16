@@ -28,6 +28,7 @@
 #include <Xsmp/Publication/Operation.h>
 #include <Xsmp/Publication/Property.h>
 #include <Xsmp/Publication/Publication.h>
+#include <cstring>
 #include <memory>
 
 namespace Xsmp::Publication {
@@ -232,6 +233,17 @@ const ::Smp::OperationCollection* Publication::GetOperations() const {
     if (operationName) {
         if (auto *operation = _operations.at(operationName))
             return operation->CreateRequest();
+
+        // check if property getter exist
+        if (std::strncmp(operationName, "get_", 4) == 0) {
+            if(const auto* property = dynamic_cast<const Property*>(_properties.at(operationName + 4))) 
+                return property->CreateGetRequest();
+        }
+        // check if property setter exist
+        else if (std::strncmp(operationName, "set_", 4) == 0) {
+            if (const auto* property = dynamic_cast<const Property*>(_properties.at(operationName + 4)))
+                return property->CreateSetRequest();
+        }
     }
     return nullptr;
 }

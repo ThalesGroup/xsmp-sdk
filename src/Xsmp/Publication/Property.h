@@ -74,6 +74,21 @@ public:
     /// Throws InvalidAccess if the property is Read Only.
     /// @param   value New value of the property.
     void SetValue(::Smp::AnySimple value) override;
+
+    /// Return a request object for the property getter that describes the
+    /// return value.
+    /// The request object may be null if the property is write only.
+    /// @return  Request object for property getter, or null if the property
+    ///          is write only.
+    virtual ::Smp::IRequest* CreateGetRequest() const noexcept;
+
+    /// Return a request object for the property setter that describes the
+    /// parameter.
+    /// The request object may be null if the property is read only.
+    /// @return  Request object for property setter, or null if the property
+    ///          is read only.
+    virtual ::Smp::IRequest* CreateSetRequest() const noexcept;
+
 private:
     /// provide access to Update method to Publication class
     friend class ::Xsmp::Publication::Publication;
