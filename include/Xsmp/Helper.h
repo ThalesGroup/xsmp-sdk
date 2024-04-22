@@ -61,7 +61,7 @@ Resolve(const ::Smp::ICollection<Smp::IField> *fields, ::Smp::String8 path);
 
 [[nodiscard]] std::string TypeName(const ::Smp::IObject *type);
 template <typename T> [[nodiscard]] std::string TypeName() {
-  return demangle(typeid(T).name());
+  return demangle(typeid(std::remove_pointer_t<T>).name());
 }
 
 /// helper function to copy a string from an AnySimple

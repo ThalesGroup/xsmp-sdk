@@ -249,7 +249,7 @@ TEST(ExceptionTest, ContainerFull) {
     EXPECT_EQ(e.GetSender(), &ctn);
     EXPECT_STREQ(
         e.GetMessage(),
-        "The Container '<null>.parent.ctn' is full, upper limit is '0'.");
+        "The Container 'ctn' in '<null>.parent' is full, upper limit is '0'.");
 
     EXPECT_EQ(e.GetContainerSize(), 0);
     EXPECT_STREQ(e.GetContainerName(), "ctn");
@@ -299,7 +299,7 @@ TEST(ExceptionTest, NotContained) {
                  "from a container which was not contained before");
     EXPECT_EQ(e.GetSender(), &ctn);
     EXPECT_STREQ(e.GetMessage(), "Cannot delete component '<null>/cmp' from "
-                                 "the container '<null>.parent.ctn'.");
+                                 "the container 'ctn' in '<null>.parent'.");
 
     EXPECT_STREQ(e.GetContainerName(), "ctn");
     EXPECT_EQ(e.GetComponent(), &cmp);
@@ -324,10 +324,11 @@ TEST(ExceptionTest, CannotDelete) {
                  "from a container when the number of contained components is "
                  "lower than or equal to the Lower limit");
     EXPECT_EQ(e.GetSender(), &ctn);
-    EXPECT_STREQ(e.GetMessage(),
-                 "Tried to delete <null>/cmp component from <null>.parent.ctn "
-                 "container, but the number of contained components is lower "
-                 "than or equal to the Lower limit: 42");
+    EXPECT_STREQ(
+        e.GetMessage(),
+        "Tried to delete <null>/cmp component from the container 'ctn' "
+        "in '<null>.parent' but the number of contained components is lower "
+        "than or equal to the Lower limit: 42");
 
     EXPECT_STREQ(e.GetContainerName(), "ctn");
     EXPECT_EQ(e.GetComponent(), &cmp);
@@ -396,7 +397,7 @@ TEST(ExceptionTest, NotReferenced) {
     EXPECT_EQ(e.GetSender(), &ctn);
     EXPECT_STREQ(e.GetMessage(),
                  "Tried to remove <null>/cmp component from the reference "
-                 "<null>.parent.ctn which was not referenced before.");
+                 "'ctn' in '<null>.parent' which was not referenced before.");
 
     EXPECT_STREQ(e.GetReferenceName(), "ctn");
     EXPECT_EQ(e.GetComponent(), &cmp);
@@ -420,9 +421,9 @@ TEST(ExceptionTest, ReferenceFull) {
                  "Cannot add a component to a reference that is full, i.e. "
                  "where the Count has reached the Upper limit");
     EXPECT_EQ(e.GetSender(), &ctn);
-    EXPECT_STREQ(e.GetMessage(),
-                 "Tried to add a component to <null>.parent.ctn that is full "
-                 "(max size: 42)");
+    EXPECT_STREQ(e.GetMessage(), "Tried to add a component to reference 'ctn' "
+                                 "in '<null>.parent' that is full, upper"
+                                 " limit is '42'.");
 
     EXPECT_STREQ(e.GetReferenceName(), "ctn");
     EXPECT_EQ(e.GetReferenceSize(), 42);
@@ -448,8 +449,9 @@ TEST(ExceptionTest, CannotRemove) {
                  "lower than or equal to the Lower limit");
     EXPECT_EQ(e.GetSender(), &ctn);
     EXPECT_STREQ(e.GetMessage(),
-                 "Tried to remove <null>/cmp component from <null>.parent.ctn "
-                 "reference, but the number of referenced components is lower "
+                 "Tried to remove <null>/cmp component from reference 'ctn' in "
+                 "'<null>.parent'"
+                 " but the number of referenced components is lower "
                  "than or equal to the Lower limit: 42");
 
     EXPECT_STREQ(e.GetReferenceName(), "ctn");
@@ -619,7 +621,7 @@ TEST(ExceptionTest, InvalidArrayIndex) {
 
   Xsmp::Publication::TypeRegistry registry;
 
- const auto *type = dynamic_cast<Xsmp::Publication::ArrayType *>(
+  const auto *type = dynamic_cast<Xsmp::Publication::ArrayType *>(
       registry.AddArrayType("type", "", Smp::Uuid{}, Smp::Uuids::Uuid_Bool,
                             sizeof(bool), 10, false));
 
@@ -695,7 +697,7 @@ TEST(ExceptionTest, InvalidArrayValue) {
 
   Xsmp::Publication::TypeRegistry registry;
 
- const auto *type = dynamic_cast<Xsmp::Publication::ArrayType *>(
+  const auto *type = dynamic_cast<Xsmp::Publication::ArrayType *>(
       registry.AddArrayType("Test", "", Smp::Uuid{}, Smp::Uuids::Uuid_Bool,
                             sizeof(bool), 10, false));
 
@@ -1086,7 +1088,9 @@ TEST(ExceptionTest, InvalidFieldType) {
     EXPECT_STREQ(e.GetDescription(),
                  "Cannot publish a field with invalid type");
     EXPECT_EQ(e.GetSender(), &parent);
-    EXPECT_STREQ(e.GetMessage(), "The primitive type kind 'String8' is invalid for field '<null>.op'.");
+    EXPECT_STREQ(
+        e.GetMessage(),
+        "The primitive type kind 'String8' is invalid for field '<null>.op'.");
   } catch (...) {
     FAIL();
   }
@@ -1098,20 +1102,24 @@ TEST(ExceptionTest, InvalidFieldType) {
     EXPECT_STREQ(e.GetDescription(),
                  "Cannot publish a field with invalid type");
     EXPECT_EQ(e.GetSender(), &parent);
-    EXPECT_STREQ(e.GetMessage(), "The type UUID '00000000-0000-0000-0000-000000000000' is invalid for field '<null>.op'.");
+    EXPECT_STREQ(e.GetMessage(),
+                 "The type UUID '00000000-0000-0000-0000-000000000000' is "
+                 "invalid for field '<null>.op'.");
   } catch (...) {
     FAIL();
   }
   Xsmp::Publication::TypeRegistry registry;
   try {
-    throwInvalidFieldType(&parent, registry.GetType(::Smp::PrimitiveTypeKind::PTK_String8));
+    throwInvalidFieldType(
+        &parent, registry.GetType(::Smp::PrimitiveTypeKind::PTK_String8));
     FAIL();
   } catch (const Smp::InvalidFieldType &e) {
     EXPECT_STREQ(e.GetName(), "InvalidFieldType");
     EXPECT_STREQ(e.GetDescription(),
                  "Cannot publish a field with invalid type");
     EXPECT_EQ(e.GetSender(), &parent);
-    EXPECT_STREQ(e.GetMessage(), "The type 'String8' is invalid for field '<null>.op'.");
+    EXPECT_STREQ(e.GetMessage(),
+                 "The type 'String8' is invalid for field '<null>.op'.");
   } catch (...) {
     FAIL();
   }
