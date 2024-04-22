@@ -248,7 +248,7 @@ TEST(Exception, ContainerFull) {
     EXPECT_EQ(e.GetSender(), &ctn);
     EXPECT_STREQ(
         e.GetMessage(),
-        "The Container '<null>.parent.ctn' is full, upper limit is '0'.");
+        "The Container 'ctn' in '<null>.parent' is full, upper limit is '0'.");
 
     EXPECT_EQ(e.GetContainerSize(), 0);
     EXPECT_STREQ(e.GetContainerName(), "ctn");
@@ -298,7 +298,7 @@ TEST(Exception, NotContained) {
                  "from a container which was not contained before");
     EXPECT_EQ(e.GetSender(), &ctn);
     EXPECT_STREQ(e.GetMessage(), "Cannot delete component '<null>/cmp' from "
-                                 "the container '<null>.parent.ctn'.");
+                                 "the container 'ctn' in '<null>.parent'.");
 
     EXPECT_STREQ(e.GetContainerName(), "ctn");
     EXPECT_EQ(e.GetComponent(), &cmp);
@@ -323,10 +323,11 @@ TEST(Exception, CannotDelete) {
                  "from a container when the number of contained components is "
                  "lower than or equal to the Lower limit");
     EXPECT_EQ(e.GetSender(), &ctn);
-    EXPECT_STREQ(e.GetMessage(),
-                 "Tried to delete <null>/cmp component from <null>.parent.ctn "
-                 "container, but the number of contained components is lower "
-                 "than or equal to the Lower limit: 42");
+    EXPECT_STREQ(
+        e.GetMessage(),
+        "Tried to delete <null>/cmp component from the container 'ctn' "
+        "in '<null>.parent' but the number of contained components is lower "
+        "than or equal to the Lower limit: 42");
 
     EXPECT_STREQ(e.GetContainerName(), "ctn");
     EXPECT_EQ(e.GetComponent(), &cmp);
@@ -395,7 +396,7 @@ TEST(Exception, NotReferenced) {
     EXPECT_EQ(e.GetSender(), &ctn);
     EXPECT_STREQ(e.GetMessage(),
                  "Tried to remove <null>/cmp component from the reference "
-                 "<null>.parent.ctn which was not referenced before.");
+                 "'ctn' in '<null>.parent' which was not referenced before.");
 
     EXPECT_STREQ(e.GetReferenceName(), "ctn");
     EXPECT_EQ(e.GetComponent(), &cmp);
@@ -419,9 +420,9 @@ TEST(Exception, ReferenceFull) {
                  "Cannot add a component to a reference that is full, i.e. "
                  "where the Count has reached the Upper limit");
     EXPECT_EQ(e.GetSender(), &ctn);
-    EXPECT_STREQ(e.GetMessage(),
-                 "Tried to add a component to <null>.parent.ctn that is full "
-                 "(max size: 42)");
+    EXPECT_STREQ(e.GetMessage(), "Tried to add a component to reference 'ctn' "
+                                 "in '<null>.parent' that is full, upper"
+                                 " limit is '42'.");
 
     EXPECT_STREQ(e.GetReferenceName(), "ctn");
     EXPECT_EQ(e.GetReferenceSize(), 42);
@@ -447,8 +448,9 @@ TEST(Exception, CannotRemove) {
                  "lower than or equal to the Lower limit");
     EXPECT_EQ(e.GetSender(), &ctn);
     EXPECT_STREQ(e.GetMessage(),
-                 "Tried to remove <null>/cmp component from <null>.parent.ctn "
-                 "reference, but the number of referenced components is lower "
+                 "Tried to remove <null>/cmp component from reference 'ctn' in "
+                 "'<null>.parent'"
+                 " but the number of referenced components is lower "
                  "than or equal to the Lower limit: 42");
 
     EXPECT_STREQ(e.GetReferenceName(), "ctn");

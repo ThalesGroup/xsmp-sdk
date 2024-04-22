@@ -235,7 +235,8 @@ public:
       : Exception(sender, __func__,
                   "Cannot add a component to a container that is full, i.e. "
                   "where the Count has reached the Upper limit",
-                  "The Container '", sender, "' is full, upper limit is '",
+                  "The Container '", sender->GetName(), "' in '",
+                  sender->GetParent(), "' is full, upper limit is '",
                   sender->GetCount(), "'."),
 
         _containerSize(sender->GetCount()) {}
@@ -290,7 +291,8 @@ public:
                   "from a container which was not contained before",
 
                   "Cannot delete component '", component,
-                  "' from the container '", container, "'."),
+                  "' from the container '", container->GetName(), "' in '",
+                  container->GetParent(), "'."),
 
         _component(component) {}
   ~NotContained() noexcept override = default;
@@ -317,8 +319,10 @@ public:
                   "from a container when the number of contained components is "
                   "lower than or equal to the Lower limit",
 
-                  "Tried to delete ", component, " component from ", container,
-                  " container, but the number of contained components is lower "
+                  "Tried to delete ", component,
+                  " component from the container '", container->GetName(),
+                  "' in '", container->GetParent(),
+                  "' but the number of contained components is lower "
                   "than or equal to the Lower limit: ",
                   container->GetLower()),
 
@@ -408,8 +412,9 @@ public:
                   "from a reference which was not referenced before",
 
                   "Tried to remove ", component,
-                  " component from the reference ", reference,
-                  " which was not referenced before."),
+                  " component from the reference '", reference->GetName(),
+                  "' in '", reference->GetParent(),
+                  "' which was not referenced before."),
 
         _component(component) {}
 
@@ -436,8 +441,9 @@ public:
                   "Cannot add a component to a reference that is full, i.e. "
                   "where the Count has reached the Upper limit",
 
-                  "Tried to add a component to ", sender,
-                  " that is full (max size: ", referenceSize, ")"),
+                  "Tried to add a component to reference '", sender->GetName(),
+                  "' in '", sender->GetParent(),
+                  "' that is full, upper limit is '", referenceSize, "'."),
 
         _referenceSize(referenceSize) {}
 
@@ -469,8 +475,9 @@ public:
                   "from a reference when the number of referenced components "
                   "is lower than or equal to the Lower limit",
 
-                  "Tried to remove ", component, " component from ", sender,
-                  " reference, but the number of referenced components is "
+                  "Tried to remove ", component, " component from reference '",
+                  sender->GetName(), "' in '", sender->GetParent(),
+                  "' but the number of referenced components is "
                   "lower than or equal to the Lower limit: ",
                   lowerLimit),
 

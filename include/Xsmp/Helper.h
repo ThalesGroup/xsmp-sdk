@@ -78,7 +78,7 @@ Resolve(const ::Smp::ICollection<Smp::IField> *fields, ::Smp::String8 path);
 /// @tparam T The type for which to obtain the demangled name.
 /// @return The demangled name of the type T.
 template <typename T> [[nodiscard]] std::string TypeName() {
-  return demangle(typeid(T).name());
+  return demangle(typeid(std::remove_pointer_t<T>).name());
 }
 
 /// Copies the string value of an AnySimple object to a destination buffer,

@@ -288,7 +288,12 @@ inline bool AreEquivalent(const ::Smp::IStructureField *source,
   }
   return true;
 }
-
+std::string GetName(const ::Smp::IObject *obj) {
+  return dynamic_cast<const ::Smp::IContainer *>(obj) ||
+                 dynamic_cast<const ::Smp::IReference *>(obj)
+             ? std::string("_") + obj->GetName()
+             : obj->GetName();
+}
 } // namespace
 
 std::string GetPath(const ::Smp::IObject *obj) {
@@ -302,7 +307,7 @@ std::string GetPath(const ::Smp::IObject *obj) {
   auto *parent = obj->GetParent();
 
   if (dynamic_cast<::Smp::ISimulator *>(parent)) {
-    return GetPath(parent) + obj->GetName();
+    return GetPath(parent) + GetName(obj);
   }
   // use '/' separator between components
   if (dynamic_cast<const ::Smp::IComponent *>(obj)) {
@@ -315,7 +320,7 @@ std::string GetPath(const ::Smp::IObject *obj) {
 
   // use '.' separator between all others elements : fields, entry points, event
   // sink/sources, ...
-  return GetPath(parent) + "." + obj->GetName();
+  return GetPath(parent) + "." + GetName(obj);
 }
 
 ::Smp::IObject *Resolve(const ::Smp::FieldCollection *fields,

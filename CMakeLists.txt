@@ -71,6 +71,7 @@ option(XSMP_BUILD_EXAMPLES        "whether or not examples should be built"     
 option(XSMP_ENABLE_INSTALL        "whether or not to enable the install rule"       ${XSMP_MASTER_PROJECT})
 option(XSMP_ENABLE_CODECOVERAGE   "Enable code coverage testing support"            OFF)
 option(XSMP_BUILD_WITH_WARNINGS   "Enable all compiler warnings"                    OFF)
+option(XSMP_BUILD_SERVER          "whether or not the Server should be built"       ${XSMP_MASTER_PROJECT})
 
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -520,9 +521,20 @@ if((CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_L
     target_link_libraries(Simulator PUBLIC stdc++fs)
 endif()
 
-
-
-
+# --------------------------------------------------------------------
+# Create Server
+# --------------------------------------------------------------------
+if(XSMP_BUILD_SERVER)
+    FetchContent_Declare(
+        crow
+        GIT_REPOSITORY https://github.com/CrowCpp/Crow
+        GIT_TAG        v1.2.0
+    )
+    
+    FetchContent_MakeAvailable(crow)
+    add_executable(Server src/Xsmp/Server.cpp)
+    target_link_libraries(Server PUBLIC Crow::Crow Xsmp::Cdk Xsmp::LibraryHelper)
+endif(XSMP_BUILD_SERVER)
 
 if(XSMP_BUILD_PACKAGE)
     set(package_files include/ src/ src-gen/ python/ cmake/ CMakeLists.txt LICENSE README.md xsmp.project)
