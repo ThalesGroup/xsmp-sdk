@@ -250,15 +250,14 @@ The element is not visible to end users. If the simulation infrastructure suppor
   accessKind->AddLiteral("AK_WriteOnly",
                          "Write only access, i.e. only setter method.", 2);
 
-  auto *simulatorStateKind =
-      AddEnumerationType(
-          "SimulatorStateKind", // name
-          "This is an enumeration of the available states of the simulator. "
-          "The Setup phase is split into three different states, the Execution "
-          "phase has five different states, and the Termination phase has two "
-          "states.",                             // description
-          ::Smp::Uuids::Uuid_SimulatorStateKind, // UUID
-          sizeof(::Smp::SimulatorStateKind));
+  auto *simulatorStateKind = AddEnumerationType(
+      "SimulatorStateKind", // name
+      "This is an enumeration of the available states of the simulator. "
+      "The Setup phase is split into three different states, the Execution "
+      "phase has five different states, and the Termination phase has two "
+      "states.",                             // description
+      ::Smp::Uuids::Uuid_SimulatorStateKind, // UUID
+      sizeof(::Smp::SimulatorStateKind));
 
   // Register the Literals of the Enumeration
   simulatorStateKind->AddLiteral(

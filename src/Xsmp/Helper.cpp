@@ -116,8 +116,11 @@ std::string GetNextSegment(::Smp::String8 *path, ::Smp::Char8 *separator) {
   while (true) {
     switch (*it) {
     case '.':
-      while (*(++it) == '.')
-        ;
+      if (*(it + 1) == '.') {
+        ++it;
+        while (*(++it) == '.')
+          ;
+      }
       [[fallthrough]];
     case '/':
     case '[':
