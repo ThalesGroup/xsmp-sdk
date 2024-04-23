@@ -117,9 +117,8 @@ void XsmpEventManager::Subscribe(::Smp::Services::EventId event,
   if (auto it = _subscriptions.find(event); it != _subscriptions.end()) {
     auto &entryPoints = it->second;
 
-    if (auto it2 =
-            std::find(entryPoints.begin(), entryPoints.end(), entryPoint);
-        it2 != entryPoints.end())
+    if (std::find(entryPoints.begin(), entryPoints.end(), entryPoint) !=
+        entryPoints.end())
       ::Xsmp::Exception::throwEntryPointAlreadySubscribed(this, entryPoint,
                                                           event_name);
 
