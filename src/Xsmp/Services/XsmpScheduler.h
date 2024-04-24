@@ -386,11 +386,6 @@ private:
 
   friend struct ::Xsmp::Persist::Helper<Event>;
 
-  // thread that process zulu events
-  std::thread _zuluThread{};
-  // thread that process simu/epoch/mission events
-  // std::thread _simulationThread;
-
   // An EventList that is ordered by posting order
   // It uses a set of unsigned ::Smp::Services::EventId
   // to be sure that the first posted event is the first executed
@@ -426,6 +421,9 @@ private:
   std::atomic<double> _targetSpeed{100.};
   std::atomic<Status> _simulationStatus{};
   bool _terminate{false};
+
+  // thread that process zulu events
+  std::thread _zuluThread{};
 
   class MovingAverage {
   public:

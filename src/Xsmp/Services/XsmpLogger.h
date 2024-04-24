@@ -74,12 +74,10 @@ public:
 
 private:
   friend class ::Xsmp::Component::Helper;
-  std::unique_ptr<LoggerProcessor> _processor;
-  // init pre-defined kinds: keep ordered
-  std::vector<std::string> _logMessageKinds{LMK_InformationName, LMK_EventName,
-                                            LMK_WarningName, LMK_ErrorName,
-                                            LMK_DebugName};
+
+  std::vector<std::string> _logMessageKinds;
   std::mutex _mutex{};
+  std::unique_ptr<LoggerProcessor> _processor;
 };
 } // namespace Xsmp::Services
 

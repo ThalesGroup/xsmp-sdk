@@ -129,10 +129,6 @@ Simulator::~Simulator() {
                      ::Smp::Services::ILogger::LMK_Error);
       }
     }
-
-    // we keep the library handle open. It cause segfault on some OS...
-    //::Xsmp::CloseLibrary(handle)
-
     // remove the library handle
     _libraries.pop_back();
   }
@@ -147,8 +143,7 @@ Simulator::~Simulator() {
 
 ::Xsmp::Publication::Publication *
 Simulator::CreatePublication(::Smp::IComponent *component) {
-  _publications.emplace_back(component, &_typeRegistry);
-  return &_publications.back();
+  return &_publications.emplace_back(component, &_typeRegistry);
 }
 
 void Simulator::Publish() {

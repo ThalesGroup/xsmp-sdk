@@ -28,7 +28,7 @@ void CounterManager::DoDisconnect() {}
                          });
 }
 ::Smp::Float64 CounterManager::get_average() {
-  if (auto size = counters.size())
+  if (counters.size())
     return static_cast<::Smp::Float64>(get_sum()) / counters.size();
   return 0;
 }

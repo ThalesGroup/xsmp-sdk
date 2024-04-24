@@ -527,7 +527,7 @@ if(XSMP_BUILD_PACKAGE)
         COMMAND ${CMAKE_COMMAND} -E tar c ${CMAKE_CURRENT_BINARY_DIR}/xsmp-sdk-src.zip --format=zip -- ${package_files}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS ${package_files})
-    add_custom_target(package DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/xsmp-sdk-src.zip)
+    add_custom_target(xsmp_package DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/xsmp-sdk-src.zip)
 endif(XSMP_BUILD_PACKAGE)
 
 

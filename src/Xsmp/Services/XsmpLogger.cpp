@@ -366,10 +366,7 @@ private:
 };
 class LoggerProcessor {
 public:
-  LoggerProcessor()
-      : // initialize the working thread
-        workingThread{&LoggerProcessor::Process, this} {
-
+  LoggerProcessor() {
     auto properties = parseProperties();
 
     auto rootLogger = properties.find(std::string(_basePath) + ".rootLogger");
@@ -381,12 +378,18 @@ public:
     else
       _appenders.emplace_back(std::make_unique<ConsoleAppender>(
           std::string(_basePath) + ".appender.default", properties));
+
+    // initialize the working thread
+    workingThread = std::thread{&LoggerProcessor::Process, this};
   }
 
   ~LoggerProcessor() {
     // terminate the working thread
-    running = false;
-    _cv.notify_all();
+    {
+      std::scoped_lock lck(_mutex);
+      running = false;
+    }
+    _cv.notify_one();
     if (workingThread.joinable())
       workingThread.join();
   }
@@ -394,12 +397,12 @@ public:
            const std::string &kind, ::Smp::DateTime zuluTime,
            ::Smp::Duration simulationTime, ::Smp::DateTime epochTime,
            ::Smp::Duration missionTime) {
-
-    std::unique_lock lck(_mutex);
-    _logs.push({::Xsmp::Helper::GetPath(sender), msg, kind,
-                Xsmp::DateTime{zuluTime}, Xsmp::Duration{simulationTime},
-                Xsmp::DateTime{epochTime}, Xsmp::Duration{missionTime}});
-    lck.unlock();
+    {
+      std::scoped_lock lck(_mutex);
+      _logs.push({::Xsmp::Helper::GetPath(sender), msg, kind,
+                  Xsmp::DateTime{zuluTime}, Xsmp::Duration{simulationTime},
+                  Xsmp::DateTime{epochTime}, Xsmp::Duration{missionTime}});
+    }
     _cv.notify_one();
   }
 
@@ -419,6 +422,14 @@ private:
         _logs.pop();
       }
       _cv.wait(lck, [this] { return !running || !_logs.empty(); });
+    }
+
+    // process remaining logs if any
+    while (!_logs.empty()) {
+      const auto &log = _logs.front();
+      for (auto const &appender : _appenders)
+        appender->Append(log);
+      _logs.pop();
     }
   }
 
@@ -479,18 +490,21 @@ private:
   std::vector<std::unique_ptr<Appender>> _appenders{};
 
   bool running{true};
-  std::thread workingThread;
+  std::thread workingThread{};
 };
 
 XsmpLogger::XsmpLogger(::Smp::String8 name, ::Smp::String8 description,
                        ::Smp::IComposite *parent, ::Smp::ISimulator *simulator)
     : XsmpLoggerGen::XsmpLoggerGen(name, description, parent, simulator),
+      // init pre-defined kinds: keep ordered
+      _logMessageKinds{LMK_InformationName, LMK_EventName, LMK_WarningName,
+                       LMK_ErrorName, LMK_DebugName},
       _processor{std::make_unique<LoggerProcessor>()} {}
 
 ::Smp::Services::LogMessageKind
 XsmpLogger::QueryLogMessageKind(::Smp::String8 messageKindName) {
   std::scoped_lock lck{_mutex};
-  // this implementation is not very performant.
+  // this implementation is not very efficient.
   // we do not expect to call this method too often and to have many different
   // kinds of msg
 
@@ -509,7 +523,7 @@ XsmpLogger::QueryLogMessageKind(::Smp::String8 messageKindName) {
 
 void XsmpLogger::Log(const ::Smp::IObject *sender, ::Smp::String8 message,
                      ::Smp::Services::LogMessageKind kind) {
-  std::unique_lock lck{_mutex};
+  std::scoped_lock lck{_mutex};
 
   // the index is a direct cast from ::Smp::Services::LogMessageKind to
   // ::Smp::UInt32
@@ -517,7 +531,6 @@ void XsmpLogger::Log(const ::Smp::IObject *sender, ::Smp::String8 message,
   const auto &msgKind = (index < _logMessageKinds.size()
                              ? _logMessageKinds[index]
                              : "<unknown: " + std::to_string(kind) + ">");
-  lck.unlock();
 
   if (GetSimulator() && GetSimulator()->GetTimeKeeper()) {
     auto const *tk = GetSimulator()->GetTimeKeeper();
