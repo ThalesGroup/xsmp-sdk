@@ -144,8 +144,7 @@ XsmpScheduler::AddEvent(const ::Smp::IEntryPoint *entryPoint,
                       Event{entryPoint, simulationTime, time, cycleTime, repeat,
                             kind, _lastEventId});
 
-  _events_table.try_emplace(simulationTime, EventList{})
-      .first->second.emplace(_lastEventId);
+  _events_table.try_emplace(simulationTime).first->second.emplace(_lastEventId);
 
   GetSimulator()->GetLogger()->Log(entryPoint, "Event posted",
                                    ::Smp::Services::ILogger::LMK_Debug);
@@ -209,8 +208,7 @@ XsmpScheduler::AddEvent(const ::Smp::IEntryPoint *entryPoint,
                               ::Smp::Services::TimeKind::TK_ZuluTime, eventId});
 
     // insert the event in the zulu event table
-    _zulu_events_table.try_emplace(zuluTime, EventList{})
-        .first->second.emplace(eventId);
+    _zulu_events_table.try_emplace(zuluTime).first->second.emplace(eventId);
   }
   _zuluCv.notify_one();
 
@@ -245,8 +243,7 @@ void XsmpScheduler::SetEventTime(::Smp::Services::EventId event,
   it->second.nextScheduleSimulationTime = simulationTime;
   it->second.time = time;
 
-  _events_table.try_emplace(simulationTime, EventList{})
-      .first->second.emplace(event);
+  _events_table.try_emplace(simulationTime).first->second.emplace(event);
 }
 
 void XsmpScheduler::SetEventSimulationTime(::Smp::Services::EventId event,
@@ -296,8 +293,7 @@ void XsmpScheduler::SetEventZuluTime(::Smp::Services::EventId event,
     }
 
     it->second.nextScheduleSimulationTime = zuluTime;
-    _zulu_events_table.try_emplace(zuluTime, EventList{})
-        .first->second.emplace(event);
+    _zulu_events_table.try_emplace(zuluTime).first->second.emplace(event);
   }
   _zuluCv.notify_one();
 }
@@ -419,7 +415,7 @@ void XsmpScheduler::Execute(::Smp::Services::EventId eventId) {
     event.time += event.cycleTime;
 
     // post the event in the table
-    _events_table.try_emplace(event.nextScheduleSimulationTime, EventList{})
+    _events_table.try_emplace(event.nextScheduleSimulationTime)
         .first->second.emplace(eventId);
   }
 }
@@ -456,8 +452,7 @@ void XsmpScheduler::ExecuteZulu(::Smp::Services::EventId eventId) {
     event.nextScheduleSimulationTime += event.cycleTime;
     // post the event in the table
     std::scoped_lock lckZulu{_zuluEventsTableMutex};
-    _zulu_events_table
-        .try_emplace(event.nextScheduleSimulationTime, EventList{})
+    _zulu_events_table.try_emplace(event.nextScheduleSimulationTime)
         .first->second.emplace(eventId);
   }
 }

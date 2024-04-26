@@ -27,11 +27,7 @@ void XsmpLinkRegistry::AddLink(::Smp::IComponent *source,
   if (it == _links.end()) {
     _links.try_emplace(key, 1);
     std::scoped_lock lck2{_targetsMutex};
-    auto it2 = _targets.find(target);
-    if (it2 == _targets.end())
-      _targets.try_emplace(target, "Links", "", this).first->second.Add(source);
-    else
-      it2->second.Add(source);
+    _targets.try_emplace(target, "Links", "", this).first->second.Add(source);
   } else
     ++it->second;
 }
