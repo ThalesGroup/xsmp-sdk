@@ -59,29 +59,29 @@ void XsmpTimeKeeper::DoConnect(const ::Smp::ISimulator *simulator) const {
 }
 
 void XsmpTimeKeeper::SetEpochTime(::Smp::DateTime epochTime) {
-
-  std::unique_lock lck{_mutex};
-  _epochStart = _simulationTime - epochTime;
-  lck.unlock();
+  {
+    std::scoped_lock lck{_mutex};
+    _epochStart = _simulationTime - epochTime;
+  }
 
   GetSimulator()->GetEventManager()->Emit(
       ::Smp::Services::IEventManager::SMP_EpochTimeChangedId);
 }
 
 void XsmpTimeKeeper::SetMissionStartTime(::Smp::DateTime missionStart) {
-
-  std::unique_lock lck{_mutex};
-  _missionStartTime = missionStart;
-  lck.unlock();
+  {
+    std::scoped_lock lck{_mutex};
+    _missionStartTime = missionStart;
+  }
   GetSimulator()->GetEventManager()->Emit(
       ::Smp::Services::IEventManager::SMP_MissionTimeChangedId);
 }
 
 void XsmpTimeKeeper::SetMissionTime(::Smp::Duration missionTime) {
-
-  std::unique_lock lck{_mutex};
-  _missionStartTime = _simulationTime - _epochStart - missionTime;
-  lck.unlock();
+  {
+    std::scoped_lock lck{_mutex};
+    _missionStartTime = _simulationTime - _epochStart - missionTime;
+  }
   GetSimulator()->GetEventManager()->Emit(
       ::Smp::Services::IEventManager::SMP_MissionTimeChangedId);
 }

@@ -373,22 +373,19 @@ public:
 
 private:
   friend class ::Xsmp::Component::Helper;
-
+  // this structure represent an event in the scheduling table
   struct Event {
-    const ::Smp::IEntryPoint *entryPoint;
-    ::Smp::Duration nextScheduleSimulationTime;
-    ::Smp::Duration time;
-    ::Smp::Duration cycleTime;
-    ::Smp::Int64 repeat;
-    ::Smp::Services::TimeKind kind;
-    ::Smp::Services::EventId id;
+    const ::Smp::IEntryPoint *entryPoint;       // the entry point to call
+    ::Smp::Duration nextScheduleSimulationTime; // the scheduled simulation time
+    ::Smp::Duration time;           // the scheduled time (of type kind)
+    ::Smp::Duration cycleTime;      // the cycle time
+    ::Smp::Int64 repeat;            // the repeat count
+    ::Smp::Services::TimeKind kind; // the time kind
   };
 
   friend struct ::Xsmp::Persist::Helper<Event>;
 
-  // An EventList that is ordered by posting order
-  // It uses a set of unsigned ::Smp::Services::EventId
-  // to be sure that the first posted event is the first executed
+  // An Event List ordered by posting order
   using EventList =
       std::set<::Smp::Services::EventId,
                std::less<std::make_unsigned_t<::Smp::Services::EventId>>>;
@@ -444,7 +441,7 @@ private:
   MovingAverage _speed{};
 
   /// Run the scheduler
-  void InternalZuluRun(const ::Smp::ISimulator *simulator);
+  void InternalZuluRun();
 
   ::Smp::Services::EventId
   AddEvent(const ::Smp::IEntryPoint *entryPoint, ::Smp::Duration simulationTime,

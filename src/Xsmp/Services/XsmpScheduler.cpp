@@ -40,14 +40,14 @@ template <> struct Helper<::Xsmp::Services::XsmpScheduler::Event> {
                     const ::Xsmp::Services::XsmpScheduler::Event &value) {
     ::Xsmp::Persist::Store(simulator, writer, value.entryPoint,
                            value.nextScheduleSimulationTime, value.time,
-                           value.cycleTime, value.repeat, value.kind, value.id);
+                           value.cycleTime, value.repeat, value.kind);
   }
   static void Restore(const ::Smp::ISimulator *simulator,
                       ::Smp::IStorageReader *reader,
                       ::Xsmp::Services::XsmpScheduler::Event &value) {
-    ::Xsmp::Persist::Restore(
-        simulator, reader, value.entryPoint, value.nextScheduleSimulationTime,
-        value.time, value.cycleTime, value.repeat, value.kind, value.id);
+    ::Xsmp::Persist::Restore(simulator, reader, value.entryPoint,
+                             value.nextScheduleSimulationTime, value.time,
+                             value.cycleTime, value.repeat, value.kind);
   }
 };
 } // namespace Xsmp::Persist
@@ -62,10 +62,10 @@ XsmpScheduler::XsmpScheduler(::Smp::String8 name, ::Smp::String8 description,
     : XsmpSchedulerGen::XsmpSchedulerGen(name, description, parent, simulator) {
 
   // post an event to Hold the simulation at the maximal duration
-  const ::Smp::Services::EventId holdId = -2;
-  _events.try_emplace(
-      holdId, Event{&HoldEvent, MaxDuration, MaxDuration, 0, 0,
-                    ::Smp::Services::TimeKind::TK_SimulationTime, holdId});
+  constexpr ::Smp::Services::EventId holdId = -2;
+  _events.try_emplace(holdId,
+                      Event{&HoldEvent, MaxDuration, MaxDuration, 0, 0,
+                            ::Smp::Services::TimeKind::TK_SimulationTime});
   _events_table.try_emplace(MaxDuration, EventList{holdId});
 }
 
@@ -81,7 +81,7 @@ void XsmpScheduler::DoConnect(const ::Smp::ISimulator *simulator) {
   simulator->GetEventManager()->Subscribe(
       ::Smp::Services::IEventManager::SMP_LeaveExecutingId, &LeaveExecuting);
 
-  _zuluThread = std::thread(&XsmpScheduler::InternalZuluRun, this, simulator);
+  _zuluThread = std::thread(&XsmpScheduler::InternalZuluRun, this);
 }
 
 void XsmpScheduler::DoDisconnect() {
@@ -115,8 +115,7 @@ XsmpScheduler::AddImmediateEvent(const ::Smp::IEntryPoint *entryPoint) {
   auto time = GetSimulator()->GetTimeKeeper()->GetSimulationTime();
   _events.try_emplace(_lastEventId,
                       Event{entryPoint, time, time, 0, 0,
-                            ::Smp::Services::TimeKind::TK_SimulationTime,
-                            _lastEventId});
+                            ::Smp::Services::TimeKind::TK_SimulationTime});
 
   _immediate_events.emplace(_lastEventId);
   return _lastEventId;
@@ -140,9 +139,8 @@ XsmpScheduler::AddEvent(const ::Smp::IEntryPoint *entryPoint,
   std::scoped_lock lck{_eventsMutex};
 
   ++_lastEventId;
-  _events.try_emplace(_lastEventId,
-                      Event{entryPoint, simulationTime, time, cycleTime, repeat,
-                            kind, _lastEventId});
+  _events.try_emplace(_lastEventId, Event{entryPoint, simulationTime, time,
+                                          cycleTime, repeat, kind});
 
   _events_table.try_emplace(simulationTime).first->second.emplace(_lastEventId);
 
@@ -205,7 +203,7 @@ XsmpScheduler::AddEvent(const ::Smp::IEntryPoint *entryPoint,
     eventId = ++_lastEventId;
     _events.try_emplace(eventId,
                         Event{entryPoint, zuluTime, zuluTime, cycleTime, repeat,
-                              ::Smp::Services::TimeKind::TK_ZuluTime, eventId});
+                              ::Smp::Services::TimeKind::TK_ZuluTime});
 
     // insert the event in the zulu event table
     _zulu_events_table.try_emplace(zuluTime).first->second.emplace(eventId);
@@ -469,7 +467,7 @@ bool XsmpScheduler::ExecuteEvents(EventList &events) {
       // process immediate events posted by this event
       if (_simulationStatus == Status::Hold || !ExecuteImmediateEvents()) {
         // store un-executed events and exit
-        events.insert(it, current.end());
+        events.insert(++it, current.end());
         return false;
       }
     }
@@ -487,9 +485,8 @@ bool XsmpScheduler::ExecuteImmediateEvents() {
       Execute(*it);
       // process immediate events posted by this event
       if (_simulationStatus == Status::Hold) {
-
         // store un-executed events and exit
-        _immediate_events.insert(it, events.end());
+        _immediate_events.insert(++it, events.end());
         return false;
       }
     }
@@ -497,7 +494,7 @@ bool XsmpScheduler::ExecuteImmediateEvents() {
   return true;
 }
 
-void XsmpScheduler::InternalZuluRun(const ::Smp::ISimulator *sim) {
+void XsmpScheduler::InternalZuluRun() {
 
   std::unique_lock lck(_zuluEventsTableMutex);
 
@@ -506,7 +503,7 @@ void XsmpScheduler::InternalZuluRun(const ::Smp::ISimulator *sim) {
     // execute all events with time <= current zulu time
     for (auto it = _zulu_events_table.begin();
          it != _zulu_events_table.end() &&
-         it->first <= sim->GetTimeKeeper()->GetZuluTime();
+         it->first <= GetSimulator()->GetTimeKeeper()->GetZuluTime();
          it = _zulu_events_table.erase(it)) {
 
       // execute all events
@@ -537,17 +534,18 @@ void XsmpScheduler::InternalZuluRun(const ::Smp::ISimulator *sim) {
       _zuluCv.wait(
           lck, [this]() { return _terminate || !_zulu_events_table.empty(); });
     else
-      _zuluCv.wait_for(lck,
-                       std::chrono::nanoseconds{
-                           std::max(static_cast<::Smp::Duration>(0),
-                                    _zulu_events_table.begin()->first -
-                                        sim->GetTimeKeeper()->GetZuluTime())},
-                       [this, sim] {
-                         return _terminate ||
-                                (!_zulu_events_table.empty() &&
-                                 _zulu_events_table.begin()->first <=
-                                     sim->GetTimeKeeper()->GetZuluTime());
-                       });
+      _zuluCv.wait_for(
+          lck,
+          std::chrono::nanoseconds{
+              std::max(static_cast<::Smp::Duration>(0),
+                       _zulu_events_table.begin()->first -
+                           GetSimulator()->GetTimeKeeper()->GetZuluTime())},
+          [this] {
+            return _terminate ||
+                   (!_zulu_events_table.empty() &&
+                    _zulu_events_table.begin()->first <=
+                        GetSimulator()->GetTimeKeeper()->GetZuluTime());
+          });
   }
 }
 

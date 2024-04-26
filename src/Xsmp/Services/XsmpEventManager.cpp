@@ -111,24 +111,23 @@ void XsmpEventManager::Subscribe(::Smp::Services::EventId event,
                                  const ::Smp::IEntryPoint *entryPoint) {
 
   const auto &event_name = GetEventName(event);
+  {
+    std::scoped_lock lck{_subscriptionsMutex};
 
-  std::unique_lock lck{_subscriptionsMutex};
+    if (auto it = _subscriptions.find(event); it != _subscriptions.end()) {
+      auto &entryPoints = it->second;
 
-  if (auto it = _subscriptions.find(event); it != _subscriptions.end()) {
-    auto &entryPoints = it->second;
+      if (std::find(entryPoints.begin(), entryPoints.end(), entryPoint) !=
+          entryPoints.end())
+        ::Xsmp::Exception::throwEntryPointAlreadySubscribed(this, entryPoint,
+                                                            event_name);
 
-    if (std::find(entryPoints.begin(), entryPoints.end(), entryPoint) !=
-        entryPoints.end())
-      ::Xsmp::Exception::throwEntryPointAlreadySubscribed(this, entryPoint,
-                                                          event_name);
-
-    entryPoints.push_back(entryPoint);
-  } else {
-
-    _subscriptions.try_emplace(
-        event, std::vector<const ::Smp::IEntryPoint *>{entryPoint});
+      entryPoints.push_back(entryPoint);
+    } else {
+      _subscriptions.try_emplace(
+          event, std::vector<const ::Smp::IEntryPoint *>{entryPoint});
+    }
   }
-  lck.unlock();
   if (auto *logger = GetSimulator()->GetLogger())
     logger->Log(this,
                 (::Xsmp::Helper::GetPath(entryPoint) + " subscribed to " +
@@ -172,8 +171,8 @@ void XsmpEventManager::Emit(::Smp::Services::EventId event,
     logger->Log(this, event_name.c_str(), ::Smp::Services::ILogger::LMK_Event);
 
   std::unique_lock lck{_subscriptionsMutex};
-  auto it = _subscriptions.find(event);
-  if (it != _subscriptions.end()) {
+
+  if (auto it = _subscriptions.find(event); it != _subscriptions.end()) {
     // copy the entrypoints
     auto entryPoints = it->second;
     lck.unlock();
