@@ -46,7 +46,7 @@ namespace Xsmp::Tests {
 // forward declaration of user class
 class ModelWithArrayFields;
 /// Universally unique identifier of type ModelWithArrayFields.
-static constexpr ::Smp::Uuid Uuid_ModelWithArrayFields{
+inline constexpr ::Smp::Uuid Uuid_ModelWithArrayFields{
     0x120f3848U, 0x02d8U, 0x4cecU, 0xa0c2U, 0x32e3e5714e1aU};
 
 class ModelWithArrayFieldsGen : public ::Xsmp::Model,

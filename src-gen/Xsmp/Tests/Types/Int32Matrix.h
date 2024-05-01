@@ -38,7 +38,7 @@ namespace Xsmp::Tests::Types {
 using Int32Matrix = ::Xsmp::Array<::Xsmp::Tests::Types::Int32Array, 3>;
 
 /// Universally unique identifier of type Int32Matrix.
-static constexpr ::Smp::Uuid Uuid_Int32Matrix{0xbf6c4259U, 0xa845U, 0x401bU,
+inline constexpr ::Smp::Uuid Uuid_Int32Matrix{0xbf6c4259U, 0xa845U, 0x401bU,
                                               0xb1b1U, 0xc6f4188dbb46U};
 
 void _Register_Int32Matrix(::Smp::Publication::ITypeRegistry *registry);

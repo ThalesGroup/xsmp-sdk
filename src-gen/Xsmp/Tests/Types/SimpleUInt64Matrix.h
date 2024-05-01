@@ -39,7 +39,7 @@ using SimpleUInt64Matrix =
     ::Xsmp::Array<::Xsmp::Tests::Types::SimpleUInt64Array, 3>;
 
 /// Universally unique identifier of type SimpleUInt64Matrix.
-static constexpr ::Smp::Uuid Uuid_SimpleUInt64Matrix{
+inline constexpr ::Smp::Uuid Uuid_SimpleUInt64Matrix{
     0xc097600dU, 0x870eU, 0x48d3U, 0xa12dU, 0x385c2e5fb99cU};
 
 void _Register_SimpleUInt64Matrix(::Smp::Publication::ITypeRegistry *registry);

@@ -35,7 +35,7 @@
 
 namespace Xsmp::Tests::Types {
 /// Universally unique identifier of type Integer1.
-static constexpr ::Smp::Uuid Uuid_Integer1{0xd4205d85U, 0xad70U, 0x4268U,
+inline constexpr ::Smp::Uuid Uuid_Integer1{0xd4205d85U, 0xad70U, 0x4268U,
                                            0xa492U, 0x03b93fc3a7f1U};
 using Integer1 = ::Smp::Int32;
 void _Register_Integer1(::Smp::Publication::ITypeRegistry *registry);

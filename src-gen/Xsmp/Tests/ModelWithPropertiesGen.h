@@ -46,7 +46,7 @@ namespace Xsmp::Tests {
 // forward declaration of user class
 class ModelWithProperties;
 /// Universally unique identifier of type ModelWithProperties.
-static constexpr ::Smp::Uuid Uuid_ModelWithProperties{
+inline constexpr ::Smp::Uuid Uuid_ModelWithProperties{
     0x3264ed26U, 0x0085U, 0x4238U, 0x8ecfU, 0xd099715341e2U};
 
 class ModelWithPropertiesGen : public ::Xsmp::Model {

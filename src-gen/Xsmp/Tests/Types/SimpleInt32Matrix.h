@@ -39,7 +39,7 @@ using SimpleInt32Matrix =
     ::Xsmp::Array<::Xsmp::Tests::Types::SimpleInt32Array, 3>;
 
 /// Universally unique identifier of type SimpleInt32Matrix.
-static constexpr ::Smp::Uuid Uuid_SimpleInt32Matrix{
+inline constexpr ::Smp::Uuid Uuid_SimpleInt32Matrix{
     0x4d94b2b3U, 0x9b5cU, 0x4f7fU, 0xb89eU, 0xcd24fb368542U};
 
 void _Register_SimpleInt32Matrix(::Smp::Publication::ITypeRegistry *registry);

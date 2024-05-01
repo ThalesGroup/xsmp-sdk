@@ -39,7 +39,7 @@ namespace Xsmp::Services {
 // forward declaration of user class
 class XsmpResolver;
 /// Universally unique identifier of type XsmpResolver.
-static constexpr ::Smp::Uuid Uuid_XsmpResolver{0x0a942ecbU, 0x5cb5U, 0x4adaU,
+inline constexpr ::Smp::Uuid Uuid_XsmpResolver{0x0a942ecbU, 0x5cb5U, 0x4adaU,
                                                0xac98U, 0x54469c1446d5U};
 
 class XsmpResolverGen : public ::Xsmp::Service,

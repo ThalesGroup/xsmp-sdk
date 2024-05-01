@@ -37,7 +37,7 @@ namespace Xsmp::Tests::Types {
 using UInt16Array = ::Xsmp::Array<::Smp::UInt16, 3>;
 
 /// Universally unique identifier of type UInt16Array.
-static constexpr ::Smp::Uuid Uuid_UInt16Array{0xb05ed0b5U, 0x4f3fU, 0x4aeeU,
+inline constexpr ::Smp::Uuid Uuid_UInt16Array{0xb05ed0b5U, 0x4f3fU, 0x4aeeU,
                                               0x9487U, 0xf756059fc3fdU};
 
 void _Register_UInt16Array(::Smp::Publication::ITypeRegistry *registry);

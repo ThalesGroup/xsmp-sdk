@@ -37,7 +37,7 @@ namespace Xsmp::Tests::Types {
 using Int32Array = ::Xsmp::Array<::Smp::Int32, 3>;
 
 /// Universally unique identifier of type Int32Array.
-static constexpr ::Smp::Uuid Uuid_Int32Array{0x13c47a9fU, 0xd605U, 0x4107U,
+inline constexpr ::Smp::Uuid Uuid_Int32Array{0x13c47a9fU, 0xd605U, 0x4107U,
                                              0xb751U, 0x75e75463c8ffU};
 
 void _Register_Int32Array(::Smp::Publication::ITypeRegistry *registry);

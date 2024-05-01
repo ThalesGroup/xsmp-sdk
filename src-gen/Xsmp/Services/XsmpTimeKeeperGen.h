@@ -42,7 +42,7 @@ namespace Xsmp::Services {
 // forward declaration of user class
 class XsmpTimeKeeper;
 /// Universally unique identifier of type XsmpTimeKeeper.
-static constexpr ::Smp::Uuid Uuid_XsmpTimeKeeper{0x00e6747eU, 0x2047U, 0x4c13U,
+inline constexpr ::Smp::Uuid Uuid_XsmpTimeKeeper{0x00e6747eU, 0x2047U, 0x4c13U,
                                                  0xbda5U, 0xbaf50819e768U};
 
 class XsmpTimeKeeperGen : public ::Xsmp::Service,

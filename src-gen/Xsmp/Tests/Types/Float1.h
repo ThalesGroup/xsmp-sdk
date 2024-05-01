@@ -35,7 +35,7 @@
 
 namespace Xsmp::Tests::Types {
 /// Universally unique identifier of type Float1.
-static constexpr ::Smp::Uuid Uuid_Float1{0xd12d93e8U, 0x41a5U, 0x4638U, 0x9b6bU,
+inline constexpr ::Smp::Uuid Uuid_Float1{0xd12d93e8U, 0x41a5U, 0x4638U, 0x9b6bU,
                                          0x2cc1bcdac97bU};
 using Float1 = ::Smp::Float64;
 void _Register_Float1(::Smp::Publication::ITypeRegistry *registry);

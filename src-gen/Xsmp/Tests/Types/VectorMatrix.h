@@ -38,7 +38,7 @@ namespace Xsmp::Tests::Types {
 using VectorMatrix = ::Xsmp::Array<::Xsmp::Tests::Types::VectorArray, 3>;
 
 /// Universally unique identifier of type VectorMatrix.
-static constexpr ::Smp::Uuid Uuid_VectorMatrix{0x4e5a3483U, 0x1818U, 0x4da8U,
+inline constexpr ::Smp::Uuid Uuid_VectorMatrix{0x4e5a3483U, 0x1818U, 0x4da8U,
                                                0xb9e0U, 0x4c02a4eb7502U};
 
 void _Register_VectorMatrix(::Smp::Publication::ITypeRegistry *registry);

@@ -536,7 +536,7 @@ struct StructureWithCustomFields {
 };
 
 /// Universally unique identifier of type StructureWithCustomFields.
-static constexpr ::Smp::Uuid Uuid_StructureWithCustomFields{
+inline constexpr ::Smp::Uuid Uuid_StructureWithCustomFields{
     0xf7de138dU, 0xe0a5U, 0x4ae2U, 0x9624U, 0xab49cc75b8b8U};
 } // namespace Xsmp::Tests::Types
 

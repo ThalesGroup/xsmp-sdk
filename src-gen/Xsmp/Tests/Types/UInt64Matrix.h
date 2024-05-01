@@ -38,7 +38,7 @@ namespace Xsmp::Tests::Types {
 using UInt64Matrix = ::Xsmp::Array<::Xsmp::Tests::Types::UInt64Array, 3>;
 
 /// Universally unique identifier of type UInt64Matrix.
-static constexpr ::Smp::Uuid Uuid_UInt64Matrix{0x46da5717U, 0xc5a2U, 0x4951U,
+inline constexpr ::Smp::Uuid Uuid_UInt64Matrix{0x46da5717U, 0xc5a2U, 0x4951U,
                                                0xa332U, 0x17eafefdbc98U};
 
 void _Register_UInt64Matrix(::Smp::Publication::ITypeRegistry *registry);

@@ -39,7 +39,7 @@ using SimpleString1Array =
     ::Xsmp::Array<::Xsmp::Tests::Types::String1, 3>::simple;
 
 /// Universally unique identifier of type SimpleString1Array.
-static constexpr ::Smp::Uuid Uuid_SimpleString1Array{
+inline constexpr ::Smp::Uuid Uuid_SimpleString1Array{
     0x2cfe8204U, 0xff00U, 0x484dU, 0xb7e3U, 0xc774d3447e5bU};
 
 void _Register_SimpleString1Array(::Smp::Publication::ITypeRegistry *registry);

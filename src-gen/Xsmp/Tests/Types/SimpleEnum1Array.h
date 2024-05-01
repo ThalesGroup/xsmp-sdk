@@ -38,7 +38,7 @@ namespace Xsmp::Tests::Types {
 using SimpleEnum1Array = ::Xsmp::Array<::Xsmp::Tests::Types::Enum1, 3>::simple;
 
 /// Universally unique identifier of type SimpleEnum1Array.
-static constexpr ::Smp::Uuid Uuid_SimpleEnum1Array{
+inline constexpr ::Smp::Uuid Uuid_SimpleEnum1Array{
     0xb7a9aa75U, 0xf37dU, 0x4250U, 0x8039U, 0xa271177cc416U};
 
 void _Register_SimpleEnum1Array(::Smp::Publication::ITypeRegistry *registry);

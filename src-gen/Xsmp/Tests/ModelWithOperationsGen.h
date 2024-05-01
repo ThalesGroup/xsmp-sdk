@@ -43,7 +43,7 @@ namespace Xsmp::Tests {
 // forward declaration of user class
 class ModelWithOperations;
 /// Universally unique identifier of type ModelWithOperations.
-static constexpr ::Smp::Uuid Uuid_ModelWithOperations{
+inline constexpr ::Smp::Uuid Uuid_ModelWithOperations{
     0x5c52ca42U, 0x4992U, 0x4401U, 0x9408U, 0x8d994b1fbabeU};
 
 class ModelWithOperationsGen : public ::Xsmp::Model {

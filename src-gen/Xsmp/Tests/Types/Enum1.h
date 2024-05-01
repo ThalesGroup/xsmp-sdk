@@ -37,7 +37,7 @@ namespace Xsmp::Tests::Types {
 enum class Enum1 : ::Smp::Int32 { L1 = 0, L2 = 1, L3 = 2 };
 
 /// Universally unique identifier of type Enum1.
-static constexpr ::Smp::Uuid Uuid_Enum1{0xebca672cU, 0xed02U, 0x4decU, 0x8199U,
+inline constexpr ::Smp::Uuid Uuid_Enum1{0xebca672cU, 0xed02U, 0x4decU, 0x8199U,
                                         0x7049f2f3c03bU};
 
 void _Register_Enum1(::Smp::Publication::ITypeRegistry *registry);

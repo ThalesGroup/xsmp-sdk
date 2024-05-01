@@ -113,7 +113,7 @@ struct SimpleStructure {
 };
 
 /// Universally unique identifier of type SimpleStructure.
-static constexpr ::Smp::Uuid Uuid_SimpleStructure{0xd5831073U, 0x1037U, 0x48a0U,
+inline constexpr ::Smp::Uuid Uuid_SimpleStructure{0xd5831073U, 0x1037U, 0x48a0U,
                                                   0xb455U, 0x53083c542d75U};
 } // namespace Xsmp::Tests::Types
 

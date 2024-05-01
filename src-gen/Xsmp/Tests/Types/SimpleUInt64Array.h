@@ -37,7 +37,7 @@ namespace Xsmp::Tests::Types {
 using SimpleUInt64Array = ::Xsmp::Array<::Smp::UInt64, 3>::simple;
 
 /// Universally unique identifier of type SimpleUInt64Array.
-static constexpr ::Smp::Uuid Uuid_SimpleUInt64Array{
+inline constexpr ::Smp::Uuid Uuid_SimpleUInt64Array{
     0x2f22e924U, 0xbf54U, 0x4945U, 0x9e66U, 0xb87edecb9d2bU};
 
 void _Register_SimpleUInt64Array(::Smp::Publication::ITypeRegistry *registry);

@@ -38,7 +38,7 @@ namespace Xsmp::Tests::Types {
 using Int8Matrix = ::Xsmp::Array<::Xsmp::Tests::Types::Int8Array, 3>;
 
 /// Universally unique identifier of type Int8Matrix.
-static constexpr ::Smp::Uuid Uuid_Int8Matrix{0x9f2ce560U, 0x20bcU, 0x427bU,
+inline constexpr ::Smp::Uuid Uuid_Int8Matrix{0x9f2ce560U, 0x20bcU, 0x427bU,
                                              0xa0c1U, 0x18b9cec1a4beU};
 
 void _Register_Int8Matrix(::Smp::Publication::ITypeRegistry *registry);

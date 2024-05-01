@@ -39,7 +39,7 @@ namespace Xsmp::Services {
 // forward declaration of user class
 class XsmpLinkRegistry;
 /// Universally unique identifier of type XsmpLinkRegistry.
-static constexpr ::Smp::Uuid Uuid_XsmpLinkRegistry{
+inline constexpr ::Smp::Uuid Uuid_XsmpLinkRegistry{
     0xcb874041U, 0x3bf6U, 0x42c0U, 0x8a7aU, 0xac8fd2809367U};
 
 class XsmpLinkRegistryGen : public ::Xsmp::Service,

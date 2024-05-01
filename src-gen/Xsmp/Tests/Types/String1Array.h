@@ -38,7 +38,7 @@ namespace Xsmp::Tests::Types {
 using String1Array = ::Xsmp::Array<::Xsmp::Tests::Types::String1, 3>;
 
 /// Universally unique identifier of type String1Array.
-static constexpr ::Smp::Uuid Uuid_String1Array{0x44c17ffdU, 0x7bebU, 0x4d62U,
+inline constexpr ::Smp::Uuid Uuid_String1Array{0x44c17ffdU, 0x7bebU, 0x4d62U,
                                                0xbcb9U, 0x0d303242bfc6U};
 
 void _Register_String1Array(::Smp::Publication::ITypeRegistry *registry);

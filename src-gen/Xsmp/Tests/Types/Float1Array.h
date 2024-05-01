@@ -38,7 +38,7 @@ namespace Xsmp::Tests::Types {
 using Float1Array = ::Xsmp::Array<::Xsmp::Tests::Types::Float1, 3>;
 
 /// Universally unique identifier of type Float1Array.
-static constexpr ::Smp::Uuid Uuid_Float1Array{0xa19cc4ffU, 0x22c1U, 0x4fbbU,
+inline constexpr ::Smp::Uuid Uuid_Float1Array{0xa19cc4ffU, 0x22c1U, 0x4fbbU,
                                               0x97f0U, 0x08f6d7b07132U};
 
 void _Register_Float1Array(::Smp::Publication::ITypeRegistry *registry);

@@ -39,7 +39,7 @@ using SimpleUInt16Matrix =
     ::Xsmp::Array<::Xsmp::Tests::Types::SimpleUInt16Array, 3>;
 
 /// Universally unique identifier of type SimpleUInt16Matrix.
-static constexpr ::Smp::Uuid Uuid_SimpleUInt16Matrix{
+inline constexpr ::Smp::Uuid Uuid_SimpleUInt16Matrix{
     0xd57c230cU, 0x5106U, 0x49d7U, 0x91edU, 0x34a2895a9035U};
 
 void _Register_SimpleUInt16Matrix(::Smp::Publication::ITypeRegistry *registry);

@@ -80,7 +80,7 @@ struct Vector {
 };
 
 /// Universally unique identifier of type Vector.
-static constexpr ::Smp::Uuid Uuid_Vector{0x8287dc95U, 0x211dU, 0x49d7U, 0x8b32U,
+inline constexpr ::Smp::Uuid Uuid_Vector{0x8287dc95U, 0x211dU, 0x49d7U, 0x8b32U,
                                          0x863832fb88c2U};
 } // namespace Xsmp::Tests::Types
 

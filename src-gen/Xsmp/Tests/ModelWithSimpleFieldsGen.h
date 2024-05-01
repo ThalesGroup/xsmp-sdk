@@ -53,7 +53,7 @@ namespace Xsmp::Tests {
 // forward declaration of user class
 class ModelWithSimpleFields;
 /// Universally unique identifier of type ModelWithSimpleFields.
-static constexpr ::Smp::Uuid Uuid_ModelWithSimpleFields{
+inline constexpr ::Smp::Uuid Uuid_ModelWithSimpleFields{
     0xdf6ddf61U, 0xc676U, 0x47f5U, 0x8764U, 0xfc6d889318ffU};
 
 class ModelWithSimpleFieldsGen : public ::Xsmp::Model,

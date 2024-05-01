@@ -38,7 +38,7 @@ namespace Xsmp::Tests::Types {
 using UInt16Matrix = ::Xsmp::Array<::Xsmp::Tests::Types::UInt16Array, 3>;
 
 /// Universally unique identifier of type UInt16Matrix.
-static constexpr ::Smp::Uuid Uuid_UInt16Matrix{0xa99460ecU, 0x41eaU, 0x4713U,
+inline constexpr ::Smp::Uuid Uuid_UInt16Matrix{0xa99460ecU, 0x41eaU, 0x4713U,
                                                0x81c8U, 0x7ae57c457d5eU};
 
 void _Register_UInt16Matrix(::Smp::Publication::ITypeRegistry *registry);

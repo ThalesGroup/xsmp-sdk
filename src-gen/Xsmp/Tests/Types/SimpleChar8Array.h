@@ -37,7 +37,7 @@ namespace Xsmp::Tests::Types {
 using SimpleChar8Array = ::Xsmp::Array<::Smp::Char8, 3>::simple;
 
 /// Universally unique identifier of type SimpleChar8Array.
-static constexpr ::Smp::Uuid Uuid_SimpleChar8Array{
+inline constexpr ::Smp::Uuid Uuid_SimpleChar8Array{
     0x1d2b17f6U, 0xb950U, 0x4fcfU, 0xb47dU, 0x1bb80a7cdacfU};
 
 void _Register_SimpleChar8Array(::Smp::Publication::ITypeRegistry *registry);

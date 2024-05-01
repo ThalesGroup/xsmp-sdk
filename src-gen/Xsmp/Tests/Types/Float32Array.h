@@ -37,7 +37,7 @@ namespace Xsmp::Tests::Types {
 using Float32Array = ::Xsmp::Array<::Smp::Float32, 3>;
 
 /// Universally unique identifier of type Float32Array.
-static constexpr ::Smp::Uuid Uuid_Float32Array{0xf60eb4adU, 0xada3U, 0x4354U,
+inline constexpr ::Smp::Uuid Uuid_Float32Array{0xf60eb4adU, 0xada3U, 0x4354U,
                                                0x8b1aU, 0x933a17a80103U};
 
 void _Register_Float32Array(::Smp::Publication::ITypeRegistry *registry);

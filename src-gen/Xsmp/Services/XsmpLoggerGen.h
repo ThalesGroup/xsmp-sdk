@@ -40,7 +40,7 @@ namespace Xsmp::Services {
 // forward declaration of user class
 class XsmpLogger;
 /// Universally unique identifier of type XsmpLogger.
-static constexpr ::Smp::Uuid Uuid_XsmpLogger{0x2d9b0152U, 0x43fcU, 0x4146U,
+inline constexpr ::Smp::Uuid Uuid_XsmpLogger{0x2d9b0152U, 0x43fcU, 0x4146U,
                                              0x8614U, 0xa2000c38c2a5U};
 
 class XsmpLoggerGen : public ::Xsmp::Service,

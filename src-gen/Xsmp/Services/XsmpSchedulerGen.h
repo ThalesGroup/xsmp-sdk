@@ -42,7 +42,7 @@ namespace Xsmp::Services {
 // forward declaration of user class
 class XsmpScheduler;
 /// Universally unique identifier of type XsmpScheduler.
-static constexpr ::Smp::Uuid Uuid_XsmpScheduler{0x98df2ec3U, 0x7f94U, 0x4a49U,
+inline constexpr ::Smp::Uuid Uuid_XsmpScheduler{0x98df2ec3U, 0x7f94U, 0x4a49U,
                                                 0x8c95U, 0x3da0b3525ae5U};
 
 class XsmpSchedulerGen : public ::Xsmp::Service,

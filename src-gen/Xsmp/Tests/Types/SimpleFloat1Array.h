@@ -39,7 +39,7 @@ using SimpleFloat1Array =
     ::Xsmp::Array<::Xsmp::Tests::Types::Float1, 3>::simple;
 
 /// Universally unique identifier of type SimpleFloat1Array.
-static constexpr ::Smp::Uuid Uuid_SimpleFloat1Array{
+inline constexpr ::Smp::Uuid Uuid_SimpleFloat1Array{
     0xa0189dc0U, 0xbff8U, 0x4326U, 0x8e23U, 0xf68cc66421a7U};
 
 void _Register_SimpleFloat1Array(::Smp::Publication::ITypeRegistry *registry);

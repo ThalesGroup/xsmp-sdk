@@ -37,7 +37,7 @@ namespace Xsmp::Tests::Types {
 using SimpleBoolArray = ::Xsmp::Array<::Smp::Bool, 3>::simple;
 
 /// Universally unique identifier of type SimpleBoolArray.
-static constexpr ::Smp::Uuid Uuid_SimpleBoolArray{0x658aea44U, 0xedeeU, 0x43d4U,
+inline constexpr ::Smp::Uuid Uuid_SimpleBoolArray{0x658aea44U, 0xedeeU, 0x43d4U,
                                                   0xa974U, 0xe438cd6dd475U};
 
 void _Register_SimpleBoolArray(::Smp::Publication::ITypeRegistry *registry);

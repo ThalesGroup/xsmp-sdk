@@ -40,7 +40,7 @@ namespace Xsmp::Services {
 // forward declaration of user class
 class XsmpEventManager;
 /// Universally unique identifier of type XsmpEventManager.
-static constexpr ::Smp::Uuid Uuid_XsmpEventManager{
+inline constexpr ::Smp::Uuid Uuid_XsmpEventManager{
     0x840d13a6U, 0x7b41U, 0x4f3dU, 0xa25cU, 0xdab597135a51U};
 
 class XsmpEventManagerGen : public ::Xsmp::Service,
