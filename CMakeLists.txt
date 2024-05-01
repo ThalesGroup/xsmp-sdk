@@ -522,7 +522,7 @@ endif()
 
 
 if(XSMP_BUILD_PACKAGE)
-    set(package_files include/ src/ src-gen/ CMakeLists.txt LICENSE)
+    set(package_files include/ src/ src-gen/ python/ cmake/ CMakeLists.txt LICENSE README.md xsmp.project)
     add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/xsmp-sdk-src.zip
         COMMAND ${CMAKE_COMMAND} -E tar c ${CMAKE_CURRENT_BINARY_DIR}/xsmp-sdk-src.zip --format=zip -- ${package_files}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}

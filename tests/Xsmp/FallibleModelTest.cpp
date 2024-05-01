@@ -12,60 +12,65 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <Smp/ComponentStateKind.h>
 #include <Smp/InvalidComponentState.h>
 #include <Smp/InvalidOperationName.h>
-#include <Xsmp/Model.h>
 #include <Xsmp/FallibleModel.h>
-#include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Field.h>
+#include <Xsmp/Model.h>
+#include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Simulator.h>
+#include <gtest/gtest.h>
 #include <type_traits>
 
 namespace Xsmp {
 
-class FallibleModeltest: public Model, public FallibleModel {
+class FallibleModeltest : public Model, public FallibleModel {
 public:
-    FallibleModeltest(::Smp::String8 name, ::Smp::String8 description,
-            ::Smp::IComposite *parent, ::Smp::ISimulator *simulator) :
-            Model(name, description, parent, simulator),
+  FallibleModeltest(::Smp::String8 name, ::Smp::String8 description,
+                    ::Smp::IComposite *parent, ::Smp::ISimulator *simulator)
+      : Model(name, description, parent, simulator),
 
-            failure { simulator->GetTypeRegistry(), ::Smp::Uuids::Uuid_Bool,
-                    "failure", "", this, ::Smp::ViewKind::VK_None },
+        failure{simulator->GetTypeRegistry(),
+                ::Smp::Uuids::Uuid_Bool,
+                "failure",
+                "",
+                this,
+                ::Smp::ViewKind::VK_None},
 
-            failure2 { simulator->GetTypeRegistry(), ::Smp::Uuids::Uuid_Bool,
-                    "failure2", "", this, ::Smp::ViewKind::VK_None } {
+        failure2{simulator->GetTypeRegistry(),
+                 ::Smp::Uuids::Uuid_Bool,
+                 "failure2",
+                 "",
+                 this,
+                 ::Smp::ViewKind::VK_None} {}
 
-    }
-
-    Xsmp::Field<bool>::failure failure;
-    Xsmp::Field<bool>::failure failure2;
+  Xsmp::Field<bool>::failure failure;
+  Xsmp::Field<bool>::failure failure2;
 };
 
 TEST(FallibleModelTest, IsFailed) {
 
-    Simulator sim;
-    FallibleModeltest m { "m", "", &sim, &sim };
+  Simulator sim;
+  FallibleModeltest m{"m", "", &sim, &sim};
 
-    EXPECT_EQ(&m.failure, m.GetFailure("failure"));
-    EXPECT_EQ(&m.failure, m.GetFailures()->at("failure"));
+  EXPECT_EQ(&m.failure, m.GetFailure("failure"));
+  EXPECT_EQ(&m.failure, m.GetFailures()->at("failure"));
 
-    EXPECT_EQ(&m.failure2, m.GetFailure("failure2"));
-    EXPECT_EQ(&m.failure2, m.GetFailures()->at("failure2"));
+  EXPECT_EQ(&m.failure2, m.GetFailure("failure2"));
+  EXPECT_EQ(&m.failure2, m.GetFailures()->at("failure2"));
 
-    EXPECT_FALSE(m.IsFailed());
-    m.failure.Fail();
-    EXPECT_TRUE(m.IsFailed());
-    m.failure2.Fail();
-    EXPECT_TRUE(m.IsFailed());
+  EXPECT_FALSE(m.IsFailed());
+  m.failure.Fail();
+  EXPECT_TRUE(m.IsFailed());
+  m.failure2.Fail();
+  EXPECT_TRUE(m.IsFailed());
 
-    m.failure.Unfail();
-    EXPECT_TRUE(m.IsFailed());
-    m.failure2.Unfail();
+  m.failure.Unfail();
+  EXPECT_TRUE(m.IsFailed());
+  m.failure2.Unfail();
 
-    EXPECT_FALSE(m.IsFailed());
-
+  EXPECT_FALSE(m.IsFailed());
 }
 
 } // namespace Xsmp

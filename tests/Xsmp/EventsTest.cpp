@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <Smp/AnySimple.h>
 #include <Smp/EventSinkAlreadySubscribed.h>
 #include <Smp/EventSinkNotSubscribed.h>
@@ -25,139 +24,133 @@
 #include <Xsmp/EventSink.h>
 #include <Xsmp/EventSource.h>
 #include <Xsmp/Simulator.h>
+#include <gtest/gtest.h>
 #include <type_traits>
 
 namespace Xsmp {
 
 namespace {
-class TestEventProvider: public Xsmp::Component,
-        public virtual Xsmp::EventProvider {
+class TestEventProvider : public Xsmp::Component,
+                          public virtual Xsmp::EventProvider {
 public:
-    using Xsmp::Component::Component;
+  using Xsmp::Component::Component;
 };
-class TestEventConsumer: public Xsmp::Component,
-        public virtual Xsmp::EventConsumer {
+class TestEventConsumer : public Xsmp::Component,
+                          public virtual Xsmp::EventConsumer {
 public:
-    using Xsmp::Component::Component;
+  using Xsmp::Component::Component;
 };
-}
+} // namespace
 
 TEST(EventsTest, auto_register) {
 
-    Simulator sender;
-    TestEventProvider event_sources { "collection" };
+  Simulator sender;
+  TestEventProvider event_sources{"collection"};
 
-    EXPECT_EQ(0, event_sources.GetEventSources()->size());
-    EventSource eso { "eso", "", &event_sources };
-    EXPECT_EQ(1, event_sources.GetEventSources()->size());
-    EXPECT_EQ(&eso, event_sources.GetEventSource("eso"));
-    EXPECT_EQ(&eso, event_sources.GetEventSources()->at("eso"));
+  EXPECT_EQ(0, event_sources.GetEventSources()->size());
+  EventSource eso{"eso", "", &event_sources};
+  EXPECT_EQ(1, event_sources.GetEventSources()->size());
+  EXPECT_EQ(&eso, event_sources.GetEventSource("eso"));
+  EXPECT_EQ(&eso, event_sources.GetEventSources()->at("eso"));
 
-    TestEventConsumer event_sinks { "collection", "", &sender };
-    EXPECT_EQ(0, event_sinks.GetEventSinks()->size());
-    EventSink esi { "esi", "desc", &event_sinks, [&](::Smp::IObject*) {
-    } };
+  TestEventConsumer event_sinks{"collection", "", &sender};
+  EXPECT_EQ(0, event_sinks.GetEventSinks()->size());
+  EventSink esi{"esi", "desc", &event_sinks, [&](::Smp::IObject *) {}};
 
-    EXPECT_EQ(1, event_sinks.GetEventSinks()->size());
-    EXPECT_EQ(&esi, event_sinks.GetEventSink("esi"));
-    EXPECT_EQ(&esi, event_sinks.GetEventSinks()->at("esi"));
+  EXPECT_EQ(1, event_sinks.GetEventSinks()->size());
+  EXPECT_EQ(&esi, event_sinks.GetEventSink("esi"));
+  EXPECT_EQ(&esi, event_sinks.GetEventSinks()->at("esi"));
 }
 
 TEST(EventsTest, void_emit) {
 
-    Simulator sender;
-    TestEventProvider event_sources { "collection", "", &sender };
+  Simulator sender;
+  TestEventProvider event_sources{"collection", "", &sender};
 
-    EventSource eso { "eso1", "", &event_sources };
+  EventSource eso{"eso1", "", &event_sources};
 
-    eso.Emit(&sender);
+  eso.Emit(&sender);
 
-    ::Smp::IObject *esiSender = nullptr;
-    TestEventConsumer event_sinks { "collection", "", &sender };
-    EventSink esi { "esi1", "desc", &event_sinks, [&](
-            ::Smp::IObject *obj) {
-        esiSender = obj;
-    } };
+  ::Smp::IObject *esiSender = nullptr;
+  TestEventConsumer event_sinks{"collection", "", &sender};
+  EventSink esi{"esi1", "desc", &event_sinks,
+                [&](::Smp::IObject *obj) { esiSender = obj; }};
 
-    eso.Subscribe(&esi);
+  eso.Subscribe(&esi);
 
-    eso(&sender);
-    EXPECT_EQ(&sender, esiSender);
-    eso();
-    EXPECT_EQ(&event_sources, esiSender);
+  eso(&sender);
+  EXPECT_EQ(&sender, esiSender);
+  eso();
+  EXPECT_EQ(&event_sources, esiSender);
 
-    eso.Emit(nullptr);
-    EXPECT_EQ(nullptr, esiSender);
+  eso.Emit(nullptr);
+  EXPECT_EQ(nullptr, esiSender);
 
-    eso.Unsubscribe(&esi);
-    eso.Emit(&sender);
-    EXPECT_EQ(nullptr, esiSender);
-
+  eso.Unsubscribe(&esi);
+  eso.Emit(&sender);
+  EXPECT_EQ(nullptr, esiSender);
 }
 
 TEST(EventsTest, bool_emit) {
 
-    Simulator sender;
-    TestEventProvider event_sources { "collection", "", &sender };
+  Simulator sender;
+  TestEventProvider event_sources{"collection", "", &sender};
 
-    EventSource<::Smp::Bool> eso { "eso1", "", &event_sources,
-            ::Smp::PrimitiveTypeKind::PTK_Bool };
+  EventSource<::Smp::Bool> eso{"eso1", "", &event_sources,
+                               ::Smp::PrimitiveTypeKind::PTK_Bool};
 
-    ::Smp::IObject *esiSender = nullptr;
-    bool esi_bool = false;
-    TestEventConsumer event_sinks { "collection", "", &sender };
-    EventSink<::Smp::Bool> esi { "esi1", "desc", &event_sinks, [&](
-            ::Smp::IObject *obj, const bool &b) {
-        esiSender = obj;
-        esi_bool = b;
-    }, ::Smp::PrimitiveTypeKind::PTK_Bool };
+  ::Smp::IObject *esiSender = nullptr;
+  bool esi_bool = false;
+  TestEventConsumer event_sinks{"collection", "", &sender};
+  EventSink<::Smp::Bool> esi{"esi1", "desc", &event_sinks,
+                             [&](::Smp::IObject *obj, const bool &b) {
+                               esiSender = obj;
+                               esi_bool = b;
+                             },
+                             ::Smp::PrimitiveTypeKind::PTK_Bool};
 
-    eso.Subscribe(&esi);
+  eso.Subscribe(&esi);
 
-    eso.Emit(&sender, true);
-    EXPECT_EQ(&sender, esiSender);
-    EXPECT_EQ(true, esi_bool);
-    eso.Emit(nullptr, false);
-    EXPECT_EQ(nullptr, esiSender);
-    EXPECT_EQ(false, esi_bool);
+  eso.Emit(&sender, true);
+  EXPECT_EQ(&sender, esiSender);
+  EXPECT_EQ(true, esi_bool);
+  eso.Emit(nullptr, false);
+  EXPECT_EQ(nullptr, esiSender);
+  EXPECT_EQ(false, esi_bool);
 
-    eso.Unsubscribe(&esi);
-    eso.Emit(&sender, true);
-    EXPECT_EQ(nullptr, esiSender);
-    EXPECT_EQ(false, esi_bool);
-
+  eso.Unsubscribe(&esi);
+  eso.Emit(&sender, true);
+  EXPECT_EQ(nullptr, esiSender);
+  EXPECT_EQ(false, esi_bool);
 }
 
 TEST(EventsTest, exceptions) {
 
-    Simulator sender;
-    TestEventProvider event_sources { "collection", "", &sender };
+  Simulator sender;
+  TestEventProvider event_sources{"collection", "", &sender};
 
-    EventSource<::Smp::Bool> eso { "eso1", "", &event_sources,
-            ::Smp::PrimitiveTypeKind::PTK_Bool };
+  EventSource<::Smp::Bool> eso{"eso1", "", &event_sources,
+                               ::Smp::PrimitiveTypeKind::PTK_Bool};
 
-    TestEventConsumer event_sinks { "collection", "", &sender };
-    EventSink<::Smp::Bool> esi { "esi1", "desc", &event_sinks, [&](
-            ::Smp::IObject*, const bool&) {
-    }, ::Smp::PrimitiveTypeKind::PTK_Bool };
+  TestEventConsumer event_sinks{"collection", "", &sender};
+  EventSink<::Smp::Bool> esi{"esi1", "desc", &event_sinks,
+                             [&](::Smp::IObject *, const bool &) {},
+                             ::Smp::PrimitiveTypeKind::PTK_Bool};
 
-    EXPECT_THROW(eso.Unsubscribe(&esi), ::Smp::EventSinkNotSubscribed);
-    eso.Subscribe(&esi);
-    EXPECT_THROW(eso.Subscribe(&esi), ::Smp::EventSinkAlreadySubscribed);
+  EXPECT_THROW(eso.Unsubscribe(&esi), ::Smp::EventSinkNotSubscribed);
+  eso.Subscribe(&esi);
+  EXPECT_THROW(eso.Subscribe(&esi), ::Smp::EventSinkAlreadySubscribed);
 
-    EventSink<::Smp::Int8> esi2 { "esi2", "desc", &event_sinks, [&](
-            ::Smp::IObject*, const ::Smp::Int8&) {
-    }, ::Smp::PrimitiveTypeKind::PTK_Int8 };
+  EventSink<::Smp::Int8> esi2{"esi2", "desc", &event_sinks,
+                              [&](::Smp::IObject *, const ::Smp::Int8 &) {},
+                              ::Smp::PrimitiveTypeKind::PTK_Int8};
 
-    EXPECT_THROW(eso.Subscribe(&esi2), ::Smp::InvalidEventSink);
+  EXPECT_THROW(eso.Subscribe(&esi2), ::Smp::InvalidEventSink);
 
-    EventSink esi3 { "esi3", "desc", &event_sinks, [&](::Smp::IObject*) {
-    } };
+  EventSink esi3{"esi3", "desc", &event_sinks, [&](::Smp::IObject *) {}};
 
-    EXPECT_THROW(
-            esi3.Notify(&sender, { ::Smp::PrimitiveTypeKind::PTK_Bool, true }),
-            ::Smp::InvalidAnyType);
-
+  EXPECT_THROW(esi3.Notify(&sender, {::Smp::PrimitiveTypeKind::PTK_Bool, true}),
+               ::Smp::InvalidAnyType);
 }
 
 } // namespace Xsmp

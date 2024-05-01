@@ -12,93 +12,92 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <Smp/ComponentStateKind.h>
 #include <Smp/InvalidComponentState.h>
 #include <Smp/InvalidOperationName.h>
 #include <Xsmp/Component.h>
 #include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Publication/TypeRegistry.h>
+#include <gtest/gtest.h>
 #include <type_traits>
 
 namespace Xsmp {
 
 TEST(ComponentTest, Component) {
 
-    Component component { "component", "desc" };
+  Component component{"component", "desc"};
 
-    EXPECT_STREQ(component.GetName(), "component");
-    EXPECT_STREQ(component.GetDescription(), "desc");
-    EXPECT_EQ(component.GetState(), Smp::ComponentStateKind::CSK_Created);
-    EXPECT_FALSE(component.GetFields());
-    EXPECT_FALSE(component.GetField("name"));
-    EXPECT_FALSE(component.GetOperations());
-    EXPECT_FALSE(component.GetProperties());
-    EXPECT_THROW(component.GetUuid(), Smp::Exception);
+  EXPECT_STREQ(component.GetName(), "component");
+  EXPECT_STREQ(component.GetDescription(), "desc");
+  EXPECT_EQ(component.GetState(), Smp::ComponentStateKind::CSK_Created);
+  EXPECT_FALSE(component.GetFields());
+  EXPECT_FALSE(component.GetField("name"));
+  EXPECT_FALSE(component.GetOperations());
+  EXPECT_FALSE(component.GetProperties());
+  EXPECT_THROW(component.GetUuid(), Smp::Exception);
 
-    EXPECT_THROW(component.Invoke(nullptr), Smp::InvalidOperationName);
+  EXPECT_THROW(component.Invoke(nullptr), Smp::InvalidOperationName);
 
-    component.DeleteRequest(nullptr);
+  component.DeleteRequest(nullptr);
 
-    Publication::TypeRegistry registry;
+  Publication::TypeRegistry registry;
 
-    Publication::Publication publication { &component, &registry };
+  Publication::Publication publication{&component, &registry};
 
-    EXPECT_THROW(component.Configure(nullptr, nullptr),
-            Smp::InvalidComponentState);
+  EXPECT_THROW(component.Configure(nullptr, nullptr),
+               Smp::InvalidComponentState);
 
-    EXPECT_THROW(component.Connect(nullptr), Smp::InvalidComponentState);
+  EXPECT_THROW(component.Connect(nullptr), Smp::InvalidComponentState);
 
-    EXPECT_THROW(component.Disconnect(), Smp::InvalidComponentState);
+  EXPECT_THROW(component.Disconnect(), Smp::InvalidComponentState);
 
-    EXPECT_THROW(component.Publish(nullptr), Smp::Exception);
+  EXPECT_THROW(component.Publish(nullptr), Smp::Exception);
 
-    component.Publish(&publication);
-    EXPECT_EQ(component.GetState(), Smp::ComponentStateKind::CSK_Publishing);
-    EXPECT_TRUE(component.GetFields());
-    EXPECT_TRUE(component.GetOperations());
-    EXPECT_TRUE(component.GetProperties());
+  component.Publish(&publication);
+  EXPECT_EQ(component.GetState(), Smp::ComponentStateKind::CSK_Publishing);
+  EXPECT_TRUE(component.GetFields());
+  EXPECT_TRUE(component.GetOperations());
+  EXPECT_TRUE(component.GetProperties());
 
-    auto *request = component.CreateRequest("op");
-    EXPECT_FALSE(request);
-    publication.PublishOperation("op", "", Smp::ViewKind::VK_Debug);
-    request = component.CreateRequest("op");
-    ASSERT_TRUE(request);
+  auto *request = component.CreateRequest("op");
+  EXPECT_FALSE(request);
+  publication.PublishOperation("op", "", Smp::ViewKind::VK_Debug);
+  request = component.CreateRequest("op");
+  ASSERT_TRUE(request);
 
-    EXPECT_THROW(component.Invoke(request), Smp::InvalidOperationName);
+  EXPECT_THROW(component.Invoke(request), Smp::InvalidOperationName);
 
-    component.DeleteRequest(request);
-    component.DeleteRequest(nullptr);
+  component.DeleteRequest(request);
+  component.DeleteRequest(nullptr);
 
-    EXPECT_THROW(component.Connect(nullptr), Smp::InvalidComponentState);
+  EXPECT_THROW(component.Connect(nullptr), Smp::InvalidComponentState);
 
-    EXPECT_THROW(component.Publish(&publication), Smp::InvalidComponentState);
-    EXPECT_THROW(component.Disconnect(), Smp::InvalidComponentState);
+  EXPECT_THROW(component.Publish(&publication), Smp::InvalidComponentState);
+  EXPECT_THROW(component.Disconnect(), Smp::InvalidComponentState);
 
-    component.Configure(nullptr);
-    EXPECT_EQ(component.GetState(), Smp::ComponentStateKind::CSK_Configured);
+  component.Configure(nullptr);
+  EXPECT_EQ(component.GetState(), Smp::ComponentStateKind::CSK_Configured);
 
-    EXPECT_THROW(component.Publish(&publication), Smp::InvalidComponentState);
-    EXPECT_THROW(component.Configure(nullptr, nullptr),
-            Smp::InvalidComponentState);
+  EXPECT_THROW(component.Publish(&publication), Smp::InvalidComponentState);
+  EXPECT_THROW(component.Configure(nullptr, nullptr),
+               Smp::InvalidComponentState);
 
-    EXPECT_THROW(component.Disconnect(), Smp::InvalidComponentState);
+  EXPECT_THROW(component.Disconnect(), Smp::InvalidComponentState);
 
-    component.Connect(nullptr);
-    EXPECT_EQ(component.GetState(), Smp::ComponentStateKind::CSK_Connected);
-    EXPECT_THROW(component.Publish(&publication), Smp::InvalidComponentState);
-    EXPECT_THROW(component.Configure(nullptr, nullptr),
-            Smp::InvalidComponentState);
-    EXPECT_THROW(component.Connect(nullptr), Smp::InvalidComponentState);
+  component.Connect(nullptr);
+  EXPECT_EQ(component.GetState(), Smp::ComponentStateKind::CSK_Connected);
+  EXPECT_THROW(component.Publish(&publication), Smp::InvalidComponentState);
+  EXPECT_THROW(component.Configure(nullptr, nullptr),
+               Smp::InvalidComponentState);
+  EXPECT_THROW(component.Connect(nullptr), Smp::InvalidComponentState);
 
-    component.Disconnect();
-    EXPECT_EQ(component.GetState(), Smp::ComponentStateKind::CSK_Disconnected);
-    EXPECT_THROW(component.Publish(&publication), Smp::InvalidComponentState);
-    EXPECT_THROW(component.Configure(nullptr, nullptr),
-            Smp::InvalidComponentState);
-    EXPECT_THROW(component.Connect(nullptr), Smp::InvalidComponentState);
-    EXPECT_THROW(component.Disconnect(), Smp::InvalidComponentState);
-
+  component.Disconnect();
+  EXPECT_EQ(component.GetState(), Smp::ComponentStateKind::CSK_Disconnected);
+  EXPECT_THROW(component.Publish(&publication), Smp::InvalidComponentState);
+  EXPECT_THROW(component.Configure(nullptr, nullptr),
+               Smp::InvalidComponentState);
+  EXPECT_THROW(component.Connect(nullptr), Smp::InvalidComponentState);
+  EXPECT_THROW(component.Disconnect(), Smp::InvalidComponentState);
 }
 
 } // namespace Xsmp

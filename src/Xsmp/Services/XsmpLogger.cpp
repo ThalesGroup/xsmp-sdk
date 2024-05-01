@@ -529,8 +529,8 @@ void XsmpLogger::Log(const ::Smp::IObject *sender, ::Smp::String8 message,
   // ::Smp::UInt32
   auto index = static_cast<::Smp::UInt32>(kind);
   const auto &msgKind = index < _logMessageKinds.size()
-                             ? _logMessageKinds[index]
-                             : "<unknown: " + std::to_string(kind) + ">";
+                            ? _logMessageKinds[index]
+                            : "<unknown: " + std::to_string(kind) + ">";
 
   if (GetSimulator() && GetSimulator()->GetTimeKeeper()) {
     auto const *tk = GetSimulator()->GetTimeKeeper();

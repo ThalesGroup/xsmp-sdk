@@ -12,54 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Services/ILogger.h>
 #include <Xsmp/Simulator.h>
+#include <gtest/gtest.h>
 #include <string>
 
 namespace Xsmp::Services {
 TEST(XsmpLoggerTest, QueryLogMessageKind) {
 
-    Simulator sim;
-    sim.LoadLibrary("xsmp_services");
-    EXPECT_EQ(
-            sim.GetLogger()->QueryLogMessageKind(
-                    ::Smp::Services::ILogger::LMK_InformationName),
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  EXPECT_EQ(sim.GetLogger()->QueryLogMessageKind(
+                ::Smp::Services::ILogger::LMK_InformationName),
             ::Smp::Services::ILogger::LMK_Information);
 
-    EXPECT_EQ(
-            sim.GetLogger()->QueryLogMessageKind(
-                    ::Smp::Services::ILogger::LMK_DebugName),
+  EXPECT_EQ(sim.GetLogger()->QueryLogMessageKind(
+                ::Smp::Services::ILogger::LMK_DebugName),
             ::Smp::Services::ILogger::LMK_Debug);
 
-    EXPECT_EQ(
-            sim.GetLogger()->QueryLogMessageKind(
-                    ::Smp::Services::ILogger::LMK_ErrorName),
+  EXPECT_EQ(sim.GetLogger()->QueryLogMessageKind(
+                ::Smp::Services::ILogger::LMK_ErrorName),
             ::Smp::Services::ILogger::LMK_Error);
 
-    EXPECT_EQ(
-            sim.GetLogger()->QueryLogMessageKind(
-                    ::Smp::Services::ILogger::LMK_EventName),
+  EXPECT_EQ(sim.GetLogger()->QueryLogMessageKind(
+                ::Smp::Services::ILogger::LMK_EventName),
             ::Smp::Services::ILogger::LMK_Event);
 
-    EXPECT_EQ(
-            sim.GetLogger()->QueryLogMessageKind(
-                    ::Smp::Services::ILogger::LMK_WarningName),
+  EXPECT_EQ(sim.GetLogger()->QueryLogMessageKind(
+                ::Smp::Services::ILogger::LMK_WarningName),
             ::Smp::Services::ILogger::LMK_Warning);
 
-    constexpr ::Smp::UInt32 max = 50;
-    // create max number of message kind
-    for (::Smp::UInt32 i = ::Smp::Services::ILogger::LMK_Debug + 1; i < max;
-            ++i)
-        sim.GetLogger()->QueryLogMessageKind(std::to_string(i).c_str());
+  constexpr ::Smp::UInt32 max = 50;
+  // create max number of message kind
+  for (::Smp::UInt32 i = ::Smp::Services::ILogger::LMK_Debug + 1; i < max; ++i)
+    sim.GetLogger()->QueryLogMessageKind(std::to_string(i).c_str());
 
-    // retrieve all msg kinds
-    for (::Smp::UInt32 i = ::Smp::Services::ILogger::LMK_Debug + 1; i < max;
-            ++i)
-        EXPECT_EQ(
-                sim.GetLogger()->QueryLogMessageKind(std::to_string(i).c_str()),
-                i);
+  // retrieve all msg kinds
+  for (::Smp::UInt32 i = ::Smp::Services::ILogger::LMK_Debug + 1; i < max; ++i)
+    EXPECT_EQ(sim.GetLogger()->QueryLogMessageKind(std::to_string(i).c_str()),
+              i);
 }
 
 } // namespace Xsmp::Services

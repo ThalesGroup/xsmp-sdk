@@ -12,121 +12,121 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Array.h>
+#include <gtest/gtest.h>
 
 namespace Xsmp {
 
-using EmptyArrayBool = Array<::Smp::Bool,0>;
+using EmptyArrayBool = Array<::Smp::Bool, 0>;
 
-using Array3Bool = Array<::Smp::Bool,3>;
-using Matrix3_3Bool = Array<Array3Bool,3>;
+using Array3Bool = Array<::Smp::Bool, 3>;
+using Matrix3_3Bool = Array<Array3Bool, 3>;
 
 TEST(ArrayTest, Constructor) {
 
-    EmptyArrayBool emptyAr { };
-    EXPECT_EQ(emptyAr.size(), 0);
-    EXPECT_TRUE(emptyAr.empty());
+  EmptyArrayBool emptyAr{};
+  EXPECT_EQ(emptyAr.size(), 0);
+  EXPECT_TRUE(emptyAr.empty());
 
-    Array3Bool ar { };
+  Array3Bool ar{};
 
-    EXPECT_EQ(ar[0], false);
-    EXPECT_EQ(ar[1], false);
-    EXPECT_EQ(ar[2], false);
+  EXPECT_EQ(ar[0], false);
+  EXPECT_EQ(ar[1], false);
+  EXPECT_EQ(ar[2], false);
 
-    Array3Bool ar2 { { true, false, true } };
+  Array3Bool ar2{{true, false, true}};
 
-    EXPECT_EQ(ar2[0], true);
-    EXPECT_EQ(ar2[1], false);
-    EXPECT_EQ(ar2[2], true);
+  EXPECT_EQ(ar2[0], true);
+  EXPECT_EQ(ar2[1], false);
+  EXPECT_EQ(ar2[2], true);
 
-    Array3Bool ar3(ar);
+  Array3Bool ar3(ar);
 
-    EXPECT_EQ(ar3[0], false);
-    EXPECT_EQ(ar3[1], false);
-    EXPECT_EQ(ar3[2], false);
+  EXPECT_EQ(ar3[0], false);
+  EXPECT_EQ(ar3[1], false);
+  EXPECT_EQ(ar3[2], false);
 
-    Matrix3_3Bool mx { };
+  Matrix3_3Bool mx{};
 
-    EXPECT_EQ(mx[0][0], false);
-    EXPECT_EQ(mx[0][1], false);
-    EXPECT_EQ(mx[0][2], false);
-    EXPECT_EQ(mx[1][0], false);
-    EXPECT_EQ(mx[1][1], false);
-    EXPECT_EQ(mx[1][2], false);
-    EXPECT_EQ(mx[2][0], false);
-    EXPECT_EQ(mx[2][1], false);
-    EXPECT_EQ(mx[2][2], false);
+  EXPECT_EQ(mx[0][0], false);
+  EXPECT_EQ(mx[0][1], false);
+  EXPECT_EQ(mx[0][2], false);
+  EXPECT_EQ(mx[1][0], false);
+  EXPECT_EQ(mx[1][1], false);
+  EXPECT_EQ(mx[1][2], false);
+  EXPECT_EQ(mx[2][0], false);
+  EXPECT_EQ(mx[2][1], false);
+  EXPECT_EQ(mx[2][2], false);
 
-    Matrix3_3Bool mx2 { { { { true, false, true } }, { { true, false, true } },
-            { { true, false, true } } } };
+  Matrix3_3Bool mx2{
+      {{{true, false, true}}, {{true, false, true}}, {{true, false, true}}}};
 
-    EXPECT_EQ(mx2[0][0], true);
-    EXPECT_EQ(mx2[0][1], false);
-    EXPECT_EQ(mx2[0][2], true);
-    EXPECT_EQ(mx2[1][0], true);
-    EXPECT_EQ(mx2[1][1], false);
-    EXPECT_EQ(mx2[1][2], true);
-    EXPECT_EQ(mx2[2][0], true);
-    EXPECT_EQ(mx2[2][1], false);
-    EXPECT_EQ(mx2[2][2], true);
+  EXPECT_EQ(mx2[0][0], true);
+  EXPECT_EQ(mx2[0][1], false);
+  EXPECT_EQ(mx2[0][2], true);
+  EXPECT_EQ(mx2[1][0], true);
+  EXPECT_EQ(mx2[1][1], false);
+  EXPECT_EQ(mx2[1][2], true);
+  EXPECT_EQ(mx2[2][0], true);
+  EXPECT_EQ(mx2[2][1], false);
+  EXPECT_EQ(mx2[2][2], true);
 
-    Matrix3_3Bool mx3 { mx };
+  Matrix3_3Bool mx3{mx};
 
-    EXPECT_EQ(mx3[0][0], false);
-    EXPECT_EQ(mx3[0][1], false);
-    EXPECT_EQ(mx3[0][2], false);
-    EXPECT_EQ(mx3[1][0], false);
-    EXPECT_EQ(mx3[1][1], false);
-    EXPECT_EQ(mx3[1][2], false);
-    EXPECT_EQ(mx3[2][0], false);
-    EXPECT_EQ(mx3[2][1], false);
-    EXPECT_EQ(mx3[2][2], false);
+  EXPECT_EQ(mx3[0][0], false);
+  EXPECT_EQ(mx3[0][1], false);
+  EXPECT_EQ(mx3[0][2], false);
+  EXPECT_EQ(mx3[1][0], false);
+  EXPECT_EQ(mx3[1][1], false);
+  EXPECT_EQ(mx3[1][2], false);
+  EXPECT_EQ(mx3[2][0], false);
+  EXPECT_EQ(mx3[2][1], false);
+  EXPECT_EQ(mx3[2][2], false);
 }
 
 TEST(ArrayTest, OperatorEqual) {
-    Array3Bool ar = { };
+  Array3Bool ar = {};
 
-    EXPECT_EQ(ar[0], false);
-    EXPECT_EQ(ar[1], false);
-    EXPECT_EQ(ar[2], false);
+  EXPECT_EQ(ar[0], false);
+  EXPECT_EQ(ar[1], false);
+  EXPECT_EQ(ar[2], false);
 
-    Array3Bool ar2 = { { true, false, true } };
+  Array3Bool ar2 = {{true, false, true}};
 
-    EXPECT_EQ(ar2[0], true);
-    EXPECT_EQ(ar2[1], false);
-    EXPECT_EQ(ar2[2], true);
+  EXPECT_EQ(ar2[0], true);
+  EXPECT_EQ(ar2[1], false);
+  EXPECT_EQ(ar2[2], true);
 
-    Array3Bool ar3 = ar;
+  Array3Bool ar3 = ar;
 
-    EXPECT_EQ(ar3[0], false);
-    EXPECT_EQ(ar3[1], false);
-    EXPECT_EQ(ar3[2], false);
+  EXPECT_EQ(ar3[0], false);
+  EXPECT_EQ(ar3[1], false);
+  EXPECT_EQ(ar3[2], false);
 
-    Matrix3_3Bool mx = { };
+  Matrix3_3Bool mx = {};
 
-    EXPECT_EQ(mx[0][0], false);
-    EXPECT_EQ(mx[0][1], false);
-    EXPECT_EQ(mx[0][2], false);
-    EXPECT_EQ(mx[1][0], false);
-    EXPECT_EQ(mx[1][1], false);
-    EXPECT_EQ(mx[1][2], false);
-    EXPECT_EQ(mx[2][0], false);
-    EXPECT_EQ(mx[2][1], false);
-    EXPECT_EQ(mx[2][2], false);
+  EXPECT_EQ(mx[0][0], false);
+  EXPECT_EQ(mx[0][1], false);
+  EXPECT_EQ(mx[0][2], false);
+  EXPECT_EQ(mx[1][0], false);
+  EXPECT_EQ(mx[1][1], false);
+  EXPECT_EQ(mx[1][2], false);
+  EXPECT_EQ(mx[2][0], false);
+  EXPECT_EQ(mx[2][1], false);
+  EXPECT_EQ(mx[2][2], false);
 
-    Matrix3_3Bool mx3 = mx;
+  Matrix3_3Bool mx3 = mx;
 
-    EXPECT_EQ(mx3[0][0], false);
-    EXPECT_EQ(mx3[0][1], false);
-    EXPECT_EQ(mx3[0][2], false);
-    EXPECT_EQ(mx3[1][0], false);
-    EXPECT_EQ(mx3[1][1], false);
-    EXPECT_EQ(mx3[1][2], false);
-    EXPECT_EQ(mx3[2][0], false);
-    EXPECT_EQ(mx3[2][1], false);
-    EXPECT_EQ(mx3[2][2], false);
+  EXPECT_EQ(mx3[0][0], false);
+  EXPECT_EQ(mx3[0][1], false);
+  EXPECT_EQ(mx3[0][2], false);
+  EXPECT_EQ(mx3[1][0], false);
+  EXPECT_EQ(mx3[1][1], false);
+  EXPECT_EQ(mx3[1][2], false);
+  EXPECT_EQ(mx3[2][0], false);
+  EXPECT_EQ(mx3[2][1], false);
+  EXPECT_EQ(mx3[2][2], false);
 }
 
 } // namespace Xsmp

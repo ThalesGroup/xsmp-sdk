@@ -24,16 +24,18 @@
 namespace Xsmp {
 
 /// Helper to Store/Restore in memory
-class Storage final: public ::Smp::IStorageReader, public ::Smp::IStorageWriter {
+class Storage final : public ::Smp::IStorageReader,
+                      public ::Smp::IStorageWriter {
 public:
-    ~Storage() noexcept override = default;
+  ~Storage() noexcept override = default;
 
-    void Restore(void *address, ::Smp::UInt64 size) override;
-    void Store(void *address, ::Smp::UInt64 size) override;
-    ::Smp::String8 GetStateVectorFileName() const override;
-    ::Smp::String8 GetStateVectorFilePath() const override;
+  void Restore(void *address, ::Smp::UInt64 size) override;
+  void Store(void *address, ::Smp::UInt64 size) override;
+  ::Smp::String8 GetStateVectorFileName() const override;
+  ::Smp::String8 GetStateVectorFilePath() const override;
+
 private:
-    std::stringstream _ss;
+  std::stringstream _ss;
 };
 } // namespace Xsmp
 

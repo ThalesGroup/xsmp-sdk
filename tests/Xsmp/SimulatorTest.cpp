@@ -12,127 +12,119 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <Xsmp/Simulator.h>
+#include <gtest/gtest.h>
 
 #include <Xsmp/LibraryHelper.h>
 #include <Xsmp/Tests/ModelWithArrayFields.h>
-#include <Xsmp/Tests/ModelWithSimpleFields.h>
 #include <Xsmp/Tests/ModelWithSimpleArrayFields.h>
+#include <Xsmp/Tests/ModelWithSimpleFields.h>
 namespace Xsmp {
 
 TEST(SimulatorTest, init) {
 
-    Simulator sim;
+  Simulator sim;
 
-    EXPECT_TRUE(sim.GetTypeRegistry());
+  EXPECT_TRUE(sim.GetTypeRegistry());
 
-    EXPECT_TRUE(!sim.GetEventManager());
-    EXPECT_TRUE(!sim.GetLinkRegistry());
-    EXPECT_TRUE(!sim.GetLogger());
-    EXPECT_TRUE(!sim.GetResolver());
-    EXPECT_TRUE(!sim.GetScheduler());
-    EXPECT_TRUE(!sim.GetTimeKeeper());
+  EXPECT_TRUE(!sim.GetEventManager());
+  EXPECT_TRUE(!sim.GetLinkRegistry());
+  EXPECT_TRUE(!sim.GetLogger());
+  EXPECT_TRUE(!sim.GetResolver());
+  EXPECT_TRUE(!sim.GetScheduler());
+  EXPECT_TRUE(!sim.GetTimeKeeper());
 
-    sim.LoadLibrary("xsmp_logger");
-    EXPECT_EQ(sim.GetService("XsmpLogger"), sim.GetLogger());
-    EXPECT_TRUE(!sim.GetEventManager());
-    EXPECT_TRUE(!sim.GetLinkRegistry());
-    EXPECT_TRUE(sim.GetLogger());
-    EXPECT_TRUE(!sim.GetResolver());
-    EXPECT_TRUE(!sim.GetScheduler());
-    EXPECT_TRUE(!sim.GetTimeKeeper());
+  sim.LoadLibrary("xsmp_logger");
+  EXPECT_EQ(sim.GetService("XsmpLogger"), sim.GetLogger());
+  EXPECT_TRUE(!sim.GetEventManager());
+  EXPECT_TRUE(!sim.GetLinkRegistry());
+  EXPECT_TRUE(sim.GetLogger());
+  EXPECT_TRUE(!sim.GetResolver());
+  EXPECT_TRUE(!sim.GetScheduler());
+  EXPECT_TRUE(!sim.GetTimeKeeper());
 
-    sim.LoadLibrary("xsmp_time_keeper");
-    EXPECT_EQ(sim.GetService("XsmpTimeKeeper"), sim.GetTimeKeeper());
-    EXPECT_TRUE(!sim.GetEventManager());
-    EXPECT_TRUE(!sim.GetLinkRegistry());
-    EXPECT_TRUE(sim.GetLogger());
-    EXPECT_TRUE(!sim.GetResolver());
-    EXPECT_TRUE(!sim.GetScheduler());
-    EXPECT_TRUE(sim.GetTimeKeeper());
+  sim.LoadLibrary("xsmp_time_keeper");
+  EXPECT_EQ(sim.GetService("XsmpTimeKeeper"), sim.GetTimeKeeper());
+  EXPECT_TRUE(!sim.GetEventManager());
+  EXPECT_TRUE(!sim.GetLinkRegistry());
+  EXPECT_TRUE(sim.GetLogger());
+  EXPECT_TRUE(!sim.GetResolver());
+  EXPECT_TRUE(!sim.GetScheduler());
+  EXPECT_TRUE(sim.GetTimeKeeper());
 
-    sim.LoadLibrary("xsmp_resolver");
-    EXPECT_EQ(sim.GetService("XsmpResolver"), sim.GetResolver());
-    EXPECT_TRUE(!sim.GetEventManager());
-    EXPECT_TRUE(!sim.GetLinkRegistry());
-    EXPECT_TRUE(sim.GetLogger());
-    EXPECT_TRUE(sim.GetResolver());
-    EXPECT_TRUE(!sim.GetScheduler());
-    EXPECT_TRUE(sim.GetTimeKeeper());
+  sim.LoadLibrary("xsmp_resolver");
+  EXPECT_EQ(sim.GetService("XsmpResolver"), sim.GetResolver());
+  EXPECT_TRUE(!sim.GetEventManager());
+  EXPECT_TRUE(!sim.GetLinkRegistry());
+  EXPECT_TRUE(sim.GetLogger());
+  EXPECT_TRUE(sim.GetResolver());
+  EXPECT_TRUE(!sim.GetScheduler());
+  EXPECT_TRUE(sim.GetTimeKeeper());
 
-    sim.LoadLibrary("xsmp_event_manager");
-    EXPECT_EQ(sim.GetService("XsmpEventManager"), sim.GetEventManager());
-    EXPECT_TRUE(sim.GetEventManager());
-    EXPECT_TRUE(!sim.GetLinkRegistry());
-    EXPECT_TRUE(sim.GetLogger());
-    EXPECT_TRUE(sim.GetResolver());
-    EXPECT_TRUE(!sim.GetScheduler());
-    EXPECT_TRUE(sim.GetTimeKeeper());
+  sim.LoadLibrary("xsmp_event_manager");
+  EXPECT_EQ(sim.GetService("XsmpEventManager"), sim.GetEventManager());
+  EXPECT_TRUE(sim.GetEventManager());
+  EXPECT_TRUE(!sim.GetLinkRegistry());
+  EXPECT_TRUE(sim.GetLogger());
+  EXPECT_TRUE(sim.GetResolver());
+  EXPECT_TRUE(!sim.GetScheduler());
+  EXPECT_TRUE(sim.GetTimeKeeper());
 
-    sim.LoadLibrary("xsmp_link_registry");
-    EXPECT_EQ(sim.GetService("XsmpLinkRegistry"), sim.GetLinkRegistry());
-    EXPECT_TRUE(sim.GetEventManager());
-    EXPECT_TRUE(sim.GetLinkRegistry());
-    EXPECT_TRUE(sim.GetLogger());
-    EXPECT_TRUE(sim.GetResolver());
-    EXPECT_TRUE(!sim.GetScheduler());
-    EXPECT_TRUE(sim.GetTimeKeeper());
+  sim.LoadLibrary("xsmp_link_registry");
+  EXPECT_EQ(sim.GetService("XsmpLinkRegistry"), sim.GetLinkRegistry());
+  EXPECT_TRUE(sim.GetEventManager());
+  EXPECT_TRUE(sim.GetLinkRegistry());
+  EXPECT_TRUE(sim.GetLogger());
+  EXPECT_TRUE(sim.GetResolver());
+  EXPECT_TRUE(!sim.GetScheduler());
+  EXPECT_TRUE(sim.GetTimeKeeper());
 
-    sim.LoadLibrary("xsmp_scheduler");
-    EXPECT_EQ(sim.GetService("XsmpScheduler"), sim.GetScheduler());
-    EXPECT_TRUE(sim.GetEventManager());
-    EXPECT_TRUE(sim.GetLinkRegistry());
-    EXPECT_TRUE(sim.GetLogger());
-    EXPECT_TRUE(sim.GetResolver());
-    EXPECT_TRUE(sim.GetScheduler());
-    EXPECT_TRUE(sim.GetTimeKeeper());
+  sim.LoadLibrary("xsmp_scheduler");
+  EXPECT_EQ(sim.GetService("XsmpScheduler"), sim.GetScheduler());
+  EXPECT_TRUE(sim.GetEventManager());
+  EXPECT_TRUE(sim.GetLinkRegistry());
+  EXPECT_TRUE(sim.GetLogger());
+  EXPECT_TRUE(sim.GetResolver());
+  EXPECT_TRUE(sim.GetScheduler());
+  EXPECT_TRUE(sim.GetTimeKeeper());
 
-    sim.LoadLibrary("xsmp_tests");
+  sim.LoadLibrary("xsmp_tests");
 
-    sim.AddModel(
-            dynamic_cast<::Smp::IModel*>(sim.CreateInstance(
-                    Xsmp::Tests::Uuid_ModelWithSimpleFields, "SimpleFields", "",
-                    &sim)));
-    sim.AddModel(
-            dynamic_cast<::Smp::IModel*>(sim.CreateInstance(
-                    Xsmp::Tests::Uuid_ModelWithSimpleArrayFields,
-                    "SimpleArrayFields", "", &sim)));
+  sim.AddModel(dynamic_cast<::Smp::IModel *>(sim.CreateInstance(
+      Xsmp::Tests::Uuid_ModelWithSimpleFields, "SimpleFields", "", &sim)));
+  sim.AddModel(dynamic_cast<::Smp::IModel *>(
+      sim.CreateInstance(Xsmp::Tests::Uuid_ModelWithSimpleArrayFields,
+                         "SimpleArrayFields", "", &sim)));
 
-    sim.AddModel(
-            dynamic_cast<::Smp::IModel*>(sim.CreateInstance(
-                    Xsmp::Tests::Uuid_ModelWithArrayFields, "ArrayFields", "",
-                    &sim)));
-    sim.Publish();
+  sim.AddModel(dynamic_cast<::Smp::IModel *>(sim.CreateInstance(
+      Xsmp::Tests::Uuid_ModelWithArrayFields, "ArrayFields", "", &sim)));
+  sim.Publish();
 
-    sim.Configure();
-    sim.Connect();
-
+  sim.Configure();
+  sim.Connect();
 }
 TEST(SimulatorTest, State) {
-    Simulator sim;
+  Simulator sim;
 
-    sim.LoadLibrary("xsmp_services");
+  sim.LoadLibrary("xsmp_services");
 
-    EXPECT_EQ(sim.GetState(), Smp::SimulatorStateKind::SSK_Building);
+  EXPECT_EQ(sim.GetState(), Smp::SimulatorStateKind::SSK_Building);
 
-    sim.Publish();
+  sim.Publish();
 
-    sim.Configure();
-    sim.Connect();
+  sim.Configure();
+  sim.Connect();
 
-    EXPECT_EQ(sim.GetState(), Smp::SimulatorStateKind::SSK_Standby);
+  EXPECT_EQ(sim.GetState(), Smp::SimulatorStateKind::SSK_Standby);
 
-    sim.Initialise();
-
+  sim.Initialise();
 }
 
 TEST(SimulatorTest, LoadLibrary) {
-    Simulator sim;
-    sim.LoadLibrary("xsmp_services");
-    EXPECT_THROW(sim.LoadLibrary("invalid_library"), Smp::LibraryNotFound);
-    EXPECT_THROW(sim.LoadLibrary("xsmp_simulator"), Smp::InvalidLibrary);
-
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  EXPECT_THROW(sim.LoadLibrary("invalid_library"), Smp::LibraryNotFound);
+  EXPECT_THROW(sim.LoadLibrary("xsmp_simulator"), Smp::InvalidLibrary);
 }
 
 } // namespace Xsmp

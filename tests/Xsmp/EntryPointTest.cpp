@@ -12,39 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <Xsmp/Component.h>
 #include <Xsmp/EntryPoint.h>
 #include <Xsmp/EntryPointPublisher.h>
+#include <gtest/gtest.h>
 
 namespace Xsmp {
 
 namespace {
-class TestEntryPointPublisher: public Xsmp::Component,
-        public Xsmp::EntryPointPublisher {
+class TestEntryPointPublisher : public Xsmp::Component,
+                                public Xsmp::EntryPointPublisher {
 public:
-    using Xsmp::Component::Component;
+  using Xsmp::Component::Component;
 };
-}
+} // namespace
 
 TEST(EntryPointTest, auto_register) {
 
-    TestEntryPointPublisher c { "collection", "", nullptr };
+  TestEntryPointPublisher c{"collection", "", nullptr};
 
-    int i = 0;
-    auto cb = [&i]() {
-        i++;
-    };
-    EntryPoint ep { "ep", "desc", &c, cb };
+  int i = 0;
+  auto cb = [&i]() { i++; };
+  EntryPoint ep{"ep", "desc", &c, cb};
 
-    EXPECT_EQ(1, c.GetEntryPoints()->size());
-    EXPECT_EQ(&ep, c.GetEntryPoint("ep"));
-    EXPECT_EQ(&ep, c.GetEntryPoints()->at("ep"));
+  EXPECT_EQ(1, c.GetEntryPoints()->size());
+  EXPECT_EQ(&ep, c.GetEntryPoint("ep"));
+  EXPECT_EQ(&ep, c.GetEntryPoints()->at("ep"));
 
-    ep.Execute();
-    EXPECT_EQ(1, i);
-    ep();
-    EXPECT_EQ(2, i);
+  ep.Execute();
+  EXPECT_EQ(1, i);
+  ep();
+  EXPECT_EQ(2, i);
 }
 
 } // namespace Xsmp

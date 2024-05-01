@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <Smp/Services/EntryPointAlreadySubscribed.h>
 #include <Smp/Services/EntryPointNotSubscribed.h>
 #include <Smp/Services/EventId.h>
@@ -23,6 +22,7 @@
 #include <Xsmp/EntryPoint.h>
 #include <Xsmp/EntryPointPublisher.h>
 #include <Xsmp/Simulator.h>
+#include <gtest/gtest.h>
 #include <initializer_list>
 #include <map>
 #include <string>
@@ -31,27 +31,28 @@
 namespace Xsmp::Services {
 TEST(XsmpResolverTest, ResolveAbsolute) {
 
-    Simulator sim;
-    sim.LoadLibrary("xsmp_services");
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
 
-   EXPECT_EQ( sim.GetResolver()->ResolveAbsolute("/"), &sim);
-   EXPECT_EQ( sim.GetResolver()->ResolveAbsolute("/XsmpResolver"), sim.GetResolver());
+  EXPECT_EQ(sim.GetResolver()->ResolveAbsolute("/"), &sim);
+  EXPECT_EQ(sim.GetResolver()->ResolveAbsolute("/XsmpResolver"),
+            sim.GetResolver());
 
-
-   EXPECT_FALSE( sim.GetResolver()->ResolveAbsolute(nullptr));
-   EXPECT_FALSE( sim.GetResolver()->ResolveAbsolute(""));
-   EXPECT_FALSE( sim.GetResolver()->ResolveAbsolute("."));
+  EXPECT_FALSE(sim.GetResolver()->ResolveAbsolute(nullptr));
+  EXPECT_FALSE(sim.GetResolver()->ResolveAbsolute(""));
+  EXPECT_FALSE(sim.GetResolver()->ResolveAbsolute("."));
 }
 TEST(XsmpResolverTest, ResolveRelative) {
 
-    Simulator sim;
-    sim.LoadLibrary("xsmp_services");
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
 
-   EXPECT_EQ( sim.GetResolver()->ResolveRelative("..", sim.GetResolver()), &sim);
-   EXPECT_EQ( sim.GetResolver()->ResolveRelative(".", sim.GetResolver()), sim.GetResolver());
+  EXPECT_EQ(sim.GetResolver()->ResolveRelative("..", sim.GetResolver()), &sim);
+  EXPECT_EQ(sim.GetResolver()->ResolveRelative(".", sim.GetResolver()),
+            sim.GetResolver());
 
-   EXPECT_FALSE( sim.GetResolver()->ResolveRelative(nullptr, sim.GetResolver()));
-   EXPECT_FALSE( sim.GetResolver()->ResolveRelative("/", sim.GetResolver()));
+  EXPECT_FALSE(sim.GetResolver()->ResolveRelative(nullptr, sim.GetResolver()));
+  EXPECT_FALSE(sim.GetResolver()->ResolveRelative("/", sim.GetResolver()));
 }
 
 } // namespace Xsmp::Services

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <Xsmp/Duration.h>
+#include <gtest/gtest.h>
 
-#include<chrono>
+#include <chrono>
 
 #include <sstream>
 
@@ -52,102 +52,112 @@ namespace Xsmp {
 
 TEST(DurationTest, constructor) {
 
-    Duration defaultConstructor;
-    EXPECT_EQ(defaultConstructor, 0);
-    EXPECT_EQ(defaultConstructor, std::chrono::seconds(0));
+  Duration defaultConstructor;
+  EXPECT_EQ(defaultConstructor, 0);
+  EXPECT_EQ(defaultConstructor, std::chrono::seconds(0));
 
-    Duration fromSmpDuration { 1000 };
-    EXPECT_EQ(fromSmpDuration, 1000);
-    EXPECT_EQ(fromSmpDuration, std::chrono::microseconds(1));
+  Duration fromSmpDuration{1000};
+  EXPECT_EQ(fromSmpDuration, 1000);
+  EXPECT_EQ(fromSmpDuration, std::chrono::microseconds(1));
 
-    Duration fromStdChrono { std::chrono::milliseconds(1) };
-    EXPECT_EQ(fromStdChrono, 1000000);
+  Duration fromStdChrono{std::chrono::milliseconds(1)};
+  EXPECT_EQ(fromStdChrono, 1000000);
 
-    Duration fromString { std::string("00:00:01.000000000") };
-    EXPECT_EQ(fromString, 1000000000);
-    EXPECT_EQ(fromString, std::chrono::seconds(1));
+  Duration fromString{std::string("00:00:01.000000000")};
+  EXPECT_EQ(fromString, 1000000000);
+  EXPECT_EQ(fromString, std::chrono::seconds(1));
 
-    Duration fromConstCharPointer { "00:00:01.000000000" };
-    EXPECT_EQ(fromConstCharPointer, 1000000000);
-    EXPECT_EQ(fromConstCharPointer, std::chrono::seconds(1));
+  Duration fromConstCharPointer{"00:00:01.000000000"};
+  EXPECT_EQ(fromConstCharPointer, 1000000000);
+  EXPECT_EQ(fromConstCharPointer, std::chrono::seconds(1));
 
-    std::stringstream ss;
-    ss << "00:00:01.000000000";
-    Duration fromStream { ss };
-    EXPECT_EQ(fromStream, 1000000000);
-    EXPECT_EQ(fromStream, std::chrono::seconds(1));
+  std::stringstream ss;
+  ss << "00:00:01.000000000";
+  Duration fromStream{ss};
+  EXPECT_EQ(fromStream, 1000000000);
+  EXPECT_EQ(fromStream, std::chrono::seconds(1));
 }
 
 TEST(DurationTest, operators) {
 
-    EXPECT_GE(std::chrono::seconds(1), Duration { std::chrono::seconds(1) });
-    EXPECT_GE(std::chrono::seconds(1), Duration { std::chrono::seconds(0) });
-    EXPECT_GE(Duration { std::chrono::seconds(1) }, std::chrono::seconds(1));
-    EXPECT_GE(Duration { std::chrono::seconds(1) }, std::chrono::seconds(0));
+  EXPECT_GE(std::chrono::seconds(1), Duration{std::chrono::seconds(1)});
+  EXPECT_GE(std::chrono::seconds(1), Duration{std::chrono::seconds(0)});
+  EXPECT_GE(Duration{std::chrono::seconds(1)}, std::chrono::seconds(1));
+  EXPECT_GE(Duration{std::chrono::seconds(1)}, std::chrono::seconds(0));
 
-    EXPECT_LE(std::chrono::seconds(1), Duration { std::chrono::seconds(1) });
-    EXPECT_LE(std::chrono::seconds(0), Duration { std::chrono::seconds(1) });
-    EXPECT_LE(Duration { std::chrono::seconds(1) }, std::chrono::seconds(1));
-    EXPECT_LE(Duration { std::chrono::seconds(0) }, std::chrono::seconds(1));
-    EXPECT_LE(Duration { std::chrono::seconds(1) }, Duration {
-            std::chrono::seconds(1) });
-    EXPECT_LE(Duration { std::chrono::seconds(0) }, Duration {
-            std::chrono::seconds(1) });
+  EXPECT_LE(std::chrono::seconds(1), Duration{std::chrono::seconds(1)});
+  EXPECT_LE(std::chrono::seconds(0), Duration{std::chrono::seconds(1)});
+  EXPECT_LE(Duration{std::chrono::seconds(1)}, std::chrono::seconds(1));
+  EXPECT_LE(Duration{std::chrono::seconds(0)}, std::chrono::seconds(1));
+  EXPECT_LE(Duration{std::chrono::seconds(1)},
+            Duration{std::chrono::seconds(1)});
+  EXPECT_LE(Duration{std::chrono::seconds(0)},
+            Duration{std::chrono::seconds(1)});
 
-    EXPECT_GT(std::chrono::seconds(1), Duration { std::chrono::seconds(0) });
-    EXPECT_GT(Duration { std::chrono::seconds(1) }, std::chrono::seconds(0));
-    EXPECT_GT(Duration { std::chrono::seconds(1) }, Duration {
-            std::chrono::seconds(0) });
+  EXPECT_GT(std::chrono::seconds(1), Duration{std::chrono::seconds(0)});
+  EXPECT_GT(Duration{std::chrono::seconds(1)}, std::chrono::seconds(0));
+  EXPECT_GT(Duration{std::chrono::seconds(1)},
+            Duration{std::chrono::seconds(0)});
 
-    EXPECT_LT(std::chrono::seconds(0), Duration { std::chrono::seconds(1) });
-    EXPECT_LT(Duration { std::chrono::seconds(0) }, std::chrono::seconds(1));
+  EXPECT_LT(std::chrono::seconds(0), Duration{std::chrono::seconds(1)});
+  EXPECT_LT(Duration{std::chrono::seconds(0)}, std::chrono::seconds(1));
 
-    EXPECT_NE(std::chrono::seconds(1), Duration { std::chrono::seconds(0) });
-    EXPECT_NE(Duration { std::chrono::seconds(1) }, std::chrono::seconds(0));
+  EXPECT_NE(std::chrono::seconds(1), Duration{std::chrono::seconds(0)});
+  EXPECT_NE(Duration{std::chrono::seconds(1)}, std::chrono::seconds(0));
 
-    EXPECT_EQ(std::chrono::seconds(1), Duration { std::chrono::seconds(1) });
-    EXPECT_EQ(Duration { std::chrono::seconds(1) }, std::chrono::seconds(1));
+  EXPECT_EQ(std::chrono::seconds(1), Duration{std::chrono::seconds(1)});
+  EXPECT_EQ(Duration{std::chrono::seconds(1)}, std::chrono::seconds(1));
 }
 
 TEST(DurationTest, literals) {
 
-    EXPECT_EQ(1_w, Duration::weeks(1));
-    EXPECT_EQ(1_d, Duration::days(1));
-    EXPECT_EQ(1_h, Duration::hours(1));
-    EXPECT_EQ(1_mn, Duration::minutes(1));
-    EXPECT_EQ(1_s, Duration::seconds(1));
-    EXPECT_EQ(1_ms, Duration::milliseconds(1));
-    EXPECT_EQ(1_us, Duration::microseconds(1));
-    EXPECT_EQ(1_ns, Duration::nanoseconds(1));
+  EXPECT_EQ(1_w, Duration::weeks(1));
+  EXPECT_EQ(1_d, Duration::days(1));
+  EXPECT_EQ(1_h, Duration::hours(1));
+  EXPECT_EQ(1_mn, Duration::minutes(1));
+  EXPECT_EQ(1_s, Duration::seconds(1));
+  EXPECT_EQ(1_ms, Duration::milliseconds(1));
+  EXPECT_EQ(1_us, Duration::microseconds(1));
+  EXPECT_EQ(1_ns, Duration::nanoseconds(1));
 }
 
 TEST(DurationTest, format) {
 
-    Duration fromConstCharPointer { "00:01:00.000000000" };
-    EXPECT_EQ(fromConstCharPointer.format(), "00:01:00.000000000");
-    EXPECT_EQ(fromConstCharPointer.format("%R"), "00:01");
-    EXPECT_EQ(fromConstCharPointer.format(std::string("%R")), "00:01");
+  Duration fromConstCharPointer{"00:01:00.000000000"};
+  EXPECT_EQ(fromConstCharPointer.format(), "00:01:00.000000000");
+  EXPECT_EQ(fromConstCharPointer.format("%R"), "00:01");
+  EXPECT_EQ(fromConstCharPointer.format(std::string("%R")), "00:01");
 }
 
 TEST(DurationTest, stream) {
-#define EXPECT_STREAM_OPERATOR_EQ(literal, value) do{std::stringstream ss; ss << (literal); EXPECT_EQ(ss.str(), (value));}while(false)
+#define EXPECT_STREAM_OPERATOR_EQ(literal, value)                              \
+  do {                                                                         \
+    std::stringstream ss;                                                      \
+    ss << (literal);                                                           \
+    EXPECT_EQ(ss.str(), (value));                                              \
+  } while (false)
 
-    EXPECT_STREAM_OPERATOR_EQ(1_ns, "00:00:00.000000001");
-    EXPECT_STREAM_OPERATOR_EQ(1_us, "00:00:00.000001000");
-    EXPECT_STREAM_OPERATOR_EQ(1_ms, "00:00:00.001000000");
-    EXPECT_STREAM_OPERATOR_EQ(1_s, "00:00:01.000000000");
-    EXPECT_STREAM_OPERATOR_EQ(1_mn, "00:01:00.000000000");
-    EXPECT_STREAM_OPERATOR_EQ(1_h, "01:00:00.000000000");
-    EXPECT_STREAM_OPERATOR_EQ(1_d, "24:00:00.000000000");
-    EXPECT_STREAM_OPERATOR_EQ(1_w, "168:00:00.000000000");
+  EXPECT_STREAM_OPERATOR_EQ(1_ns, "00:00:00.000000001");
+  EXPECT_STREAM_OPERATOR_EQ(1_us, "00:00:00.000001000");
+  EXPECT_STREAM_OPERATOR_EQ(1_ms, "00:00:00.001000000");
+  EXPECT_STREAM_OPERATOR_EQ(1_s, "00:00:01.000000000");
+  EXPECT_STREAM_OPERATOR_EQ(1_mn, "00:01:00.000000000");
+  EXPECT_STREAM_OPERATOR_EQ(1_h, "01:00:00.000000000");
+  EXPECT_STREAM_OPERATOR_EQ(1_d, "24:00:00.000000000");
+  EXPECT_STREAM_OPERATOR_EQ(1_w, "168:00:00.000000000");
 
-#define EXPECT_STREAM_OPERATOR_FORMAT_EQ(literal, value, format) do{std::stringstream ss; literal.to_stream(ss, format); EXPECT_EQ(ss.str(), (value));}while(false)
+#define EXPECT_STREAM_OPERATOR_FORMAT_EQ(literal, value, format)               \
+  do {                                                                         \
+    std::stringstream ss;                                                      \
+    literal.to_stream(ss, format);                                             \
+    EXPECT_EQ(ss.str(), (value));                                              \
+  } while (false)
 
-    EXPECT_STREAM_OPERATOR_FORMAT_EQ(1_h, "01:00:00.000000000", "%T");
-    EXPECT_STREAM_OPERATOR_FORMAT_EQ(1_h, "01:00", "%R");
-    EXPECT_STREAM_OPERATOR_FORMAT_EQ(1_h, "01:00:00.000000000",
-            std::string("%T"));
-    EXPECT_STREAM_OPERATOR_FORMAT_EQ(1_h, "01:00", std::string("%R"));
+  EXPECT_STREAM_OPERATOR_FORMAT_EQ(1_h, "01:00:00.000000000", "%T");
+  EXPECT_STREAM_OPERATOR_FORMAT_EQ(1_h, "01:00", "%R");
+  EXPECT_STREAM_OPERATOR_FORMAT_EQ(1_h, "01:00:00.000000000",
+                                   std::string("%T"));
+  EXPECT_STREAM_OPERATOR_FORMAT_EQ(1_h, "01:00", std::string("%R"));
 }
 
 } // namespace Xsmp

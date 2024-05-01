@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <Xsmp/DateTime.h>
 #include <Xsmp/Duration.h>
+#include <gtest/gtest.h>
 
 namespace Xsmp {
 /*
@@ -52,89 +52,94 @@ namespace Xsmp {
 
 TEST(DateTimeTest, constructors) {
 
-    DateTime defaultDateTime;
-    EXPECT_EQ(defaultDateTime, 0);
+  DateTime defaultDateTime;
+  EXPECT_EQ(defaultDateTime, 0);
 
-    DateTime dateTimeFromSmp(Smp::DateTime { 10 });
-    EXPECT_EQ(dateTimeFromSmp, 10);
+  DateTime dateTimeFromSmp(Smp::DateTime{10});
+  EXPECT_EQ(dateTimeFromSmp, 10);
 
-    DateTime dateTimeFromDuration(std::chrono::nanoseconds { 100 });
-    EXPECT_EQ(dateTimeFromDuration, 100);
+  DateTime dateTimeFromDuration(std::chrono::nanoseconds{100});
+  EXPECT_EQ(dateTimeFromDuration, 100);
 
-    EXPECT_EQ(DateTime { "2000-01-01 12:00:00" }, 0);
+  EXPECT_EQ(DateTime{"2000-01-01 12:00:00"}, 0);
 
-    DateTime dateTimeFromCharPtrWithFormat("2000-01-01 12", "%Y-%m-%d %H");
-    EXPECT_EQ(dateTimeFromCharPtrWithFormat, 0);
+  DateTime dateTimeFromCharPtrWithFormat("2000-01-01 12", "%Y-%m-%d %H");
+  EXPECT_EQ(dateTimeFromCharPtrWithFormat, 0);
 
-    DateTime dateTimeFromStringWithFormat(std::string("2000-01-01 12"),
-            "%Y-%m-%d %H");
-    EXPECT_EQ(dateTimeFromStringWithFormat, 0);
+  DateTime dateTimeFromStringWithFormat(std::string("2000-01-01 12"),
+                                        "%Y-%m-%d %H");
+  EXPECT_EQ(dateTimeFromStringWithFormat, 0);
 
-    std::stringstream ss;
-    ss << "2000-01-01 12:00:00";
-    DateTime fromStream { ss };
-    EXPECT_EQ(fromStream, 0);
+  std::stringstream ss;
+  ss << "2000-01-01 12:00:00";
+  DateTime fromStream{ss};
+  EXPECT_EQ(fromStream, 0);
 }
 
 TEST(DateTimeTest, format) {
 
-    DateTime date { "2023-08-09 16:00:35" };
-    EXPECT_EQ(date.format(), "2023-08-09 16:00:35.000000000");
-    EXPECT_EQ(date.format("%x"), "08/09/23");
-    EXPECT_EQ(date.format(std::string("%x")), "08/09/23");
+  DateTime date{"2023-08-09 16:00:35"};
+  EXPECT_EQ(date.format(), "2023-08-09 16:00:35.000000000");
+  EXPECT_EQ(date.format("%x"), "08/09/23");
+  EXPECT_EQ(date.format(std::string("%x")), "08/09/23");
 }
 
 TEST(DateTimeTest, operators) {
 
-    DateTime date { "2023-08-09 16:00:35" };
+  DateTime date{"2023-08-09 16:00:35"};
 
-    date++;
-    EXPECT_EQ(date.format(), "2023-08-09 16:00:35.000000001");
+  date++;
+  EXPECT_EQ(date.format(), "2023-08-09 16:00:35.000000001");
 
-    date--;
-    EXPECT_EQ(date.format(), "2023-08-09 16:00:35.000000000");
+  date--;
+  EXPECT_EQ(date.format(), "2023-08-09 16:00:35.000000000");
 
-    date += Duration { std::chrono::seconds(5) };
-    EXPECT_EQ(date.format(), "2023-08-09 16:00:40.000000000");
+  date += Duration{std::chrono::seconds(5)};
+  EXPECT_EQ(date.format(), "2023-08-09 16:00:40.000000000");
 
-    date -= Duration { std::chrono::seconds(10) };
-    EXPECT_EQ(date.format(), "2023-08-09 16:00:30.000000000");
+  date -= Duration{std::chrono::seconds(10)};
+  EXPECT_EQ(date.format(), "2023-08-09 16:00:30.000000000");
 
-    date += std::chrono::seconds(15);
-    EXPECT_EQ(date.format(), "2023-08-09 16:00:45.000000000");
+  date += std::chrono::seconds(15);
+  EXPECT_EQ(date.format(), "2023-08-09 16:00:45.000000000");
 
-    date -= std::chrono::seconds(15);
-    EXPECT_EQ(date.format(), "2023-08-09 16:00:30.000000000");
+  date -= std::chrono::seconds(15);
+  EXPECT_EQ(date.format(), "2023-08-09 16:00:30.000000000");
 
-    date = date + Duration { std::chrono::minutes(5) };
-    EXPECT_EQ(date.format(), "2023-08-09 16:05:30.000000000");
+  date = date + Duration{std::chrono::minutes(5)};
+  EXPECT_EQ(date.format(), "2023-08-09 16:05:30.000000000");
 
-    date = date - Duration { std::chrono::hours(1) };
-    EXPECT_EQ(date.format(), "2023-08-09 15:05:30.000000000");
+  date = date - Duration{std::chrono::hours(1)};
+  EXPECT_EQ(date.format(), "2023-08-09 15:05:30.000000000");
 
-    date = Duration { std::chrono::seconds(10) } + date;
-    EXPECT_EQ(date.format(), "2023-08-09 15:05:40.000000000");
+  date = Duration{std::chrono::seconds(10)} + date;
+  EXPECT_EQ(date.format(), "2023-08-09 15:05:40.000000000");
 
-    date = date + std::chrono::minutes(5);
-    EXPECT_EQ(date.format(), "2023-08-09 15:10:40.000000000");
+  date = date + std::chrono::minutes(5);
+  EXPECT_EQ(date.format(), "2023-08-09 15:10:40.000000000");
 
-    date = date - std::chrono::minutes(5);
-    EXPECT_EQ(date.format(), "2023-08-09 15:05:40.000000000");
+  date = date - std::chrono::minutes(5);
+  EXPECT_EQ(date.format(), "2023-08-09 15:05:40.000000000");
 
-    date = std::chrono::minutes(5) + date;
-    EXPECT_EQ(date.format(), "2023-08-09 15:10:40.000000000");
+  date = std::chrono::minutes(5) + date;
+  EXPECT_EQ(date.format(), "2023-08-09 15:10:40.000000000");
 
-    date += std::chrono::seconds { 5 };
-    EXPECT_EQ(date.format(), "2023-08-09 15:10:45.000000000");
+  date += std::chrono::seconds{5};
+  EXPECT_EQ(date.format(), "2023-08-09 15:10:45.000000000");
 
-    date -= std::chrono::seconds { 15 };
-    EXPECT_EQ(date.format(), "2023-08-09 15:10:30.000000000");
+  date -= std::chrono::seconds{15};
+  EXPECT_EQ(date.format(), "2023-08-09 15:10:30.000000000");
 }
 
 TEST(DateTimeTest, stream) {
-#define EXPECT_STREAM_OPERATOR_EQ(date, value) do{std::stringstream ss; date.to_stream(ss); EXPECT_EQ(date, (value));}while(false)
+#define EXPECT_STREAM_OPERATOR_EQ(date, value)                                 \
+  do {                                                                         \
+    std::stringstream ss;                                                      \
+    date.to_stream(ss);                                                        \
+    EXPECT_EQ(date, (value));                                                  \
+  } while (false)
 
-    EXPECT_STREAM_OPERATOR_EQ(DateTime { "2000-01-01 12:00:00" }, 0);
+  EXPECT_STREAM_OPERATOR_EQ(DateTime{"2000-01-01 12:00:00"}, 0);
 }
 
 } // namespace Xsmp

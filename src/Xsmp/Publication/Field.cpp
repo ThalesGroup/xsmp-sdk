@@ -30,7 +30,11 @@ Field::Field(::Smp::String8 name, ::Smp::String8 description,
     : _name(::Xsmp::Helper::checkName(name, parent)),
       _description(description ? description : ""), _parent(parent),
       _address(address), _type(type), _view(view), _state(state), _input(input),
-      _output(output) {}
+      _output(output) {
+  // disallow fields with String8 type
+  if (type && type->GetUuid() == ::Smp::Uuids::Uuid_String8)
+    ::Xsmp::Exception::throwInvalidFieldType(this);
+}
 ::Smp::String8 Field::GetName() const { return _name.c_str(); }
 
 ::Smp::String8 Field::GetDescription() const { return _description.c_str(); }

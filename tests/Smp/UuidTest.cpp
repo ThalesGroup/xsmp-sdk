@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <Smp/Exception.h>
 #include <Smp/Uuid.h>
+#include <gtest/gtest.h>
 #include <sstream>
 #include <string>
 
@@ -25,102 +25,98 @@ namespace Smp {
 
 TEST(UuidTest, constructor) {
 
-    Uuid uuid1 { uuid1_str };
+  Uuid uuid1{uuid1_str};
 
-    EXPECT_EQ(uuid1.Data1, 0x123e4567);
-    EXPECT_EQ(uuid1.Data2[0], 0xe89b);
-    EXPECT_EQ(uuid1.Data2[1], 0x12d3);
-    EXPECT_EQ(uuid1.Data2[2], 0xa456);
+  EXPECT_EQ(uuid1.Data1, 0x123e4567);
+  EXPECT_EQ(uuid1.Data2[0], 0xe89b);
+  EXPECT_EQ(uuid1.Data2[1], 0x12d3);
+  EXPECT_EQ(uuid1.Data2[2], 0xa456);
 
-    EXPECT_EQ(uuid1.Data3[0], 0x42);
-    EXPECT_EQ(uuid1.Data3[1], 0x66);
-    EXPECT_EQ(uuid1.Data3[2], 0x14);
-    EXPECT_EQ(uuid1.Data3[3], 0x17);
-    EXPECT_EQ(uuid1.Data3[4], 0x40);
-    EXPECT_EQ(uuid1.Data3[5], 0x05);
+  EXPECT_EQ(uuid1.Data3[0], 0x42);
+  EXPECT_EQ(uuid1.Data3[1], 0x66);
+  EXPECT_EQ(uuid1.Data3[2], 0x14);
+  EXPECT_EQ(uuid1.Data3[3], 0x17);
+  EXPECT_EQ(uuid1.Data3[4], 0x40);
+  EXPECT_EQ(uuid1.Data3[5], 0x05);
 
-    EXPECT_THROW(Uuid { nullptr }, ::Smp::Exception);
-    EXPECT_THROW(Uuid { "" }, ::Smp::Exception);
+  EXPECT_THROW(Uuid{nullptr}, ::Smp::Exception);
+  EXPECT_THROW(Uuid{""}, ::Smp::Exception);
 
-    for (int i = 0; i < 36; ++i) {
-        char uuid[37] = "123e4567-e89b-12d3-a456-426614174005";
-        uuid[i] = 'x';
-        EXPECT_THROW(Uuid { uuid }, ::Smp::Exception);
-    }
+  for (int i = 0; i < 36; ++i) {
+    char uuid[37] = "123e4567-e89b-12d3-a456-426614174005";
+    uuid[i] = 'x';
+    EXPECT_THROW(Uuid{uuid}, ::Smp::Exception);
+  }
 
-    EXPECT_THROW(Uuid { "123e4567-e89b-12d3-a456-4266141740056" },
-            ::Smp::Exception);
-    EXPECT_THROW(Uuid { "123e4567-e89b-12d3-a456-42661417400" },
-            ::Smp::Exception);
+  EXPECT_THROW(Uuid{"123e4567-e89b-12d3-a456-4266141740056"}, ::Smp::Exception);
+  EXPECT_THROW(Uuid{"123e4567-e89b-12d3-a456-42661417400"}, ::Smp::Exception);
 }
 
 TEST(UuidTest, operators) {
 
-    Uuid uuid1 { uuid1_str };
-    Uuid uuid1b { uuid1_str };
-    Uuid uuid2 { uuid2_str };
-    Uuid uuid3 { uuid3_str };
+  Uuid uuid1{uuid1_str};
+  Uuid uuid1b{uuid1_str};
+  Uuid uuid2{uuid2_str};
+  Uuid uuid3{uuid3_str};
 
-    EXPECT_TRUE(uuid1 == uuid1);
-    EXPECT_TRUE(uuid1 == uuid1b);
-    EXPECT_TRUE(uuid1 != uuid2);
-    EXPECT_TRUE(uuid1 != uuid3);
-    EXPECT_TRUE(uuid1 < uuid2);
-    EXPECT_TRUE(uuid1 < uuid3);
+  EXPECT_TRUE(uuid1 == uuid1);
+  EXPECT_TRUE(uuid1 == uuid1b);
+  EXPECT_TRUE(uuid1 != uuid2);
+  EXPECT_TRUE(uuid1 != uuid3);
+  EXPECT_TRUE(uuid1 < uuid2);
+  EXPECT_TRUE(uuid1 < uuid3);
 
-    EXPECT_TRUE(uuid2 != uuid3);
-    EXPECT_TRUE(uuid2 < uuid3);
+  EXPECT_TRUE(uuid2 != uuid3);
+  EXPECT_TRUE(uuid2 < uuid3);
 
-    Smp::Uuid u1 { 0, 0, 0, 0, 0 };
-    Smp::Uuid u2 { 0, 0, 0, 0, 0 };
-    EXPECT_FALSE(u1 < u2);
-    EXPECT_TRUE(u1 == u2);
-    EXPECT_FALSE(u1 != u2);
-    u2.Data3 = { 0, 0, 0, 0, 0, 1 };
-    EXPECT_TRUE(u1 < u2);
-    EXPECT_FALSE(u1 == u2);
-    EXPECT_TRUE(u1 != u2);
-    u2.Data3 = { 0, 0, 0, 0, 0, 0 };
-    u2.Data2 = { 0, 0, 1 };
-    EXPECT_TRUE(u1 < u2);
-    EXPECT_FALSE(u1 == u2);
-    EXPECT_TRUE(u1 != u2);
-    u2.Data2 = { 0, 0, 0 };
-    u2.Data1 = 1;
-    EXPECT_TRUE(u1 < u2);
-    EXPECT_FALSE(u1 == u2);
-    EXPECT_TRUE(u1 != u2);
-    u2.Data1 = 0;
+  Smp::Uuid u1{0, 0, 0, 0, 0};
+  Smp::Uuid u2{0, 0, 0, 0, 0};
+  EXPECT_FALSE(u1 < u2);
+  EXPECT_TRUE(u1 == u2);
+  EXPECT_FALSE(u1 != u2);
+  u2.Data3 = {0, 0, 0, 0, 0, 1};
+  EXPECT_TRUE(u1 < u2);
+  EXPECT_FALSE(u1 == u2);
+  EXPECT_TRUE(u1 != u2);
+  u2.Data3 = {0, 0, 0, 0, 0, 0};
+  u2.Data2 = {0, 0, 1};
+  EXPECT_TRUE(u1 < u2);
+  EXPECT_FALSE(u1 == u2);
+  EXPECT_TRUE(u1 != u2);
+  u2.Data2 = {0, 0, 0};
+  u2.Data1 = 1;
+  EXPECT_TRUE(u1 < u2);
+  EXPECT_FALSE(u1 == u2);
+  EXPECT_TRUE(u1 != u2);
+  u2.Data1 = 0;
 
-    u1.Data3 = { 0, 0, 0, 0, 0, 1 };
-    EXPECT_FALSE(u1 < u2);
-    EXPECT_FALSE(u1 == u2);
-    EXPECT_TRUE(u1 != u2);
-    u1.Data3 = { 0, 0, 0, 0, 0, 0 };
-    u1.Data2 = { 0, 0, 1 };
-    EXPECT_FALSE(u1 < u2);
-    EXPECT_FALSE(u1 == u2);
-    EXPECT_TRUE(u1 != u2);
-    u1.Data2 = { 0, 0, 0 };
-    u1.Data1 = 1;
-    EXPECT_FALSE(u1 < u2);
-    EXPECT_FALSE(u1 == u2);
-    EXPECT_TRUE(u1 != u2);
-
+  u1.Data3 = {0, 0, 0, 0, 0, 1};
+  EXPECT_FALSE(u1 < u2);
+  EXPECT_FALSE(u1 == u2);
+  EXPECT_TRUE(u1 != u2);
+  u1.Data3 = {0, 0, 0, 0, 0, 0};
+  u1.Data2 = {0, 0, 1};
+  EXPECT_FALSE(u1 < u2);
+  EXPECT_FALSE(u1 == u2);
+  EXPECT_TRUE(u1 != u2);
+  u1.Data2 = {0, 0, 0};
+  u1.Data1 = 1;
+  EXPECT_FALSE(u1 < u2);
+  EXPECT_FALSE(u1 == u2);
+  EXPECT_TRUE(u1 != u2);
 }
 
 TEST(UuidTest, hash) {
 
-    Uuid uuid1 { uuid1_str };
-    Uuid uuid1b { uuid1_str };
-    Uuid uuid2 { uuid2_str };
-    Uuid uuid3 { uuid3_str };
-    std::hash<Uuid> hash;
-    EXPECT_EQ(hash(uuid1), hash(uuid1b));
-    EXPECT_NE(hash(uuid1), hash(uuid2));
-    EXPECT_NE(hash(uuid1), hash(uuid3));
-    EXPECT_NE(hash(uuid2), hash(uuid3));
-
+  Uuid uuid1{uuid1_str};
+  Uuid uuid1b{uuid1_str};
+  Uuid uuid2{uuid2_str};
+  Uuid uuid3{uuid3_str};
+  std::hash<Uuid> hash;
+  EXPECT_EQ(hash(uuid1), hash(uuid1b));
+  EXPECT_NE(hash(uuid1), hash(uuid2));
+  EXPECT_NE(hash(uuid1), hash(uuid3));
+  EXPECT_NE(hash(uuid2), hash(uuid3));
 }
 
 } // namespace Smp

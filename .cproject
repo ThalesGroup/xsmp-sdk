@@ -6,8 +6,8 @@
 			<target name="clean"/>
 			<target name="coverage"/>
 			<target name="install"/>
-			<target name="package"/>
 			<target name="test"/>
+			<target name="xsmp_package"/>
 		</targets>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
