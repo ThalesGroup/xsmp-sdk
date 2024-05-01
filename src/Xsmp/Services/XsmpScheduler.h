@@ -413,11 +413,12 @@ private:
   std::condition_variable _holdCv{};
   std::mutex _holdMutex{};
 
-  mutable std::mutex _execMutex{};
   enum class Status { Running, Hold };
   std::atomic<double> _targetSpeed{100.};
   std::atomic<Status> _simulationStatus{};
   bool _terminate{false};
+
+  mutable std::mutex _execMutex{};
 
   // thread that process zulu events
   std::thread _zuluThread{};

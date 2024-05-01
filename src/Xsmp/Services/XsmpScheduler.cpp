@@ -391,14 +391,12 @@ void XsmpScheduler::Execute(::Smp::Services::EventId eventId) {
   }
 
   if (!skip) {
-    lck.unlock();
-
-    std::unique_lock lck2(_execMutex);
+    std::scoped_lock lck2(_execMutex);
     _currentEventId = eventId;
+    lck.unlock();
     ::Xsmp::Helper::SafeExecute(GetSimulator(), event.entryPoint);
-    _currentEventId = -1;
-    lck2.unlock();
     lck.lock();
+    _currentEventId = -1;
   }
 
   if (event.repeat == 0) {
@@ -424,8 +422,6 @@ void XsmpScheduler::ExecuteZulu(::Smp::Services::EventId eventId) {
 
   auto &event = _events.at(eventId);
 
-  lck.unlock();
-
   // execute the event only in executing and standby states
   if (auto state = GetSimulator()->GetState();
       state == ::Smp::SimulatorStateKind::SSK_Executing ||
@@ -433,11 +429,11 @@ void XsmpScheduler::ExecuteZulu(::Smp::Services::EventId eventId) {
 
     std::scoped_lock lck2(_execMutex);
     _currentEventId = eventId;
+    lck.unlock();
     ::Xsmp::Helper::SafeExecute(GetSimulator(), event.entryPoint);
+    lck.lock();
     _currentEventId = -1;
   }
-
-  lck.lock();
 
   if (event.repeat == 0) {
     // remove the event
@@ -503,8 +499,7 @@ void XsmpScheduler::InternalZuluRun() {
     // execute all events with time <= current zulu time
     for (auto it = _zulu_events_table.begin();
          it != _zulu_events_table.end() &&
-         it->first <= GetSimulator()->GetTimeKeeper()->GetZuluTime();
-         it = _zulu_events_table.erase(it)) {
+         it->first <= GetSimulator()->GetTimeKeeper()->GetZuluTime();) {
 
       // execute all events
       while (!it->second.empty()) {
@@ -524,6 +519,8 @@ void XsmpScheduler::InternalZuluRun() {
             return;
         }
       }
+      _zulu_events_table.erase(it);
+      it = _zulu_events_table.begin();
     }
 
     // wait until next event
@@ -586,9 +583,12 @@ void XsmpScheduler::_EnterExecuting() {
     return; // exit immediately in case of hold
 
   auto *eventManager = GetSimulator()->GetEventManager();
+
+  std::unique_lock lck(_eventsMutex);
   // execute all events
   for (auto it = _events_table.begin(); it != _events_table.end();
        it = _events_table.erase(it)) {
+    lck.unlock();
 
     // notify that simulation time will be changed
     eventManager->Emit(::Smp::Services::IEventManager::SMP_PreSimTimeChangeId,
@@ -613,14 +613,16 @@ void XsmpScheduler::_EnterExecuting() {
     // TODO handle free running
     //  keep synchronized with zulu time
     if (delay > 0) {
-      std::unique_lock lck{_holdMutex};
-      if (_holdCv.wait_for(lck, std::chrono::nanoseconds{delay}, [this] {
+
+      if (std::unique_lock lck2{_holdMutex};
+          _holdCv.wait_for(lck2, std::chrono::nanoseconds{delay}, [this] {
             // continue to wait while Hold is not requested
             return _simulationStatus == Status::Hold;
           })) {
         return; // exit immediately in case of hold
       }
     }
+
     // change the simulation time
     timeKeeper->SetSimulationTime(it->first);
 
@@ -631,6 +633,7 @@ void XsmpScheduler::_EnterExecuting() {
     // SMP_PostSimTimeChangeId )
     if (!ExecuteImmediateEvents() || !ExecuteEvents(it->second))
       return; // exit immediately in case of hold
+    lck.lock();
   }
 
   _load.clear();
