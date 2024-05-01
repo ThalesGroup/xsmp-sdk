@@ -193,7 +193,10 @@ private:
   /// @param   args type parameters.
   /// @return  the added type.
   /// @throws  ::Smp::Publication::TypeAlreadyRegistered
-  template <typename T, class... Args> T *AddType(Args &&...args);
+  template <typename T, class... Args>
+  T *AddType(::Smp::String8 name, ::Smp::String8 description,
+             ::Xsmp::Publication::TypeRegistry *parent, ::Smp::Uuid typeUuid,
+             Args &&...args);
 };
 
 } // namespace Xsmp::Publication

@@ -70,7 +70,7 @@ const ::Smp::Publication::IType *ArrayType::GetItemType() const {
 
 SimpleType::SimpleType(::Smp::String8 name, ::Smp::String8 description,
                        ::Xsmp::Publication::TypeRegistry *parent,
-                       ::Smp::PrimitiveTypeKind kind, ::Smp::Uuid uuid)
+                       ::Smp::Uuid uuid, ::Smp::PrimitiveTypeKind kind)
     : Type(name, description, parent, uuid), _kind(kind) {}
 
 ::Smp::PrimitiveTypeKind SimpleType::GetPrimitiveTypeKind() const {
@@ -98,7 +98,7 @@ EnumerationType::EnumerationType(::Smp::String8 name,
                                  ::Smp::String8 description,
                                  ::Xsmp::Publication::TypeRegistry *parent,
                                  ::Smp::Uuid typeUuid, ::Smp::Int16 memorySize)
-    : SimpleType(name, description, parent, kind(name, memorySize), typeUuid) {}
+    : SimpleType(name, description, parent, typeUuid, kind(name, memorySize)) {}
 
 void EnumerationType::AddLiteral(::Smp::String8 name,
                                  ::Smp::String8 description,
@@ -122,7 +122,7 @@ FloatType::FloatType(::Smp::String8 name, ::Smp::String8 description,
                      ::Smp::Float64 maximum, ::Smp::Bool minInclusive,
                      ::Smp::Bool maxInclusive, ::Smp::String8 unit,
                      ::Smp::PrimitiveTypeKind type)
-    : SimpleType(name, description, parent, type, typeUuid), _unit(unit),
+    : SimpleType(name, description, parent, typeUuid, type), _unit(unit),
       _minimum(minimum), _maximum(maximum), _minInclusive(minInclusive),
       _maxInclusive(maxInclusive) {}
 
@@ -141,7 +141,7 @@ IntegerType::IntegerType(::Smp::String8 name, ::Smp::String8 description,
                          ::Smp::Uuid typeUuid, ::Smp::Int64 minimum,
                          ::Smp::Int64 maximum, ::Smp::String8 unit,
                          ::Smp::PrimitiveTypeKind type)
-    : SimpleType(name, description, parent, type, typeUuid), _minimum(minimum),
+    : SimpleType(name, description, parent, typeUuid, type), _minimum(minimum),
       _maximum(maximum), _unit(unit) {}
 
 ::Smp::Int64 IntegerType::getMinimum() const { return _minimum; }
@@ -152,14 +152,14 @@ IntegerType::IntegerType(::Smp::String8 name, ::Smp::String8 description,
 
 PrimitiveType::PrimitiveType(::Smp::String8 name, ::Smp::String8 description,
                              ::Xsmp::Publication::TypeRegistry *parent,
-                             ::Smp::PrimitiveTypeKind kind, ::Smp::Uuid uuid)
-    : SimpleType(name, description, parent, kind, uuid) {}
+                             ::Smp::Uuid uuid, ::Smp::PrimitiveTypeKind kind)
+    : SimpleType(name, description, parent, uuid, kind) {}
 
 StringType::StringType(::Smp::String8 name, ::Smp::String8 description,
                        ::Xsmp::Publication::TypeRegistry *parent,
                        ::Smp::Uuid typeUuid, ::Smp::Int64 length)
-    : SimpleType(name, description, parent,
-                 ::Smp::PrimitiveTypeKind::PTK_String8, typeUuid),
+    : SimpleType(name, description, parent, typeUuid,
+                 ::Smp::PrimitiveTypeKind::PTK_String8),
       _length(length) {}
 
 ::Smp::Int64 StringType::GetLength() const { return _length; }
@@ -186,6 +186,23 @@ ClassType::ClassType(::Smp::String8 name, ::Smp::String8 description,
                      ::Xsmp::Publication::TypeRegistry *typeRegistry,
                      ::Smp::Uuid typeUuid, ::Smp::Uuid baseClassUuid)
     : StructureType(name, description, typeRegistry, typeUuid),
-      _baseClassUuid{baseClassUuid} {}
+      _baseClassUuid{baseClassUuid} {
+  if (baseClassUuid == ::Smp::Uuids::Uuid_Void)
+    return;
+  if (baseClassUuid == typeUuid)
+    ::Xsmp::Exception::throwException(
+        this, "Invalid base Class",
+        "The base class must be different from the current class.");
+
+  auto *baseClass = typeRegistry->GetType(baseClassUuid);
+  if (!baseClass)
+    ::Xsmp::Exception::throwTypeNotRegistered(this, baseClassUuid);
+
+  if (!dynamic_cast<::Smp::Publication::IClassType *>(baseClass)) {
+    ::Xsmp::Exception::throwException(
+        this, "Invalid base Class",
+        "A base class must be void or a class type.");
+  }
+}
 
 } // namespace Xsmp::Publication

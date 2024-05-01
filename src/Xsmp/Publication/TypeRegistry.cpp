@@ -28,50 +28,52 @@ namespace Xsmp::Publication {
 TypeRegistry::TypeRegistry(::Smp::IObject *parent) : _parent(parent) {
 
   AddType<PrimitiveType>("Char8", "8 bit character", this,
-                         ::Smp::PrimitiveTypeKind::PTK_Char8,
-                         ::Smp::Uuids::Uuid_Char8);
+                         ::Smp::Uuids::Uuid_Char8,
+                         ::Smp::PrimitiveTypeKind::PTK_Char8);
   AddType<PrimitiveType>("String8", "8 bit character string", this,
-                         ::Smp::PrimitiveTypeKind::PTK_String8,
-                         ::Smp::Uuids::Uuid_String8);
+                         ::Smp::Uuids::Uuid_String8,
+                         ::Smp::PrimitiveTypeKind::PTK_String8);
   AddType<PrimitiveType>("Bool", "boolean with true or false", this,
-                         ::Smp::PrimitiveTypeKind::PTK_Bool,
-                         ::Smp::Uuids::Uuid_Bool);
+                         ::Smp::Uuids::Uuid_Bool,
+                         ::Smp::PrimitiveTypeKind::PTK_Bool);
   AddType<PrimitiveType>("Int8", "8 bit signed integer", this,
-                         ::Smp::PrimitiveTypeKind::PTK_Int8,
-                         ::Smp::Uuids::Uuid_Int8);
+                         ::Smp::Uuids::Uuid_Int8,
+                         ::Smp::PrimitiveTypeKind::PTK_Int8);
   AddType<PrimitiveType>("Int16", "16 bit signed integer", this,
-                         ::Smp::PrimitiveTypeKind::PTK_Int16,
-                         ::Smp::Uuids::Uuid_Int16);
+                         ::Smp::Uuids::Uuid_Int16,
+                         ::Smp::PrimitiveTypeKind::PTK_Int16);
   AddType<PrimitiveType>("Int32", "32 bit signed integer", this,
-                         ::Smp::PrimitiveTypeKind::PTK_Int32,
-                         ::Smp::Uuids::Uuid_Int32);
+                         ::Smp::Uuids::Uuid_Int32,
+                         ::Smp::PrimitiveTypeKind::PTK_Int32);
   AddType<PrimitiveType>("Int64", "64 bit signed integer", this,
-                         ::Smp::PrimitiveTypeKind::PTK_Int64,
-                         ::Smp::Uuids::Uuid_Int64);
+                         ::Smp::Uuids::Uuid_Int64,
+                         ::Smp::PrimitiveTypeKind::PTK_Int64);
   AddType<PrimitiveType>("UInt8", "8 bit unsigned integer", this,
-                         ::Smp::PrimitiveTypeKind::PTK_UInt8,
-                         ::Smp::Uuids::Uuid_UInt8);
+                         ::Smp::Uuids::Uuid_UInt8,
+                         ::Smp::PrimitiveTypeKind::PTK_UInt8);
   AddType<PrimitiveType>("UInt16", "16 bit unsigned integer", this,
-                         ::Smp::PrimitiveTypeKind::PTK_UInt16,
-                         ::Smp::Uuids::Uuid_UInt16);
+                         ::Smp::Uuids::Uuid_UInt16,
+                         ::Smp::PrimitiveTypeKind::PTK_UInt16);
   AddType<PrimitiveType>("UInt32", "32 bit unsigned integer", this,
-                         ::Smp::PrimitiveTypeKind::PTK_UInt32,
-                         ::Smp::Uuids::Uuid_UInt32);
+                         ::Smp::Uuids::Uuid_UInt32,
+                         ::Smp::PrimitiveTypeKind::PTK_UInt32);
   AddType<PrimitiveType>("UInt64", "64 bit unsigned integer", this,
-                         ::Smp::PrimitiveTypeKind::PTK_UInt64,
-                         ::Smp::Uuids::Uuid_UInt64);
+                         ::Smp::Uuids::Uuid_UInt64,
+                         ::Smp::PrimitiveTypeKind::PTK_UInt64);
   AddType<PrimitiveType>("Float32", "32 bit single-precision float", this,
-                         ::Smp::PrimitiveTypeKind::PTK_Float32,
-                         ::Smp::Uuids::Uuid_Float32);
+                         ::Smp::Uuids::Uuid_Float32,
+                         ::Smp::PrimitiveTypeKind::PTK_Float32);
   AddType<PrimitiveType>("Float64", "64 bit double-precision float", this,
-                         ::Smp::PrimitiveTypeKind::PTK_Float64,
-                         ::Smp::Uuids::Uuid_Float64);
+                         ::Smp::Uuids::Uuid_Float64,
+                         ::Smp::PrimitiveTypeKind::PTK_Float64);
   AddType<PrimitiveType>("Duration", "duration in nanoseconds", this,
-                         ::Smp::PrimitiveTypeKind::PTK_Duration,
-                         ::Smp::Uuids::Uuid_Duration);
+                         ::Smp::Uuids::Uuid_Duration,
+                         ::Smp::PrimitiveTypeKind::PTK_Duration);
   AddType<PrimitiveType>(
       "DateTime", "point in time in nanoseconds relative to MJD 2000+0.5", this,
-      ::Smp::PrimitiveTypeKind::PTK_DateTime, ::Smp::Uuids::Uuid_DateTime);
+      ::Smp::Uuids::Uuid_DateTime, ::Smp::PrimitiveTypeKind::PTK_DateTime);
+  AddType<PrimitiveType>("Void", "void type", this, ::Smp::Uuids::Uuid_Void,
+                         ::Smp::PrimitiveTypeKind::PTK_None);
 
   auto *primitiveTypeKind = AddEnumerationType(
       "PrimitiveTypeKind",                                        // name
@@ -401,6 +403,8 @@ TypeRegistry::GetType(::Smp::PrimitiveTypeKind type) const {
     return GetType(::Smp::Uuids::Uuid_UInt64);
   case ::Smp::PrimitiveTypeKind::PTK_String8:
     return GetType(::Smp::Uuids::Uuid_String8);
+  case ::Smp::PrimitiveTypeKind::PTK_None:
+    return GetType(::Smp::Uuids::Uuid_Void);
   default:
     return nullptr;
   }
@@ -412,11 +416,14 @@ TypeRegistry::GetType(::Smp::PrimitiveTypeKind type) const {
   return nullptr;
 }
 
-template <typename T, class... Args> T *TypeRegistry::AddType(Args &&...args) {
-  auto type = std::make_unique<T>(std::forward<Args>(args)...);
-  if (auto it = _types.find(type->GetUuid()); it != _types.end())
-    ::Xsmp::Exception::throwTypeAlreadyRegistered(this, type->GetName(),
-                                                  it->second.get());
+template <typename T, class... Args>
+T *TypeRegistry::AddType(::Smp::String8 name, ::Smp::String8 description,
+                         ::Xsmp::Publication::TypeRegistry *parent,
+                         ::Smp::Uuid typeUuid, Args &&...args) {
+  if (auto it = _types.find(typeUuid); it != _types.end())
+    ::Xsmp::Exception::throwTypeAlreadyRegistered(this, name, it->second.get());
+  auto type = std::make_unique<T>(name, description, parent, typeUuid,
+                                  std::forward<Args>(args)...);
 
   auto result = type.get();
   _types.try_emplace(type->GetUuid(), std::move(type));

@@ -90,8 +90,8 @@ private:
 class SimpleType : public Type {
 public:
   SimpleType(::Smp::String8 name, ::Smp::String8 description,
-             ::Xsmp::Publication::TypeRegistry *parent,
-             ::Smp::PrimitiveTypeKind kind, ::Smp::Uuid uuid);
+             ::Xsmp::Publication::TypeRegistry *parent, ::Smp::Uuid uuid,
+             ::Smp::PrimitiveTypeKind kind);
 
   ~SimpleType() noexcept override = default;
 
@@ -165,8 +165,8 @@ private:
 class PrimitiveType final : public SimpleType {
 public:
   PrimitiveType(::Smp::String8 name, ::Smp::String8 description,
-                ::Xsmp::Publication::TypeRegistry *parent,
-                ::Smp::PrimitiveTypeKind kind, ::Smp::Uuid uuid);
+                ::Xsmp::Publication::TypeRegistry *parent, ::Smp::Uuid uuid,
+                ::Smp::PrimitiveTypeKind kind);
 
   ~PrimitiveType() noexcept override = default;
 };
