@@ -57,7 +57,7 @@ bool Initialise_xsmp_services(
     return false;
   }
   // avoid double initialisation
-  else if (!::simulators.emplace(simulator).second) {
+  if (!::simulators.emplace(simulator).second) {
     return true;
   }
 

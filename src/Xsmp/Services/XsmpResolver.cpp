@@ -15,24 +15,27 @@
 #include <Xsmp/Helper.h>
 #include <Xsmp/Services/XsmpResolver.h>
 
+#include <Smp/IComponent.h>
+#include <Smp/IObject.h>
+#include <Smp/PrimitiveTypes.h>
+
 namespace Xsmp::Services {
 
 ::Smp::IObject *XsmpResolver::ResolveAbsolute(::Smp::String8 absolutePath) {
-
-  if (absolutePath &&
-      absolutePath[0] == '/') // an absolute path must start with '/'
+  // an absolute path must start with '/'
+  if (absolutePath && absolutePath[0] == '/') {
     return ::Xsmp::Helper::Resolve(GetSimulator(), absolutePath);
-
+  }
   return nullptr;
 }
 
 ::Smp::IObject *XsmpResolver::ResolveRelative(::Smp::String8 relativePath,
                                               const ::Smp::IComponent *sender) {
-
-  if (relativePath &&
-      relativePath[0] != '/') // a relative path cannot start with '/'
+  // a relative path cannot start with '/'
+  if (relativePath && relativePath[0] != '/') {
     return ::Xsmp::Helper::Resolve(const_cast<::Smp::IComponent *>(sender),
                                    relativePath);
+  }
   return nullptr;
 }
 

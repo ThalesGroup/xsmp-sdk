@@ -27,7 +27,7 @@ struct Helper<std::basic_string<CharT, Traits, Alloc>> {
   using size_type = typename type::size_type;
   static void Store(const ::Smp::ISimulator *simulator,
                     ::Smp::IStorageWriter *writer, const type &value) {
-    size_type size = value.size();
+    const size_type size = value.size();
     ::Xsmp::Persist::Store(simulator, writer, size);
     if (size) {
       type v = value;

@@ -31,11 +31,11 @@ public:
     if constexpr (hasDoPublish<T>::value) {
 
       if constexpr (std::is_invocable_v<decltype(&T::DoPublish), T *,
-                                        ::Smp::IPublication *>)
+                                        ::Smp::IPublication *>) {
         dynamic_cast<T *>(cmp)->DoPublish(receiver);
-      else if constexpr (std::is_invocable_v<decltype(&T::DoPublish), T *>)
+      } else if constexpr (std::is_invocable_v<decltype(&T::DoPublish), T *>) {
         dynamic_cast<T *>(cmp)->DoPublish();
-
+      }
       static_assert(std::is_invocable_v<decltype(&T::DoPublish), T *,
                                         ::Smp::IPublication *> ||
                         std::is_invocable_v<decltype(&T::DoConnect), T *>,
@@ -51,17 +51,19 @@ public:
 
       if constexpr (std::is_invocable_v<decltype(&T::DoConfigure), T *,
                                         ::Smp::Services::ILogger *,
-                                        ::Smp::Services::ILinkRegistry *>)
+                                        ::Smp::Services::ILinkRegistry *>) {
         dynamic_cast<T *>(cmp)->DoConfigure(logger, linkRegistry);
-      else if constexpr (std::is_invocable_v<decltype(&T::DoConfigure), T *,
-                                             ::Smp::Services::ILogger *>)
+      } else if constexpr (std::is_invocable_v<decltype(&T::DoConfigure), T *,
+                                               ::Smp::Services::ILogger *>) {
         dynamic_cast<T *>(cmp)->DoConfigure(logger);
-      else if constexpr (std::is_invocable_v<decltype(&T::DoConfigure), T *,
-                                             ::Smp::Services::ILinkRegistry *>)
+      } else if constexpr (std::is_invocable_v<
+                               decltype(&T::DoConfigure), T *,
+                               ::Smp::Services::ILinkRegistry *>) {
         dynamic_cast<T *>(cmp)->DoConfigure(linkRegistry);
-      else if constexpr (std::is_invocable_v<decltype(&T::DoConfigure), T *>)
+      } else if constexpr (std::is_invocable_v<decltype(&T::DoConfigure),
+                                               T *>) {
         dynamic_cast<T *>(cmp)->DoConfigure();
-
+      }
       static_assert(std::is_invocable_v<decltype(&T::DoConfigure), T *,
                                         ::Smp::Services::ILogger *,
                                         ::Smp::Services::ILinkRegistry *> ||
@@ -83,11 +85,11 @@ public:
   static void Connect(Component *cmp, ::Smp::ISimulator *simulator) {
     if constexpr (hasDoConnect<T>::value) {
       if constexpr (std::is_invocable_v<decltype(&T::DoConnect), T *,
-                                        ::Smp::ISimulator *>)
+                                        ::Smp::ISimulator *>) {
         dynamic_cast<T *>(cmp)->DoConnect(simulator);
-      else if constexpr (std::is_invocable_v<decltype(&T::DoConnect), T *>)
+      } else if constexpr (std::is_invocable_v<decltype(&T::DoConnect), T *>) {
         dynamic_cast<T *>(cmp)->DoConnect();
-
+      }
       static_assert(std::is_invocable_v<decltype(&T::DoConnect), T *,
                                         ::Smp::ISimulator *> ||
                         std::is_invocable_v<decltype(&T::DoConnect), T *>,
@@ -98,9 +100,9 @@ public:
 
   template <typename T> static void Disconnect(Component *cmp) {
     if constexpr (hasDoDisconnect<T>::value) {
-      if constexpr (std::is_invocable_v<decltype(&T::DoDisconnect), T *>)
+      if constexpr (std::is_invocable_v<decltype(&T::DoDisconnect), T *>) {
         dynamic_cast<T *>(cmp)->DoDisconnect();
-
+      }
       static_assert(std::is_invocable_v<decltype(&T::DoDisconnect), T *>,
                     "DoDisconnect has an invalid signature. Expecting 'void "
                     "DoDisconnect()'.");

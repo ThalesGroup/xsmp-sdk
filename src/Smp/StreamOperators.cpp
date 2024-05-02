@@ -175,14 +175,14 @@ std::ostream &operator<<(std::ostream &os, const PrimitiveTypeKind &obj) {
             << static_cast<::Smp::Int32>(obj) << ")";
 }
 
-std::ostream &operator<<(std::ostream &os, const AnySimple &any) {
+std::ostream &operator<<(std::ostream &os, const AnySimple &obj) {
 
-  switch (any.GetType()) {
+  switch (obj.GetType()) {
   case PrimitiveTypeKind::PTK_None:
     return os << "None";
   case PrimitiveTypeKind::PTK_Char8: {
 
-    switch (any.value.char8Value) {
+    switch (obj.value.char8Value) {
     case '\'':
       return os << R"('\'')";
     case '\?':
@@ -204,45 +204,46 @@ std::ostream &operator<<(std::ostream &os, const AnySimple &any) {
     case '\v':
       return os << R"('\v')";
     default:
-      if (any.value.char8Value >= ' ' && any.value.char8Value <= '~')
-        return os << "'" << any.value.char8Value << "'";
-      else
+      if (obj.value.char8Value >= ' ' && obj.value.char8Value <= '~') {
+        return os << "'" << obj.value.char8Value << "'";
+      } else {
         return os << "'\\" << std::oct
-                  << static_cast<unsigned int>(any.value.char8Value) << std::dec
+                  << static_cast<unsigned int>(obj.value.char8Value) << std::dec
                   << "'";
+      }
     }
   }
   case PrimitiveTypeKind::PTK_Bool:
-    return os << std::boolalpha << any.value.boolValue << std::noboolalpha;
+    return os << std::boolalpha << obj.value.boolValue << std::noboolalpha;
   case PrimitiveTypeKind::PTK_Int8:
-    return os << static_cast<int>(any.value.int8Value) << "i8";
+    return os << static_cast<int>(obj.value.int8Value) << "i8";
   case PrimitiveTypeKind::PTK_UInt8:
-    return os << static_cast<unsigned int>(any.value.uInt8Value) << "u8";
+    return os << static_cast<unsigned int>(obj.value.uInt8Value) << "u8";
   case PrimitiveTypeKind::PTK_Int16:
-    return os << any.value.int16Value << "i16";
+    return os << obj.value.int16Value << "i16";
   case PrimitiveTypeKind::PTK_UInt16:
-    return os << any.value.uInt16Value << "u16";
+    return os << obj.value.uInt16Value << "u16";
   case PrimitiveTypeKind::PTK_Int32:
-    return os << any.value.int32Value << "i32";
+    return os << obj.value.int32Value << "i32";
   case PrimitiveTypeKind::PTK_UInt32:
-    return os << any.value.uInt32Value << "u32";
+    return os << obj.value.uInt32Value << "u32";
   case PrimitiveTypeKind::PTK_Int64:
-    return os << any.value.int64Value << "i64";
+    return os << obj.value.int64Value << "i64";
   case PrimitiveTypeKind::PTK_UInt64:
-    return os << any.value.uInt64Value << "u64";
+    return os << obj.value.uInt64Value << "u64";
   case PrimitiveTypeKind::PTK_Float32:
-    return os << any.value.float32Value << "f32";
+    return os << obj.value.float32Value << "f32";
   case PrimitiveTypeKind::PTK_Float64:
-    return os << any.value.float64Value << "f64";
+    return os << obj.value.float64Value << "f64";
   case PrimitiveTypeKind::PTK_Duration:
-    return os << "\"" << ::Xsmp::Duration(any.value.durationValue) << "\"";
+    return os << "\"" << ::Xsmp::Duration(obj.value.durationValue) << "\"";
   case PrimitiveTypeKind::PTK_DateTime:
-    return os << "\"" << ::Xsmp::DateTime(any.value.dateTimeValue) << "\"";
+    return os << "\"" << ::Xsmp::DateTime(obj.value.dateTimeValue) << "\"";
   case PrimitiveTypeKind::PTK_String8:
-    return os << "\"" << any.value.string8Value << "\"";
+    return os << "\"" << obj.value.string8Value << "\"";
   }
   return os << "<invalid AnySimple type=\""
-            << static_cast<::Smp::Int32>(any.type) << "\">";
+            << static_cast<::Smp::Int32>(obj.type) << "\">";
 }
 
 std::ostream &operator<<(std::ostream &os, const ::Smp::Uuid &uuid) {
@@ -255,9 +256,9 @@ std::ostream &operator<<(std::ostream &os, const ::Smp::Uuid &uuid) {
 
   os << "-";
 
-  for (uint16_t data : uuid.Data3)
+  for (const std::uint16_t data : uuid.Data3) {
     os << std::setw(2) << data;
-
+  }
   os << std::setfill(' ') << std::dec;
 
   return os;

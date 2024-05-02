@@ -20,8 +20,7 @@
 
 #include <Xsmp/Tests/ModelWithSimpleFields.h>
 
-namespace Xsmp {
-namespace Tests {
+namespace Xsmp::Tests {
 void ModelWithSimpleFields::DoPublish(::Smp::IPublication *) {}
 
 void ModelWithSimpleFields::DoConfigure(::Smp::Services::ILogger *,
@@ -34,5 +33,4 @@ void ModelWithSimpleFields::DoDisconnect() {}
 void ModelWithSimpleFields::_esi(::Smp::IObject *) {
   // TODO implement EventSink esi
 }
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests

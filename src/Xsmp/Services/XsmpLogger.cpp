@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/IComponent.h>
+#include <Smp/IObject.h>
 #include <Smp/ISimulator.h>
+#include <Smp/PrimitiveTypes.h>
 #include <Smp/Services/ITimeKeeper.h>
 #include <Xsmp/Component.h>
 #include <Xsmp/DateTime.h>
@@ -22,6 +25,7 @@
 #include <Xsmp/Persist/StdString.h>
 #include <Xsmp/Persist/StdVector.h>
 #include <Xsmp/Services/XsmpLogger.h>
+#include <Xsmp/Services/XsmpLoggerGen.h>
 #include <algorithm>
 #include <cctype>
 #include <condition_variable>
@@ -36,6 +40,15 @@
 #include <string_view>
 #include <thread>
 #include <unordered_set>
+
+#include <Smp/IStorageReader.h>
+#include <Smp/IStorageWriter.h>
+#include <Smp/Services/LogMessageKind.h>
+#include <memory>
+#include <mutex>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace Xsmp::Services {
 
@@ -66,7 +79,7 @@ inline std::string unescape(std::string_view s) {
   auto it = s.begin();
   while (it != s.end()) {
     if (*it == '\\') {
-      if (++it != s.end())
+      if (++it != s.end()) {
         switch (*it) {
         case '\'':
           result += '\'';
@@ -102,12 +115,15 @@ inline std::string unescape(std::string_view s) {
           result += '\v';
           break;
         default:
+          result += *it;
           break;
         }
-      break;
-    } else {
-      result += *it;
+        ++it;
+      }
+      continue;
     }
+    result += *it;
+
     ++it;
   }
   return result;
@@ -127,9 +143,9 @@ inline std::vector<std::string> split(std::string_view s, char delimiter) {
   }
   auto token = std::string(s.substr(start, s.size() - start));
   trim(token);
-  if (!token.empty())
+  if (!token.empty()) {
     result.push_back(token);
-
+  }
   return result;
 }
 } // namespace
@@ -156,7 +172,7 @@ public:
   ~SimpleLayout() noexcept override = default;
   void Append(std::ostream &stream, const LogEntry &entry) const override {
     stream << entry.simulationTime << "\t" << entry.sender << '\t' << entry.kind
-           << '\t' << entry.msg << std::endl;
+           << '\t' << entry.msg << '\n';
   }
 };
 
@@ -173,10 +189,11 @@ public:
 
     auto format = [&stream, this](std::string::const_iterator &it,
                                   const auto &value) {
-      if (auto fmt = GetFormatting(it); fmt.empty())
+      if (auto fmt = GetFormatting(it); fmt.empty()) {
         stream << static_cast<::Smp::Int64>(value);
-      else
+      } else {
         value.to_stream(stream, fmt);
+      }
     };
 
     auto it = _pattern.begin();
@@ -274,35 +291,38 @@ public:
     auto key = path + ".layout";
     if (auto layout = properties.find(key); layout != properties.end()) {
 
-      if (layout->second == "SimpleLayout")
+      if (layout->second == "SimpleLayout") {
         _layout = std::make_unique<SimpleLayout>();
-      else if (layout->second == "PatternLayout")
+      } else if (layout->second == "PatternLayout") {
         _layout = std::make_unique<PatternLayout>(key, properties);
-      else
+      } else {
         std::cerr << "Layout " << layout->second
                   << " does not exist: only SimpleLayout and PatternLayout are "
                      "supported."
-                  << std::endl;
+                  << '\n';
+      }
     }
     // create a PatternLayout by default
-    else
+    else {
       _layout = std::make_unique<PatternLayout>(key, properties);
-
+    }
     if (auto levels = properties.find(path + ".levels");
         levels != properties.end()) {
-      for (const auto &value : split(levels->second, ','))
+      for (const auto &value : split(levels->second, ',')) {
         _levels.emplace(value);
+      }
     }
 
     if (auto pathRegex = properties.find(path + ".path");
-        pathRegex != properties.end())
+        pathRegex != properties.end()) {
       try {
         _pathRegex = std::regex{unescape(pathRegex->second),
                                 std::regex::ECMAScript | std::regex::optimize};
       } catch (const std::regex_error &e) {
         std::cerr << "Invalid regex expression: \"" << pathRegex->second
-                  << "\" ->" << e.what() << std::endl;
+                  << "\" ->" << e.what() << '\n';
       }
+    }
   }
   virtual ~Appender() noexcept = default;
   Appender(const Appender &) = delete;
@@ -311,8 +331,9 @@ public:
   void Append(const LogEntry &entry) {
 
     if ((_levels.empty() || _levels.find(entry.kind) != _levels.end()) &&
-        (!_pathRegex || std::regex_match(entry.sender, *_pathRegex)))
+        (!_pathRegex || std::regex_match(entry.sender, *_pathRegex))) {
       DoAppend(entry);
+    }
   }
 
 protected:
@@ -335,7 +356,7 @@ public:
   using Appender::Appender;
   ~ConsoleAppender() noexcept override = default;
   void DoAppend(const LogEntry &entry) override {
-    std::scoped_lock lck{_mutex};
+    const std::scoped_lock lck{_mutex};
     Append(std::cout, entry);
   }
 };
@@ -355,12 +376,10 @@ private:
   std::string GetFileName(
       const std::string &path,
       const std::map<std::string, std::string, std::less<>> &properties) const {
-    auto key = path + ".File";
-    auto file = properties.find(key);
-    if (file != properties.end())
+    if (auto file = properties.find(path + ".File"); file != properties.end()) {
       return file->second;
-    else
-      return "simulator.log";
+    }
+    return "simulator.log";
   }
   std::ofstream _stream;
 };
@@ -369,15 +388,18 @@ public:
   LoggerProcessor() {
     auto properties = parseProperties();
 
-    auto rootLogger = properties.find(std::string(_basePath) + ".rootLogger");
-    if (rootLogger != properties.end()) {
-      for (const auto &appender : split(rootLogger->second, ','))
+    if (auto rootLogger =
+            properties.find(std::string(_basePath) + ".rootLogger");
+        rootLogger != properties.end()) {
+      for (const auto &appender : split(rootLogger->second, ',')) {
         CreateAppender(appender, properties);
+      }
     }
     // create a ConsoleAppender by default
-    else
+    else {
       _appenders.emplace_back(std::make_unique<ConsoleAppender>(
           std::string(_basePath) + ".appender.default", properties));
+    }
 
     // initialize the working thread
     workingThread = std::thread{&LoggerProcessor::Process, this};
@@ -385,28 +407,34 @@ public:
 
   ~LoggerProcessor() {
     // terminate the working thread
-    {
-      std::scoped_lock lck(_mutex);
-      running = false;
-    }
+    Stop();
     _cv.notify_one();
-    if (workingThread.joinable())
+    if (workingThread.joinable()) {
       workingThread.join();
+    }
   }
   void Log(const ::Smp::IObject *sender, ::Smp::String8 msg,
            const std::string &kind, ::Smp::DateTime zuluTime,
            ::Smp::Duration simulationTime, ::Smp::DateTime epochTime,
            ::Smp::Duration missionTime) {
-    {
-      std::scoped_lock lck(_mutex);
-      _logs.push({::Xsmp::Helper::GetPath(sender), msg, kind,
-                  Xsmp::DateTime{zuluTime}, Xsmp::Duration{simulationTime},
-                  Xsmp::DateTime{epochTime}, Xsmp::Duration{missionTime}});
-    }
+    Push(sender, msg, kind, zuluTime, simulationTime, epochTime, missionTime);
     _cv.notify_one();
   }
 
 private:
+  void Stop() {
+    const std::scoped_lock lck(_mutex);
+    running = false;
+  }
+  inline void Push(const ::Smp::IObject *sender, ::Smp::String8 msg,
+                   const std::string &kind, ::Smp::DateTime zuluTime,
+                   ::Smp::Duration simulationTime, ::Smp::DateTime epochTime,
+                   ::Smp::Duration missionTime) {
+    const std::scoped_lock lck(_mutex);
+    _logs.push({::Xsmp::Helper::GetPath(sender), msg, kind,
+                Xsmp::DateTime{zuluTime}, Xsmp::Duration{simulationTime},
+                Xsmp::DateTime{epochTime}, Xsmp::Duration{missionTime}});
+  }
   void Process() {
     std::unique_lock lck(_mutex);
     while (running) {
@@ -415,9 +443,9 @@ private:
         const auto &log = _logs.front();
         lck.unlock();
 
-        for (auto const &appender : _appenders)
+        for (auto const &appender : _appenders) {
           appender->Append(log);
-
+        }
         lck.lock();
         _logs.pop();
       }
@@ -427,8 +455,9 @@ private:
     // process remaining logs if any
     while (!_logs.empty()) {
       const auto &log = _logs.front();
-      for (auto const &appender : _appenders)
+      for (auto const &appender : _appenders) {
         appender->Append(log);
+      }
       _logs.pop();
     }
   }
@@ -441,9 +470,10 @@ private:
       for (std::string line; std::getline(pFile, line);) {
         trim(line);
 
-        if (line.empty() || line[0] == '#')
+        if (line.empty() || line[0] == '#') {
           continue;
-        auto delimiterPos = line.find("=");
+        }
+        auto delimiterPos = line.find('=');
         if (delimiterPos != std::string::npos) {
           auto name = line.substr(0, delimiterPos);
           auto value = line.substr(delimiterPos + 1);
@@ -451,8 +481,9 @@ private:
           rtrim(name);
           ltrim(value);
           properties.try_emplace(name, value);
-        } else
-          std::cerr << "Invalid line: " << line << std::endl;
+        } else {
+          std::cerr << "Invalid line: " << line << '\n';
+        }
       }
     }
 
@@ -466,23 +497,25 @@ private:
     // find the associated class
     auto appender = properties.find(path);
     if (appender != properties.end()) {
-      if (appender->second == "ConsoleAppender")
+      if (appender->second == "ConsoleAppender") {
         _appenders.emplace_back(
             std::make_unique<ConsoleAppender>(path, properties));
-      else if (appender->second == "FileAppender")
+      } else if (appender->second == "FileAppender") {
         _appenders.emplace_back(
             std::make_unique<FileAppender>(path, properties));
-      else
+      } else {
         std::cerr << "Appender " << appender->second
                   << " does not exist: only ConsoleAppender and FileAppender "
                      "are supported."
-                  << std::endl;
+                  << '\n';
+      }
 
-    } else
+    } else {
       std::cerr
           << "Could not create appender '" << name << "'. Add entry '" << path
           << "=ConsoleAppender' to create a Console appender or add entry '"
-          << path << "=FileAppender' to create a File appender." << std::endl;
+          << path << "=FileAppender' to create a File appender." << '\n';
+    }
   }
   std::mutex _mutex{};
   std::condition_variable _cv{};
@@ -503,17 +536,17 @@ XsmpLogger::XsmpLogger(::Smp::String8 name, ::Smp::String8 description,
 
 ::Smp::Services::LogMessageKind
 XsmpLogger::QueryLogMessageKind(::Smp::String8 messageKindName) {
-  std::scoped_lock lck{_mutex};
+  const std::scoped_lock lck{_mutex};
   // this implementation is not very efficient.
   // we do not expect to call this method too often and to have many different
   // kinds of msg
 
   if (auto it = std::find(_logMessageKinds.begin(), _logMessageKinds.end(),
                           messageKindName);
-      it != _logMessageKinds.end())
+      it != _logMessageKinds.end()) {
     return static_cast<::Smp::Services::LogMessageKind>(
         it - _logMessageKinds.begin());
-
+  }
   // the kind is a direct cast from UInt32 to ::Smp::Services::LogMessageKind
   auto kind =
       static_cast<::Smp::Services::LogMessageKind>(_logMessageKinds.size());
@@ -523,7 +556,7 @@ XsmpLogger::QueryLogMessageKind(::Smp::String8 messageKindName) {
 
 void XsmpLogger::Log(const ::Smp::IObject *sender, ::Smp::String8 message,
                      ::Smp::Services::LogMessageKind kind) {
-  std::scoped_lock lck{_mutex};
+  const std::scoped_lock lck{_mutex};
 
   // the index is a direct cast from ::Smp::Services::LogMessageKind to
   // ::Smp::UInt32
@@ -537,10 +570,11 @@ void XsmpLogger::Log(const ::Smp::IObject *sender, ::Smp::String8 message,
     _processor->Log(sender, message, msgKind, tk->GetZuluTime(),
                     tk->GetSimulationTime(), tk->GetEpochTime(),
                     tk->GetMissionTime());
-  } else
+  } else {
     _processor->Log(sender, message, msgKind,
                     static_cast<::Smp::DateTime>(::Xsmp::DateTime::now()), 0, 0,
                     0);
+  }
 }
 
 void XsmpLogger::Restore(::Smp::IStorageReader *reader) {

@@ -12,14 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/AccessKind.h>
 #include <Smp/AnySimple.h>
 #include <Smp/IDynamicInvocation.h>
+#include <Smp/IProperty.h>
+#include <Smp/IRequest.h>
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/IType.h>
+#include <Smp/ViewKind.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
 #include <Xsmp/Publication/Property.h>
 #include <Xsmp/Publication/Request.h>
-#include <algorithm>
 #include <string>
+#include <utility>
 
 namespace Xsmp::Publication {
 
@@ -80,21 +86,21 @@ public:
   ::Smp::Int32 GetParameterIndex(::Smp::String8) const override { return 0; }
 
   void SetParameterValue(::Smp::Int32 index, ::Smp::AnySimple value) override {
-    if (index != 0)
+    if (index != 0) {
       ::Xsmp::Exception::throwInvalidParameterIndex(_property, index, 0);
-
+    }
     if (!::Xsmp::Publication::Request::isValid(_property, _property->GetType(),
-                                               value))
+                                               value)) {
       ::Xsmp::Exception::throwInvalidParameterValue(
           _property, _property->GetName(), value);
-
+    }
     _value = std::move(value);
   }
 
   ::Smp::AnySimple GetParameterValue(::Smp::Int32 index) const override {
-    if (index != 0)
+    if (index != 0) {
       ::Xsmp::Exception::throwInvalidParameterIndex(_property, index, 0);
-
+    }
     return _value;
   }
 
@@ -132,11 +138,11 @@ Property::Property(::Smp::String8 name, ::Smp::String8 description,
 ::Smp::AnySimple Property::GetValue() const {
 
   auto *invoker = dynamic_cast<::Smp::IDynamicInvocation *>(_parent);
-  if (!invoker || _accessKind == ::Smp::AccessKind::AK_WriteOnly)
+  if (!invoker || _accessKind == ::Smp::AccessKind::AK_WriteOnly) {
     ::Xsmp::Exception::throwException(
         this, "InvalidAccessKind", "",
         "The property getter is not invokable: ", this);
-
+  }
   Getter request{this};
   invoker->Invoke(&request);
   return request.GetReturnValue();
@@ -144,11 +150,11 @@ Property::Property(::Smp::String8 name, ::Smp::String8 description,
 
 void Property::SetValue(::Smp::AnySimple value) {
   auto *invoker = dynamic_cast<::Smp::IDynamicInvocation *>(_parent);
-  if (!invoker || _accessKind == ::Smp::AccessKind::AK_ReadOnly)
+  if (!invoker || _accessKind == ::Smp::AccessKind::AK_ReadOnly) {
     ::Xsmp::Exception::throwException(
         this, "InvalidAccessKind", "",
         "The property setter is not invokable: ", this);
-
+  }
   Setter request{this};
   request.SetParameterValue(0, std::move(value));
   invoker->Invoke(&request);

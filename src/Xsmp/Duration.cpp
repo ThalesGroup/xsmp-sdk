@@ -12,8 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Duration.h>
+#include <chrono>
 #include <date/date.h>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <string_view>
 
 namespace Xsmp {
 

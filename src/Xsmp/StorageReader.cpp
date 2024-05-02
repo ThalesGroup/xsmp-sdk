@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/StorageReader.h>
+#include <fstream>
 #include <iostream>
 
 #if !defined(__clang__) && defined(__GNUC__) && __GNUC__ <= 7
@@ -32,9 +34,10 @@ std::ifstream createInputStream(::Smp::String8 path, ::Smp::String8 filename,
   auto fullPath = fs::path(path ? path : "") / (filename ? filename : "");
   std::ifstream is{fullPath, std::ios::binary};
 
-  if (!is.good())
+  if (!is.good()) {
     ::Xsmp::Exception::throwCannotRestore(object, "Cannot open file: " +
                                                       fullPath.string());
+  }
   return is;
 }
 } // namespace
@@ -46,15 +49,18 @@ StorageReader::StorageReader(::Smp::String8 path, ::Smp::String8 filename,
 
 void StorageReader::Restore(void *address, ::Smp::UInt64 size) {
   _is.read(static_cast<char *>(address), static_cast<std::streamsize>(size));
-  if (_is.bad())
+  if (_is.bad()) {
     ::Xsmp::Exception::throwCannotRestore(_object,
                                           "Read/ error on input operation");
-  if (_is.fail())
+  }
+  if (_is.fail()) {
     ::Xsmp::Exception::throwCannotRestore(_object,
                                           "Logical error on input operation");
-  if (_is.eof())
+  }
+  if (_is.eof()) {
     ::Xsmp::Exception::throwCannotRestore(
         _object, "End-of-File reached on input operation");
+  }
 }
 
 ::Smp::String8 StorageReader::GetStateVectorFileName() const {

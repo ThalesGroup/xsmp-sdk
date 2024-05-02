@@ -13,14 +13,23 @@
 // limitations under the License.
 
 #include <Smp/AnySimple.h>
-#include <Smp/IStorageReader.h>
-#include <Smp/IStorageWriter.h>
+#include <Smp/AnySimpleArray.h>
+#include <Smp/IField.h>
+#include <Smp/ISimpleField.h>
+#include <Smp/IStructureField.h>
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/IType.h>
 #include <Smp/Uuid.h>
+#include <Smp/ViewKind.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
 #include <Xsmp/Publication/Field.h>
+#include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Publication/Type.h>
 #include <Xsmp/Publication/TypeRegistry.h>
+#include <cstddef>
+#include <memory>
+#include <string>
 
 namespace Xsmp::Publication {
 
@@ -47,8 +56,9 @@ Field::Field(::Smp::String8 name, ::Smp::String8 description,
       _output(output) {
   // disallow fields with String8/void type
   if (type && (type->GetUuid() == ::Smp::Uuids::Uuid_String8 ||
-               type->GetUuid() == ::Smp::Uuids::Uuid_Void))
+               type->GetUuid() == ::Smp::Uuids::Uuid_Void)) {
     ::Xsmp::Exception::throwInvalidFieldType(this, type);
+  }
 }
 ::Smp::String8 Field::GetName() const { return _name.c_str(); }
 ::Smp::String8 Field::GetDescription() const { return _description.c_str(); }
@@ -68,12 +78,12 @@ std::unique_ptr<Field> Field::Create(::Smp::String8 name,
 
   // create a simple field
   if (type->GetPrimitiveTypeKind() != ::Smp::PrimitiveTypeKind::PTK_None) {
-    if (output)
+    if (output) {
       return std::make_unique<SimpleDataflowField>(
           name, description, parent, address, type, view, state, input, output);
-    else
-      return std::make_unique<SimpleField>(name, description, parent, address,
-                                           type, view, state, input, output);
+    }
+    return std::make_unique<SimpleField>(name, description, parent, address,
+                                         type, view, state, input, output);
   }
   // create an array field
   if (const auto *array =
@@ -81,49 +91,48 @@ std::unique_ptr<Field> Field::Create(::Smp::String8 name,
     if (array->IsSimpleArray() &&
         array->GetItemType()->GetPrimitiveTypeKind() !=
             ::Smp::PrimitiveTypeKind::PTK_None) {
-      if (output)
+      if (output) {
         return std::make_unique<SimpleArrayDataflowField>(
             name, description, parent, address, array, view, state, input,
             output);
-      else
-        return std::make_unique<SimpleArrayField>(name, description, parent,
+      }
+      return std::make_unique<SimpleArrayField>(name, description, parent,
+                                                address, array, view, state,
+                                                input, output);
+    }
+    // normal field
+
+    if (output) {
+      return std::make_unique<ArrayDataflowField>(name, description, parent,
                                                   address, array, view, state,
                                                   input, output);
     }
-    // normal field
-    else {
-      if (output)
-        return std::make_unique<ArrayDataflowField>(name, description, parent,
-                                                    address, array, view, state,
-                                                    input, output);
-      else
-        return std::make_unique<ArrayField>(name, description, parent, address,
-                                            array, view, state, input, output);
-    }
+    return std::make_unique<ArrayField>(name, description, parent, address,
+                                        array, view, state, input, output);
   }
   // create a structure field
   if (const auto *structure =
           dynamic_cast<const ::Xsmp::Publication::StructureType *>(type)) {
-    if (output)
+    if (output) {
       return std::make_unique<StructureDataflowField>(name, description, parent,
                                                       address, structure, view,
                                                       state, input, output);
-    else
-      return std::make_unique<StructureField>(name, description, parent,
-                                              address, structure, view, state,
-                                              input, output);
+    }
+    return std::make_unique<StructureField>(name, description, parent, address,
+                                            structure, view, state, input,
+                                            output);
   }
   ::Xsmp::Exception::throwInvalidFieldType(parent, type);
 }
 
 void DataflowField::Connect(::Smp::IField *target) {
-  if (_targets.find(target) != _targets.end())
+  if (_targets.find(target) != _targets.end()) {
     ::Xsmp::Exception::throwFieldAlreadyConnected(this, this, target);
-
+  }
   if (!this->IsOutput() || !target->IsInput() || target == this ||
-      !::Xsmp::Helper::AreEquivalent(this, target))
+      !::Xsmp::Helper::AreEquivalent(this, target)) {
     ::Xsmp::Exception::throwInvalidTarget(this, this, target);
-
+  }
   _targets.emplace(target);
 
   // maybe we could push the value  here ?
@@ -133,25 +142,25 @@ void DataflowField::Push(::Smp::IField *source, ::Smp::IField *target) {
 
   // push a simple field
   if (auto const *simpleSource = dynamic_cast<::Smp::ISimpleField *>(source)) {
-    auto *simpleTarget = dynamic_cast<::Smp::ISimpleField *>(target);
-
-    simpleTarget->SetValue(simpleSource->GetValue());
+    dynamic_cast<::Smp::ISimpleField *>(target)->SetValue(
+        simpleSource->GetValue());
   }
   // push a simple array field
   else if (auto const *simpleArraySource =
                dynamic_cast<::Smp::ISimpleArrayField *>(source)) {
     auto *simpleArrayTarget = dynamic_cast<::Smp::ISimpleArrayField *>(target);
-
-    for (std::size_t i = 0; i < simpleArraySource->GetSize(); ++i)
+    for (std::size_t i = 0; i < simpleArraySource->GetSize(); ++i) {
       simpleArrayTarget->SetValue(i, simpleArraySource->GetValue(i));
+    }
   }
   // push an array field
   else if (auto const *arraySource =
                dynamic_cast<::Smp::IArrayField *>(source)) {
     auto const *arrayTarget = dynamic_cast<::Smp::IArrayField *>(target);
 
-    for (std::size_t i = 0; i < arraySource->GetSize(); ++i)
+    for (std::size_t i = 0; i < arraySource->GetSize(); ++i) {
       Push(arraySource->GetItem(i), arrayTarget->GetItem(i));
+    }
   }
   // push a structure field
   else if (auto const *structSource =
@@ -171,8 +180,9 @@ void DataflowField::Push(::Smp::IField *source, ::Smp::IField *target) {
 }
 
 void DataflowField::Push() {
-  for (auto *target : _targets)
+  for (auto *target : _targets) {
     Push(this, target);
+  }
 }
 
 AnonymousArrayField::AnonymousArrayField(
@@ -185,15 +195,17 @@ AnonymousArrayField::AnonymousArrayField(
 
 void AnonymousArrayField::Restore(::Smp::IStorageReader *reader) {
   if (IsState()) {
-    for (auto *field : *GetFields())
+    for (auto *field : *GetFields()) {
       field->Restore(reader);
+    }
   }
 }
 
 void AnonymousArrayField::Store(::Smp::IStorageWriter *writer) {
   if (IsState()) {
-    for (auto *field : *GetFields())
+    for (auto *field : *GetFields()) {
       field->Store(writer);
+    }
   }
 }
 
@@ -202,8 +214,9 @@ void AnonymousArrayField::Store(::Smp::IStorageWriter *writer) {
 }
 
 ::Smp::IField *AnonymousArrayField::GetItem(::Smp::UInt64 index) const {
-  if (index >= GetSize())
+  if (index >= GetSize()) {
     ::Xsmp::Exception::throwInvalidArrayIndex(this, index);
+  }
   return GetFields()->at(index);
 }
 
@@ -265,9 +278,9 @@ std::size_t AnonymousSimpleArrayField::GetItemSize() const {
 
 ::Smp::AnySimple
 AnonymousSimpleArrayField::GetValue(::Smp::UInt64 index) const {
-  if (index >= GetSize())
+  if (index >= GetSize()) {
     ::Xsmp::Exception::throwInvalidArrayIndex(this, index);
-
+  }
   switch (_kind) {
   case ::Smp::PrimitiveTypeKind::PTK_Bool:
     return {_kind, static_cast<::Smp::Bool *>(GetAddress())[index]};
@@ -302,9 +315,9 @@ AnonymousSimpleArrayField::GetValue(::Smp::UInt64 index) const {
 
 void AnonymousSimpleArrayField::SetValue(::Smp::UInt64 index,
                                          ::Smp::AnySimple value) {
-  if (index >= GetSize())
+  if (index >= GetSize()) {
     ::Xsmp::Exception::throwInvalidArrayIndex(this, index);
-
+  }
   switch (_kind) {
   case ::Smp::PrimitiveTypeKind::PTK_Bool:
     static_cast<::Smp::Bool *>(GetAddress())[index] = value;
@@ -352,19 +365,22 @@ void AnonymousSimpleArrayField::SetValue(::Smp::UInt64 index,
 void AnonymousSimpleArrayField::GetValues(::Smp::UInt64 length,
                                           ::Smp::AnySimpleArray values) const {
 
-  if (length != GetSize())
+  if (length != GetSize()) {
     ::Xsmp::Exception::throwInvalidArraySize(this, length);
-
-  for (std::size_t i = 0; i < length; ++i)
+  }
+  for (std::size_t i = 0; i < length; ++i) {
     values[i] = GetValue(i);
+  }
 }
 
 void AnonymousSimpleArrayField::SetValues(::Smp::UInt64 length,
                                           ::Smp::AnySimpleArray values) {
-  if (length != GetSize())
+  if (length != GetSize()) {
     ::Xsmp::Exception::throwInvalidArraySize(this, length);
-  for (std::size_t i = 0; i < length; ++i)
+  }
+  for (std::size_t i = 0; i < length; ++i) {
     SetValue(i, values[i]);
+  }
 }
 
 AnonymousStructureField::AnonymousStructureField(
@@ -381,15 +397,17 @@ const ::Smp::FieldCollection *AnonymousStructureField::GetFields() const {
 
 void AnonymousStructureField::Restore(::Smp::IStorageReader *reader) {
   if (IsState()) {
-    for (auto *field : *GetFields())
+    for (auto *field : *GetFields()) {
       field->Restore(reader);
+    }
   }
 }
 
 void AnonymousStructureField::Store(::Smp::IStorageWriter *writer) {
   if (IsState()) {
-    for (auto *field : *GetFields())
+    for (auto *field : *GetFields()) {
       field->Store(writer);
+    }
   }
 }
 
@@ -405,35 +423,38 @@ ArrayField::ArrayField(::Smp::String8 name, ::Smp::String8 description,
     : Field(name, description, parent, address, type, view, state, input,
             output) {
 
-  for (std::size_t i = 0; i < type->GetSize(); ++i)
+  for (std::size_t i = 0; i < type->GetSize(); ++i) {
     /// The parent of the item is the parent of the array
     /// The item name is the array name + [index]
     _fields.push_back(
         Create((std::string(name) + "[" + std::to_string(i) + "]").c_str(), "",
                parent, static_cast<char *>(address) + i * type->GetItemSize(),
                type->GetItemType(), view, state, input, output));
+  }
 }
 
 ::Smp::UInt64 ArrayField::GetSize() const { return _fields.size(); }
 
 ::Smp::IField *ArrayField::GetItem(::Smp::UInt64 index) const {
-  if (index >= GetSize())
+  if (index >= GetSize()) {
     ::Xsmp::Exception::throwInvalidArrayIndex(this, index);
-
+  }
   return _fields[index].get();
 }
 
 void ArrayField::Restore(::Smp::IStorageReader *reader) {
   if (IsState()) {
-    for (auto const &field : _fields)
+    for (auto const &field : _fields) {
       field->Restore(reader);
+    }
   }
 }
 
 void ArrayField::Store(::Smp::IStorageWriter *writer) {
   if (IsState()) {
-    for (auto const &field : _fields)
+    for (auto const &field : _fields) {
       field->Store(writer);
+    }
   }
 }
 
@@ -467,9 +488,9 @@ void SimpleArrayField::Store(::Smp::IStorageWriter *writer) {
 ::Smp::UInt64 SimpleArrayField::GetSize() const { return _size; }
 
 ::Smp::AnySimple SimpleArrayField::GetValue(::Smp::UInt64 index) const {
-  if (index >= GetSize())
+  if (index >= GetSize()) {
     ::Xsmp::Exception::throwInvalidArrayIndex(this, index);
-
+  }
   void *address = static_cast<char *>(GetAddress()) + index * _itemSize;
   auto kind = _itemType->GetPrimitiveTypeKind();
   switch (kind) {
@@ -509,9 +530,9 @@ void SimpleArrayField::Store(::Smp::IStorageWriter *writer) {
 }
 
 void SimpleArrayField::SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) {
-  if (index >= GetSize())
+  if (index >= GetSize()) {
     ::Xsmp::Exception::throwInvalidArrayIndex(this, index);
-
+  }
   void *address = static_cast<char *>(GetAddress()) + index * _itemSize;
 
   switch (_itemType->GetPrimitiveTypeKind()) {
@@ -571,18 +592,19 @@ void SimpleArrayField::SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) {
 void SimpleArrayField::GetValues(::Smp::UInt64 length,
                                  ::Smp::AnySimpleArray values) const {
 
-  if (length != GetSize())
+  if (length != GetSize()) {
     ::Xsmp::Exception::throwInvalidArraySize(this, length);
-
-  for (std::size_t i = 0; i < length; ++i)
+  }
+  for (std::size_t i = 0; i < length; ++i) {
     values[i] = GetValue(i);
+  }
 }
 
 void SimpleArrayField::SetValues(::Smp::UInt64 length,
                                  ::Smp::AnySimpleArray values) {
-  if (length != GetSize())
+  if (length != GetSize()) {
     ::Xsmp::Exception::throwInvalidArraySize(this, length);
-
+  }
   auto _itemKind = _itemType->GetPrimitiveTypeKind();
   for (std::size_t i = 0; i < length; ++i) {
     if (values[i].type != _itemKind) {
@@ -593,13 +615,15 @@ void SimpleArrayField::SetValues(::Smp::UInt64 length,
 }
 
 void SimpleField::Restore(::Smp::IStorageReader *reader) {
-  if (IsState())
+  if (IsState()) {
     reader->Restore(GetAddress(), static_cast<::Smp::UInt64>(GetSize()));
+  }
 }
 
 void SimpleField::Store(::Smp::IStorageWriter *writer) {
-  if (IsState())
+  if (IsState()) {
     writer->Store(GetAddress(), static_cast<::Smp::UInt64>(GetSize()));
+  }
 }
 
 ::Smp::Int64 SimpleField::GetSize() const {
@@ -750,26 +774,31 @@ StructureField::StructureField(::Smp::String8 name, ::Smp::String8 description,
       _fields{"Fields", "", this} {
 
   for (const auto &field : type->GetFields()) {
-    if (auto const *fieldType = type->GetTypeRegistry()->GetType(field.uuid))
+    if (auto const *fieldType = type->GetTypeRegistry()->GetType(field.uuid)) {
       _fields.Add(Create(field.name.c_str(), field.description.c_str(), this,
                          static_cast<char *>(address) + field.offset, fieldType,
                          field.view, field.state, field.input || input,
                          field.output || output));
-    else
+    } else {
       ::Xsmp::Exception::throwTypeNotRegistered(this, field.uuid);
+    }
   }
 }
 
 void StructureField::Restore(::Smp::IStorageReader *reader) {
-  if (IsState())
-    for (auto *field : _fields)
+  if (IsState()) {
+    for (auto *field : _fields) {
       field->Restore(reader);
+    }
+  }
 }
 
 void StructureField::Store(::Smp::IStorageWriter *writer) {
-  if (IsState())
-    for (auto *field : _fields)
+  if (IsState()) {
+    for (auto *field : _fields) {
       field->Store(writer);
+    }
+  }
 }
 
 const ::Smp::FieldCollection *StructureField::GetFields() const {

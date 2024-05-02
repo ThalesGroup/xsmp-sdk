@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/IComponent.h>
+#include <Smp/ILinkingComponent.h>
+#include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Services/XsmpLinkRegistry.h>
-#include <tuple>
+#include <mutex>
+#include <utility>
 
 namespace Xsmp::Services {
 
@@ -22,24 +26,26 @@ void XsmpLinkRegistry::AddLink(::Smp::IComponent *source,
 
   auto key = std::make_pair(source, target);
 
-  std::scoped_lock lck{_linksMutex};
+  const std::scoped_lock lck{_linksMutex};
   auto it = _links.find(key);
   if (it == _links.end()) {
     _links.try_emplace(key, 1);
-    std::scoped_lock lck2{_targetsMutex};
+    const std::scoped_lock lck2{_targetsMutex};
     _targets.try_emplace(target, "Links", "", this).first->second.Add(source);
-  } else
+  } else {
     ++it->second;
+  }
 }
 
 ::Smp::UInt32
 XsmpLinkRegistry::GetLinkCount(const ::Smp::IComponent *source,
                                const ::Smp::IComponent *target) const {
 
-  std::scoped_lock lck{_linksMutex};
+  const std::scoped_lock lck{_linksMutex};
   if (auto it = _links.find(std::make_pair(source, target));
-      it != _links.cend())
+      it != _links.cend()) {
     return it->second;
+  }
   return 0;
 }
 
@@ -48,17 +54,18 @@ XsmpLinkRegistry::GetLinkCount(const ::Smp::IComponent *source,
   auto key = std::make_pair(source, target);
   std::unique_lock lck{_linksMutex};
   auto it = _links.find(key);
-  if (it == _links.end())
+  if (it == _links.end()) {
     return false;
-
+  }
   it->second--;
   if (it->second == 0) {
     _links.erase(it);
     lck.unlock();
-    std::scoped_lock lck2{_targetsMutex};
+    const std::scoped_lock lck2{_targetsMutex};
     auto it2 = _targets.find(target);
-    if (it2 != _targets.end())
+    if (it2 != _targets.end()) {
       it2->second.Remove(source);
+    }
   }
 
   return true;
@@ -67,7 +74,7 @@ XsmpLinkRegistry::GetLinkCount(const ::Smp::IComponent *source,
 const ::Smp::ComponentCollection *
 XsmpLinkRegistry::GetLinkSources(const ::Smp::IComponent *target) const {
 
-  std::scoped_lock lck{_targetsMutex};
+  const std::scoped_lock lck{_targetsMutex};
 
   if (auto it = _targets.find(target); it != _targets.end()) {
     return &it->second;
@@ -80,7 +87,7 @@ XsmpLinkRegistry::GetLinkSources(const ::Smp::IComponent *target) const {
 
 ::Smp::Bool XsmpLinkRegistry::CanRemove(const ::Smp::IComponent *target) {
 
-  std::scoped_lock lck{_targetsMutex};
+  const std::scoped_lock lck{_targetsMutex};
 
   if (auto it = _targets.find(target); it != _targets.end()) {
     for (auto *source : it->second) {

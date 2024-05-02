@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/PrimitiveTypes.h>
 #include <Xsmp/EventConsumer.h>
 #include <Xsmp/EventSink.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
-#include <algorithm>
 #include <string>
+#include <utility>
 
 namespace Xsmp {
 namespace detail {

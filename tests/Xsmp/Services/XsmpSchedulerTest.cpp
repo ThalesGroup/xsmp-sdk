@@ -169,7 +169,7 @@ TEST(XsmpSchedulerTest, EventTime) {
 
   TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
 
-  ::Xsmp::EntryPoint ep1{"ep1", "", &entryPoints, [&](void) {
+  ::Xsmp::EntryPoint ep1{"ep1", "", &entryPoints, [&]() {
                            // do nothing
                          }};
 
@@ -204,7 +204,7 @@ TEST(XsmpSchedulerTest, EventCycleAndRepeatTime) {
 
   TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
 
-  ::Xsmp::EntryPoint ep1{"ep1", "", &entryPoints, [&](void) {
+  ::Xsmp::EntryPoint ep1{"ep1", "", &entryPoints, [&]() {
                            // do nothing
                          }};
 
@@ -252,7 +252,7 @@ TEST(XsmpSchedulerTest, RemoveEvent) {
 
   TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
 
-  ::Xsmp::EntryPoint ep1{"ep1", "", &entryPoints, [&](void) {
+  ::Xsmp::EntryPoint ep1{"ep1", "", &entryPoints, [&]() {
                            // do nothing
                          }};
 

@@ -76,8 +76,8 @@ template <typename Tp, std::size_t Nm, typename... options> struct Array {
 
   // No explicit construct/copy/destroy for aggregate type.
 
-  constexpr void fill(const value_type &_u) {
-    std::fill_n(begin(), size(), _u);
+  constexpr void fill(const value_type &_value) {
+    std::fill_n(begin(), size(), _value);
   }
 
   constexpr void swap(Array &_other) noexcept(
@@ -152,11 +152,11 @@ template <typename Tp, std::size_t Nm, typename... options> struct Array {
   }
 
   constexpr reference at(size_type index) {
-    if (index >= Nm)
+    if (index >= Nm) {
       throw std::out_of_range{"Array::at: index (which is " +
                               std::to_string(index) + ") >= Nm (which is " +
                               std::to_string(Nm) + ")"};
-
+    }
     return internalArray[index];
   }
 
@@ -215,10 +215,10 @@ template <typename Tp, std::size_t Nm, typename... options>
 }
 
 template <typename Tp, std::size_t Nm, typename... options>
-[[nodiscard]] constexpr bool operator<(const Array<Tp, Nm, options...> &_a,
-                                       const Array<Tp, Nm, options...> &_b) {
-  return std::lexicographical_compare(_a.begin(), _a.end(), _b.begin(),
-                                      _b.end());
+[[nodiscard]] constexpr bool operator<(const Array<Tp, Nm, options...> &_one,
+                                       const Array<Tp, Nm, options...> &_two) {
+  return std::lexicographical_compare(_one.begin(), _one.end(), _two.begin(),
+                                      _two.end());
 }
 
 template <typename Tp, std::size_t Nm, typename... options>

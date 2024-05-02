@@ -16,8 +16,10 @@
 #include <Smp/IField.h>
 #include <Smp/IOperation.h>
 #include <Smp/IProperty.h>
+#include <Smp/IPublication.h>
 #include <Smp/IRequest.h>
 #include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/IPublishOperation.h>
 #include <Smp/Publication/ITypeRegistry.h>
 #include <Smp/Uuid.h>
 #include <Smp/ViewKind.h>
@@ -29,7 +31,6 @@
 #include <Xsmp/Publication/Property.h>
 #include <Xsmp/Publication/Publication.h>
 #include <cstring>
-#include <memory>
 
 namespace Xsmp::Publication {
 
@@ -146,11 +147,12 @@ void Publication::PublishField(::Smp::String8 name, ::Smp::String8 description,
                                ::Smp::ViewKind view, ::Smp::Bool state,
                                ::Smp::Bool input, ::Smp::Bool output) {
 
-  if (auto const *type = _typeRegistry->GetType(typeUuid))
+  if (auto const *type = _typeRegistry->GetType(typeUuid)) {
     _fields.Add(Field::Create(name, description, _parent, address, type, view,
                               state, input, output));
-  else
+  } else {
     ::Xsmp::Exception::throwTypeNotRegistered(_parent, typeUuid);
+  }
 }
 
 void Publication::PublishField(::Smp::IField *field) { _allFields.Add(field); }
@@ -162,17 +164,18 @@ void Publication::PublishArray(::Smp::String8 name, ::Smp::String8 description,
                                ::Smp::Bool input, ::Smp::Bool output) {
 
   if (type == ::Smp::PrimitiveTypeKind::PTK_None ||
-      type == ::Smp::PrimitiveTypeKind::PTK_String8)
+      type == ::Smp::PrimitiveTypeKind::PTK_String8) {
     ::Xsmp::Exception::throwInvalidFieldType(_parent, type);
-
-  if (output)
+  }
+  if (output) {
     _fields.Add<AnonymousSimpleArrayDataflowField>(name, description, _parent,
                                                    count, address, type, view,
                                                    state, input, output);
-  else
+  } else {
     _fields.Add<AnonymousSimpleArrayField>(name, description, _parent, count,
                                            address, type, view, state, input,
                                            output);
+  }
 }
 
 ::Smp::IPublication *Publication::PublishArray(::Smp::String8 name,
@@ -198,11 +201,12 @@ Publication::PublishOperation(::Smp::String8 name, ::Smp::String8 description,
                               ::Smp::ViewKind view) {
 
   auto *operation = dynamic_cast<Operation *>(_operations.at(name));
-  if (operation)
+  if (operation) {
     operation->Update(description, view);
-  else
+  } else {
     operation = _operations.Add<Operation>(name, description, _parent, view,
                                            _typeRegistry);
+  }
 
   return operation;
 }
@@ -214,22 +218,24 @@ void Publication::PublishProperty(::Smp::String8 name,
                                   ::Smp::ViewKind view) {
 
   auto *type = GetTypeRegistry()->GetType(typeUuid);
-  if (!type)
+  if (!type) {
     ::Xsmp::Exception::throwTypeNotRegistered(_parent, typeUuid);
-
-  if (auto *property = dynamic_cast<Property *>(_properties.at(name)))
+  }
+  if (auto *property = dynamic_cast<Property *>(_properties.at(name))) {
     property->Update(description, type, accessKind, view);
-  else
+  } else {
     _properties.Add<Property>(name, description, _parent, type, accessKind,
                               view);
+  }
 }
 
 ::Smp::IField *Publication::GetField(::Smp::String8 fullName) const {
-  if (fullName)
+  if (fullName) {
     if (auto *field = dynamic_cast<::Smp::IField *>(
-            ::Xsmp::Helper::Resolve(GetFields(), fullName)))
+            ::Xsmp::Helper::Resolve(GetFields(), fullName))) {
       return field;
-
+    }
+  }
   ::Xsmp::Exception::throwInvalidFieldName(_parent, fullName);
 }
 
@@ -247,20 +253,22 @@ const ::Smp::OperationCollection *Publication::GetOperations() const {
 
 ::Smp::IRequest *Publication::CreateRequest(::Smp::String8 operationName) {
   if (operationName) {
-    if (auto *operation = _operations.at(operationName))
+    if (auto *operation = _operations.at(operationName)) {
       return operation->CreateRequest();
-
+    }
     // check if property getter exist
     if (std::strncmp(operationName, "get_", 4) == 0) {
-      if (const auto *property =
-              dynamic_cast<const Property *>(_properties.at(operationName + 4)))
+      if (const auto *property = dynamic_cast<const Property *>(
+              _properties.at(operationName + 4))) {
         return property->CreateGetRequest();
+      }
     }
     // check if property setter exist
     else if (std::strncmp(operationName, "set_", 4) == 0) {
-      if (const auto *property =
-              dynamic_cast<const Property *>(_properties.at(operationName + 4)))
+      if (const auto *property = dynamic_cast<const Property *>(
+              _properties.at(operationName + 4))) {
         return property->CreateSetRequest();
+      }
     }
   }
   return nullptr;
@@ -268,11 +276,12 @@ const ::Smp::OperationCollection *Publication::GetOperations() const {
 
 void Publication::DeleteRequest(::Smp::IRequest *request) {
   if (request) {
-    if (auto *operation = _operations.at(request->GetOperationName()))
+    if (auto *operation = _operations.at(request->GetOperationName())) {
       operation->DeleteRequest(request);
-    else
+    } else {
       // delete
       delete request;
+    }
   }
 }
 

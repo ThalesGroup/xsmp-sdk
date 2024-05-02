@@ -449,8 +449,9 @@ private:
            ::Smp::Duration time, ::Smp::Duration cycleTime, ::Smp::Int64 repeat,
            ::Smp::Services::TimeKind kind);
 
-  void SetEventTime(::Smp::Services::EventId id, ::Smp::Duration simulationTime,
-                    ::Smp::Duration time, ::Smp::Services::TimeKind kind);
+  void SetEventTime(::Smp::Services::EventId eventId,
+                    ::Smp::Duration simulationTime, ::Smp::Duration time,
+                    ::Smp::Services::TimeKind kind);
 
   /// Execute a specific event
   /// @param eventId the event id to execute

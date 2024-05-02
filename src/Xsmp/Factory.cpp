@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/IComposite.h>
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Uuid.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Factory.h>
 #include <Xsmp/Helper.h>
-#include <algorithm>
 #include <typeinfo>
+#include <utility>
 
 namespace Xsmp {
 
@@ -24,19 +27,19 @@ Factory::Factory(::Smp::String8 name, ::Smp::String8 description,
                  ::Smp::ISimulator *simulator, ::Smp::Uuid uuid,
                  const std::type_info &type, _factory_instantiator_t &&callback)
     : _name(::Xsmp::Helper::checkName(name, simulator)),
-      _description(description ? description : ""), _parent(simulator),
+      _description(description ? description : ""), _simulator(simulator),
       _uuid(uuid), _callback{std::move(callback)},
       _typeName(Xsmp::Helper::demangle(type.name())) {}
 
 ::Smp::String8 Factory::GetName() const { return _name.c_str(); }
 ::Smp::String8 Factory::GetDescription() const { return _description.c_str(); }
-::Smp::IObject *Factory::GetParent() const { return _parent; }
+::Smp::IObject *Factory::GetParent() const { return _simulator; }
 ::Smp::Uuid Factory::GetUuid() const { return _uuid; }
 
 ::Smp::IComponent *Factory::CreateInstance(::Smp::String8 name,
                                            ::Smp::String8 description,
                                            ::Smp::IComposite *parent) {
-  auto instance = _callback(name, description, parent, _parent);
+  auto instance = _callback(name, description, parent, _simulator);
 
   if (instance->GetUuid() != _uuid) {
     Xsmp::Exception::throwException(

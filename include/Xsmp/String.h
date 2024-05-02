@@ -45,11 +45,8 @@ template <std::size_t Nm> struct String {
   value_type internalString[Nm + 1];
 
   constexpr String() noexcept : internalString{'\0'} {}
-
-  constexpr String(const String &) noexcept = default;
-
   constexpr String(const char *str) { assign(str); }
-  String(const std::string &str) { assign(str.c_str()); }
+  constexpr String(const std::string &str) { assign(str); }
   constexpr String(std::string_view str) { assign(str); }
   template <std::size_t S> constexpr String(const String<S> &str) {
     assign(str);
@@ -125,19 +122,19 @@ template <std::size_t Nm> struct String {
     return internalString[_pos];
   }
   constexpr reference at(size_type _pos) {
-    if (_pos >= this->size())
+    if (_pos >= this->size()) {
       throw std::out_of_range(
           "String::at: _pos (which is " + std::to_string(_pos) +
           ") >= this-size() (which is " + std::to_string(size()) + ")");
-
+    }
     return internalString[_pos];
   }
   constexpr const_reference at(size_type _pos) const {
-    if (_pos >= this->size())
+    if (_pos >= this->size()) {
       throw std::out_of_range(
           "String::at: _pos (which is " + std::to_string(_pos) +
           ") >= this-size() (which is " + std::to_string(size()) + ")");
-
+    }
     return internalString[_pos];
   }
 
@@ -190,9 +187,9 @@ template <std::size_t Nm> struct String {
     return std::string_view{internalString}.find(str, pos);
   }
 
-  [[nodiscard]] constexpr size_type find(char c,
+  [[nodiscard]] constexpr size_type find(char chr,
                                          size_type pos = 0) const noexcept {
-    return std::string_view{internalString}.find(c, pos);
+    return std::string_view{internalString}.find(chr, pos);
   }
 
   [[nodiscard]] constexpr size_type find(const char *str, size_type pos,
@@ -212,8 +209,8 @@ template <std::size_t Nm> struct String {
   }
 
   [[nodiscard]] constexpr size_type
-  rfind(char c, size_type pos = std::string_view::npos) const noexcept {
-    return std::string_view{internalString}.rfind(c, pos);
+  rfind(char chr, size_type pos = std::string_view::npos) const noexcept {
+    return std::string_view{internalString}.rfind(chr, pos);
   }
 
   [[nodiscard]] constexpr size_type rfind(const char *str, size_type pos,
@@ -232,8 +229,8 @@ template <std::size_t Nm> struct String {
     return std::string_view{internalString}.find_first_of(str, pos);
   }
   [[nodiscard]] constexpr size_type
-  find_first_of(char c, size_type pos = 0) const noexcept {
-    return std::string_view{internalString}.find_first_of(c, pos);
+  find_first_of(char chr, size_type pos = 0) const noexcept {
+    return std::string_view{internalString}.find_first_of(chr, pos);
   }
 
   [[nodiscard]] constexpr size_type
@@ -252,8 +249,9 @@ template <std::size_t Nm> struct String {
   }
 
   [[nodiscard]] constexpr size_type
-  find_last_of(char c, size_type pos = std::string_view::npos) const noexcept {
-    return std::string_view{internalString}.find_last_of(c, pos);
+  find_last_of(char chr,
+               size_type pos = std::string_view::npos) const noexcept {
+    return std::string_view{internalString}.find_last_of(chr, pos);
   }
 
   [[nodiscard]] constexpr size_type find_last_of(const char *str, size_type pos,
@@ -273,8 +271,8 @@ template <std::size_t Nm> struct String {
   }
 
   [[nodiscard]] constexpr size_type
-  find_first_not_of(char c, size_type pos = 0) const noexcept {
-    return std::string_view{internalString}.find_first_not_of(c, pos);
+  find_first_not_of(char chr, size_type pos = 0) const noexcept {
+    return std::string_view{internalString}.find_first_not_of(chr, pos);
   }
 
   [[nodiscard]] constexpr size_type
@@ -295,9 +293,9 @@ template <std::size_t Nm> struct String {
   }
 
   [[nodiscard]] constexpr size_type
-  find_last_not_of(char c,
+  find_last_not_of(char chr,
                    size_type pos = std::string_view::npos) const noexcept {
-    return std::string_view{internalString}.find_last_not_of(c, pos);
+    return std::string_view{internalString}.find_last_not_of(chr, pos);
   }
 
   [[nodiscard]] constexpr size_type
@@ -314,10 +312,10 @@ template <std::size_t Nm> struct String {
   constexpr void clear() noexcept { internalString[0] = '\0'; }
 
   template <std::size_t S> constexpr String &assign(const String<S> &str) {
-    return assign(str.c_str());
+    return assign(str.c_str(), S);
   }
   constexpr String &assign(std::string_view str) {
-    std::size_t length = std::min(str.length(), Nm);
+    const std::size_t length = std::min(str.length(), Nm);
     traits_type::copy(internalString, str.data(), length);
     internalString[length] = '\0';
     return *this;
@@ -355,8 +353,9 @@ template <std::size_t Nm> struct String {
   constexpr void pop_back() noexcept { remove_suffix(1); }
 
   template <std::size_t T> constexpr String &operator=(const String<T> &str) {
-    return assign(str.c_str());
+    return assign(str);
   }
+
   template <std::size_t T>
   [[nodiscard]] constexpr int compare(const String<T> &str) const {
     return compare(data(), size(), str.data(), str.size());
@@ -374,15 +373,16 @@ private:
                         std::size_t osize) const {
     const auto len = std::min(size, osize);
 
-    int result = traits_type::compare(str, ostr, len);
+    const int result = traits_type::compare(str, ostr, len);
     if (!result) {
-      const auto d = static_cast<difference_type>(size - osize);
-      if (d > std::numeric_limits<int>::max())
+      const auto diff = static_cast<difference_type>(size - osize);
+      if (diff > std::numeric_limits<int>::max()) {
         return std::numeric_limits<int>::max();
-      else if (d < std::numeric_limits<int>::min())
+      }
+      if (diff < std::numeric_limits<int>::min()) {
         return std::numeric_limits<int>::min();
-      else
-        return static_cast<int>(d);
+      }
+      return static_cast<int>(diff);
     }
     return result;
   }

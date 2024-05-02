@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/IEventSource.h>
+#include <Smp/PrimitiveTypes.h>
 #include <Xsmp/EventProvider.h>
-
 namespace Xsmp {
 
 EventProvider::EventProvider()

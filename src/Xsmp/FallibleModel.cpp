@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/IFailure.h>
+#include <Smp/PrimitiveTypes.h>
 #include <Xsmp/FallibleModel.h>
 
 namespace Xsmp {
@@ -20,9 +22,11 @@ FallibleModel::FallibleModel() : _failures{"FailuresCollection", "", this} {}
 
 ::Smp::Bool FallibleModel::IsFailed() const {
 
-  for (auto const *failure : _failures)
-    if (failure->IsFailed())
+  for (auto const *failure : _failures) {
+    if (failure->IsFailed()) {
       return true;
+    }
+  }
   return false;
 }
 const ::Smp::FailureCollection *FallibleModel::GetFailures() const {

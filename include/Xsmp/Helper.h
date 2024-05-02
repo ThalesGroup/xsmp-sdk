@@ -70,18 +70,19 @@ void CopyString(::Smp::Char8 *destination, std::size_t size,
 
 template <typename T> [[nodiscard]] T *GetParentOfType(::Smp::IObject *object) {
   for (auto *e = object; e != nullptr; e = e->GetParent())
-    if (auto *casted = dynamic_cast<T *>(e))
+    if (auto *casted = dynamic_cast<T *>(e)) {
       return casted;
-
+    }
   return nullptr;
 }
 
 template <typename T>
 [[nodiscard]] const T *GetParentOfType(const ::Smp::IObject *object) {
-  for (const auto *e = object; e != nullptr; e = e->GetParent())
-    if (const auto *casted = dynamic_cast<const T *>(e))
+  for (const auto *e = object; e != nullptr; e = e->GetParent()) {
+    if (const auto *casted = dynamic_cast<const T *>(e)) {
       return casted;
-
+    }
+  }
   return nullptr;
 }
 

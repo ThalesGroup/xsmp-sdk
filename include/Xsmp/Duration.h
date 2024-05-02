@@ -32,9 +32,9 @@ struct Duration final {
   constexpr explicit Duration(const std::chrono::duration<Rep, Period> &d)
       : _value{
             std::chrono::duration_cast<std::chrono::nanoseconds>(d).count()} {}
-  Duration(std::string_view date, const char *fmt = _defaultFmt);
+  explicit Duration(std::string_view date, const char *fmt = _defaultFmt);
 
-  Duration(std::istream &is, const char *fmt = _defaultFmt);
+  explicit Duration(std::istream &is, const char *fmt = _defaultFmt);
 
   std::string format(const char *fmt = _defaultFmt) const;
   std::string format(const std::string &fmt) const;

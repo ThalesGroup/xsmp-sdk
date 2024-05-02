@@ -28,8 +28,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
+namespace Xsmp::Tests {
 class ModelWithOperations : public ModelWithOperationsGen {
 public:
   /// Re-use parent constructors
@@ -79,7 +78,6 @@ private:
   ::Smp::UInt64 uint64Operation() override;
   ::Smp::UInt8 uint8Operation() override;
 };
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests
 
 #endif // XSMP_TESTS_MODELWITHOPERATIONS_H_

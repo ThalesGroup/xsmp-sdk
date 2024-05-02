@@ -14,124 +14,109 @@
 
 #include <Smp/Uuid.h>
 #include <Xsmp/Exception.h>
+#include <array>
 #include <cctype>
-#include <cstddef>
+#include <cstdint>
 #include <cstdlib>
-#include <unordered_map>
+#include <functional>
 
 namespace Smp {
 
 namespace {
-inline bool isHexaDigit(char c) {
-  return isxdigit(static_cast<unsigned char>(c));
+inline bool isHexaDigit(char chr) {
+  return isxdigit(static_cast<unsigned char>(chr));
 }
 
-inline Uuid from(const char *uuid_str) {
+inline Uuid from(const char *value) {
 
   // check that the format is valid
-  if (!uuid_str || !isHexaDigit(uuid_str[0]) || //
-      !isHexaDigit(uuid_str[1]) ||              //
-      !isHexaDigit(uuid_str[2]) ||              //
-      !isHexaDigit(uuid_str[3]) ||              //
-      !isHexaDigit(uuid_str[4]) ||              //
-      !isHexaDigit(uuid_str[5]) ||              //
-      !isHexaDigit(uuid_str[6]) ||              //
-      !isHexaDigit(uuid_str[7]) ||              //
-      uuid_str[8] != '-' ||                     //
-      !isHexaDigit(uuid_str[9]) ||              //
-      !isHexaDigit(uuid_str[10]) ||             //
-      !isHexaDigit(uuid_str[11]) ||             //
-      !isHexaDigit(uuid_str[12]) ||             //
-      uuid_str[13] != '-' ||                    //
-      !isHexaDigit(uuid_str[14]) ||             //
-      !isHexaDigit(uuid_str[15]) ||             //
-      !isHexaDigit(uuid_str[16]) ||             //
-      !isHexaDigit(uuid_str[17]) ||             //
-      uuid_str[18] != '-' ||                    //
-      !isHexaDigit(uuid_str[19]) ||             //
-      !isHexaDigit(uuid_str[20]) ||             //
-      !isHexaDigit(uuid_str[21]) ||             //
-      !isHexaDigit(uuid_str[22]) ||             //
-      uuid_str[23] != '-' ||                    //
-      !isHexaDigit(uuid_str[24]) ||             //
-      !isHexaDigit(uuid_str[25]) ||             //
-      !isHexaDigit(uuid_str[26]) ||             //
-      !isHexaDigit(uuid_str[27]) ||             //
-      !isHexaDigit(uuid_str[28]) ||             //
-      !isHexaDigit(uuid_str[29]) ||             //
-      !isHexaDigit(uuid_str[30]) ||             //
-      !isHexaDigit(uuid_str[31]) ||             //
-      !isHexaDigit(uuid_str[32]) ||             //
-      !isHexaDigit(uuid_str[33]) ||             //
-      !isHexaDigit(uuid_str[34]) ||             //
-      !isHexaDigit(uuid_str[35]) ||             //
-      uuid_str[36] != '\0') {
+  if (!value || !isHexaDigit(value[0]) || !isHexaDigit(value[1]) ||
+      !isHexaDigit(value[2]) || !isHexaDigit(value[3]) ||
+      !isHexaDigit(value[4]) || !isHexaDigit(value[5]) ||
+      !isHexaDigit(value[6]) || !isHexaDigit(value[7]) || value[8] != '-' ||
+      !isHexaDigit(value[9]) || !isHexaDigit(value[10]) ||
+      !isHexaDigit(value[11]) || !isHexaDigit(value[12]) || value[13] != '-' ||
+      !isHexaDigit(value[14]) || !isHexaDigit(value[15]) ||
+      !isHexaDigit(value[16]) || !isHexaDigit(value[17]) || value[18] != '-' ||
+      !isHexaDigit(value[19]) || !isHexaDigit(value[20]) ||
+      !isHexaDigit(value[21]) || !isHexaDigit(value[22]) || value[23] != '-' ||
+      !isHexaDigit(value[24]) || !isHexaDigit(value[25]) ||
+      !isHexaDigit(value[26]) || !isHexaDigit(value[27]) ||
+      !isHexaDigit(value[28]) || !isHexaDigit(value[29]) ||
+      !isHexaDigit(value[30]) || !isHexaDigit(value[31]) ||
+      !isHexaDigit(value[32]) || !isHexaDigit(value[33]) ||
+      !isHexaDigit(value[34]) || !isHexaDigit(value[35]) || value[36] != '\0') {
     ::Xsmp::Exception::throwException(nullptr, "InvalidUUID", "",
                                       "Wrong format");
   }
 
   /// 8 hex nibbles.
-  auto data1 = static_cast<uint32_t>(std::strtoul(&uuid_str[0], nullptr, 16));
+  auto data1 = static_cast<std::uint32_t>(std::strtoul(&value[0], nullptr, 16));
 
   /// 3x4 hex nibbles.
-  std::array<uint16_t, 3> data2{
-      static_cast<uint16_t>(std::strtoul(&uuid_str[9], nullptr, 16)),
-      static_cast<uint16_t>(std::strtoul(&uuid_str[14], nullptr, 16)),
-      static_cast<uint16_t>(std::strtoul(&uuid_str[19], nullptr, 16))};
+  const std::array<std::uint16_t, 3> data2{
+      static_cast<std::uint16_t>(std::strtoul(&value[9], nullptr, 16)),
+      static_cast<std::uint16_t>(std::strtoul(&value[14], nullptr, 16)),
+      static_cast<std::uint16_t>(std::strtoul(&value[19], nullptr, 16))};
 
-  auto d3 = static_cast<uint64_t>(std::strtoull(&uuid_str[24], nullptr, 16));
+  auto d3 = static_cast<std::uint64_t>(std::strtoull(&value[24], nullptr, 16));
 
   /// 6x2 hex nibbles.
-  std::array<uint8_t, 6> data3;
-  for (std::size_t i = 0; i < data3.size(); ++i)
+  std::array<std::uint8_t, 6> data3;
+  for (std::size_t i = 0; i < data3.size(); ++i) {
     data3[i] = (d3 >> ((5 - i) * 8)) & 0xFF;
-
+  }
   return {data1, data2, data3};
 }
 } // namespace
 
-Uuid::Uuid(const char *uuid_str) : Uuid(from(uuid_str)) {}
+Uuid::Uuid(const char *value) : Uuid(from(value)) {}
 
-bool Uuid::operator<(const Uuid &o) const {
+bool Uuid::operator<(const Uuid &other) const {
 
-  if (Data1 < o.Data1)
+  if (Data1 < other.Data1) {
     return true;
-  if (Data1 > o.Data1)
+  }
+  if (Data1 > other.Data1) {
     return false;
+  }
   // Data1 are identical, check Data2
-  if (Data2 < o.Data2)
+  if (Data2 < other.Data2) {
     return true;
-  if (Data2 > o.Data2)
+  }
+  if (Data2 > other.Data2) {
     return false;
+  }
   // Data2 are identical, check Data3
-  if (Data3 < o.Data3)
+  if (Data3 < other.Data3) {
     return true;
+  }
   // it is greater or equal
   return false;
 }
 
-bool ::Smp::Uuid::operator==(const ::Smp::Uuid & o) const {
-  return Data1 == o.Data1 && Data2 == o.Data2 && Data3 == o.Data3;
+bool ::Smp::Uuid::operator==(const ::Smp::Uuid & other) const {
+  return Data1 == other.Data1 && Data2 == other.Data2 && Data3 == other.Data3;
 }
 
-bool ::Smp::Uuid::operator!=(const ::Smp::Uuid & o) const {
-  return Data1 != o.Data1 || Data2 != o.Data2 || Data3 != o.Data3;
+bool ::Smp::Uuid::operator!=(const ::Smp::Uuid & other) const {
+  return Data1 != other.Data1 || Data2 != other.Data2 || Data3 != other.Data3;
 }
 } // namespace Smp
 
 namespace std {
 std::size_t std::hash<::Smp::Uuid>::operator()(const ::Smp::Uuid &uuid) const {
 
-  uint64_t h0 = (static_cast<uint64_t>(uuid.Data1) << 32) |
-                (static_cast<uint64_t>(uuid.Data2[0]) << 16) |
-                static_cast<uint64_t>(uuid.Data2[1]);
-  uint64_t h1 = (static_cast<uint64_t>(uuid.Data2[2]) << 48) |
-                (static_cast<uint64_t>(uuid.Data3[0]) << 40) |
-                (static_cast<uint64_t>(uuid.Data3[1]) << 32) |
-                (static_cast<uint64_t>(uuid.Data3[2]) << 24) |
-                (static_cast<uint64_t>(uuid.Data3[3]) << 16) |
-                (static_cast<uint64_t>(uuid.Data3[4]) << 8) |
-                static_cast<uint64_t>(uuid.Data3[5]);
+  const std::uint64_t h0 = (static_cast<std::uint64_t>(uuid.Data1) << 32) |
+                           (static_cast<std::uint64_t>(uuid.Data2[0]) << 16) |
+                           static_cast<std::uint64_t>(uuid.Data2[1]);
+  const std::uint64_t h1 = (static_cast<std::uint64_t>(uuid.Data2[2]) << 48) |
+                           (static_cast<std::uint64_t>(uuid.Data3[0]) << 40) |
+                           (static_cast<std::uint64_t>(uuid.Data3[1]) << 32) |
+                           (static_cast<std::uint64_t>(uuid.Data3[2]) << 24) |
+                           (static_cast<std::uint64_t>(uuid.Data3[3]) << 16) |
+                           (static_cast<std::uint64_t>(uuid.Data3[4]) << 8) |
+                           static_cast<std::uint64_t>(uuid.Data3[5]);
   return h0 ^ h1;
 }
 } // namespace std

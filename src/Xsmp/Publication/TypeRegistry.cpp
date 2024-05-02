@@ -14,9 +14,12 @@
 
 #include <Smp/AccessKind.h>
 #include <Smp/ComponentStateKind.h>
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/IEnumerationType.h>
 #include <Smp/Publication/ParameterDirectionKind.h>
 #include <Smp/Services/TimeKind.h>
 #include <Smp/SimulatorStateKind.h>
+#include <Smp/Uuid.h>
 #include <Smp/ViewKind.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Publication/Type.h>
@@ -411,8 +414,9 @@ TypeRegistry::GetType(::Smp::PrimitiveTypeKind type) const {
 }
 
 ::Smp::Publication::IType *TypeRegistry::GetType(::Smp::Uuid typeUuid) const {
-  if (auto it = _types.find(typeUuid); it != _types.end())
+  if (auto it = _types.find(typeUuid); it != _types.end()) {
     return it->second.get();
+  }
   return nullptr;
 }
 
@@ -420,8 +424,9 @@ template <typename T, class... Args>
 T *TypeRegistry::AddType(::Smp::String8 name, ::Smp::String8 description,
                          ::Xsmp::Publication::TypeRegistry *parent,
                          ::Smp::Uuid typeUuid, Args &&...args) {
-  if (auto it = _types.find(typeUuid); it != _types.end())
+  if (auto it = _types.find(typeUuid); it != _types.end()) {
     ::Xsmp::Exception::throwTypeAlreadyRegistered(this, name, it->second.get());
+  }
   auto type = std::make_unique<T>(name, description, parent, typeUuid,
                                   std::forward<Args>(args)...);
 

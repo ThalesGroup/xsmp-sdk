@@ -12,7 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/IComposite.h>
 #include <Smp/ISimulator.h>
+#include <Smp/IStorageReader.h>
+#include <Smp/IStorageWriter.h>
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Services/EventId.h>
+#include <Smp/Services/IEventManager.h>
 #include <Smp/Services/ILogger.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
@@ -22,7 +28,11 @@
 #include <Xsmp/Persist/StdUnorderedMap.h>
 #include <Xsmp/Persist/StdVector.h>
 #include <Xsmp/Services/XsmpEventManager.h>
+#include <Xsmp/Services/XsmpEventManagerGen.h>
 #include <algorithm>
+#include <mutex>
+#include <string>
+#include <vector>
 
 namespace Xsmp::Services {
 
@@ -73,16 +83,17 @@ XsmpEventManager::XsmpEventManager(::Smp::String8 name,
   _events.try_emplace(IEventManager::SMP_PostSimTimeChange,
                       IEventManager::SMP_PostSimTimeChangeId);
 
-  for (const auto &[eventName, id] : _events)
+  for (const auto &[eventName, id] : _events) {
     _ids.try_emplace(id, eventName);
+  }
 }
 
 ::Smp::Services::EventId
 XsmpEventManager::QueryEventId(::Smp::String8 eventName) {
-  if (!eventName || eventName[0] == '\0')
+  if (!eventName || eventName[0] == '\0') {
     ::Xsmp::Exception::throwInvalidEventName(this, eventName);
-
-  std::scoped_lock lck{_eventsMutex};
+  }
+  const std::scoped_lock lck{_eventsMutex};
 
   if (auto it = _events.find(eventName); it != _events.end()) {
     return it->second;
@@ -92,7 +103,7 @@ XsmpEventManager::QueryEventId(::Smp::String8 eventName) {
 
   const auto &name = _events.try_emplace(eventName, eventId).first->first;
 
-  std::scoped_lock lck2{_idsMutex};
+  const std::scoped_lock lck2{_idsMutex};
   _ids.try_emplace(eventId, name);
 
   return eventId;
@@ -100,10 +111,11 @@ XsmpEventManager::QueryEventId(::Smp::String8 eventName) {
 
 const std::string &
 XsmpEventManager::GetEventName(::Smp::Services::EventId event) const {
-  std::scoped_lock lck{_idsMutex};
+  const std::scoped_lock lck{_idsMutex};
   auto it = _ids.find(event);
-  if (it == _ids.end())
+  if (it == _ids.end()) {
     ::Xsmp::Exception::throwInvalidEventId(this, event);
+  }
   return it->second;
 }
 
@@ -112,28 +124,29 @@ void XsmpEventManager::Subscribe(::Smp::Services::EventId event,
 
   const auto &event_name = GetEventName(event);
   {
-    std::scoped_lock lck{_subscriptionsMutex};
+    const std::scoped_lock lck{_subscriptionsMutex};
 
     if (auto it = _subscriptions.find(event); it != _subscriptions.end()) {
       auto &entryPoints = it->second;
 
       if (std::find(entryPoints.begin(), entryPoints.end(), entryPoint) !=
-          entryPoints.end())
+          entryPoints.end()) {
         ::Xsmp::Exception::throwEntryPointAlreadySubscribed(this, entryPoint,
                                                             event_name);
-
+      }
       entryPoints.push_back(entryPoint);
     } else {
       _subscriptions.try_emplace(
           event, std::vector<const ::Smp::IEntryPoint *>{entryPoint});
     }
   }
-  if (auto *logger = GetSimulator()->GetLogger())
+  if (auto *logger = GetSimulator()->GetLogger()) {
     logger->Log(this,
                 (::Xsmp::Helper::GetPath(entryPoint) + " subscribed to " +
                  event_name + ".")
                     .c_str(),
                 ::Smp::Services::ILogger::LMK_Debug);
+  }
 }
 
 void XsmpEventManager::Unsubscribe(::Smp::Services::EventId event,
@@ -141,7 +154,7 @@ void XsmpEventManager::Unsubscribe(::Smp::Services::EventId event,
 
   const auto &event_name = GetEventName(event);
 
-  std::scoped_lock lck{_subscriptionsMutex};
+  const std::scoped_lock lck{_subscriptionsMutex};
 
   if (auto it = _subscriptions.find(event); it != _subscriptions.end()) {
 
@@ -150,12 +163,13 @@ void XsmpEventManager::Unsubscribe(::Smp::Services::EventId event,
     auto it2 = std::find(entryPoints.begin(), entryPoints.end(), entryPoint);
     if (it2 != entryPoints.end()) {
       entryPoints.erase(it2);
-      if (auto *logger = GetSimulator()->GetLogger())
+      if (auto *logger = GetSimulator()->GetLogger()) {
         logger->Log(this,
                     (::Xsmp::Helper::GetPath(entryPoint) + " unsubscribed to " +
                      event_name + ".")
                         .c_str(),
                     ::Smp::Services::ILogger::LMK_Debug);
+      }
       return;
     }
   }
@@ -167,9 +181,9 @@ void XsmpEventManager::Emit(::Smp::Services::EventId event,
                             ::Smp::Bool /*synchronous*/) {
 
   const auto &event_name = GetEventName(event);
-  if (auto *logger = GetSimulator()->GetLogger())
+  if (auto *logger = GetSimulator()->GetLogger()) {
     logger->Log(this, event_name.c_str(), ::Smp::Services::ILogger::LMK_Event);
-
+  }
   std::unique_lock lck{_subscriptionsMutex};
 
   if (auto it = _subscriptions.find(event); it != _subscriptions.end()) {
@@ -178,8 +192,9 @@ void XsmpEventManager::Emit(::Smp::Services::EventId event,
     lck.unlock();
     // sync mode
 
-    for (auto *entry_point : entryPoints)
+    for (const auto *entry_point : entryPoints) {
       ::Xsmp::Helper::SafeExecute(GetSimulator(), entry_point);
+    }
   }
 }
 
@@ -188,8 +203,9 @@ void XsmpEventManager::Restore(::Smp::IStorageReader *reader) {
                            _subscriptions);
   // rebuild _ids map from _events
   _ids.clear();
-  for (const auto &[name, id] : _events)
+  for (const auto &[name, id] : _events) {
     _ids.try_emplace(id, name);
+  }
 }
 
 void XsmpEventManager::Store(::Smp::IStorageWriter *writer) {

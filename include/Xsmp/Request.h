@@ -78,9 +78,9 @@ public:
       const std::string &name, ::Smp::PrimitiveTypeKind kind, T defaultValue) {
     auto value = getValue(component, request, name, kind, true);
 
-    if (value.GetType() == ::Smp::PrimitiveTypeKind::PTK_None)
+    if (value.GetType() == ::Smp::PrimitiveTypeKind::PTK_None) {
       return defaultValue;
-
+    }
     return AnySimpleConverter<T>::convert(value);
   }
 

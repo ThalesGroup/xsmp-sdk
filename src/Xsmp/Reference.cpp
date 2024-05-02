@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <Smp/CollectionIterator.h>
+#include <Smp/IComponent.h>
+#include <Smp/IObject.h>
+#include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Aggregate.h>
 #include <Xsmp/Helper.h>
 #include <Xsmp/Reference.h>
+#include <cstddef>
 
 namespace Xsmp::detail {
 
@@ -42,11 +45,11 @@ std::size_t AbstractReference::Collection::size() const {
 }
 AbstractReference::Collection::const_iterator
 AbstractReference::Collection::begin() const {
-  return const_iterator(*this, 0);
+  return {*this, 0};
 }
 AbstractReference::Collection::const_iterator
 AbstractReference::Collection::end() const {
-  return const_iterator(*this, size());
+  return {*this, size()};
 }
 
 AbstractReference::AbstractReference(::Smp::String8 name,

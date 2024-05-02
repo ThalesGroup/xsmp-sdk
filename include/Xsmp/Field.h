@@ -94,12 +94,14 @@ const T *GetType(const ::Smp::IField *field,
                  const ::Smp::Publication::ITypeRegistry *typeRegistry,
                  ::Smp::Uuid typeUuid) {
   if constexpr (std::is_same_v<T, ::Smp::Publication::IType>) {
-    if (const auto *type = typeRegistry->GetType(typeUuid))
+    if (const auto *type = typeRegistry->GetType(typeUuid)) {
       return type;
+    }
   } else {
     if (const auto *type =
-            dynamic_cast<const T *>(typeRegistry->GetType(typeUuid)))
+            dynamic_cast<const T *>(typeRegistry->GetType(typeUuid))) {
       return type;
+    }
   }
   ::Xsmp::Exception::throwInvalidFieldType(field, typeUuid);
 }
@@ -1004,30 +1006,33 @@ public:
   // Iterators.
   [[nodiscard]] iterator begin() noexcept {
     if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
-                                             Annotations...>)
+                                             Annotations...>) {
       return iterator{this, _value.begin(), 0};
-    else
+    } else {
       return _value.begin();
+    }
   }
 
   [[nodiscard]] const_iterator begin() const noexcept { return _value.begin(); }
 
   [[nodiscard]] iterator end() noexcept {
     if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
-                                             Annotations...>)
+                                             Annotations...>) {
       return iterator{this, _value.end(), _size};
-    else
+    } else {
       return _value.end();
+    }
   }
 
   [[nodiscard]] const_iterator end() const noexcept { return _value.end(); }
 
   [[nodiscard]] reverse_iterator rbegin() noexcept {
     if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
-                                             Annotations...>)
+                                             Annotations...>) {
       return std::make_reverse_iterator(iterator{this, _value.end(), _size});
-    else
+    } else {
       return _value.rbegin();
+    }
   }
 
   [[nodiscard]] const_reverse_iterator rbegin() const noexcept {
@@ -1036,10 +1041,11 @@ public:
 
   [[nodiscard]] reverse_iterator rend() noexcept {
     if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
-                                             Annotations...>)
+                                             Annotations...>) {
       return std::make_reverse_iterator(iterator{this, _value.begin(), 0});
-    else
+    } else {
       return _value.rend();
+    }
   }
 
   [[nodiscard]] const_reverse_iterator rend() const noexcept {
@@ -1070,10 +1076,11 @@ public:
   // Element access.
   [[nodiscard]] reference operator[](size_type index) noexcept {
     if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
-                                             Annotations...>)
+                                             Annotations...>) {
       return reference{this, _value[index], index};
-    else
+    } else {
       return _value[index];
+    }
   }
 
   [[nodiscard]] const_reference operator[](size_type index) const noexcept {
@@ -1082,20 +1089,22 @@ public:
 
   reference at(size_type index) {
     if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
-                                             Annotations...>)
+                                             Annotations...>) {
       return reference{this, _value.at(index), index};
-    else
+    } else {
       return _value.at(index);
+    }
   }
 
   const_reference at(size_type index) const { return _value.at(index); }
 
   [[nodiscard]] reference front() noexcept {
     if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
-                                             Annotations...>)
+                                             Annotations...>) {
       return reference{this, _value.front(), 0};
-    else
+    } else {
       return _value.front();
+    }
   }
 
   [[nodiscard]] const_reference front() const noexcept {
@@ -1104,20 +1113,22 @@ public:
 
   [[nodiscard]] reference back() noexcept {
     if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
-                                             Annotations...>)
+                                             Annotations...>) {
       return reference{this, _value.back(), _size - 1};
-    else
+    } else {
       return _value.back();
+    }
   }
 
   [[nodiscard]] const_reference back() const noexcept { return _value.back(); }
 
   [[nodiscard]] pointer data() noexcept {
     if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
-                                             Annotations...>)
+                                             Annotations...>) {
       return iterator{this, _value.data(), 0};
-    else
+    } else {
       return _value.data();
+    }
   }
 
   [[nodiscard]] const_pointer data() const noexcept { return _value.data(); }

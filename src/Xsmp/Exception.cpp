@@ -81,8 +81,9 @@
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
 #include <cstddef>
-#include <sstream>
+#include <ostream>
 #include <string>
+#include <string_view>
 #include <typeinfo>
 
 namespace Xsmp::Exception {
@@ -1614,7 +1615,7 @@ void throwTypeAlreadyRegistered(const ::Smp::IObject *sender,
 
 void throwInvalidPrimitiveType(const ::Smp::IObject *sender,
                                ::Smp::String8 typeName,
-                               const ::Smp::PrimitiveTypeKind kind) {
+                               ::Smp::PrimitiveTypeKind kind) {
   throw InvalidPrimitiveType(sender, typeName, kind);
 }
 

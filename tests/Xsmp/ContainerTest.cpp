@@ -88,7 +88,7 @@ TEST(ContainerTest, auto_register) {
 
   EXPECT_THROW(ctn.DeleteComponent(i1), ::Smp::CannotDelete);
 
-  auto i1_bis = new M2{"i1", "", &composite};
+  auto *i1_bis = new M2{"i1", "", &composite};
   EXPECT_THROW(ctn.AddComponent(i1_bis), ::Smp::DuplicateName);
   delete i1_bis;
   auto *i2 = new M2{"i2", "", &composite};
@@ -112,7 +112,7 @@ TEST(ContainerTest, bounds) {
 
   TestComposite composite{"composite", "", nullptr};
 
-  auto *c = composite.GetContainers();
+  const auto *c = composite.GetContainers();
 
   Container<Interface> ctn{"ctn", "", &composite, 1, -1};
   EXPECT_EQ(1, c->size());

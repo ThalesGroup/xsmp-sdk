@@ -11,13 +11,12 @@
 #include <Example/CounterManager.h>
 #include <numeric>
 namespace Example {
-void CounterManager::DoPublish(::Smp::IPublication *receiver) {}
+void CounterManager::DoPublish(::Smp::IPublication *) {}
 
-void CounterManager::DoConfigure(::Smp::Services::ILogger *logger,
-                                 ::Smp::Services::ILinkRegistry *linkRegistry) {
-}
+void CounterManager::DoConfigure(::Smp::Services::ILogger *,
+                                 ::Smp::Services::ILinkRegistry *) {}
 
-void CounterManager::DoConnect(::Smp::ISimulator *simulator) {}
+void CounterManager::DoConnect(::Smp::ISimulator *) {}
 
 void CounterManager::DoDisconnect() {}
 
@@ -28,8 +27,9 @@ void CounterManager::DoDisconnect() {}
                          });
 }
 ::Smp::Float64 CounterManager::get_average() {
-  if (counters.size())
-    return static_cast<::Smp::Float64>(get_sum()) / counters.size();
+  if (!counters.empty())
+    return static_cast<::Smp::Float64>(get_sum()) /
+           static_cast<::Smp::Float64>(counters.size());
   return 0;
 }
 void CounterManager::set_count(::Smp::Int32 value) {

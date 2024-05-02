@@ -12,15 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <Smp/CollectionIterator.h>
+#include <Smp/IComponent.h>
+#include <Smp/IComposite.h>
+#include <Smp/IContainer.h>
 #include <Smp/IDynamicInvocation.h>
 #include <Smp/IEntryPointPublisher.h>
 #include <Smp/IEventConsumer.h>
 #include <Smp/IEventProvider.h>
 #include <Smp/IFallibleModel.h>
+#include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Composite.h>
 #include <Xsmp/Container.h>
+#include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
+#include <cstddef>
 
 namespace Xsmp::detail {
 
@@ -48,11 +53,11 @@ std::size_t AbstractContainer::Collection::size() const {
 }
 AbstractContainer::Collection::const_iterator
 AbstractContainer::Collection::begin() const {
-  return const_iterator(*this, 0);
+  return {*this, 0};
 }
 AbstractContainer::Collection::const_iterator
 AbstractContainer::Collection::end() const {
-  return const_iterator(*this, size());
+  return {*this, size()};
 }
 
 AbstractContainer::AbstractContainer(::Smp::String8 name,
@@ -105,40 +110,45 @@ inline void CheckComponent(::Smp::IContainer const *container,
   }
   if (auto const *entryPointPublisher =
           dynamic_cast<::Smp::IEntryPointPublisher const *>(cmp)) {
-    if (entryPointPublisher->GetEntryPoint(name))
+    if (entryPointPublisher->GetEntryPoint(name)) {
       ::Xsmp::Exception::throwDuplicateName(container, name,
                                             container->GetComponents());
+    }
   }
   if (auto const *dynamicInvocation =
           dynamic_cast<::Smp::IDynamicInvocation const *>(cmp)) {
 
     if (auto const *operations = dynamicInvocation->GetOperations();
-        operations && operations->at(name))
+        operations && operations->at(name)) {
       ::Xsmp::Exception::throwDuplicateName(container, name,
                                             container->GetComponents());
-
+    }
     if (auto const *properties = dynamicInvocation->GetProperties();
-        properties && properties->at(name))
+        properties && properties->at(name)) {
       ::Xsmp::Exception::throwDuplicateName(container, name,
                                             container->GetComponents());
+    }
   }
 
   if (auto const *eventProvider =
           dynamic_cast<::Smp::IEventProvider const *>(cmp)) {
-    if (eventProvider->GetEventSource(name))
+    if (eventProvider->GetEventSource(name)) {
       ::Xsmp::Exception::throwDuplicateName(container, name,
                                             container->GetComponents());
+    }
   }
   if (auto const *eventConsumer =
           dynamic_cast<::Smp::IEventConsumer const *>(cmp)) {
-    if (eventConsumer->GetEventSink(name))
+    if (eventConsumer->GetEventSink(name)) {
       ::Xsmp::Exception::throwDuplicateName(container, name,
                                             container->GetComponents());
+    }
   }
   if (auto const *model = dynamic_cast<::Smp::IFallibleModel const *>(cmp)) {
-    if (model->GetFailure(name))
+    if (model->GetFailure(name)) {
       ::Xsmp::Exception::throwDuplicateName(container, name,
                                             container->GetComponents());
+    }
   }
 }
 

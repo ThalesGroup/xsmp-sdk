@@ -23,8 +23,8 @@ namespace Xsmp {
 
 class Object : public virtual ::Smp::IObject {
 public:
-  Object(::Smp::String8 name, ::Smp::String8 description = "",
-         ::Smp::IObject *parent = nullptr);
+  explicit Object(::Smp::String8 name, ::Smp::String8 description = "",
+                  ::Smp::IObject *parent = nullptr);
   Object(const Object &) = delete;
   Object &operator=(const Object &) = delete;
   ~Object() noexcept override = default;

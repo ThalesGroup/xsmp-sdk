@@ -25,7 +25,7 @@ template <typename K, typename Alloc> struct Helper<std::vector<K, Alloc>> {
   static void Store(const ::Smp::ISimulator *simulator,
                     ::Smp::IStorageWriter *writer,
                     const std::vector<K, Alloc> &value) {
-    size_type size = value.size();
+    const size_type size = value.size();
     ::Xsmp::Persist::Store(simulator, writer, size);
     for (auto &e : value)
       ::Xsmp::Persist::Store(simulator, writer, e);

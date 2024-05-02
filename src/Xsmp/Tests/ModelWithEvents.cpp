@@ -20,8 +20,7 @@
 
 #include <Xsmp/Tests/ModelWithEvents.h>
 
-namespace Xsmp {
-namespace Tests {
+namespace Xsmp::Tests {
 void ModelWithEvents::DoPublish(::Smp::IPublication *) {}
 
 void ModelWithEvents::DoConfigure(::Smp::Services::ILogger *,
@@ -79,5 +78,4 @@ void ModelWithEvents::_uint64_esi(::Smp::IObject *, ::Smp::UInt64) {
 void ModelWithEvents::_uint8_esi(::Smp::IObject *, ::Smp::UInt8) {
   // TODO implement EventSink uint8_esi
 }
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests

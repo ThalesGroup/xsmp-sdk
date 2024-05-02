@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/IEntryPoint.h>
+#include <Smp/PrimitiveTypes.h>
 #include <Xsmp/EntryPointPublisher.h>
 
 namespace Xsmp {

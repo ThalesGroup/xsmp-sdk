@@ -115,39 +115,42 @@ public:
 
   ::Smp::IComponent *GetComponent(::Smp::String8 name) const override {
     if (name) {
-      if (auto it = find(name); it != end())
+      if (auto it = find(name); it != end()) {
         return dynamic_cast<::Smp::IComponent *>(*it);
+      }
     }
     return nullptr;
   }
 
   ::Smp::IComponent *GetComponent(std::size_t index) const noexcept override {
-    if (index < size())
+    if (index < size()) {
       return dynamic_cast<::Smp::IComponent *>((*this)[index]);
+    }
     return nullptr;
   }
 
   void AddComponent(::Smp::IComponent *component) override {
 
-    if (size() >= static_cast<std::size_t>(GetUpper()))
+    if (size() >= static_cast<std::size_t>(GetUpper())) {
       ::Xsmp::Exception::throwReferenceFull(this, this->GetCount());
-
+    }
     // check that the component type can be casted to T
     auto *casted = dynamic_cast<T *>(component);
-    if (!casted)
+    if (!casted) {
       ::Xsmp::Exception::throwInvalidObjectType<T>(this, component);
-
+    }
     _vector.emplace_back(casted);
   }
 
   void RemoveComponent(::Smp::IComponent *component) override {
 
     auto it = find(dynamic_cast<T *>(component));
-    if (it == end())
+    if (it == end()) {
       ::Xsmp::Exception::throwNotReferenced(this, component);
-
-    if (size() <= static_cast<std::size_t>(GetLower()))
+    }
+    if (size() <= static_cast<std::size_t>(GetLower())) {
       ::Xsmp::Exception::throwCannotRemove(this, component, GetLower());
+    }
     _vector.erase(it);
   }
 
@@ -231,8 +234,9 @@ public:
   /// @return the element
   /// @throws std::out_of_range if the element is not found
   reference at(std::string_view name) {
-    if (auto it = find(name); it != _vector.end())
+    if (auto it = find(name); it != _vector.end()) {
       return *it;
+    }
     throw std::out_of_range("No Object named: " + std::string(name));
   }
   /// Get an element by index
@@ -245,8 +249,9 @@ public:
   /// @return the element
   /// @throws std::out_of_range if the element is not found
   const_reference at(std::string_view name) const {
-    if (auto it = find(name); it != _vector.cend())
+    if (auto it = find(name); it != _vector.cend()) {
       return *it;
+    }
     throw std::out_of_range("No Object named: " + std::string(name));
   }
   /// Get the first element
@@ -265,12 +270,14 @@ public:
 protected:
   void RemoveLinks(const ::Smp::IComponent *target) override {
     const auto *casted = dynamic_cast<const T *>(target);
-    if (!casted)
+    if (!casted) {
       return;
+    }
     while (true) {
       auto it = find(casted);
-      if (it == cend())
+      if (it == cend()) {
         break;
+      }
       _vector.erase(it);
     }
   }

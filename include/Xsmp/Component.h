@@ -41,9 +41,9 @@ namespace Xsmp {
 class Component : public virtual ::Smp::ILinkingComponent,
                   public virtual ::Smp::IDynamicInvocation {
 public:
-  Component(::Smp::String8 name, ::Smp::String8 description = "",
-            ::Smp::IComposite *parent = nullptr,
-            ::Smp::ISimulator *simulator = nullptr);
+  explicit Component(::Smp::String8 name, ::Smp::String8 description = "",
+                     ::Smp::IComposite *parent = nullptr,
+                     ::Smp::ISimulator *simulator = nullptr);
   Component(const Component &) = delete;
   Component &operator=(const Component &) = delete;
   ~Component() noexcept override = default;
@@ -51,11 +51,12 @@ public:
   ::Smp::String8 GetDescription() const final;
   ::Smp::IObject *GetParent() const final;
   ::Smp::ComponentStateKind GetState() const final;
-  ::Smp::IField *GetField(::Smp::String8) const override;
+  ::Smp::IField *GetField(::Smp::String8 fullName) const override;
   const ::Smp::FieldCollection *GetFields() const override;
   void Publish(::Smp::IPublication *receiver) override;
-  void Configure(::Smp::Services::ILogger *logger,
-                 ::Smp::Services::ILinkRegistry * = nullptr) override;
+  void
+  Configure(::Smp::Services::ILogger *logger,
+            ::Smp::Services::ILinkRegistry *linkRegistry = nullptr) override;
   void Connect(::Smp::ISimulator *simulator) override;
   void Disconnect() override;
   ::Smp::IRequest *CreateRequest(::Smp::String8 operationName) override;

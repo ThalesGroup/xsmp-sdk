@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <Xsmp/LibraryHelper.h>
+#include <string>
 
 #if (defined(_WIN32) || defined(_WIN64))
 #include <windows.h>
@@ -41,8 +42,9 @@ std::string LibraryFileName(const char *libraryName) {
 } // namespace
 
 void *LoadLibrary(const char *libraryName) {
-  if (!libraryName)
+  if (!libraryName) {
     return nullptr;
+  }
 #if (defined(_WIN32) || defined(_WIN64))
   return LoadLibraryA(LibraryFileName(libraryName).c_str());
 #else
@@ -61,8 +63,9 @@ void CloseLibrary(void *handle) {
 }
 
 void *GetSymbol(void *handle, const char *symbolName) {
-  if (!symbolName)
+  if (!symbolName) {
     return nullptr;
+  }
 #if (defined(_WIN32) || defined(_WIN64))
   return GetProcAddress(static_cast<HMODULE>(handle), symbolName);
 #else
@@ -99,10 +102,11 @@ std::string GetLastError() {
     }
   }
 #else
-  if (auto const *error = dlerror())
+  if (auto const *error = dlerror()) {
     return error;
+  }
 #endif
-  return std::string();
+  return {};
 }
 
 } // namespace Xsmp

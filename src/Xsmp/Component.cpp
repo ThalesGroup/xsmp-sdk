@@ -12,13 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/ComponentStateKind.h>
 #include <Smp/IAggregate.h>
 #include <Smp/IArrayField.h>
 #include <Smp/IComposite.h>
 #include <Smp/IEventProvider.h>
+#include <Smp/IField.h>
+#include <Smp/IOperation.h>
+#include <Smp/IProperty.h>
 #include <Smp/IPublication.h>
 #include <Smp/IRequest.h>
 #include <Smp/IStructureField.h>
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Uuid.h>
 #include <Xsmp/Component.h>
 #include <Xsmp/EventSource.h>
 #include <Xsmp/Exception.h>
@@ -70,7 +76,6 @@ void Component::Configure(::Smp::Services::ILogger *,
     ::Xsmp::Exception::throwInvalidComponentState(
         this, _state, ::Smp::ComponentStateKind::CSK_Publishing);
   }
-
   _state = ::Smp::ComponentStateKind::CSK_Configured;
 }
 
@@ -89,7 +94,6 @@ void Component::Disconnect() {
     ::Xsmp::Exception::throwInvalidComponentState(
         this, _state, ::Smp::ComponentStateKind::CSK_Connected);
   }
-
   _state = ::Smp::ComponentStateKind::CSK_Disconnected;
 
   _publication->Unpublish();
@@ -130,8 +134,10 @@ void Component::RemoveEventProviderLinks(
   if (const auto *eventSources = eventProvider->GetEventSources()) {
     for (auto *eventSource : *eventSources) {
       // we can disconnect only AbstractEventSource
-      if (auto *eso = dynamic_cast<detail::AbstractEventSource *>(eventSource))
+      if (auto *eso =
+              dynamic_cast<detail::AbstractEventSource *>(eventSource)) {
         eso->RemoveLinks(target);
+      }
     }
   }
 }
@@ -142,41 +148,46 @@ void Component::RemoveAggregateLinks(
   if (const auto *references = aggregate->GetReferences()) {
     for (auto *reference : *references) {
       // we can disconnect only AbstractReference
-      if (auto *ref = dynamic_cast<detail::AbstractReference *>(reference))
+      if (auto *ref = dynamic_cast<detail::AbstractReference *>(reference)) {
         ref->RemoveLinks(target);
+      }
     }
   }
 }
 void Component::RemoveFieldLinks(
     ::Smp::IField *field, const ::Smp::IComponent *target) const noexcept {
 
-  if (auto *dff = dynamic_cast<detail::DataflowField *>(field))
+  if (auto *dff = dynamic_cast<detail::DataflowField *>(field)) {
     dff->RemoveLinks(target);
-
+  }
   if (auto const *af = dynamic_cast<::Smp::IArrayField *>(field)) {
-    for (::Smp::UInt64 i = 0; i < af->GetSize(); ++i)
+    for (::Smp::UInt64 i = 0; i < af->GetSize(); ++i) {
       RemoveFieldLinks(af->GetItem(i), target);
+    }
   }
   if (auto const *sf = dynamic_cast<::Smp::IStructureField *>(field)) {
-    for (auto *nf : *sf->GetFields())
+    for (auto *nf : *sf->GetFields()) {
       RemoveFieldLinks(nf, target);
+    }
   }
 }
 
 void Component::RemoveLinks(const ::Smp::IComponent *target) {
 
   // disconnect event sources
-  if (auto const *eventProvider = dynamic_cast<::Smp::IEventProvider *>(this))
+  if (auto const *eventProvider = dynamic_cast<::Smp::IEventProvider *>(this)) {
     RemoveEventProviderLinks(eventProvider, target);
-
+  }
   // disconnect references
-  if (auto const *aggregate = dynamic_cast<::Smp::IAggregate *>(this))
+  if (auto const *aggregate = dynamic_cast<::Smp::IAggregate *>(this)) {
     RemoveAggregateLinks(aggregate, target);
-
+  }
   // disconnect fields
-  if (auto const *fields = GetFields())
-    for (auto *field : *fields)
+  if (auto const *fields = GetFields()) {
+    for (auto *field : *fields) {
       RemoveFieldLinks(field, target);
+    }
+  }
 }
 
 } // namespace Xsmp

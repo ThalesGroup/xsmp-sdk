@@ -12,27 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/AnySimple.h>
 #include <Smp/IArrayField.h>
 #include <Smp/IComponent.h>
+#include <Smp/IRequest.h>
 #include <Smp/ISimpleArrayField.h>
 #include <Smp/ISimpleField.h>
 #include <Smp/IStructureField.h>
+#include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Request.h>
 #include <cstddef>
+#include <string>
 
 namespace Xsmp {
 
 void Request::setValue(::Smp::IComponent const *component,
                        ::Smp::IRequest *request, const std::string &name,
                        const ::Smp::AnySimple &value) {
-  ::Smp::Int32 index = request->GetParameterIndex(name.c_str());
-  if (index == -1)
+  const ::Smp::Int32 index = request->GetParameterIndex(name.c_str());
+  if (index == -1) {
     ::Xsmp::Exception::throwException(component, name,
                                       "No Parameter named " + name +
                                           " in Operation " +
                                           request->GetOperationName() + ".");
-
+  }
   request->SetParameterValue(index, value);
 }
 
@@ -41,11 +45,11 @@ void Request::setValue(::Smp::IComponent const *component,
                                    const std::string &name,
                                    ::Smp::PrimitiveTypeKind kind,
                                    bool useDefaultValue) {
-  ::Smp::Int32 index = request->GetParameterIndex(name.c_str());
+  const ::Smp::Int32 index = request->GetParameterIndex(name.c_str());
   if (index == -1) {
-    if (useDefaultValue)
+    if (useDefaultValue) {
       return {};
-
+    }
     ::Xsmp::Exception::throwException(component, name,
                                       "No Parameter named " + name +
                                           " in Operation " +
@@ -53,10 +57,10 @@ void Request::setValue(::Smp::IComponent const *component,
   }
   auto value = request->GetParameterValue(index);
 
-  if (value.GetType() != kind)
+  if (value.GetType() != kind) {
     ::Xsmp::Exception::throwInvalidParameterType(
         component, request->GetOperationName(), name, value.GetType(), kind);
-
+  }
   return value;
 }
 
@@ -67,8 +71,9 @@ void Request::extract(::Smp::IRequest *request, ::Smp::IField *field,
   if (auto *simple = dynamic_cast<::Smp::ISimpleField *>(field)) {
     auto index = request->GetParameterIndex(name.c_str());
     if (index == -1) {
-      if (ignoreMissingParameters)
+      if (ignoreMissingParameters) {
         return;
+      }
       ::Xsmp::Exception::throwException(field, name,
                                         "No Parameter named " + name +
                                             " in Operation " +
@@ -81,32 +86,35 @@ void Request::extract(::Smp::IRequest *request, ::Smp::IField *field,
                dynamic_cast<::Smp::ISimpleArrayField *>(field)) {
 
     for (std::size_t i = 0; i < simpleArray->GetSize(); ++i) {
-      std::string itemName = name + "[" + std::to_string(i) + "]";
+      const std::string itemName = name + "[" + std::to_string(i) + "]";
       auto index = request->GetParameterIndex(itemName.c_str());
-      if (index != -1)
+      if (index != -1) {
         simpleArray->SetValue(i, request->GetParameterValue(index));
-      else if (ignoreMissingParameters) {
+      } else if (ignoreMissingParameters) {
         // ignore
-      } else
+      } else {
         ::Xsmp::Exception::throwException(
             field, itemName,
             "No Parameter named " + itemName + " in Operation " +
                 request->GetOperationName() + ".");
+      }
     }
   }
   // array field
   else if (auto const *array = dynamic_cast<::Smp::IArrayField *>(field)) {
-    for (std::size_t i = 0; i < array->GetSize(); ++i)
+    for (std::size_t i = 0; i < array->GetSize(); ++i) {
       extract(request, array->GetItem(i), name + "[" + std::to_string(i) + "]",
               ignoreMissingParameters);
+    }
   }
   // structure field
   else if (auto const *structure =
                dynamic_cast<::Smp::IStructureField *>(field)) {
 
-    for (auto *nestedField : *structure->GetFields())
+    for (auto *nestedField : *structure->GetFields()) {
       extract(request, nestedField, name + "." + nestedField->GetName(),
               ignoreMissingParameters);
+    }
   }
   // should not happen
   else {
@@ -119,37 +127,41 @@ void Request::inject(::Smp::IRequest *request, ::Smp::IField *field,
   // simple field
   if (auto const *simple = dynamic_cast<::Smp::ISimpleField *>(field)) {
     auto index = request->GetParameterIndex(name.c_str());
-    if (index == -1)
+    if (index == -1) {
       ::Xsmp::Exception::throwException(field, name,
                                         "No Parameter named " + name +
                                             " in Operation " +
                                             request->GetOperationName() + ".");
+    }
     request->SetParameterValue(index, simple->GetValue());
   }
   // simple array field
   else if (auto const *simpleArray =
                dynamic_cast<::Smp::ISimpleArrayField *>(field)) {
     for (std::size_t i = 0; i < simpleArray->GetSize(); ++i) {
-      std::string itemName = name + "[" + std::to_string(i) + "]";
+      const std::string itemName = name + "[" + std::to_string(i) + "]";
       auto index = request->GetParameterIndex(itemName.c_str());
-      if (index == -1)
+      if (index == -1) {
         ::Xsmp::Exception::throwException(
             field, itemName,
             "No Parameter named " + itemName + " in Operation " +
                 request->GetOperationName() + ".");
+      }
       request->SetParameterValue(index, simpleArray->GetValue(i));
     }
   }
   // array field
   else if (auto const *array = dynamic_cast<::Smp::IArrayField *>(field)) {
-    for (std::size_t i = 0; i < array->GetSize(); ++i)
+    for (std::size_t i = 0; i < array->GetSize(); ++i) {
       inject(request, array->GetItem(i), name + "[" + std::to_string(i) + "]");
+    }
   }
   // structure field
   else if (auto const *structure =
                dynamic_cast<::Smp::IStructureField *>(field)) {
-    for (auto *nestedField : *structure->GetFields())
+    for (auto *nestedField : *structure->GetFields()) {
       inject(request, nestedField, name + "." + nestedField->GetName());
+    }
   }
   // should not happen
   else {

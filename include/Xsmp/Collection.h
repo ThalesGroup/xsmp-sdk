@@ -34,8 +34,9 @@ public:
   using iterator = typename ::Smp::ICollection<T>::iterator;
 
   T *at(::Smp::String8 name) const override {
-    if (!name)
+    if (!name) {
       return nullptr;
+    }
     auto it = _map.find(name);
     return it == _map.cend() ? nullptr : it->second;
   }
@@ -74,12 +75,13 @@ public:
           "Tried to remove an element that is not an ::Smp::IObject");
     }
 
-    if (auto it = _map.find(casted->GetName()); it != _map.end())
+    if (auto it = _map.find(casted->GetName()); it != _map.end()) {
       _map.erase(it);
-
+    }
     const auto it2 = std::find(_vector.begin(), _vector.end(), element);
-    if (it2 != _vector.cend())
+    if (it2 != _vector.cend()) {
       _vector.erase(it2);
+    }
   }
   void clear() {
     _vector.clear();
@@ -109,8 +111,9 @@ public:
   using iterator = typename ::Smp::ICollection<T>::iterator;
 
   T *at(::Smp::String8 name) const override {
-    if (!name)
+    if (!name) {
       return nullptr;
+    }
     auto it = _map.find(name);
     return it == _map.cend() ? nullptr : it->second.get();
   }
@@ -155,18 +158,21 @@ public:
           "Tried to remove an element that is not an ::Smp::IObject");
     }
 
-    if (auto it = _map.find(casted->GetName()); it != _map.end())
+    if (auto it = _map.find(casted->GetName()); it != _map.end()) {
       _map.erase(it);
+    }
 
     if (auto it = std::find(_vector.begin(), _vector.end(), element);
-        it != _vector.end())
+        it != _vector.end()) {
       _vector.erase(it);
+    }
   }
   void clear() {
     _vector.clear();
     _map.clear();
   }
 
+private:
   std::vector<T *> _vector{};
   std::unordered_map<std::string_view, std::unique_ptr<T>> _map{};
 };

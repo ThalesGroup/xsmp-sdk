@@ -149,7 +149,7 @@ TEST(DurationTest, stream) {
 #define EXPECT_STREAM_OPERATOR_FORMAT_EQ(literal, value, format)               \
   do {                                                                         \
     std::stringstream ss;                                                      \
-    literal.to_stream(ss, format);                                             \
+    (literal).to_stream(ss, (format));                                             \
     EXPECT_EQ(ss.str(), (value));                                              \
   } while (false)
 

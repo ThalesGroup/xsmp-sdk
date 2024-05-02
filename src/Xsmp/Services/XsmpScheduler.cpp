@@ -12,24 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/IComponent.h>
+#include <Smp/IComposite.h>
 #include <Smp/IEntryPoint.h>
 #include <Smp/ISimulator.h>
+#include <Smp/IStorageReader.h>
+#include <Smp/IStorageWriter.h>
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Services/EventId.h>
 #include <Smp/Services/IEventManager.h>
 #include <Smp/Services/ILogger.h>
 #include <Smp/Services/ITimeKeeper.h>
+#include <Smp/Services/TimeKind.h>
 #include <Smp/SimulatorStateKind.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
+#include <Xsmp/Persist.h>
 #include <Xsmp/Persist/SmpIObject.h>
 #include <Xsmp/Persist/StdMap.h>
 #include <Xsmp/Persist/StdSet.h>
 #include <Xsmp/Persist/StdString.h>
 #include <Xsmp/Persist/StdVector.h>
 #include <Xsmp/Services/XsmpScheduler.h>
+#include <Xsmp/Services/XsmpSchedulerGen.h>
 #include <algorithm>
-#include <cassert>
 #include <chrono>
 #include <limits>
+#include <mutex>
+#include <thread>
+#include <utility>
 
 //  helpers to persist XsmpScheduler::Event type
 namespace Xsmp::Persist {
@@ -87,22 +98,26 @@ void XsmpScheduler::DoConnect(const ::Smp::ISimulator *simulator) {
 void XsmpScheduler::DoDisconnect() {
   // stop the zulu thread
   {
-    std::scoped_lock lck{_zuluEventsTableMutex};
-    if (_terminate) // if already terminated do nothing
+    const std::scoped_lock lck{_zuluEventsTableMutex};
+    // if already terminated do nothing
+    if (_terminate) {
       return;
+    }
     _terminate = true;
   }
   _zuluCv.notify_one();
-  if (_zuluThread.joinable())
+  if (_zuluThread.joinable()) {
     _zuluThread.join();
+  }
 }
 void XsmpScheduler::SetTargetSpeed(double speed) {
-  if (speed < 0.01)
+  if (speed < 0.01) {
     _targetSpeed = 0.01;
-  else if (speed > 100.)
+  } else if (speed > 100.) {
     _targetSpeed = 100.;
-  else
+  } else {
     _targetSpeed = speed;
+  }
 }
 
 double XsmpScheduler::GetTargetSpeed() const noexcept { return _targetSpeed; }
@@ -110,7 +125,7 @@ double XsmpScheduler::GetTargetSpeed() const noexcept { return _targetSpeed; }
 ::Smp::Services::EventId
 XsmpScheduler::AddImmediateEvent(const ::Smp::IEntryPoint *entryPoint) {
 
-  std::scoped_lock lck{_eventsMutex};
+  const std::scoped_lock lck{_eventsMutex};
   ++_lastEventId;
   auto time = GetSimulator()->GetTimeKeeper()->GetSimulationTime();
   _events.try_emplace(_lastEventId,
@@ -129,14 +144,14 @@ XsmpScheduler::AddEvent(const ::Smp::IEntryPoint *entryPoint,
 
   if (auto currentSimulationTime =
           GetSimulator()->GetTimeKeeper()->GetSimulationTime();
-      simulationTime < currentSimulationTime)
+      simulationTime < currentSimulationTime) {
     ::Xsmp::Exception::throwInvalidEventTime(this, simulationTime,
                                              currentSimulationTime);
-
-  if (repeat != 0 && cycleTime <= 0)
+  }
+  if (repeat != 0 && cycleTime <= 0) {
     ::Xsmp::Exception::throwInvalidCycleTime(this, cycleTime);
-
-  std::scoped_lock lck{_eventsMutex};
+  }
+  const std::scoped_lock lck{_eventsMutex};
 
   ++_lastEventId;
   _events.try_emplace(_lastEventId, Event{entryPoint, simulationTime, time,
@@ -154,8 +169,9 @@ XsmpScheduler::AddEvent(const ::Smp::IEntryPoint *entryPoint,
     const ::Smp::IEntryPoint *entryPoint, ::Smp::Duration simulationTime,
     ::Smp::Duration cycleTime, ::Smp::Int64 repeat) {
 
-  ::Smp::Duration time = GetSimulator()->GetTimeKeeper()->GetSimulationTime() +
-                         simulationTime; // TODO check overflow
+  const ::Smp::Duration time =
+      GetSimulator()->GetTimeKeeper()->GetSimulationTime() +
+      simulationTime; // TODO check overflow
   return AddEvent(entryPoint, time, time, cycleTime, repeat,
                   ::Smp::Services::TimeKind::TK_SimulationTime);
 }
@@ -190,16 +206,16 @@ XsmpScheduler::AddEvent(const ::Smp::IEntryPoint *entryPoint,
 
   // check zulu time not in the past
   if (auto currentZulu = GetSimulator()->GetTimeKeeper()->GetZuluTime();
-      zuluTime < currentZulu)
+      zuluTime < currentZulu) {
     ::Xsmp::Exception::throwInvalidEventTime(this, zuluTime, currentZulu);
-
-  if (repeat != 0 && cycleTime <= 0)
+  }
+  if (repeat != 0 && cycleTime <= 0) {
     ::Xsmp::Exception::throwInvalidCycleTime(this, cycleTime);
-
-  Smp::Services::EventId eventId;
+  }
+  Smp::Services::EventId eventId = -1;
   {
     // create the event
-    std::scoped_lock lck{_eventsMutex, _zuluEventsTableMutex};
+    const std::scoped_lock lck{_eventsMutex, _zuluEventsTableMutex};
     eventId = ++_lastEventId;
     _events.try_emplace(eventId,
                         Event{entryPoint, zuluTime, zuluTime, cycleTime, repeat,
@@ -215,24 +231,24 @@ XsmpScheduler::AddEvent(const ::Smp::IEntryPoint *entryPoint,
   return eventId;
 }
 
-void XsmpScheduler::SetEventTime(::Smp::Services::EventId event,
+void XsmpScheduler::SetEventTime(::Smp::Services::EventId eventId,
                                  ::Smp::Duration simulationTime,
                                  ::Smp::Duration time,
                                  ::Smp::Services::TimeKind kind) {
 
-  std::scoped_lock lck{_eventsMutex};
-  auto it = _events.find(event);
+  const std::scoped_lock lck{_eventsMutex};
+  auto it = _events.find(eventId);
 
-  if (it == _events.end() || it->second.kind != kind)
-    ::Xsmp::Exception::throwInvalidEventId(this, event);
-
+  if (it == _events.end() || it->second.kind != kind) {
+    ::Xsmp::Exception::throwInvalidEventId(this, eventId);
+  }
   auto &events = _events_table[it->second.nextScheduleSimulationTime];
 
-  events.erase(event);
+  events.erase(eventId);
 
-  if (events.empty())
+  if (events.empty()) {
     _events_table.erase(it->second.nextScheduleSimulationTime);
-
+  }
   if (simulationTime < GetSimulator()->GetTimeKeeper()->GetSimulationTime()) {
     _events.erase(it);
     return;
@@ -241,45 +257,46 @@ void XsmpScheduler::SetEventTime(::Smp::Services::EventId event,
   it->second.nextScheduleSimulationTime = simulationTime;
   it->second.time = time;
 
-  _events_table.try_emplace(simulationTime).first->second.emplace(event);
+  _events_table.try_emplace(simulationTime).first->second.emplace(eventId);
 }
 
 void XsmpScheduler::SetEventSimulationTime(::Smp::Services::EventId event,
                                            ::Smp::Duration simulationTime) {
 
-  ::Smp::Duration time =
+  const ::Smp::Duration time =
       GetSimulator()->GetTimeKeeper()->GetSimulationTime() + simulationTime;
   SetEventTime(event, time, time, ::Smp::Services::TimeKind::TK_SimulationTime);
 }
 
 void XsmpScheduler::SetEventMissionTime(::Smp::Services::EventId event,
                                         ::Smp::Duration missionTime) {
-  ::Smp::Duration time = GetSimulator()->GetTimeKeeper()->GetSimulationTime() +
-                         missionTime -
-                         GetSimulator()->GetTimeKeeper()->GetMissionTime();
-  SetEventTime(event, time, missionTime,
+  const ::Smp::Duration simulationTime =
+      GetSimulator()->GetTimeKeeper()->GetSimulationTime() + missionTime -
+      GetSimulator()->GetTimeKeeper()->GetMissionTime();
+  SetEventTime(event, simulationTime, missionTime,
                ::Smp::Services::TimeKind::TK_MissionTime);
 }
 
 void XsmpScheduler::SetEventEpochTime(::Smp::Services::EventId event,
                                       ::Smp::DateTime epochTime) {
-  ::Smp::Duration time = GetSimulator()->GetTimeKeeper()->GetSimulationTime() +
-                         epochTime -
-                         GetSimulator()->GetTimeKeeper()->GetEpochTime();
-  SetEventTime(event, time, epochTime, ::Smp::Services::TimeKind::TK_EpochTime);
+  const ::Smp::Duration simulationTime =
+      GetSimulator()->GetTimeKeeper()->GetSimulationTime() + epochTime -
+      GetSimulator()->GetTimeKeeper()->GetEpochTime();
+  SetEventTime(event, simulationTime, epochTime,
+               ::Smp::Services::TimeKind::TK_EpochTime);
 }
 
 void XsmpScheduler::SetEventZuluTime(::Smp::Services::EventId event,
                                      ::Smp::DateTime zuluTime) {
   {
     auto currentZulu = GetSimulator()->GetTimeKeeper()->GetZuluTime();
-    std::scoped_lock lck{_eventsMutex, _zuluEventsTableMutex};
+    const std::scoped_lock lck{_eventsMutex, _zuluEventsTableMutex};
     auto it = _events.find(event);
 
     if (it == _events.end() ||
-        it->second.kind != ::Smp::Services::TimeKind::TK_ZuluTime)
+        it->second.kind != ::Smp::Services::TimeKind::TK_ZuluTime) {
       ::Xsmp::Exception::throwInvalidEventId(this, event);
-
+    }
     auto &events = _zulu_events_table[it->second.nextScheduleSimulationTime];
 
     events.erase(event);
@@ -299,74 +316,77 @@ void XsmpScheduler::SetEventZuluTime(::Smp::Services::EventId event,
 void XsmpScheduler::SetEventCycleTime(::Smp::Services::EventId event,
                                       ::Smp::Duration cycleTime) {
 
-  std::scoped_lock lck{_eventsMutex};
+  const std::scoped_lock lck{_eventsMutex};
   auto it = _events.find(event);
-  if (it == _events.end())
+  if (it == _events.end()) {
     ::Xsmp::Exception::throwInvalidEventId(this, event);
-
-  if (it->second.repeat > 0 && cycleTime <= 0)
+  }
+  if (it->second.repeat > 0 && cycleTime <= 0) {
     ::Xsmp::Exception::throwInvalidCycleTime(this, cycleTime);
-
+  }
   it->second.cycleTime = cycleTime;
 }
 
 void XsmpScheduler::SetEventRepeat(::Smp::Services::EventId event,
                                    ::Smp::Int64 repeat) {
 
-  std::scoped_lock lck{_eventsMutex};
+  const std::scoped_lock lck{_eventsMutex};
   auto it = _events.find(event);
 
-  if (it == _events.end())
+  if (it == _events.end()) {
     ::Xsmp::Exception::throwInvalidEventId(this, event);
-
-  if (repeat != 0 && it->second.cycleTime <= 0)
+  }
+  if (repeat != 0 && it->second.cycleTime <= 0) {
     ::Xsmp::Exception::throwInvalidCycleTime(this, it->second.cycleTime);
-
+  }
   it->second.repeat = repeat;
 }
 
 void XsmpScheduler::RemoveEvent(::Smp::Services::EventId event) {
 
-  std::scoped_lock lck{_eventsMutex};
+  const std::scoped_lock lck{_eventsMutex};
   auto it = _events.find(event);
-  if (it == _events.end())
+  if (it == _events.end()) {
     ::Xsmp::Exception::throwInvalidEventId(this, event);
-
+  }
   if (_currentEventId == event) {
     it->second.repeat = 0;
     return;
   }
 
   if (it->second.kind == ::Smp::Services::TimeKind::TK_ZuluTime) {
-    std::scoped_lock lckZulu{_zuluEventsTableMutex};
+    const std::scoped_lock lckZulu{_zuluEventsTableMutex};
 
     auto &events = _zulu_events_table[it->second.nextScheduleSimulationTime];
 
     events.erase(event);
 
-    if (events.empty())
+    if (events.empty()) {
       _events_table.erase(it->second.nextScheduleSimulationTime);
+    }
   } else {
 
     auto &events = _events_table[it->second.nextScheduleSimulationTime];
 
     events.erase(event);
 
-    if (events.empty())
+    if (events.empty()) {
       _events_table.erase(it->second.nextScheduleSimulationTime);
+    }
   }
   _events.erase(it);
 }
 
 ::Smp::Services::EventId XsmpScheduler::GetCurrentEventId() const {
-  std::scoped_lock lck{_eventsMutex};
+  const std::scoped_lock lck{_eventsMutex};
   return _currentEventId;
 }
 
 ::Smp::Duration XsmpScheduler::GetNextScheduledEventTime() const {
-  std::scoped_lock lck{_eventsMutex};
-  if (_events_table.begin() != _events_table.end())
+  const std::scoped_lock lck{_eventsMutex};
+  if (_events_table.begin() != _events_table.end()) {
     return _events_table.begin()->first;
+  }
   return std::numeric_limits<::Smp::Duration>::max();
 }
 
@@ -377,7 +397,7 @@ void XsmpScheduler::Execute(::Smp::Services::EventId eventId) {
   auto &event = _events.at(eventId);
 
   // skip event if epoch/mission time has changed and event is in the past
-  bool skip;
+  bool skip = false;
   switch (event.kind) {
   case ::Smp::Services::TimeKind::TK_EpochTime:
     skip = event.time < GetSimulator()->GetTimeKeeper()->GetEpochTime();
@@ -386,12 +406,11 @@ void XsmpScheduler::Execute(::Smp::Services::EventId eventId) {
     skip = event.time < GetSimulator()->GetTimeKeeper()->GetMissionTime();
     break;
   default:
-    skip = false;
     break;
   }
 
   if (!skip) {
-    std::scoped_lock lck2(_execMutex);
+    const std::scoped_lock lck2(_execMutex);
     _currentEventId = eventId;
     lck.unlock();
     ::Xsmp::Helper::SafeExecute(GetSimulator(), event.entryPoint);
@@ -404,8 +423,9 @@ void XsmpScheduler::Execute(::Smp::Services::EventId eventId) {
     _events.erase(_events.find(eventId));
   } else {
     // decrement the repeat
-    if (event.repeat > 0)
+    if (event.repeat > 0) {
       event.repeat--;
+    }
     // compute the next time the event will be executed
     event.nextScheduleSimulationTime += event.cycleTime;
     event.time += event.cycleTime;
@@ -427,7 +447,7 @@ void XsmpScheduler::ExecuteZulu(::Smp::Services::EventId eventId) {
       state == ::Smp::SimulatorStateKind::SSK_Executing ||
       state == ::Smp::SimulatorStateKind::SSK_Standby) {
 
-    std::scoped_lock lck2(_execMutex);
+    const std::scoped_lock lck2(_execMutex);
     _currentEventId = eventId;
     lck.unlock();
     ::Xsmp::Helper::SafeExecute(GetSimulator(), event.entryPoint);
@@ -440,12 +460,13 @@ void XsmpScheduler::ExecuteZulu(::Smp::Services::EventId eventId) {
     _events.erase(_events.find(eventId));
   } else {
     // decrement the repeat
-    if (event.repeat > 0)
+    if (event.repeat > 0) {
       event.repeat--;
+    }
     // compute the next time the event will be executed
     event.nextScheduleSimulationTime += event.cycleTime;
     // post the event in the table
-    std::scoped_lock lckZulu{_zuluEventsTableMutex};
+    const std::scoped_lock lckZulu{_zuluEventsTableMutex};
     _zulu_events_table.try_emplace(event.nextScheduleSimulationTime)
         .first->second.emplace(eventId);
   }
@@ -515,8 +536,9 @@ void XsmpScheduler::InternalZuluRun() {
           ExecuteZulu(eventId);
           lck.lock();
           // stop here if terminate signal received during event execution
-          if (_terminate)
+          if (_terminate) {
             return;
+          }
         }
       }
       _zulu_events_table.erase(it);
@@ -524,13 +546,13 @@ void XsmpScheduler::InternalZuluRun() {
     }
 
     // wait until next event
-    if (_zulu_events_table.empty())
+    if (_zulu_events_table.empty()) {
       // exit if terminate signal received or a new event is posted.
       // in case a new event is posted, exit the loop and wait for the remaining
       // time (else branch)
       _zuluCv.wait(
           lck, [this]() { return _terminate || !_zulu_events_table.empty(); });
-    else
+    } else {
       _zuluCv.wait_for(
           lck,
           std::chrono::nanoseconds{
@@ -543,17 +565,18 @@ void XsmpScheduler::InternalZuluRun() {
                     _zulu_events_table.begin()->first <=
                         GetSimulator()->GetTimeKeeper()->GetZuluTime());
           });
+    }
   }
 }
 
 void XsmpScheduler::Restore(::Smp::IStorageReader *reader) {
-  std::scoped_lock lck{_eventsMutex};
+  const std::scoped_lock lck{_eventsMutex};
   ::Xsmp::Persist::Restore(GetSimulator(), this, reader, _events, _events_table,
                            _immediate_events, _lastEventId);
 }
 
 void XsmpScheduler::Store(::Smp::IStorageWriter *writer) {
-  std::scoped_lock lck{_eventsMutex};
+  const std::scoped_lock lck{_eventsMutex};
   ::Xsmp::Persist::Store(GetSimulator(), this, writer, _events, _events_table,
                          _immediate_events, _lastEventId);
 }
@@ -579,9 +602,9 @@ void XsmpScheduler::_EnterExecuting() {
   ::Smp::Duration delay = 0;
 
   // process all immediate events
-  if (!ExecuteImmediateEvents())
+  if (!ExecuteImmediateEvents()) {
     return; // exit immediately in case of hold
-
+  }
   auto *eventManager = GetSimulator()->GetEventManager();
 
   std::unique_lock lck(_eventsMutex);
@@ -594,9 +617,9 @@ void XsmpScheduler::_EnterExecuting() {
     eventManager->Emit(::Smp::Services::IEventManager::SMP_PreSimTimeChangeId,
                        false);
 
-    if (_simulationStatus == Status::Hold)
+    if (_simulationStatus == Status::Hold) {
       return; // exit immediately if hold is requested
-
+    }
     auto duration = it->first - timeKeeper->GetSimulationTime();
     delay += static_cast<::Smp::Duration>(static_cast<double>(duration) /
                                           _targetSpeed) -
@@ -604,10 +627,10 @@ void XsmpScheduler::_EnterExecuting() {
 
     auto endZuluTime = timeKeeper->GetZuluTime();
     // update speed
-    if (duration)
+    if (duration) {
       _speed.AddSample(static_cast<double>(endZuluTime - startZuluTime) /
                        static_cast<double>(duration));
-
+    }
     startZuluTime = endZuluTime;
 
     // TODO handle free running
@@ -631,8 +654,9 @@ void XsmpScheduler::_EnterExecuting() {
 
     // process all events (check for eventually events added by
     // SMP_PostSimTimeChangeId )
-    if (!ExecuteImmediateEvents() || !ExecuteEvents(it->second))
+    if (!ExecuteImmediateEvents() || !ExecuteEvents(it->second)) {
       return; // exit immediately in case of hold
+    }
     lck.lock();
   }
 
@@ -646,25 +670,27 @@ void XsmpScheduler::_HoldEvent() {
 }
 
 void XsmpScheduler::MovingAverage::AddSample(double sample) {
-  std::scoped_lock lck{_mutex};
+  const std::scoped_lock lck{_mutex};
   sum = sum + sample - samples[index];
   samples[index] = sample;
   ++index;
-  if (index == sampleCount)
+  if (index == sampleCount) {
     index = 0;
-
-  if (size < sampleCount)
+  }
+  if (size < sampleCount) {
     ++size;
+  }
 }
 double XsmpScheduler::MovingAverage::GetAverage() {
-  std::scoped_lock lck{_mutex};
+  const std::scoped_lock lck{_mutex};
   return size ? sum / size : 0.;
 }
 void XsmpScheduler::MovingAverage::clear() {
-  std::scoped_lock lck{_mutex};
+  const std::scoped_lock lck{_mutex};
   size = 0;
-  for (auto &sample : samples)
+  for (auto &sample : samples) {
     sample = 0.;
+  }
   index = 0;
   sum = 0.;
 }

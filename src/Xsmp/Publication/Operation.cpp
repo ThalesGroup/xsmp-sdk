@@ -14,15 +14,23 @@
 
 #include <Smp/AnySimple.h>
 #include <Smp/IDynamicInvocation.h>
+#include <Smp/IParameter.h>
+#include <Smp/PrimitiveTypes.h>
 #include <Smp/Publication/IType.h>
 #include <Smp/Publication/ITypeRegistry.h>
+#include <Smp/Publication/ParameterDirectionKind.h>
 #include <Smp/Uuid.h>
+#include <Smp/ViewKind.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
+#include <Xsmp/Publication/Field.h>
 #include <Xsmp/Publication/Operation.h>
+#include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Publication/Request.h>
 #include <cstddef>
 #include <cstring>
+#include <memory>
+#include <string>
 #include <string_view>
 
 namespace Xsmp::Publication {
@@ -69,20 +77,22 @@ void Operation::PublishParameter(
     ::Smp::Publication::ParameterDirectionKind direction) {
 
   auto *type = _typeRegistry->GetType(typeUuid);
-  if (!type)
+  if (!type) {
     ::Xsmp::Exception::throwTypeNotRegistered(this, typeUuid);
-
+  }
   if (direction == ::Smp::Publication::ParameterDirectionKind::PDK_Return) {
-    if (_returnParameter)
+    if (_returnParameter) {
       ::Xsmp::Exception::throwException(
           this, "ReturnParameterAlreadyPublished",
           "This Exception is thrown when trying to publish a return parameter.",
           "The return parameter \'", _returnParameter->GetName(),
           "` is already published.");
+    }
     _returnParameter =
         std::make_unique<Parameter>(name, description, this, type, direction);
-  } else
+  } else {
     _parameters.Add<Parameter>(name, description, this, type, direction);
+  }
 }
 
 const ::Smp::ParameterCollection *Operation::GetParameters() const {
@@ -91,10 +101,12 @@ const ::Smp::ParameterCollection *Operation::GetParameters() const {
 
 ::Smp::IParameter *Operation::GetParameter(::Smp::String8 name) const {
 
-  if (auto *parameter = _parameters.at(name))
+  if (auto *parameter = _parameters.at(name)) {
     return parameter;
-  if (_returnParameter && std::strcmp(_returnParameter->GetName(), name) == 0)
+  }
+  if (_returnParameter && std::strcmp(_returnParameter->GetName(), name) == 0) {
     return _returnParameter.get();
+  }
   return nullptr;
 }
 
@@ -108,8 +120,9 @@ const ::Smp::ParameterCollection *Operation::GetParameters() const {
   // create the request only if the operation is invokable
   for (auto const *param : _parameters) {
     if (param->GetType()->GetPrimitiveTypeKind() ==
-        ::Smp::PrimitiveTypeKind::PTK_None)
+        ::Smp::PrimitiveTypeKind::PTK_None) {
       return nullptr;
+    }
   }
   if (_returnParameter && _returnParameter->GetType()->GetPrimitiveTypeKind() ==
                               ::Smp::PrimitiveTypeKind::PTK_None) {
@@ -120,38 +133,39 @@ const ::Smp::ParameterCollection *Operation::GetParameters() const {
 
 void Operation::Invoke(::Smp::IRequest *request) {
 
-  auto *operationName = request ? request->GetOperationName() : nullptr;
+  const auto *operationName = request ? request->GetOperationName() : nullptr;
 
   // check operation name
-  if (!operationName || std::string_view{GetName()} != operationName)
+  if (!operationName || std::string_view{GetName()} != operationName) {
     ::Xsmp::Exception::throwInvalidOperationName(this, operationName);
-
+  }
   auto *component = dynamic_cast<::Smp::IDynamicInvocation *>(_parent);
   // check dynamic invocation
-  if (!component)
+  if (!component) {
     ::Xsmp::Exception::throwInvalidOperationName(this, operationName);
-
+  }
   // check parameter count
   if (static_cast<std::size_t>(request->GetParameterCount()) !=
-      _parameters.size())
+      _parameters.size()) {
     ::Xsmp::Exception::throwInvalidParameterCount(this,
                                                   request->GetParameterCount());
-
+  }
   // check input parameters type
   for (auto const *param : _parameters) {
 
     // ignore output parameters
     if (param->GetDirection() ==
-        ::Smp::Publication::ParameterDirectionKind::PDK_Out)
+        ::Smp::Publication::ParameterDirectionKind::PDK_Out) {
       continue;
-
+    }
     auto kind =
         request->GetParameterValue(request->GetParameterIndex(param->GetName()))
             .GetType();
-    if (kind != param->GetType()->GetPrimitiveTypeKind())
+    if (kind != param->GetType()->GetPrimitiveTypeKind()) {
       ::Xsmp::Exception::throwInvalidParameterType(
           this, operationName, param->GetName(), kind,
           param->GetType()->GetPrimitiveTypeKind());
+    }
   }
 
   // invoke the request

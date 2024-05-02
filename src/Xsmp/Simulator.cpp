@@ -13,19 +13,35 @@
 // limitations under the License.
 
 #include <Smp/ComponentStateKind.h>
+#include <Smp/IComposite.h>
+#include <Smp/IFactory.h>
 #include <Smp/IField.h>
+#include <Smp/IModel.h>
+#include <Smp/IPersist.h>
+#include <Smp/IService.h>
+#include <Smp/IStorageReader.h>
+#include <Smp/IStorageWriter.h>
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/ITypeRegistry.h>
+#include <Smp/Services/EventId.h>
 #include <Smp/Services/IEventManager.h>
+#include <Smp/Services/ILinkRegistry.h>
 #include <Smp/Services/ILogger.h>
+#include <Smp/Services/IResolver.h>
 #include <Smp/Services/IScheduler.h>
+#include <Smp/SimulatorStateKind.h>
 #include <Smp/Uuid.h>
+#include <Xsmp/EntryPoint.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
 #include <Xsmp/LibraryHelper.h>
+#include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Simulator.h>
 #include <Xsmp/StorageReader.h>
 #include <Xsmp/StorageWriter.h>
-#include <iterator>
+#include <string>
 #include <type_traits>
+#include <vector>
 
 extern "C" ::Smp::ISimulator *createSimulator(::Smp::String8 name,
                                               ::Smp::String8 description) {
@@ -159,8 +175,9 @@ void Simulator::Publish() {
   }
 
   recursive_action(this, [this](::Smp::IComponent *cmp) {
-    if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Created)
+    if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Created) {
       cmp->Publish(CreatePublication(cmp));
+    }
   });
 }
 
@@ -177,32 +194,38 @@ void Simulator::Configure() {
   }
 
   recursive_action(this, [this](::Smp::IComponent *cmp) {
-    if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Created)
+    if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Created) {
       cmp->Publish(CreatePublication(cmp));
-    if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Publishing)
+    }
+    if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Publishing) {
       cmp->Configure(_logger, _linkRegistry);
+    }
   });
 }
 
 void Simulator::Connect() {
 
   if (_state != ::Smp::SimulatorStateKind::SSK_Building) {
-    if (_logger)
+    if (_logger) {
       _logger->Log(this,
                    "Could not Connect the Simulation if simulator is not in "
                    "Building state.",
                    ::Smp::Services::ILogger::LMK_Warning);
+    }
     return;
   }
   _state = ::Smp::SimulatorStateKind::SSK_Connecting;
 
   recursive_action(this, [this](::Smp::IComponent *cmp) {
-    if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Created)
+    if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Created) {
       cmp->Publish(CreatePublication(cmp));
-    if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Publishing)
+    }
+    if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Publishing) {
       cmp->Configure(_logger, _linkRegistry);
-    if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Configured)
+    }
+    if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Configured) {
       cmp->Connect(this);
+    }
   });
 
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveConnectingId);
@@ -212,8 +235,9 @@ void Simulator::Connect() {
 
   std::vector<::Smp::IEntryPoint *> entryPoints;
   entryPoints.swap(_initEntryPoints);
-  for (auto const *entryPoint : entryPoints)
+  for (auto const *entryPoint : entryPoints) {
     entryPoint->Execute();
+  }
 
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveInitialisingId);
 
@@ -223,8 +247,9 @@ void Simulator::Connect() {
 
 void Simulator::EmitGlobalEvent(::Smp::Services::EventId id) {
   _lastGlobalEventId = id;
-  if (_eventManager)
+  if (_eventManager) {
     _eventManager->Emit(id);
+  }
   _lastGlobalEventId = -1;
 }
 
@@ -233,11 +258,12 @@ void Simulator::Initialise() {
   if (_state != ::Smp::SimulatorStateKind::SSK_Standby ||
       _lastGlobalEventId ==
           ::Smp::Services::IEventManager::SMP_LeaveStandbyId) {
-    if (_logger)
+    if (_logger) {
       _logger->Log(this,
                    "Could not Initialise the Simulation if simulator is not in "
                    "Standby state.",
                    ::Smp::Services::ILogger::LMK_Warning);
+    }
     return;
   }
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveStandbyId);
@@ -247,9 +273,9 @@ void Simulator::Initialise() {
 
   std::vector<::Smp::IEntryPoint *> entryPoints;
   entryPoints.swap(_initEntryPoints);
-  for (auto const *entryPoint : entryPoints)
+  for (auto const *entryPoint : entryPoints) {
     entryPoint->Execute();
-
+  }
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveInitialisingId);
 
   _state = ::Smp::SimulatorStateKind::SSK_Standby;
@@ -262,11 +288,12 @@ void Simulator::Run() {
           ::Smp::Services::IEventManager::SMP_LeaveStandbyId ||
       _lastGlobalEventId ==
           ::Smp::Services::IEventManager::SMP_EnterStandbyId) {
-    if (_logger)
+    if (_logger) {
       _logger->Log(
           this,
           "Could not Run the Simulation if simulator is not in Standby state.",
           ::Smp::Services::ILogger::LMK_Warning);
+    }
     return;
   }
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveStandbyId);
@@ -283,19 +310,21 @@ void Simulator::Run(::Smp::Duration duration) {
           ::Smp::Services::IEventManager::SMP_LeaveStandbyId ||
       _lastGlobalEventId ==
           ::Smp::Services::IEventManager::SMP_EnterStandbyId) {
-    if (_logger)
+    if (_logger) {
       _logger->Log(
           this,
           "Could not Run the Simulation if simulator is not in Standby state.",
           ::Smp::Services::ILogger::LMK_Warning);
+    }
     return;
   }
 
   ::Xsmp::EntryPoint hold{"hold",
                           "call simulator hold after the specified duration",
                           this, [this] { this->Hold(false); }};
-  if (_scheduler)
+  if (_scheduler) {
     _scheduler->AddSimulationTimeEvent(&hold, duration);
+  }
   Run();
 }
 
@@ -304,11 +333,12 @@ void Simulator::Hold(::Smp::Bool immediate) {
   if (_state != ::Smp::SimulatorStateKind::SSK_Executing ||
       _lastGlobalEventId ==
           ::Smp::Services::IEventManager::SMP_LeaveExecutingId) {
-    if (_logger)
+    if (_logger) {
       _logger->Log(this,
                    "Could not Hold the Simulation if simulator is not in "
                    "Executing state.",
                    ::Smp::Services::ILogger::LMK_Warning);
+    }
     return;
   }
 
@@ -320,42 +350,43 @@ void Simulator::Hold(::Smp::Bool immediate) {
 
     EmitGlobalEvent(::Smp::Services::IEventManager::SMP_EnterStandbyId);
   } else {
-    if (_eventManager)
+    if (_eventManager) {
       _eventManager->Subscribe(
           ::Smp::Services::IEventManager::SMP_PreSimTimeChangeId,
           &_holdImmediately);
+    }
   }
 }
 
 enum class PersistKind { PERSIST, COMPONENT, COMPOSITE, CONTAINER, FIELD };
 namespace {
 void Store(::Smp::IObject *obj, ::Smp::IStorageWriter *writer) {
-
-  PersistKind kind;
   if (auto *persist = dynamic_cast<::Smp::IPersist *>(obj)) {
-    kind = PersistKind::PERSIST;
+    PersistKind kind = PersistKind::PERSIST;
     writer->Store(&kind, sizeof(PersistKind));
     persist->Store(writer);
   }
   if (auto const *component = dynamic_cast<::Smp::IComponent *>(obj)) {
-    kind = PersistKind::COMPONENT;
+    PersistKind kind = PersistKind::COMPONENT;
     writer->Store(&kind, sizeof(PersistKind));
     kind = PersistKind::FIELD;
-    if (auto *fields = component->GetFields())
+    if (const auto *fields = component->GetFields()) {
       for (auto *field : *fields) {
         writer->Store(&kind, sizeof(PersistKind));
         field->Store(writer);
       }
+    }
   }
   if (auto const *composite = dynamic_cast<::Smp::IComposite *>(obj)) {
-    kind = PersistKind::COMPOSITE;
+    PersistKind kind = PersistKind::COMPOSITE;
     writer->Store(&kind, sizeof(PersistKind));
     kind = PersistKind::CONTAINER;
-    if (composite->GetContainers())
+    if (composite->GetContainers()) {
       for (auto *container : *composite->GetContainers()) {
         writer->Store(&kind, sizeof(PersistKind));
         Store(container, writer);
       }
+    }
   }
 }
 } // namespace
@@ -365,11 +396,12 @@ void Simulator::Store(::Smp::String8 filename) {
   if (_state != ::Smp::SimulatorStateKind::SSK_Standby ||
       _lastGlobalEventId ==
           ::Smp::Services::IEventManager::SMP_LeaveStandbyId) {
-    if (_logger)
+    if (_logger) {
       _logger->Log(this,
                    "Could not Store the Simulation if simulator is not in "
                    "Standby state.",
                    ::Smp::Services::ILogger::LMK_Warning);
+    }
     return;
   }
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveStandbyId);
@@ -393,8 +425,9 @@ void check(const ::Smp::IObject *obj, ::Smp::IStorageReader *reader,
   PersistKind kind;
   reader->Restore(&kind, sizeof(PersistKind));
 
-  if (kind != expectedKind)
+  if (kind != expectedKind) {
     ::Xsmp::Exception::throwCannotRestore(obj, "Wrong check");
+  }
 }
 void Restore(::Smp::IObject *obj, ::Smp::IStorageReader *reader) {
   if (auto *persist = dynamic_cast<::Smp::IPersist *>(obj)) {
@@ -403,20 +436,22 @@ void Restore(::Smp::IObject *obj, ::Smp::IStorageReader *reader) {
   }
   if (auto const *component = dynamic_cast<::Smp::IComponent *>(obj)) {
     check(obj, reader, PersistKind::COMPONENT);
-    if (auto *fields = component->GetFields())
+    if (const auto *fields = component->GetFields()) {
       for (auto *field : *fields) {
         check(obj, reader, PersistKind::FIELD);
         field->Restore(reader);
       }
+    }
   }
 
   if (auto const *composite = dynamic_cast<::Smp::IComposite *>(obj)) {
     check(obj, reader, PersistKind::COMPOSITE);
-    if (composite->GetContainers())
+    if (composite->GetContainers()) {
       for (auto *container : *composite->GetContainers()) {
         check(obj, reader, PersistKind::CONTAINER);
         Restore(container, reader);
       }
+    }
   }
 }
 } // namespace
@@ -425,11 +460,12 @@ void Simulator::Restore(::Smp::String8 filename) {
   if (_state != ::Smp::SimulatorStateKind::SSK_Standby ||
       _lastGlobalEventId ==
           ::Smp::Services::IEventManager::SMP_LeaveStandbyId) {
-    if (_logger)
+    if (_logger) {
       _logger->Log(this,
                    "Could not Restore the Simulation if simulator is not in "
                    "Standby state.",
                    ::Smp::Services::ILogger::LMK_Warning);
+    }
     return;
   }
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveStandbyId);
@@ -451,11 +487,12 @@ void Simulator::Reconnect(::Smp::IComponent *root) {
   if (_state != ::Smp::SimulatorStateKind::SSK_Standby ||
       _lastGlobalEventId ==
           ::Smp::Services::IEventManager::SMP_LeaveStandbyId) {
-    if (_logger)
+    if (_logger) {
       _logger->Log(this,
                    "Could not Reconnect the Simulation if simulator is not in "
                    "Standby state.",
                    ::Smp::Services::ILogger::LMK_Warning);
+    }
     return;
   }
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveStandbyId);
@@ -464,12 +501,15 @@ void Simulator::Reconnect(::Smp::IComponent *root) {
 
   if (auto const *composite = dynamic_cast<::Smp::IComposite *>(root))
     recursive_action(composite, [this](::Smp::IComponent *cmp) {
-      if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Created)
+      if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Created) {
         cmp->Publish(CreatePublication(cmp));
-      if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Publishing)
+      }
+      if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Publishing) {
         cmp->Configure(_logger, _linkRegistry);
-      if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Configured)
+      }
+      if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Configured) {
         cmp->Connect(this);
+      }
     });
 
   _state = ::Smp::SimulatorStateKind::SSK_Standby;
@@ -481,11 +521,12 @@ void Simulator::Exit() {
   if (_state != ::Smp::SimulatorStateKind::SSK_Standby ||
       _lastGlobalEventId ==
           ::Smp::Services::IEventManager::SMP_LeaveStandbyId) {
-    if (_logger)
+    if (_logger) {
       _logger->Log(this,
                    "Could not Exit from Simulation while simulator is not in "
                    "Standby state.",
                    ::Smp::Services::ILogger::LMK_Warning);
+    }
     return;
   }
 
@@ -495,8 +536,9 @@ void Simulator::Exit() {
 
   // Disconnect all components properly
   recursive_action(this, [](::Smp::IComponent *cmp) {
-    if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Connected)
+    if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Connected) {
       cmp->Disconnect();
+    }
   });
 }
 
@@ -517,10 +559,11 @@ void Simulator::AddInitEntryPoint(::Smp::IEntryPoint *entryPoint) {
     _initEntryPoints.push_back(entryPoint);
     break;
   default:
-    if (_logger)
+    if (_logger) {
       _logger->Log(entryPoint,
                    "Unable to Add an Init EntryPoint in wrong Simulator State.",
                    ::Smp::Services::ILogger::LMK_Warning);
+    }
     break;
   }
 }
@@ -550,16 +593,17 @@ void Simulator::AddService(::Smp::IService *service) {
   }
   /// Helper that register a standard service in the simulator
   auto RegisterService = [service, this](auto *&value) {
-    if (value)
+    if (value) {
       return;
-    if ((value =
-             dynamic_cast<std::remove_reference_t<decltype(value)>>(service)) &&
-        _logger)
+    }
+    value = dynamic_cast<std::remove_reference_t<decltype(value)>>(service);
+    if (value && _logger) {
       _logger->Log(
           this,
           ("Service '" + ::Xsmp::Helper::TypeName(value) + "' registered.")
               .c_str(),
           ::Smp::Services::ILogger::LMK_Information);
+    }
   };
   RegisterService(_logger);
   RegisterService(_eventManager);
@@ -621,18 +665,19 @@ const ::Smp::FactoryCollection *Simulator::GetFactories() const {
 
 void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
 
-  if (_logger)
+  if (_logger) {
     _logger->Log(
         this,
         ("Loading '" + std::string(libraryPath) + "' library ...").c_str(),
         ::Smp::Services::ILogger::LMK_Debug);
-
+  }
   void *handle = ::Xsmp::LoadLibrary(libraryPath);
 
   if (!handle) {
     auto error = ::Xsmp::GetLastError();
-    if (_logger)
+    if (_logger) {
       _logger->Log(this, error.c_str(), ::Smp::Services::ILogger::LMK_Error);
+    }
     ::Xsmp::Exception::throwLibraryNotFound(this, libraryPath, error);
   }
 
@@ -642,39 +687,43 @@ void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
                                                          initialiseSymbol);
 
   if (!initialise) {
-    std::string msg =
+    const std::string msg =
         std::string("Library '") + libraryPath +
         "' does not provide function 'bool Initialize(::Smp::ISimulator *, "
         "::Smp::Publication::ITypeRegistry *)': " +
         ::Xsmp::GetLastError();
-    if (_logger)
+    if (_logger) {
       _logger->Log(this, msg.c_str(), ::Smp::Services::ILogger::LMK_Error);
+    }
     ::Xsmp::Exception::throwInvalidLibrary(this, libraryPath, msg);
   }
 
   // check that Finalise exist
   if (!::Xsmp::GetSymbol<bool (*)(::Smp::ISimulator *simulator)>(
           handle, finaliseSymbol)) {
-    std::string msg = std::string("Library '") + libraryPath +
-                      "' does not provide function 'bool Finalise()': " +
-                      ::Xsmp::GetLastError();
-    if (_logger)
+    const std::string msg = std::string("Library '") + libraryPath +
+                            "' does not provide function 'bool Finalise()': " +
+                            ::Xsmp::GetLastError();
+    if (_logger) {
       _logger->Log(this, msg.c_str(), ::Smp::Services::ILogger::LMK_Error);
+    }
     ::Xsmp::Exception::throwInvalidLibrary(this, libraryPath, msg);
   }
 
   if ((*initialise)(this, &_typeRegistry)) {
-    if (_logger)
+    if (_logger) {
       _logger->Log(
           this,
           ("Library '" + std::string(libraryPath) + "' successfully loaded.")
               .c_str(),
           ::Smp::Services::ILogger::LMK_Debug);
+    }
   } else {
-    std::string msg =
+    const std::string msg =
         std::string("Initialise() of library '") + libraryPath + "' failed.";
-    if (_logger)
+    if (_logger) {
       _logger->Log(this, msg.c_str(), ::Smp::Services::ILogger::LMK_Error);
+    }
     ::Xsmp::Exception::throwInvalidLibrary(this, libraryPath, msg);
   }
   _libraries.emplace_back(libraryPath, handle);

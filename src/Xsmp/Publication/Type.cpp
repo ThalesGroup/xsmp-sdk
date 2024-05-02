@@ -13,10 +13,15 @@
 // limitations under the License.
 
 #include <Smp/IPublication.h>
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Uuid.h>
+#include <Smp/ViewKind.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
 #include <Xsmp/Publication/Type.h>
 #include <Xsmp/Publication/TypeRegistry.h>
+#include <map>
+#include <vector>
 
 namespace Xsmp::Publication {
 
@@ -104,10 +109,10 @@ void EnumerationType::AddLiteral(::Smp::String8 name,
                                  ::Smp::String8 description,
                                  ::Smp::Int32 value) {
 
-  if (auto it = _literals.find(value); it != _literals.end())
+  if (auto it = _literals.find(value); it != _literals.end()) {
     ::Xsmp::Exception::throwDuplicateLiteral(this, it->second.name.c_str(),
                                              value);
-
+  }
   _literals.try_emplace(value, Literal{name, description});
 }
 
@@ -187,17 +192,18 @@ ClassType::ClassType(::Smp::String8 name, ::Smp::String8 description,
                      ::Smp::Uuid typeUuid, ::Smp::Uuid baseClassUuid)
     : StructureType(name, description, typeRegistry, typeUuid),
       _baseClassUuid{baseClassUuid} {
-  if (baseClassUuid == ::Smp::Uuids::Uuid_Void)
+  if (baseClassUuid == ::Smp::Uuids::Uuid_Void) {
     return;
-  if (baseClassUuid == typeUuid)
+  }
+  if (baseClassUuid == typeUuid) {
     ::Xsmp::Exception::throwException(
         this, "Invalid base Class",
         "The base class must be different from the current class.");
-
+  }
   auto *baseClass = typeRegistry->GetType(baseClassUuid);
-  if (!baseClass)
+  if (!baseClass) {
     ::Xsmp::Exception::throwTypeNotRegistered(this, baseClassUuid);
-
+  }
   if (!dynamic_cast<::Smp::Publication::IClassType *>(baseClass)) {
     ::Xsmp::Exception::throwException(
         this, "Invalid base Class",

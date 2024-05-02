@@ -20,8 +20,7 @@
 
 #include <Xsmp/Tests/ModelWithArrayFields.h>
 
-namespace Xsmp {
-namespace Tests {
+namespace Xsmp::Tests {
 void ModelWithArrayFields::DoPublish(::Smp::IPublication *) {}
 
 void ModelWithArrayFields::DoConfigure(::Smp::Services::ILogger *,
@@ -31,5 +30,4 @@ void ModelWithArrayFields::DoConnect(::Smp::ISimulator *) {}
 
 void ModelWithArrayFields::DoDisconnect() {}
 
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests

@@ -28,8 +28,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
+namespace Xsmp::Tests {
 class ModelWithSimpleFields : public ModelWithSimpleFieldsGen {
 public:
   /// Re-use parent constructors
@@ -65,7 +64,6 @@ private:
 public:
   void _esi(::Smp::IObject *sender) override;
 };
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests
 
 #endif // XSMP_TESTS_MODELWITHSIMPLEFIELDS_H_

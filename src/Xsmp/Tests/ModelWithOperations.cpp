@@ -20,8 +20,7 @@
 
 #include <Xsmp/Tests/ModelWithOperations.h>
 
-namespace Xsmp {
-namespace Tests {
+namespace Xsmp::Tests {
 void ModelWithOperations::DoPublish(::Smp::IPublication *) {}
 
 void ModelWithOperations::DoConfigure(::Smp::Services::ILogger *,
@@ -92,5 +91,4 @@ void ModelWithOperations::voidOperation() {}
   ::Smp::UInt8 ret{};
   return ret;
 }
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests

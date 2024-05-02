@@ -17,30 +17,34 @@
 #include <Smp/Exception.h>
 #include <Smp/IAggregate.h>
 #include <Smp/IArrayField.h>
+#include <Smp/IComposite.h>
 #include <Smp/IContainer.h>
 #include <Smp/IDynamicInvocation.h>
 #include <Smp/IEntryPoint.h>
 #include <Smp/IEntryPointPublisher.h>
 #include <Smp/IEventConsumer.h>
 #include <Smp/IEventProvider.h>
-#include <Smp/IEventSink.h>
-#include <Smp/IEventSource.h>
 #include <Smp/IFailure.h>
 #include <Smp/IFallibleModel.h>
-#include <Smp/IOperation.h>
-#include <Smp/IProperty.h>
+#include <Smp/IField.h>
+#include <Smp/IObject.h>
 #include <Smp/IReference.h>
 #include <Smp/ISimpleArrayField.h>
 #include <Smp/ISimpleField.h>
 #include <Smp/ISimulator.h>
 #include <Smp/IStructureField.h>
+#include <Smp/PrimitiveTypes.h>
 #include <Smp/Services/ILogger.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
 #include <algorithm>
 #include <cctype>
+#include <cstddef>
+#include <cstdlib>
 #include <cstring>
+#include <exception>
 #include <memory>
+#include <string>
 #include <string_view>
 
 #if defined(__GNUG__)
@@ -87,15 +91,16 @@ void SafeExecute(::Smp::ISimulator *simulator,
           ::Smp::Services::ILogger::LMK_Error);
       simulator->Abort();
     }
-  } else
+  } else {
     entryPoint->Execute();
+  }
 }
 namespace {
 std::string GetNextSegment(::Smp::String8 *path, ::Smp::Char8 *separator) {
   *separator = '\0';
-  if (!(*path) || *path[0] == '\0')
+  if (!(*path) || *path[0] == '\0') {
     return "";
-
+  }
   // skip starting '/', '.', './'
   while (true) {
     while (**path == '/') {
@@ -109,7 +114,7 @@ std::string GetNextSegment(::Smp::String8 *path, ::Smp::Char8 *separator) {
     }
     break;
   }
-  auto *it = *path;
+  const auto *it = *path;
   if (*it == '[') {
     ++it;
   }
@@ -118,8 +123,9 @@ std::string GetNextSegment(::Smp::String8 *path, ::Smp::Char8 *separator) {
     case '.':
       if (*(it + 1) == '.') {
         ++it;
-        while (*(++it) == '.')
-          ;
+        while (*(++it) == '.') {
+          // loop
+        }
       }
       [[fallthrough]];
     case '/':
@@ -139,21 +145,21 @@ std::string GetNextSegment(::Smp::String8 *path, ::Smp::Char8 *separator) {
 
 std::string GetPath(const ::Smp::IObject *obj) {
 
-  if (!obj)
+  if (!obj) {
     return "<null>";
-
-  if (dynamic_cast<const ::Smp::ISimulator *>(obj))
+  }
+  if (dynamic_cast<const ::Smp::ISimulator *>(obj)) {
     return "/";
-
+  }
   auto *parent = obj->GetParent();
 
-  if (dynamic_cast<::Smp::ISimulator *>(parent))
+  if (dynamic_cast<::Smp::ISimulator *>(parent)) {
     return GetPath(parent) + obj->GetName();
-
+  }
   // use '/' separator between components
-  if (dynamic_cast<const ::Smp::IComponent *>(obj))
+  if (dynamic_cast<const ::Smp::IComponent *>(obj)) {
     return GetPath(parent) + "/" + obj->GetName();
-
+  }
   // use '.' separator between all others elements : fields, entry points, event
   // sink/sources, ...
   return GetPath(parent) + "." + obj->GetName();
@@ -161,54 +167,57 @@ std::string GetPath(const ::Smp::IObject *obj) {
 
 ::Smp::IObject *Resolve(const ::Smp::FieldCollection *fields,
                         ::Smp::String8 path) {
-  ::Smp::Char8 separator;
+  ::Smp::Char8 separator = 0;
   auto segment = GetNextSegment(&path, &separator);
-  if (segment.empty())
+  if (segment.empty()) {
     return nullptr;
-
+  }
   if (segment == "..") {
-    if (auto const *container = fields->GetParent())
+    if (auto const *container = fields->GetParent()) {
       return Resolve(container->GetParent(), path);
-    else
-      return nullptr;
+    }
+    return nullptr;
   }
 
-  if (auto *field = fields->at(segment.c_str()))
+  if (auto *field = fields->at(segment.c_str())) {
     return Resolve(field, path);
+  }
   return nullptr;
 }
-::Smp::IObject *Resolve(::Smp::IField *field, ::Smp::String8 path) {
+::Smp::IObject *Resolve(::Smp::IField *parent, ::Smp::String8 path) {
 
-  ::Smp::Char8 separator;
+  ::Smp::Char8 separator = 0;
   auto segment = GetNextSegment(&path, &separator);
-  if (segment.empty())
-    return field;
-
-  if (segment == "..")
-    return Resolve(field->GetParent(), path);
-
-  if (auto const *structureField =
-          dynamic_cast<::Smp::IStructureField *>(field)) {
-    if (auto *nestedField = structureField->GetField(segment.c_str()))
-      return Resolve(nestedField, path);
+  if (segment.empty()) {
+    return parent;
   }
-  if (auto const *arrayField = dynamic_cast<::Smp::IArrayField *>(field)) {
+  if (segment == "..") {
+    return Resolve(parent->GetParent(), path);
+  }
+  if (auto const *structureField =
+          dynamic_cast<::Smp::IStructureField *>(parent)) {
+    if (auto *nestedField = structureField->GetField(segment.c_str())) {
+      return Resolve(nestedField, path);
+    }
+  }
+  if (auto const *arrayField = dynamic_cast<::Smp::IArrayField *>(parent)) {
     if (segment.front() == '[' && segment.back() == ']') {
-
       try {
         auto size = arrayField->GetSize();
-        std::size_t pos;
+        std::size_t pos = 0;
         auto value = std::stoll(&segment[1], &pos);
-        if (pos + 2 != segment.length())
+        if (pos + 2 != segment.length()) {
           return nullptr;
+        }
         // handle negative index (similar to python arrays)
         auto index = static_cast<::Smp::UInt64>(
             value < 0 ? static_cast<::Smp::Int64>(size) + value : value);
 
-        if (index < size)
+        if (index < size) {
           return Resolve(arrayField->GetItem(index), path);
+        }
       } catch (std::exception &) {
-        // ignore stoll conversion errors
+        // ignore stoll conversion errors & Smp::InvalidArrayIndex
         return nullptr;
       }
     }
@@ -218,30 +227,40 @@ std::string GetPath(const ::Smp::IObject *obj) {
 static inline ::Smp::IObject *Resolve(const ::Smp::IComposite *composite,
                                       ::Smp::String8 name,
                                       ::Smp::String8 path) {
-  if (auto *containers = composite->GetContainers())
-    for (auto const *ctn : *containers)
-      if (auto *cmp = ctn->GetComponent(name))
+  if (const auto *containers = composite->GetContainers()) {
+    for (auto const *ctn : *containers) {
+      if (auto *cmp = ctn->GetComponent(name)) {
         return Resolve(cmp, path);
+      }
+    }
+  }
   return nullptr;
 }
 static inline ::Smp::IObject *Resolve(const ::Smp::IAggregate *aggregate,
                                       ::Smp::String8 name,
                                       ::Smp::String8 path) {
-  if (auto *references = aggregate->GetReferences())
-    for (auto const *ref : *references)
-      if (auto *cmp = ref->GetComponent(name))
+  if (const auto *references = aggregate->GetReferences()) {
+    for (auto const *ref : *references) {
+      if (auto *cmp = ref->GetComponent(name)) {
         return Resolve(cmp, path);
+      }
+    }
+  }
   return nullptr;
 }
 static inline ::Smp::IObject *
 Resolve(const ::Smp::IDynamicInvocation *dynamicInvocation, ::Smp::String8 name,
         ::Smp::String8 path) {
-  if (auto *operations = dynamicInvocation->GetOperations())
-    if (auto *operation = operations->at(name))
+  if (const auto *operations = dynamicInvocation->GetOperations()) {
+    if (auto *operation = operations->at(name)) {
       return Resolve(operation, path);
-  if (auto *properties = dynamicInvocation->GetProperties())
-    if (auto *property = properties->at(name))
+    }
+  }
+  if (const auto *properties = dynamicInvocation->GetProperties()) {
+    if (auto *property = properties->at(name)) {
       return Resolve(property, path);
+    }
+  }
   return nullptr;
 }
 static inline ::Smp::IObject *
@@ -249,43 +268,47 @@ Resolve(::Smp::IObject *object, ::Smp::String8 name, ::Smp::String8 path) {
 
   if (auto const *eventConsumer =
           dynamic_cast<const ::Smp::IEventConsumer *>(object)) {
-
-    if (auto *eventSink = eventConsumer->GetEventSink(name))
+    if (auto *eventSink = eventConsumer->GetEventSink(name)) {
       return Resolve(eventSink, path);
+    }
   }
   if (auto const *eventProvider =
           dynamic_cast<const ::Smp::IEventProvider *>(object)) {
-
-    if (auto *eventSource = eventProvider->GetEventSource(name))
+    if (auto *eventSource = eventProvider->GetEventSource(name)) {
       return Resolve(eventSource, path);
+    }
   }
   if (auto const *entryPointPublisher =
           dynamic_cast<const ::Smp::IEntryPointPublisher *>(object)) {
-
-    if (auto *entryPoint = entryPointPublisher->GetEntryPoint(name))
+    if (auto *entryPoint = entryPointPublisher->GetEntryPoint(name)) {
       return Resolve(entryPoint, path);
+    }
   }
 
   if (auto const *dynamicInvocation =
           dynamic_cast<const ::Smp::IDynamicInvocation *>(object)) {
-    if (auto *result = Resolve(dynamicInvocation, name, path))
+    if (auto *result = Resolve(dynamicInvocation, name, path)) {
       return result;
+    }
   }
 
   if (auto const *fallibleModel =
           dynamic_cast<const ::Smp::IFallibleModel *>(object)) {
-    if (auto *failure = fallibleModel->GetFailures()->at(name))
+    if (auto *failure = fallibleModel->GetFailures()->at(name)) {
       return Resolve(failure, path);
+    }
   }
   if (auto const *component = dynamic_cast<const ::Smp::IComponent *>(object)) {
-
-    if (auto *fields = component->GetFields())
-      if (auto *field = fields->at(name))
+    if (const auto *fields = component->GetFields()) {
+      if (auto *field = fields->at(name)) {
         return Resolve(field, path);
+      }
+    }
   }
 
-  if (auto *field = dynamic_cast<::Smp::IField *>(object))
+  if (auto *field = dynamic_cast<::Smp::IField *>(object)) {
     return Resolve(field, path);
+  }
   return nullptr;
 }
 
@@ -293,53 +316,57 @@ static inline ::Smp::IObject *ResolveComponent(const ::Smp::IObject *object,
                                                ::Smp::String8 name,
                                                ::Smp::String8 path) {
   if (auto const *composite = dynamic_cast<const ::Smp::IComposite *>(object)) {
-    if (auto *result = Resolve(composite, name, path))
+    if (auto *result = Resolve(composite, name, path)) {
       return result;
+    }
   }
 
   // check reference last as references are not unique
   if (auto const *aggregate = dynamic_cast<const ::Smp::IAggregate *>(object)) {
-    if (auto *result = Resolve(aggregate, name, path))
+    if (auto *result = Resolve(aggregate, name, path)) {
       return result;
+    }
   }
   return nullptr;
 }
 
-::Smp::IObject *Resolve(::Smp::IObject *object, ::Smp::String8 path) {
+::Smp::IObject *Resolve(::Smp::IObject *parent, ::Smp::String8 path) {
 
-  if (path[0] == '\0' || !object)
-    return object;
-
-  ::Smp::Char8 separator;
+  if (path[0] == '\0' || !parent) {
+    return parent;
+  }
+  ::Smp::Char8 separator = 0;
   auto segment = GetNextSegment(&path, &separator);
 
-  if (segment.empty())
-    return object;
-
-  if (segment == "..")
-    return Resolve(object->GetParent(), path);
-
+  if (segment.empty()) {
+    return parent;
+  }
+  if (segment == "..") {
+    return Resolve(parent->GetParent(), path);
+  }
   // by default Containers and references are not accessible
   // This implementation access them if they are prefixed with "_"
   if (segment.front() == '_') {
     if (auto const *composite =
-            dynamic_cast<const ::Smp::IComposite *>(object)) {
-      if (auto *ctn = composite->GetContainer(segment.c_str() + 1))
+            dynamic_cast<const ::Smp::IComposite *>(parent)) {
+      if (auto *ctn = composite->GetContainer(segment.c_str() + 1)) {
         return Resolve(ctn, path);
+      }
     }
     if (auto const *aggregate =
-            dynamic_cast<const ::Smp::IAggregate *>(object)) {
-      if (auto *ref = aggregate->GetReference(segment.c_str() + 1))
+            dynamic_cast<const ::Smp::IAggregate *>(parent)) {
+      if (auto *ref = aggregate->GetReference(segment.c_str() + 1)) {
         return Resolve(ref, path);
+      }
     }
   }
 
-  if (auto *result = Resolve(object, segment.c_str(), path))
+  if (auto *result = Resolve(parent, segment.c_str(), path)) {
     return result;
-
-  if (separator == '/' || separator == '\0')
-    return ResolveComponent(object, segment.c_str(), path);
-
+  }
+  if (separator == '/' || separator == '\0') {
+    return ResolveComponent(parent, segment.c_str(), path);
+  }
   return nullptr;
 }
 
@@ -356,7 +383,7 @@ inline void erase_all(std::string &string, std::string_view search) {
 std::string demangle(::Smp::String8 name) {
 #if defined(__GNUG__)
   int status = 0;
-  std::unique_ptr<char, void (*)(void *)> res{
+  const std::unique_ptr<char, void (*)(void *)> res{
       abi::__cxa_demangle(name, nullptr, nullptr, &status),
       [](auto *elem) { std::free(elem); }};
   if (status == 0) {
@@ -377,9 +404,9 @@ std::string TypeName(const ::Smp::IObject *type) {
 
 void CopyString(::Smp::Char8 *destination, std::size_t size,
                 const ::Smp::AnySimple &value) {
-  auto *str = static_cast<::Smp::String8>(value);
+  const auto *str = static_cast<::Smp::String8>(value);
   if (str) {
-    std::size_t length = std::min(size, std::strlen(str) + 1);
+    const std::size_t length = std::min(size, std::strlen(str) + 1);
     std::memcpy(destination, str, length);
     destination[size - 1] = '\0';
   } else {
@@ -400,8 +427,9 @@ static inline bool AreEquivalent(const ::Smp::ISimpleArrayField *source,
   // simpleArraySource->GetType()->GetPrimitiveTypeKind()
 
   for (::Smp::UInt64 i = 0; i < size; ++i) {
-    if (source->GetValue(i).GetType() != target->GetValue(i).GetType())
+    if (source->GetValue(i).GetType() != target->GetValue(i).GetType()) {
       return false;
+    }
   }
   return true;
 }
@@ -438,40 +466,44 @@ static inline bool AreEquivalent(const ::Smp::IStructureField *source,
   return true;
 }
 
-bool AreEquivalent(const ::Smp::IField *source, const ::Smp::IField *target) {
+bool AreEquivalent(const ::Smp::IField *first, const ::Smp::IField *second) {
 
   // check a simple field
   if (auto const *simpleSource =
-          dynamic_cast<const ::Smp::ISimpleField *>(source)) {
+          dynamic_cast<const ::Smp::ISimpleField *>(first)) {
     auto const *simpleTarget =
-        dynamic_cast<const ::Smp::ISimpleField *>(target);
+        dynamic_cast<const ::Smp::ISimpleField *>(second);
     if (simpleTarget && (simpleTarget->GetPrimitiveTypeKind() ==
-                         simpleSource->GetPrimitiveTypeKind()))
+                         simpleSource->GetPrimitiveTypeKind())) {
       return true;
+    }
   }
   // check a simple array field
   else if (auto const *simpleArraySource =
-               dynamic_cast<const ::Smp::ISimpleArrayField *>(source)) {
+               dynamic_cast<const ::Smp::ISimpleArrayField *>(first)) {
     auto const *simpleArrayTarget =
-        dynamic_cast<const ::Smp::ISimpleArrayField *>(target);
+        dynamic_cast<const ::Smp::ISimpleArrayField *>(second);
     if (simpleArrayTarget &&
-        AreEquivalent(simpleArraySource, simpleArrayTarget))
+        AreEquivalent(simpleArraySource, simpleArrayTarget)) {
       return true;
+    }
   }
   // check an array field
   else if (auto const *arraySource =
-               dynamic_cast<const ::Smp::IArrayField *>(source)) {
-    auto const *arrayTarget = dynamic_cast<const ::Smp::IArrayField *>(target);
-    if (arrayTarget && AreEquivalent(arraySource, arrayTarget))
+               dynamic_cast<const ::Smp::IArrayField *>(first)) {
+    auto const *arrayTarget = dynamic_cast<const ::Smp::IArrayField *>(second);
+    if (arrayTarget && AreEquivalent(arraySource, arrayTarget)) {
       return true;
+    }
   }
   // check a structure field
   else if (auto const *structSource =
-               dynamic_cast<const ::Smp::IStructureField *>(source)) {
+               dynamic_cast<const ::Smp::IStructureField *>(first)) {
     auto const *structTarget =
-        dynamic_cast<const ::Smp::IStructureField *>(target);
-    if (structTarget && AreEquivalent(structSource, structTarget))
+        dynamic_cast<const ::Smp::IStructureField *>(second);
+    if (structTarget && AreEquivalent(structSource, structTarget)) {
       return true;
+    }
   } else {
     // ignore
   }
@@ -482,55 +514,57 @@ bool AreEquivalent(const ::Smp::IField *source, const ::Smp::IField *target) {
 std::string checkName(::Smp::String8 name, ::Smp::IObject const *parent) {
 
   // the name cannot be null
-  if (!name)
+  if (!name) {
     ::Xsmp::Exception::throwInvalidObjectName(parent, name,
                                               "A name cannot be null.");
-
-  auto *next = name;
+  }
+  const auto *next = name;
   // the name must start with a letter
-  if (!std::isalpha(static_cast<unsigned char>(*next)))
+  if (!std::isalpha(static_cast<unsigned char>(*next))) {
     ::Xsmp::Exception::throwInvalidObjectName(
         parent, name,
         "Name '" + std::string{name} + "' shall start with a letter.");
-
+  }
   ++next;
 
   // skip following letters, digits and "_"
-  while (std::isalnum(static_cast<unsigned char>(*next)) || (*next == '_'))
+  while (std::isalnum(static_cast<unsigned char>(*next)) || (*next == '_')) {
     ++next;
-
+  }
   // parse an optional array
   while (*next == '[') {
     ++next;
     // index must start with a digit
-    if (!std::isdigit(static_cast<unsigned char>(*next)))
+    if (!std::isdigit(static_cast<unsigned char>(*next))) {
       ::Xsmp::Exception::throwInvalidObjectName(
           parent, name,
           "Name '" + std::string{name, static_cast<std::size_t>(next - name)} +
               "' shall be followed by a digit.");
+    }
     ++next;
     // skip following digits
-    while (std::isdigit(static_cast<unsigned char>(*next)))
+    while (std::isdigit(static_cast<unsigned char>(*next))) {
       ++next;
-
+    }
     // check closing bracket
-    if (*next != ']')
+    if (*next != ']') {
       ::Xsmp::Exception::throwInvalidObjectName(
           parent, name,
           "Name '" + std::string{name, static_cast<std::size_t>(next - name)} +
               "' shall be followed by a digit or a ']'.");
+    }
     ++next;
   }
 
   // check end of name
-  if (*next != '\0')
+  if (*next != '\0') {
     ::Xsmp::Exception::throwInvalidObjectName(
         parent, name,
         "Name '" + std::string{name, static_cast<std::size_t>(next - name)} +
             "' shall be followed by " +
             ((*(next - 1) != ']') ? "a letter or a digit or an '_' or " : "") +
             "a '[' or null terminated ('\\0').");
-
-  return std::string{name, static_cast<std::size_t>(next - name)};
+  }
+  return {name, static_cast<std::size_t>(next - name)};
 }
 } // namespace Xsmp::Helper

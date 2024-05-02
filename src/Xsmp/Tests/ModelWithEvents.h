@@ -28,8 +28,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
+namespace Xsmp::Tests {
 class ModelWithEvents : public ModelWithEventsGen {
 public:
   /// Re-use parent constructors
@@ -80,7 +79,6 @@ public:
   void _uint64_esi(::Smp::IObject *sender, ::Smp::UInt64 value) override;
   void _uint8_esi(::Smp::IObject *sender, ::Smp::UInt8 value) override;
 };
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests
 
 #endif // XSMP_TESTS_MODELWITHEVENTS_H_

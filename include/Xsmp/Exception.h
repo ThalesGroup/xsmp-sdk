@@ -252,9 +252,9 @@ throwTypeAlreadyRegistered(const ::Smp::IObject *sender,
                            ::Smp::String8 newTypeName,
                            const ::Smp::Publication::IType *existingType);
 
-[[noreturn]] void
-throwInvalidPrimitiveType(const ::Smp::IObject *sender, ::Smp::String8 typeName,
-                          const ::Smp::PrimitiveTypeKind kind);
+[[noreturn]] void throwInvalidPrimitiveType(const ::Smp::IObject *sender,
+                                            ::Smp::String8 typeName,
+                                            ::Smp::PrimitiveTypeKind kind);
 
 [[noreturn]] void throwInvalidSimulatorState(const ::Smp::IObject *sender,
                                              ::Smp::SimulatorStateKind state);

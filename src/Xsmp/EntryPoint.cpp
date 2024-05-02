@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/IObject.h>
+#include <Smp/PrimitiveTypes.h>
 #include <Xsmp/EntryPoint.h>
 #include <Xsmp/EntryPointPublisher.h>
 #include <Xsmp/Helper.h>
-#include <algorithm>
+#include <functional>
+#include <utility>
 
 namespace Xsmp {
 

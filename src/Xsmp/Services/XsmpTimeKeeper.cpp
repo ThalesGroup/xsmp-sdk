@@ -13,14 +13,17 @@
 // limitations under the License.
 
 #include <Smp/ISimulator.h>
+#include <Smp/IStorageReader.h>
+#include <Smp/IStorageWriter.h>
+#include <Smp/PrimitiveTypes.h>
 #include <Smp/Services/IEventManager.h>
 #include <Smp/Services/IScheduler.h>
 #include <Xsmp/DateTime.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
 #include <Xsmp/Persist.h>
-#include <Xsmp/Persist/StdAtomic.h>
 #include <Xsmp/Services/XsmpTimeKeeper.h>
+#include <mutex>
 
 namespace Xsmp::Services {
 
@@ -35,22 +38,22 @@ void XsmpTimeKeeper::DoConnect(const ::Smp::ISimulator *simulator) const {
       &PostSimTimeChange);
 }
 ::Smp::Duration XsmpTimeKeeper::GetSimulationTime() const {
-  std::scoped_lock lck{_mutex};
+  const std::scoped_lock lck{_mutex};
   return _simulationTime;
 }
 
 ::Smp::DateTime XsmpTimeKeeper::GetMissionStartTime() const {
-  std::scoped_lock lck{_mutex};
+  const std::scoped_lock lck{_mutex};
   return _missionStartTime;
 }
 
 ::Smp::DateTime XsmpTimeKeeper::GetEpochTime() const {
-  std::scoped_lock lck{_mutex};
+  const std::scoped_lock lck{_mutex};
   return _simulationTime - _epochStart;
 }
 
 ::Smp::Duration XsmpTimeKeeper::GetMissionTime() const {
-  std::scoped_lock lck{_mutex};
+  const std::scoped_lock lck{_mutex};
   return _simulationTime - _epochStart - _missionStartTime;
 }
 
@@ -60,7 +63,7 @@ void XsmpTimeKeeper::DoConnect(const ::Smp::ISimulator *simulator) const {
 
 void XsmpTimeKeeper::SetEpochTime(::Smp::DateTime epochTime) {
   {
-    std::scoped_lock lck{_mutex};
+    const std::scoped_lock lck{_mutex};
     _epochStart = _simulationTime - epochTime;
   }
 
@@ -70,7 +73,7 @@ void XsmpTimeKeeper::SetEpochTime(::Smp::DateTime epochTime) {
 
 void XsmpTimeKeeper::SetMissionStartTime(::Smp::DateTime missionStart) {
   {
-    std::scoped_lock lck{_mutex};
+    const std::scoped_lock lck{_mutex};
     _missionStartTime = missionStart;
   }
   GetSimulator()->GetEventManager()->Emit(
@@ -79,7 +82,7 @@ void XsmpTimeKeeper::SetMissionStartTime(::Smp::DateTime missionStart) {
 
 void XsmpTimeKeeper::SetMissionTime(::Smp::Duration missionTime) {
   {
-    std::scoped_lock lck{_mutex};
+    const std::scoped_lock lck{_mutex};
     _missionStartTime = _simulationTime - _epochStart - missionTime;
   }
   GetSimulator()->GetEventManager()->Emit(
@@ -88,26 +91,26 @@ void XsmpTimeKeeper::SetMissionTime(::Smp::Duration missionTime) {
 
 void XsmpTimeKeeper::SetSimulationTime(::Smp::Duration simulationTime) {
 
-  if (!_simTimeChanging)
+  if (!_simTimeChanging) {
     return;
-
+  }
   auto max = GetSimulator()->GetScheduler()->GetNextScheduledEventTime();
-  std::scoped_lock lck{_mutex};
-  if (simulationTime < _simulationTime || simulationTime > max)
+  const std::scoped_lock lck{_mutex};
+  if (simulationTime < _simulationTime || simulationTime > max) {
     ::Xsmp::Exception::throwInvalidSimulationTime(this, _simulationTime,
                                                   simulationTime, max);
-
+  }
   _simulationTime = simulationTime;
 }
 
 void XsmpTimeKeeper::Restore(::Smp::IStorageReader *reader) {
-  std::scoped_lock lck{_mutex};
+  const std::scoped_lock lck{_mutex};
   ::Xsmp::Persist::Restore(GetSimulator(), this, reader, _simulationTime,
                            _missionStartTime, _epochStart);
 }
 
 void XsmpTimeKeeper::Store(::Smp::IStorageWriter *writer) {
-  std::scoped_lock lck{_mutex};
+  const std::scoped_lock lck{_mutex};
   ::Xsmp::Persist::Store(GetSimulator(), this, writer, _simulationTime,
                          _missionStartTime, _epochStart);
 }

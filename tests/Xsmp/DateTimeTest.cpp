@@ -135,7 +135,7 @@ TEST(DateTimeTest, stream) {
 #define EXPECT_STREAM_OPERATOR_EQ(date, value)                                 \
   do {                                                                         \
     std::stringstream ss;                                                      \
-    date.to_stream(ss);                                                        \
+    (date).to_stream(ss);                                                        \
     EXPECT_EQ(date, (value));                                                  \
   } while (false)
 

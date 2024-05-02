@@ -28,8 +28,7 @@
 // ------------------------ Types and Interfaces ------------------------
 // ----------------------------------------------------------------------------
 
-namespace Xsmp {
-namespace Tests {
+namespace Xsmp::Tests {
 class ModelWithSimpleArrayFields : public ModelWithSimpleArrayFieldsGen {
 public:
   /// Re-use parent constructors
@@ -62,7 +61,6 @@ private:
   /// @throws Smp::InvalidComponentState
   void DoDisconnect();
 };
-} // namespace Tests
-} // namespace Xsmp
+} // namespace Xsmp::Tests
 
 #endif // XSMP_TESTS_MODELWITHSIMPLEARRAYFIELDS_H_

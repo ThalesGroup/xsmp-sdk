@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/PrimitiveTypes.h>
 #include <Xsmp/EventProvider.h>
 #include <Xsmp/EventSource.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
 #include <algorithm>
-#include <iterator>
 
 namespace Xsmp {
 namespace detail {
@@ -51,16 +51,16 @@ void AbstractEventSource::Subscribe(::Smp::IEventSink *eventSink) {
   }
 
   if (std::find(_event_sinks.begin(), _event_sinks.end(), eventSink) !=
-      _event_sinks.end())
+      _event_sinks.end()) {
     ::Xsmp::Exception::throwEventSinkAlreadySubscribed(this, this, eventSink);
-
+  }
   _event_sinks.insert(eventSink);
 }
 void AbstractEventSource::Unsubscribe(::Smp::IEventSink *eventSink) {
   auto it = std::find(_event_sinks.begin(), _event_sinks.end(), eventSink);
-  if (it == _event_sinks.end())
+  if (it == _event_sinks.end()) {
     ::Xsmp::Exception::throwEventSinkNotSubscribed(this, this, eventSink);
-
+  }
   _event_sinks.erase(it);
 }
 
@@ -68,15 +68,16 @@ void AbstractEventSource::RemoveLinks(
     const ::Smp::IComponent *target) noexcept {
   // remove all event sinks contained in parent
   for (auto it = _event_sinks.begin(); it != _event_sinks.end();) {
-    if ((*it)->GetParent() == target)
+    if ((*it)->GetParent() == target) {
       it = _event_sinks.erase(it);
-    else
+    } else {
       ++it;
+    }
   }
 }
 void AbstractEventSource::DoEmit(::Smp::IObject *sender,
                                  const ::Smp::AnySimple &value) const {
-  for (auto &sink : _event_sinks) {
+  for (const auto &sink : _event_sinks) {
     sink->Notify(sender, value);
   }
 }

@@ -119,8 +119,9 @@ public:
 
   ::Smp::IComponent *GetComponent(::Smp::String8 name) const override {
     if (name) {
-      if (auto it = find(name); it != end())
+      if (auto it = find(name); it != end()) {
         return dynamic_cast<::Smp::IComponent *>(*it);
+      }
     }
     return nullptr;
   }
@@ -135,10 +136,11 @@ public:
   void AddComponent(::Smp::IComponent *component) override {
     AbstractContainer::AddComponent(component);
     // check that the component type can be casted to T
-    if (auto *casted = dynamic_cast<T *>(component))
+    if (auto *casted = dynamic_cast<T *>(component)) {
       _vector.emplace_back(casted);
-    else
+    } else {
       ::Xsmp::Exception::throwInvalidObjectType<T>(this, component);
+    }
   }
   void DeleteComponent(::Smp::IComponent *component) override {
     if (auto it = find(dynamic_cast<T *>(component)); it != end()) {
@@ -228,8 +230,9 @@ public:
   /// @return the element
   /// @throws std::out_of_range if the element is not found
   reference at(std::string_view name) {
-    if (auto it = find(name); it != _vector.end())
+    if (auto it = find(name); it != _vector.end()) {
       return *it;
+    }
     throw std::out_of_range("No Object named: " + std::string(name));
   }
   /// Get an element by index
@@ -242,8 +245,9 @@ public:
   /// @return the element
   /// @throws std::out_of_range if the element is not found
   const_reference at(std::string_view name) const {
-    if (auto it = find(name); it != _vector.cend())
+    if (auto it = find(name); it != _vector.cend()) {
       return *it;
+    }
     throw std::out_of_range("No Object named: " + std::string(name));
   }
   /// Get the first element

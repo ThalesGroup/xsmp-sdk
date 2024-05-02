@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/StorageWriter.h>
+#include <fstream>
 #include <iostream>
 
 #if !defined(__clang__) && defined(__GNUC__) && __GNUC__ <= 7
@@ -29,15 +31,16 @@ namespace Xsmp {
 namespace {
 std::ofstream createOutputStream(::Smp::String8 path, ::Smp::String8 filename,
                                  const ::Smp::IObject *object) {
-  if (!fs::is_directory(path ? path : ""))
+  if (!fs::is_directory(path ? path : "")) {
     fs::create_directories(path ? path : "");
-
+  }
   auto fullPath = fs::path(path ? path : "") / (filename ? filename : "");
   std::ofstream os{fullPath, std::ios::binary};
 
-  if (!os.good())
+  if (!os.good()) {
     ::Xsmp::Exception::throwCannotStore(object, "Cannot open file: " +
                                                     fullPath.string());
+  }
   return os;
 }
 } // namespace
@@ -49,12 +52,14 @@ StorageWriter::StorageWriter(::Smp::String8 path, ::Smp::String8 filename,
 
 void StorageWriter::Store(void *address, ::Smp::UInt64 size) {
   _os.write(static_cast<char *>(address), static_cast<std::streamsize>(size));
-  if (_os.bad())
+  if (_os.bad()) {
     ::Xsmp::Exception::throwCannotStore(_object,
                                         "Writing error on output operation");
-  if (_os.fail())
+  }
+  if (_os.fail()) {
     ::Xsmp::Exception::throwCannotStore(_object,
                                         "Logical error on output operation");
+  }
 }
 
 ::Smp::String8 StorageWriter::GetStateVectorFileName() const {

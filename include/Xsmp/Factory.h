@@ -53,9 +53,9 @@ public:
 
     return Create(
         name, description, simulator, uuid, typeid(T),
-        [](::Smp::String8 _name, ::Smp::String8 _description,
-           ::Smp::IComposite *_parent, ::Smp::ISimulator *_simulator) {
-          return std::make_unique<T>(_name, _description, _parent, _simulator);
+        [](::Smp::String8 name_, ::Smp::String8 description_,
+           ::Smp::IComposite *parent_, ::Smp::ISimulator *simulator_) {
+          return std::make_unique<T>(name_, description_, parent_, simulator_);
         });
   }
 
@@ -79,7 +79,7 @@ private:
           const std::type_info &type, _factory_instantiator_t &&callback);
   std::string _name;
   std::string _description;
-  ::Smp::ISimulator *_parent;
+  ::Smp::ISimulator *_simulator;
   ::Smp::Uuid _uuid;
   _factory_instantiator_t _callback;
   std::string _typeName;

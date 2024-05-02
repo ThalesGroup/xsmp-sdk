@@ -49,9 +49,9 @@ public:
   /// Property cannot be moved
   Property &operator=(const Property &&) = delete;
 
-  ::Smp::String8 GetName() const final;
-  ::Smp::String8 GetDescription() const final;
-  ::Smp::IObject *GetParent() const final;
+  ::Smp::String8 GetName() const override;
+  ::Smp::String8 GetDescription() const override;
+  ::Smp::IObject *GetParent() const override;
 
   /// Provides the type of the property.
   /// @return  Type of the property.
@@ -80,14 +80,14 @@ public:
   /// The request object may be null if the property is write only.
   /// @return  Request object for property getter, or null if the property
   ///          is write only.
-  virtual ::Smp::IRequest *CreateGetRequest() const noexcept;
+  ::Smp::IRequest *CreateGetRequest() const noexcept;
 
   /// Return a request object for the property setter that describes the
   /// parameter.
   /// The request object may be null if the property is read only.
   /// @return  Request object for property setter, or null if the property
   ///          is read only.
-  virtual ::Smp::IRequest *CreateSetRequest() const noexcept;
+  ::Smp::IRequest *CreateSetRequest() const noexcept;
 
 private:
   /// provide access to Update method to Publication class

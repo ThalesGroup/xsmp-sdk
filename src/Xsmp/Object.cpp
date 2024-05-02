@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/IObject.h>
+#include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Helper.h>
 #include <Xsmp/Object.h>
-#include <cctype>
-#include <cstddef>
 
 namespace Xsmp {
 
