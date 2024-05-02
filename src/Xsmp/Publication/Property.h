@@ -32,7 +32,7 @@ namespace Xsmp::Publication {
 
 class Publication;
 
-class Property : public virtual ::Smp::IProperty {
+class Property final : public virtual ::Smp::IProperty {
 
 public:
   Property(::Smp::String8 name, ::Smp::String8 description,

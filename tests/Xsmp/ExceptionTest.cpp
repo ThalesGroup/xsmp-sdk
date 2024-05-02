@@ -90,17 +90,16 @@ TEST(ExceptionTest, Exception) {
   Object sender{"name"};
   try {
     throwException(&sender, "CustomException", "desc", "error");
+    FAIL();
   } catch (const Smp::Exception &e) {
     EXPECT_STREQ(e.GetName(), "CustomException");
     EXPECT_STREQ(e.GetDescription(), "desc");
     EXPECT_EQ(e.GetSender(), &sender);
     EXPECT_STREQ(e.GetMessage(), "error");
     EXPECT_STREQ(e.what(), "CustomException(desc): error");
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, FieldAlreadyConnected) {
@@ -111,8 +110,8 @@ TEST(ExceptionTest, FieldAlreadyConnected) {
   Field<bool>::output source{&typeRegistry, Smp::Uuids::Uuid_Bool, "source"};
   Field<bool> target{&typeRegistry, Smp::Uuids::Uuid_Bool, "target"};
   try {
-
     throwFieldAlreadyConnected(&sender, &source, &target);
+    FAIL();
   } catch (const Smp::FieldAlreadyConnected &e) {
     EXPECT_STREQ(e.GetName(), "FieldAlreadyConnected");
     EXPECT_STREQ(e.GetDescription(), "Cannot connect a target field to a data "
@@ -124,11 +123,9 @@ TEST(ExceptionTest, FieldAlreadyConnected) {
 
     EXPECT_EQ(e.GetSource(), &source);
     EXPECT_EQ(e.GetTarget(), &target);
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidTarget) {
@@ -138,8 +135,8 @@ TEST(ExceptionTest, InvalidTarget) {
   Field<bool>::output source{&typeRegistry, Smp::Uuids::Uuid_Bool, "source"};
   Field<bool> target{&typeRegistry, Smp::Uuids::Uuid_Bool, "target"};
   try {
-
     throwInvalidTarget(&sender, &source, &target);
+    FAIL();
   } catch (const Smp::InvalidTarget &e) {
     EXPECT_STREQ(e.GetName(), "InvalidTarget");
     EXPECT_STREQ(e.GetDescription(),
@@ -150,11 +147,9 @@ TEST(ExceptionTest, InvalidTarget) {
 
     EXPECT_EQ(e.GetSource(), &source);
     EXPECT_EQ(e.GetTarget(), &target);
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, CannotStore) {
@@ -163,6 +158,7 @@ TEST(ExceptionTest, CannotStore) {
 
   try {
     throwCannotStore(&sender, "test");
+    FAIL();
   } catch (const Smp::CannotStore &e) {
     EXPECT_STREQ(e.GetName(), "CannotStore");
     EXPECT_STREQ(e.GetDescription(),
@@ -170,12 +166,9 @@ TEST(ExceptionTest, CannotStore) {
                  "data to the storage writer given to the Store() method");
     EXPECT_EQ(e.GetSender(), &sender);
     EXPECT_STREQ(e.GetMessage(), "test");
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, CannotRestore) {
@@ -184,6 +177,7 @@ TEST(ExceptionTest, CannotRestore) {
 
   try {
     throwCannotRestore(&sender, "test");
+    FAIL();
   } catch (const Smp::CannotRestore &e) {
     EXPECT_STREQ(e.GetName(), "CannotRestore");
     EXPECT_STREQ(e.GetDescription(),
@@ -191,12 +185,9 @@ TEST(ExceptionTest, CannotRestore) {
                  "reader passed to the Restore() method contains invalid data");
     EXPECT_EQ(e.GetSender(), &sender);
     EXPECT_STREQ(e.GetMessage(), "test");
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidObjectName) {
@@ -205,6 +196,7 @@ TEST(ExceptionTest, InvalidObjectName) {
 
   try {
     throwInvalidObjectName(&sender, "test", "description");
+    FAIL();
   } catch (const Smp::InvalidObjectName &e) {
     EXPECT_STREQ(e.GetName(), "InvalidObjectName");
     EXPECT_STREQ(e.GetDescription(),
@@ -214,11 +206,9 @@ TEST(ExceptionTest, InvalidObjectName) {
                  "The object's name 'test' is invalid. description");
 
     EXPECT_STREQ(e.GetInvalidName(), "test");
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidObjectNameNull) {
@@ -227,6 +217,7 @@ TEST(ExceptionTest, InvalidObjectNameNull) {
 
   try {
     throwInvalidObjectName(&sender, nullptr, "description");
+    FAIL();
   } catch (const Smp::InvalidObjectName &e) {
     EXPECT_STREQ(e.GetName(), "InvalidObjectName");
     EXPECT_STREQ(e.GetDescription(),
@@ -236,11 +227,9 @@ TEST(ExceptionTest, InvalidObjectNameNull) {
                  "The object's name '<null>' is invalid. description");
 
     EXPECT_STREQ(e.GetInvalidName(), "<null>");
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, ContainerFull) {
@@ -250,6 +239,7 @@ TEST(ExceptionTest, ContainerFull) {
   Xsmp::Container<Smp::IObject> ctn{"ctn", "", &parent, 0, 0};
   try {
     throwContainerFull(&ctn);
+    FAIL();
   } catch (const Smp::ContainerFull &e) {
     EXPECT_STREQ(e.GetName(), "ContainerFull");
     EXPECT_STREQ(e.GetDescription(),
@@ -262,11 +252,9 @@ TEST(ExceptionTest, ContainerFull) {
 
     EXPECT_EQ(e.GetContainerSize(), 0);
     EXPECT_STREQ(e.GetContainerName(), "ctn");
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, DuplicateName) {
@@ -275,6 +263,7 @@ TEST(ExceptionTest, DuplicateName) {
 
   try {
     throwDuplicateName(&sender, "test", &sender);
+    FAIL();
   } catch (const Smp::DuplicateName &e) {
     EXPECT_STREQ(e.GetName(), "DuplicateName");
     EXPECT_STREQ(
@@ -288,11 +277,9 @@ TEST(ExceptionTest, DuplicateName) {
                  "collection already containing an object with this name.");
 
     EXPECT_STREQ(e.GetDuplicateName(), "test");
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, NotContained) {
@@ -303,6 +290,7 @@ TEST(ExceptionTest, NotContained) {
   Xsmp::Model cmp{"cmp"};
   try {
     throwNotContained(&ctn, &cmp);
+    FAIL();
   } catch (const Smp::NotContained &e) {
     EXPECT_STREQ(e.GetName(), "NotContained");
     EXPECT_STREQ(e.GetDescription(),
@@ -314,11 +302,9 @@ TEST(ExceptionTest, NotContained) {
 
     EXPECT_STREQ(e.GetContainerName(), "ctn");
     EXPECT_EQ(e.GetComponent(), &cmp);
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, CannotDelete) {
@@ -329,6 +315,7 @@ TEST(ExceptionTest, CannotDelete) {
   Xsmp::Model cmp{"cmp"};
   try {
     throwCannotDelete(&ctn, &cmp);
+    FAIL();
   } catch (const Smp::CannotDelete &e) {
     EXPECT_STREQ(e.GetName(), "CannotDelete");
     EXPECT_STREQ(e.GetDescription(),
@@ -344,12 +331,9 @@ TEST(ExceptionTest, CannotDelete) {
     EXPECT_STREQ(e.GetContainerName(), "ctn");
     EXPECT_EQ(e.GetComponent(), &cmp);
     EXPECT_EQ(e.GetLowerLimit(), 42);
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidComponentState) {
@@ -358,6 +342,7 @@ TEST(ExceptionTest, InvalidComponentState) {
   try {
     throwInvalidComponentState(&cmp, Smp::ComponentStateKind::CSK_Connected,
                                Smp::ComponentStateKind::CSK_Created);
+    FAIL();
   } catch (const Smp::InvalidComponentState &e) {
     EXPECT_STREQ(e.GetName(), "InvalidComponentState");
     EXPECT_STREQ(e.GetDescription(),
@@ -369,12 +354,9 @@ TEST(ExceptionTest, InvalidComponentState) {
 
     EXPECT_EQ(e.GetExpectedState(), Smp::ComponentStateKind::CSK_Created);
     EXPECT_EQ(e.GetInvalidState(), Smp::ComponentStateKind::CSK_Connected);
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidObjectType) {
@@ -382,6 +364,7 @@ TEST(ExceptionTest, InvalidObjectType) {
   Xsmp::Model cmp{"cmp"};
   try {
     throwInvalidObjectType<bool>(&sender, &cmp);
+    FAIL();
   } catch (const Smp::InvalidObjectType &e) {
     EXPECT_STREQ(e.GetName(), "InvalidObjectType");
     EXPECT_STREQ(e.GetDescription(), "Cannot pass an object of wrong type");
@@ -390,12 +373,9 @@ TEST(ExceptionTest, InvalidObjectType) {
                  "<null>/cmp of type Xsmp::Model cannot be casted to bool.");
 
     EXPECT_EQ(e.GetInvalidObject(), &cmp);
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, NotReferenced) {
@@ -406,6 +386,7 @@ TEST(ExceptionTest, NotReferenced) {
   Xsmp::Model cmp{"cmp"};
   try {
     throwNotReferenced(&ctn, &cmp);
+    FAIL();
   } catch (const Smp::NotReferenced &e) {
     EXPECT_STREQ(e.GetName(), "NotReferenced");
     EXPECT_STREQ(e.GetDescription(),
@@ -418,11 +399,9 @@ TEST(ExceptionTest, NotReferenced) {
 
     EXPECT_STREQ(e.GetReferenceName(), "ctn");
     EXPECT_EQ(e.GetComponent(), &cmp);
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, ReferenceFull) {
@@ -433,6 +412,7 @@ TEST(ExceptionTest, ReferenceFull) {
 
   try {
     throwReferenceFull(&ctn, 42);
+    FAIL();
   } catch (const Smp::ReferenceFull &e) {
     EXPECT_STREQ(e.GetName(), "ReferenceFull");
     EXPECT_STREQ(e.GetDescription(),
@@ -445,12 +425,9 @@ TEST(ExceptionTest, ReferenceFull) {
 
     EXPECT_STREQ(e.GetReferenceName(), "ctn");
     EXPECT_EQ(e.GetReferenceSize(), 42);
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, CannotRemove) {
@@ -461,6 +438,7 @@ TEST(ExceptionTest, CannotRemove) {
   Xsmp::Model cmp{"cmp"};
   try {
     throwCannotRemove(&ctn, &cmp, 42);
+    FAIL();
   } catch (const Smp::CannotRemove &e) {
     EXPECT_STREQ(e.GetName(), "CannotRemove");
     EXPECT_STREQ(e.GetDescription(),
@@ -476,12 +454,9 @@ TEST(ExceptionTest, CannotRemove) {
     EXPECT_STREQ(e.GetReferenceName(), "ctn");
     EXPECT_EQ(e.GetComponent(), &cmp);
     EXPECT_EQ(e.GetLowerLimit(), 42);
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidEventSink) {
@@ -494,6 +469,7 @@ TEST(ExceptionTest, InvalidEventSink) {
 
   try {
     throwInvalidEventSink(&parent, &eso, &esi);
+    FAIL();
   } catch (const Smp::InvalidEventSink &e) {
     EXPECT_STREQ(e.GetName(), "InvalidEventSink");
     EXPECT_STREQ(e.GetDescription(),
@@ -506,24 +482,19 @@ TEST(ExceptionTest, InvalidEventSink) {
 
     EXPECT_EQ(e.GetEventSink(), &esi);
     EXPECT_EQ(e.GetEventSource(), &eso);
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, EventSinkAlreadySubscribed) {
-
   Object parent{"parent"};
-
   EventSource<void> eso{"eso1", "", &parent};
-
   EventSink<void> esi{"esi1", "desc", &parent, [&](::Smp::IObject *obj) {}};
 
   try {
     throwEventSinkAlreadySubscribed(&parent, &eso, &esi);
+    FAIL();
   } catch (const Smp::EventSinkAlreadySubscribed &e) {
     EXPECT_STREQ(e.GetName(), "EventSinkAlreadySubscribed");
     EXPECT_STREQ(e.GetDescription(), "Cannot subscribe an event sink to an "
@@ -535,24 +506,20 @@ TEST(ExceptionTest, EventSinkAlreadySubscribed) {
 
     EXPECT_EQ(e.GetEventSink(), &esi);
     EXPECT_EQ(e.GetEventSource(), &eso);
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, EventSinkNotSubscribed) {
 
   Object parent{"parent"};
-
   EventSource<void> eso{"eso1", "", &parent};
-
   EventSink<void> esi{"esi1", "desc", &parent, [&](::Smp::IObject *obj) {}};
 
   try {
     throwEventSinkNotSubscribed(&parent, &eso, &esi);
+    FAIL();
   } catch (const Smp::EventSinkNotSubscribed &e) {
     EXPECT_STREQ(e.GetName(), "EventSinkNotSubscribed");
     EXPECT_STREQ(e.GetDescription(),
@@ -566,12 +533,9 @@ TEST(ExceptionTest, EventSinkNotSubscribed) {
 
     EXPECT_EQ(e.GetEventSink(), &esi);
     EXPECT_EQ(e.GetEventSource(), &eso);
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidOperationName) {
@@ -580,6 +544,7 @@ TEST(ExceptionTest, InvalidOperationName) {
 
   try {
     throwInvalidOperationName(&parent, "op");
+    FAIL();
   } catch (const Smp::InvalidOperationName &e) {
     EXPECT_STREQ(e.GetName(), "InvalidOperationName");
     EXPECT_STREQ(e.GetDescription(),
@@ -592,12 +557,9 @@ TEST(ExceptionTest, InvalidOperationName) {
                  "not support dynamic invocation in operation: op");
 
     EXPECT_STREQ(e.GetOperationName(), "op");
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidParameterCount) {
@@ -606,6 +568,7 @@ TEST(ExceptionTest, InvalidParameterCount) {
 
   try {
     throwInvalidParameterCount(&parent, 42);
+    FAIL();
   } catch (const Smp::InvalidParameterCount &e) {
     EXPECT_STREQ(e.GetName(), "InvalidParameterCount");
     EXPECT_STREQ(e.GetDescription(),
@@ -618,11 +581,9 @@ TEST(ExceptionTest, InvalidParameterCount) {
     EXPECT_STREQ(e.GetOperationName(), "op");
     EXPECT_EQ(e.GetRequestParameters(), 42);
     EXPECT_EQ(e.GetOperationParameters(), 0);
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidParameterType) {
@@ -633,6 +594,7 @@ TEST(ExceptionTest, InvalidParameterType) {
     throwInvalidParameterType(&sender, "op", "parameter",
                               ::Smp::PrimitiveTypeKind::PTK_Bool,
                               ::Smp::PrimitiveTypeKind::PTK_Float32);
+    FAIL();
   } catch (const Smp::InvalidParameterType &e) {
     EXPECT_STREQ(e.GetName(), "InvalidParameterType");
     EXPECT_STREQ(e.GetDescription(),
@@ -647,18 +609,16 @@ TEST(ExceptionTest, InvalidParameterType) {
     EXPECT_STREQ(e.GetParameterName(), "parameter");
     EXPECT_EQ(e.GetExpectedType(), ::Smp::PrimitiveTypeKind::PTK_Float32);
     EXPECT_EQ(e.GetInvalidType(), ::Smp::PrimitiveTypeKind::PTK_Bool);
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidArrayIndex) {
 
   Xsmp::Publication::TypeRegistry registry;
 
-  auto *type = dynamic_cast<Xsmp::Publication::ArrayType *>(
+ const auto *type = dynamic_cast<Xsmp::Publication::ArrayType *>(
       registry.AddArrayType("type", "", Smp::Uuid{}, Smp::Uuids::Uuid_Bool,
                             sizeof(bool), 10, false));
 
@@ -668,6 +628,7 @@ TEST(ExceptionTest, InvalidArrayIndex) {
 
   try {
     throwInvalidArrayIndex(&sender, 42);
+    FAIL();
   } catch (const Smp::InvalidArrayIndex &e) {
     EXPECT_STREQ(e.GetName(), "InvalidArrayIndex");
     EXPECT_STREQ(e.GetDescription(),
@@ -678,7 +639,6 @@ TEST(ExceptionTest, InvalidArrayIndex) {
 
     EXPECT_EQ(e.GetInvalidIndex(), 42);
     EXPECT_EQ(e.GetArraySize(), 10);
-
   } catch (...) {
     FAIL();
   }
@@ -689,6 +649,7 @@ TEST(ExceptionTest, InvalidArrayIndex) {
 
   try {
     throwInvalidArrayIndex(&simple, -1);
+    FAIL();
   } catch (const Smp::InvalidArrayIndex &e) {
     EXPECT_STREQ(e.GetName(), "InvalidArrayIndex");
     EXPECT_STREQ(e.GetDescription(),
@@ -699,12 +660,9 @@ TEST(ExceptionTest, InvalidArrayIndex) {
 
     EXPECT_EQ(e.GetInvalidIndex(), -1);
     EXPECT_EQ(e.GetArraySize(), 10);
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidFieldValue) {
@@ -717,6 +675,7 @@ TEST(ExceptionTest, InvalidFieldValue) {
       Smp::AnySimple{::Smp::PrimitiveTypeKind::PTK_Float32, 42.};
   try {
     throwInvalidFieldValue(&field, invalidValue);
+    FAIL();
   } catch (const Smp::InvalidFieldValue &e) {
     EXPECT_STREQ(e.GetName(), "InvalidFieldValue");
     EXPECT_STREQ(e.GetDescription(), "This exception is raised when trying to "
@@ -726,19 +685,16 @@ TEST(ExceptionTest, InvalidFieldValue) {
                                  "<null>.field of Bool's type.");
 
     EXPECT_EQ(e.GetInvalidFieldValue(), invalidValue);
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidArrayValue) {
 
   Xsmp::Publication::TypeRegistry registry;
 
-  auto *type = dynamic_cast<Xsmp::Publication::ArrayType *>(
+ const auto *type = dynamic_cast<Xsmp::Publication::ArrayType *>(
       registry.AddArrayType("Test", "", Smp::Uuid{}, Smp::Uuids::Uuid_Bool,
                             sizeof(bool), 10, false));
 
@@ -750,6 +706,7 @@ TEST(ExceptionTest, InvalidArrayValue) {
       Smp::AnySimple{::Smp::PrimitiveTypeKind::PTK_Float32, 42.};
   try {
     throwInvalidArrayValue(&sender, 4, invalidValue);
+    FAIL();
   } catch (const Smp::InvalidArrayValue &e) {
     EXPECT_STREQ(e.GetName(), "InvalidArrayValue");
     EXPECT_STREQ(e.GetDescription(),
@@ -761,19 +718,16 @@ TEST(ExceptionTest, InvalidArrayValue) {
 
     EXPECT_EQ(e.GetInvalidValue(), invalidValue);
     EXPECT_EQ(e.GetInvalidValueIndex(), 4);
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidArraySize) {
 
   Xsmp::Publication::TypeRegistry registry;
 
-  auto *type = dynamic_cast<Xsmp::Publication::ArrayType *>(
+  const auto *type = dynamic_cast<Xsmp::Publication::ArrayType *>(
       registry.AddArrayType("Test", "", Smp::Uuid{}, Smp::Uuids::Uuid_Bool,
                             sizeof(bool), 10, false));
 
@@ -783,6 +737,7 @@ TEST(ExceptionTest, InvalidArraySize) {
 
   try {
     throwInvalidArraySize(&sender, 4);
+    FAIL();
   } catch (const Smp::InvalidArraySize &e) {
     EXPECT_STREQ(e.GetName(), "InvalidArraySize");
     EXPECT_STREQ(
@@ -795,12 +750,9 @@ TEST(ExceptionTest, InvalidArraySize) {
 
     EXPECT_EQ(e.GetInvalidSize(), 4);
     EXPECT_EQ(e.GetArraySize(), 10);
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidEventName) {
@@ -808,6 +760,7 @@ TEST(ExceptionTest, InvalidEventName) {
   Object sender{"name"};
   try {
     throwInvalidEventName(&sender, nullptr);
+    FAIL();
   } catch (const Smp::Services::InvalidEventName &e) {
     EXPECT_STREQ(e.GetName(), "InvalidEventName");
     EXPECT_STREQ(e.GetDescription(),
@@ -820,6 +773,7 @@ TEST(ExceptionTest, InvalidEventName) {
   }
   try {
     throwInvalidEventName(&sender, "");
+    FAIL();
   } catch (const Smp::Services::InvalidEventName &e) {
     EXPECT_STREQ(e.GetName(), "InvalidEventName");
     EXPECT_STREQ(e.GetDescription(),
@@ -827,12 +781,9 @@ TEST(ExceptionTest, InvalidEventName) {
                  "event manager when an empty event name has been provided");
     EXPECT_EQ(e.GetSender(), &sender);
     EXPECT_STREQ(e.GetMessage(), "The Event Name '' is invalid.");
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidEventId) {
@@ -840,6 +791,7 @@ TEST(ExceptionTest, InvalidEventId) {
   Object sender{"name"};
   try {
     throwInvalidEventId(&sender, 42);
+    FAIL();
   } catch (const Smp::Services::InvalidEventId &e) {
     EXPECT_STREQ(e.GetName(), "InvalidEventId");
     EXPECT_STREQ(e.GetDescription(),
@@ -854,12 +806,9 @@ TEST(ExceptionTest, InvalidEventId) {
     EXPECT_EQ(e.GetSender(), &sender);
     EXPECT_STREQ(e.GetMessage(), "The EventId '42' is invalid.");
     EXPECT_EQ(e.GetInvalidEventId(), 42);
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidCycleTime) {
@@ -867,6 +816,7 @@ TEST(ExceptionTest, InvalidCycleTime) {
   Object sender{"name"};
   try {
     throwInvalidCycleTime(&sender, -42);
+    FAIL();
   } catch (const Smp::Services::InvalidCycleTime &e) {
     EXPECT_STREQ(e.GetName(), "InvalidCycleTime");
     EXPECT_STREQ(e.GetDescription(),
@@ -878,12 +828,9 @@ TEST(ExceptionTest, InvalidCycleTime) {
     EXPECT_STREQ(
         e.GetMessage(),
         "The cycle time '-00:00:00.000000042' is not a positive value.");
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidEventTime) {
@@ -891,6 +838,7 @@ TEST(ExceptionTest, InvalidEventTime) {
   Object sender{"name"};
   try {
     throwInvalidEventTime(&sender, 1000, 2000);
+    FAIL();
   } catch (const Smp::Services::InvalidEventTime &e) {
     EXPECT_STREQ(e.GetName(), "InvalidEventTime");
     EXPECT_STREQ(e.GetDescription(),
@@ -901,12 +849,9 @@ TEST(ExceptionTest, InvalidEventTime) {
     EXPECT_STREQ(e.GetMessage(),
                  "The event time '00:00:00.000001000' is before the current "
                  "time '00:00:00.000002000'.");
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, EntryPointNotSubscribed) {
@@ -914,6 +859,7 @@ TEST(ExceptionTest, EntryPointNotSubscribed) {
   EntryPoint ep{"ep", "", &sender, [] {}};
   try {
     throwEntryPointNotSubscribed(&sender, &ep, "test");
+    FAIL();
   } catch (const Smp::Services::EntryPointNotSubscribed &e) {
     EXPECT_STREQ(e.GetName(), "EntryPointNotSubscribed");
     EXPECT_STREQ(e.GetDescription(), "Cannot unsubscribe an entry point from "
@@ -923,12 +869,9 @@ TEST(ExceptionTest, EntryPointNotSubscribed) {
                  "The EntryPoint <null>.name.ep is not subscribed to 'test'.");
     EXPECT_EQ(e.GetEntryPoint(), &ep);
     EXPECT_STREQ(e.GetEventName(), "test");
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, EntryPointAlreadySubscribed) {
@@ -936,6 +879,7 @@ TEST(ExceptionTest, EntryPointAlreadySubscribed) {
   EntryPoint ep{"ep", "", &sender, [] {}};
   try {
     throwEntryPointAlreadySubscribed(&sender, &ep, "test");
+    FAIL();
   } catch (const Smp::Services::EntryPointAlreadySubscribed &e) {
     EXPECT_STREQ(e.GetName(), "EntryPointAlreadySubscribed");
     EXPECT_STREQ(e.GetDescription(), "Cannot subscribe an entry point to an "
@@ -946,12 +890,9 @@ TEST(ExceptionTest, EntryPointAlreadySubscribed) {
         "The EntryPoint <null>.name.ep is already subscribed to 'test'.");
     EXPECT_EQ(e.GetEntryPoint(), &ep);
     EXPECT_STREQ(e.GetEventName(), "test");
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidFieldName) {
@@ -959,6 +900,7 @@ TEST(ExceptionTest, InvalidFieldName) {
 
   try {
     throwInvalidFieldName(&sender, "test");
+    FAIL();
   } catch (const Smp::InvalidFieldName &e) {
     EXPECT_STREQ(e.GetName(), "InvalidFieldName");
     EXPECT_STREQ(
@@ -968,12 +910,9 @@ TEST(ExceptionTest, InvalidFieldName) {
     EXPECT_STREQ(e.GetMessage(),
                  "'<null>.name' does no contains a field named 'test'.");
     EXPECT_STREQ(e.GetFieldName(), "test");
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidFieldNameNull) {
@@ -981,6 +920,7 @@ TEST(ExceptionTest, InvalidFieldNameNull) {
 
   try {
     throwInvalidFieldName(&sender, nullptr);
+    FAIL();
   } catch (const Smp::InvalidFieldName &e) {
     EXPECT_STREQ(e.GetName(), "InvalidFieldName");
     EXPECT_STREQ(
@@ -990,12 +930,9 @@ TEST(ExceptionTest, InvalidFieldNameNull) {
     EXPECT_STREQ(e.GetMessage(),
                  "'<null>.name' does no contains a field named '<null>'.");
     EXPECT_STREQ(e.GetFieldName(), "<null>");
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, TypeNotRegistered) {
@@ -1003,6 +940,7 @@ TEST(ExceptionTest, TypeNotRegistered) {
   Smp::Uuid uuid{0, 1, 2, 3, 4};
   try {
     throwTypeNotRegistered(&sender, uuid);
+    FAIL();
   } catch (const Smp::Publication::TypeNotRegistered &e) {
     EXPECT_STREQ(e.GetName(), "TypeNotRegistered");
     EXPECT_STREQ(e.GetDescription(), "Cannot publish a feature with a type "
@@ -1012,12 +950,9 @@ TEST(ExceptionTest, TypeNotRegistered) {
                  "The Uuid '00000000-0001-0002-0003-000000000004' has not been "
                  "registered.");
     EXPECT_EQ(e.GetUuid(), uuid);
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidParameterIndex) {
@@ -1026,6 +961,7 @@ TEST(ExceptionTest, InvalidParameterIndex) {
 
   try {
     throwInvalidParameterIndex(&parent, 42, 8);
+    FAIL();
   } catch (const Smp::InvalidParameterIndex &e) {
     EXPECT_STREQ(e.GetName(), "InvalidParameterIndex");
     EXPECT_STREQ(
@@ -1041,11 +977,9 @@ TEST(ExceptionTest, InvalidParameterIndex) {
     EXPECT_STREQ(e.GetOperationName(), "op");
     EXPECT_EQ(e.GetParameterCount(), 8);
     EXPECT_EQ(e.GetParameterIndex(), 42);
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, VoidOperation) {
@@ -1054,6 +988,7 @@ TEST(ExceptionTest, VoidOperation) {
 
   try {
     throwVoidOperation(&parent);
+    FAIL();
   } catch (const Smp::VoidOperation &e) {
     EXPECT_STREQ(e.GetName(), "VoidOperation");
     EXPECT_STREQ(e.GetDescription(),
@@ -1064,11 +999,9 @@ TEST(ExceptionTest, VoidOperation) {
                  "The Operation '<null>.op' does not have a return value");
 
     EXPECT_STREQ(e.GetOperationName(), "op");
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidAnyType) {
@@ -1078,6 +1011,7 @@ TEST(ExceptionTest, InvalidAnyType) {
   try {
     throwInvalidAnyType(&parent, Smp::PrimitiveTypeKind::PTK_Char8,
                         Smp::PrimitiveTypeKind::PTK_Bool);
+    FAIL();
   } catch (const Smp::InvalidAnyType &e) {
     EXPECT_STREQ(e.GetName(), "InvalidAnyType");
     EXPECT_STREQ(e.GetDescription(),
@@ -1088,11 +1022,9 @@ TEST(ExceptionTest, InvalidAnyType) {
 
     EXPECT_EQ(e.GetInvalidType(), Smp::PrimitiveTypeKind::PTK_Bool);
     EXPECT_EQ(e.GetExpectedType(), Smp::PrimitiveTypeKind::PTK_Char8);
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidReturnValue) {
@@ -1101,6 +1033,7 @@ TEST(ExceptionTest, InvalidReturnValue) {
   Smp::AnySimple invalidValue{Smp::PrimitiveTypeKind::PTK_Bool, true};
   try {
     throwInvalidReturnValue(&parent, invalidValue);
+    FAIL();
   } catch (const Smp::InvalidReturnValue &e) {
     EXPECT_STREQ(e.GetName(), "InvalidReturnValue");
     EXPECT_STREQ(e.GetDescription(),
@@ -1112,13 +1045,10 @@ TEST(ExceptionTest, InvalidReturnValue) {
         "The return value 'true' is invalid for Operation '<null>.op'.");
 
     EXPECT_STREQ(e.GetOperationName(), "op");
-
     EXPECT_EQ(e.GetValue(), invalidValue);
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidParameterValue) {
@@ -1127,6 +1057,7 @@ TEST(ExceptionTest, InvalidParameterValue) {
   Smp::AnySimple invalidValue{Smp::PrimitiveTypeKind::PTK_Bool, true};
   try {
     throwInvalidParameterValue(&parent, "param", invalidValue);
+    FAIL();
   } catch (const Smp::InvalidParameterValue &e) {
     EXPECT_STREQ(e.GetName(), "InvalidParameterValue");
     EXPECT_STREQ(e.GetDescription(),
@@ -1137,32 +1068,52 @@ TEST(ExceptionTest, InvalidParameterValue) {
                                  "'param' in Operation '<null>.op'.");
 
     EXPECT_STREQ(e.GetParameterName(), "param");
-
     EXPECT_EQ(e.GetValue(), invalidValue);
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidFieldType) {
 
   Xsmp::Object parent{"op"};
   try {
-    throwInvalidFieldType(&parent);
+    throwInvalidFieldType(&parent, ::Smp::PrimitiveTypeKind::PTK_String8);
+    FAIL();
   } catch (const Smp::InvalidFieldType &e) {
     EXPECT_STREQ(e.GetName(), "InvalidFieldType");
     EXPECT_STREQ(e.GetDescription(),
                  "Cannot publish a field with invalid type");
     EXPECT_EQ(e.GetSender(), &parent);
-    EXPECT_STREQ(e.GetMessage(), "The field type of '<null>.op' is invalid.");
-
-    return;
+    EXPECT_STREQ(e.GetMessage(), "The primitive type kind 'String8' is invalid for field '<null>.op'.");
   } catch (...) {
     FAIL();
   }
-  FAIL();
+  try {
+    throwInvalidFieldType(&parent, ::Smp::Uuid{});
+    FAIL();
+  } catch (const Smp::InvalidFieldType &e) {
+    EXPECT_STREQ(e.GetName(), "InvalidFieldType");
+    EXPECT_STREQ(e.GetDescription(),
+                 "Cannot publish a field with invalid type");
+    EXPECT_EQ(e.GetSender(), &parent);
+    EXPECT_STREQ(e.GetMessage(), "The type UUID '00000000-0000-0000-0000-000000000000' is invalid for field '<null>.op'.");
+  } catch (...) {
+    FAIL();
+  }
+  Xsmp::Publication::TypeRegistry registry;
+  try {
+    throwInvalidFieldType(&parent, registry.GetType(::Smp::PrimitiveTypeKind::PTK_String8));
+    FAIL();
+  } catch (const Smp::InvalidFieldType &e) {
+    EXPECT_STREQ(e.GetName(), "InvalidFieldType");
+    EXPECT_STREQ(e.GetDescription(),
+                 "Cannot publish a field with invalid type");
+    EXPECT_EQ(e.GetSender(), &parent);
+    EXPECT_STREQ(e.GetMessage(), "The type 'String8' is invalid for field '<null>.op'.");
+  } catch (...) {
+    FAIL();
+  }
 }
 
 class M1 : public ::Xsmp::Model {
@@ -1180,6 +1131,7 @@ TEST(ExceptionTest, DuplicateUuid) {
 
   try {
     throwDuplicateUuid(&parent, factory.get(), "M1Duplicate");
+    FAIL();
   } catch (const Smp::DuplicateUuid &e) {
     EXPECT_STREQ(e.GetName(), "DuplicateUuid");
     EXPECT_STREQ(e.GetDescription(),
@@ -1192,12 +1144,9 @@ TEST(ExceptionTest, DuplicateUuid) {
                  "'M1Duplicate' collides with the existing factory 'M1'.");
     EXPECT_STREQ(e.GetOldName(), "M1");
     EXPECT_STREQ(e.GetNewName(), "M1Duplicate");
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, LibraryNotFound) {
@@ -1205,6 +1154,7 @@ TEST(ExceptionTest, LibraryNotFound) {
 
   try {
     throwLibraryNotFound(&parent, "library", "error");
+    FAIL();
   } catch (const Smp::LibraryNotFound &e) {
     EXPECT_STREQ(e.GetName(), "LibraryNotFound");
     EXPECT_STREQ(e.GetDescription(),
@@ -1212,12 +1162,9 @@ TEST(ExceptionTest, LibraryNotFound) {
     EXPECT_EQ(e.GetSender(), &parent);
     EXPECT_STREQ(e.GetMessage(), "error");
     EXPECT_STREQ(e.GetLibraryName(), "library");
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidLibrary) {
@@ -1225,6 +1172,7 @@ TEST(ExceptionTest, InvalidLibrary) {
 
   try {
     throwInvalidLibrary(&parent, "library", "error");
+    FAIL();
   } catch (const Smp::InvalidLibrary &e) {
     EXPECT_STREQ(e.GetName(), "InvalidLibrary");
     EXPECT_STREQ(e.GetDescription(),
@@ -1232,12 +1180,9 @@ TEST(ExceptionTest, InvalidLibrary) {
     EXPECT_EQ(e.GetSender(), &parent);
     EXPECT_STREQ(e.GetMessage(), "error");
     EXPECT_STREQ(e.GetLibraryName(), "library");
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidSimulationTime) {
@@ -1245,6 +1190,7 @@ TEST(ExceptionTest, InvalidSimulationTime) {
 
   try {
     throwInvalidSimulationTime(&parent, 1, 4, 3);
+    FAIL();
   } catch (const Smp::Services::InvalidSimulationTime &e) {
     EXPECT_STREQ(e.GetName(), "InvalidSimulationTime");
     EXPECT_STREQ(e.GetDescription(),
@@ -1258,12 +1204,9 @@ TEST(ExceptionTest, InvalidSimulationTime) {
     EXPECT_EQ(e.GetCurrentTime(), 1);
     EXPECT_EQ(e.GetProvidedTime(), 4);
     EXPECT_EQ(e.GetMaximumTime(), 3);
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, TypeAlreadyRegistered) {
@@ -1274,6 +1217,7 @@ TEST(ExceptionTest, TypeAlreadyRegistered) {
 
   try {
     throwTypeAlreadyRegistered(&parent, "OtherType", type);
+    FAIL();
   } catch (const Smp::Publication::TypeAlreadyRegistered &e) {
     EXPECT_STREQ(e.GetName(), "TypeAlreadyRegistered");
     EXPECT_STREQ(
@@ -1286,12 +1230,9 @@ TEST(ExceptionTest, TypeAlreadyRegistered) {
 
     EXPECT_EQ(e.GetType(), type);
     EXPECT_STREQ(e.GetTypeName(), "OtherType");
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidPrimitiveType) {
@@ -1300,6 +1241,7 @@ TEST(ExceptionTest, InvalidPrimitiveType) {
   try {
     throwInvalidPrimitiveType(&parent, "OtherType",
                               Smp::PrimitiveTypeKind::PTK_Bool);
+    FAIL();
   } catch (const Smp::Publication::InvalidPrimitiveType &e) {
     EXPECT_STREQ(e.GetName(), "InvalidPrimitiveType");
     EXPECT_STREQ(e.GetDescription(),
@@ -1311,12 +1253,9 @@ TEST(ExceptionTest, InvalidPrimitiveType) {
 
     EXPECT_STREQ(e.GetTypeName(), "OtherType");
     EXPECT_EQ(e.GetType(), Smp::PrimitiveTypeKind::PTK_Bool);
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, InvalidSimulatorState) {
@@ -1324,6 +1263,7 @@ TEST(ExceptionTest, InvalidSimulatorState) {
 
   try {
     throwInvalidSimulatorState(&parent, Smp::SimulatorStateKind::SSK_Executing);
+    FAIL();
   } catch (const Smp::InvalidSimulatorState &e) {
     EXPECT_STREQ(e.GetName(), "InvalidSimulatorState");
     EXPECT_STREQ(e.GetDescription(),
@@ -1334,12 +1274,9 @@ TEST(ExceptionTest, InvalidSimulatorState) {
                                  "simulator is in 'Executing' state.");
 
     EXPECT_EQ(e.GetInvalidState(), Smp::SimulatorStateKind::SSK_Executing);
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 
 TEST(ExceptionTest, DuplicateLiteral) {
@@ -1347,6 +1284,7 @@ TEST(ExceptionTest, DuplicateLiteral) {
 
   try {
     throwDuplicateLiteral(&parent, "test", 2);
+    FAIL();
   } catch (const Smp::Publication::DuplicateLiteral &e) {
     EXPECT_STREQ(e.GetName(), "DuplicateLiteral");
     EXPECT_STREQ(e.GetDescription(),
@@ -1358,11 +1296,8 @@ TEST(ExceptionTest, DuplicateLiteral) {
 
     EXPECT_EQ(e.GetLiteralValue(), 2);
     EXPECT_STREQ(e.GetLiteralName(), "test");
-
-    return;
   } catch (...) {
     FAIL();
   }
-  FAIL();
 }
 } // namespace Xsmp::Exception

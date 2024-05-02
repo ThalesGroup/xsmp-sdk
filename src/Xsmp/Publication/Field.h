@@ -85,8 +85,6 @@ public:
   const ::Smp::Publication::IType *GetType() const override;
 
 protected:
-  void checkValid(const ::Xsmp::Publication::EnumerationType *enumeration,
-                  ::Smp::AnySimple value) const;
   inline void *GetAddress() const noexcept { return _address; }
 
 private:
@@ -113,9 +111,9 @@ private:
   std::set<::Smp::IField *> _targets{};
 };
 
-class AnonymousArrayField : public Field,
-                            public virtual ::Smp::IArrayField,
-                            public ::Xsmp::Publication::Publication {
+class AnonymousArrayField final : public Field,
+                                  public virtual ::Smp::IArrayField,
+                                  public ::Xsmp::Publication::Publication {
 public:
   AnonymousArrayField(::Smp::String8 name, ::Smp::String8 description,
                       ::Smp::IObject *parent,
@@ -140,20 +138,20 @@ public:
                             ::Smp::ViewKind view, ::Smp::Bool state,
                             ::Smp::Bool input, ::Smp::Bool output);
 
-  void Restore(::Smp::IStorageReader *reader) override;
+  void Restore(::Smp::IStorageReader *reader) final;
 
-  void Store(::Smp::IStorageWriter *writer) override;
+  void Store(::Smp::IStorageWriter *writer) final;
 
-  ::Smp::UInt64 GetSize() const override;
+  ::Smp::UInt64 GetSize() const final;
 
-  ::Smp::AnySimple GetValue(::Smp::UInt64 index) const override;
+  ::Smp::AnySimple GetValue(::Smp::UInt64 index) const final;
 
-  void SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) override;
+  void SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) final;
 
   void GetValues(::Smp::UInt64 length,
-                 ::Smp::AnySimpleArray values) const override;
+                 ::Smp::AnySimpleArray values) const final;
 
-  void SetValues(::Smp::UInt64 length, ::Smp::AnySimpleArray values) override;
+  void SetValues(::Smp::UInt64 length, ::Smp::AnySimpleArray values) final;
 
 private:
   std::size_t GetItemSize() const;
@@ -161,15 +159,16 @@ private:
   ::Smp::PrimitiveTypeKind _kind;
 };
 
-class AnonymousSimpleArrayDataflowField : public AnonymousSimpleArrayField,
-                                          public DataflowField {
+class AnonymousSimpleArrayDataflowField final
+    : public AnonymousSimpleArrayField,
+      public DataflowField {
 public:
   using AnonymousSimpleArrayField::AnonymousSimpleArrayField;
 };
 
-class AnonymousStructureField : public Field,
-                                public Publication,
-                                public ::Smp::IStructureField {
+class AnonymousStructureField final : public Field,
+                                      public Publication,
+                                      public ::Smp::IStructureField {
 
 public:
   AnonymousStructureField(::Smp::String8 name, ::Smp::String8 description,
@@ -193,19 +192,19 @@ public:
              const ::Xsmp::Publication::ArrayType *type, ::Smp::ViewKind view,
              ::Smp::Bool state, ::Smp::Bool input, ::Smp::Bool output);
 
-  void Restore(::Smp::IStorageReader *reader) override;
+  void Restore(::Smp::IStorageReader *reader) final;
 
-  void Store(::Smp::IStorageWriter *writer) override;
+  void Store(::Smp::IStorageWriter *writer) final;
 
-  ::Smp::UInt64 GetSize() const override;
+  ::Smp::UInt64 GetSize() const final;
 
-  ::Smp::IField *GetItem(::Smp::UInt64 index) const override;
+  ::Smp::IField *GetItem(::Smp::UInt64 index) const final;
 
 private:
   std::vector<std::unique_ptr<::Smp::IField>> _fields{};
 };
 
-class ArrayDataflowField : public ArrayField, public DataflowField {
+class ArrayDataflowField final : public ArrayField, public DataflowField {
 public:
   using ArrayField::ArrayField;
 };
@@ -228,20 +227,20 @@ public:
   /// SimpleArrayField cannot be moved
   SimpleArrayField &operator=(const SimpleArrayField &&) = delete;
 
-  void Restore(::Smp::IStorageReader *reader) override;
+  void Restore(::Smp::IStorageReader *reader) final;
 
-  void Store(::Smp::IStorageWriter *writer) override;
+  void Store(::Smp::IStorageWriter *writer) final;
 
-  ::Smp::UInt64 GetSize() const override;
+  ::Smp::UInt64 GetSize() const final;
 
-  ::Smp::AnySimple GetValue(::Smp::UInt64 index) const override;
+  ::Smp::AnySimple GetValue(::Smp::UInt64 index) const final;
 
-  void SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) override;
+  void SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) final;
 
   void GetValues(::Smp::UInt64 length,
-                 ::Smp::AnySimpleArray values) const override;
+                 ::Smp::AnySimpleArray values) const final;
 
-  void SetValues(::Smp::UInt64 length, ::Smp::AnySimpleArray values) override;
+  void SetValues(::Smp::UInt64 length, ::Smp::AnySimpleArray values) final;
 
 private:
   ::Smp::UInt64 _size;
@@ -249,8 +248,8 @@ private:
   ::Smp::UInt64 _itemSize;
 };
 
-class SimpleArrayDataflowField : public SimpleArrayField,
-                                 public virtual DataflowField {
+class SimpleArrayDataflowField final : public SimpleArrayField,
+                                       public virtual DataflowField {
 public:
   using SimpleArrayField::SimpleArrayField;
 };
@@ -259,21 +258,21 @@ class SimpleField : public Field, public virtual ::Smp::ISimpleField {
 public:
   using Field::Field;
 
-  void Restore(::Smp::IStorageReader *reader) override;
+  void Restore(::Smp::IStorageReader *reader) final;
 
-  void Store(::Smp::IStorageWriter *writer) override;
+  void Store(::Smp::IStorageWriter *writer) final;
 
-  ::Smp::PrimitiveTypeKind GetPrimitiveTypeKind() const override;
+  ::Smp::PrimitiveTypeKind GetPrimitiveTypeKind() const final;
 
-  ::Smp::AnySimple GetValue() const override;
+  ::Smp::AnySimple GetValue() const final;
 
-  void SetValue(::Smp::AnySimple value) override;
+  void SetValue(::Smp::AnySimple value) final;
 
 private:
   ::Smp::Int64 GetSize() const;
 };
 
-class SimpleDataflowField : public SimpleField, public DataflowField {
+class SimpleDataflowField final : public SimpleField, public DataflowField {
 public:
   using SimpleField::SimpleField;
 };
@@ -286,19 +285,20 @@ public:
                  ::Smp::ViewKind view, ::Smp::Bool state, ::Smp::Bool input,
                  ::Smp::Bool output);
 
-  void Restore(::Smp::IStorageReader *reader) override;
+  void Restore(::Smp::IStorageReader *reader) final;
 
-  void Store(::Smp::IStorageWriter *writer) override;
+  void Store(::Smp::IStorageWriter *writer) final;
 
-  const ::Smp::FieldCollection *GetFields() const override;
+  const ::Smp::FieldCollection *GetFields() const final;
 
-  ::Smp::IField *GetField(::Smp::String8 name) const override;
+  ::Smp::IField *GetField(::Smp::String8 name) const final;
 
 private:
   ::Xsmp::ContainingCollection<::Smp::IField> _fields;
 };
 
-class StructureDataflowField : public StructureField, public DataflowField {
+class StructureDataflowField final : public StructureField,
+                                     public DataflowField {
 public:
   using StructureField::StructureField;
 };

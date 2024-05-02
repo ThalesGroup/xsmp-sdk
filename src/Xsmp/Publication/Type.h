@@ -62,7 +62,8 @@ private:
   ::Smp::Uuid _uuid;
 };
 
-class ArrayType : public Type, public virtual ::Smp::Publication::IArrayType {
+class ArrayType final : public Type,
+                        public virtual ::Smp::Publication::IArrayType {
 public:
   ArrayType(::Smp::String8 name, ::Smp::String8 description,
             ::Xsmp::Publication::TypeRegistry *typeRegistry,
@@ -199,7 +200,7 @@ public:
                 ::Smp::Uuid uuid, ::Smp::Int64 offset,
                 ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
                 ::Smp::Bool state = true, ::Smp::Bool input = false,
-                ::Smp::Bool output = false) override;
+                ::Smp::Bool output = false) final;
 
   struct Field {
     std::string name;

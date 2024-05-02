@@ -34,7 +34,7 @@ class IOperation;
 
 namespace Xsmp::Publication {
 
-class Request : public ::Smp::IRequest {
+class Request final : public ::Smp::IRequest {
 
 public:
   Request(::Smp::IOperation *operation,

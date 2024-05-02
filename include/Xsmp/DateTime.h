@@ -27,7 +27,7 @@ namespace Xsmp {
 ///
 ///
 ///
-struct DateTime {
+struct DateTime final {
 
   /// A DateTime initialized to MJD2000 +0.5
   constexpr DateTime() : _value{} {}

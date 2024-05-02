@@ -61,13 +61,14 @@ using Field =
 
 namespace Annotation {
 
-/// Helper that check that an annotation any_of in a list of Annotations
+/// Helper that check that an Annotation is in a list of Annotations
 template <typename Annotation, typename... Annotations>
 static constexpr bool any_of =
     std::disjunction_v<std::is_same<Annotation, Annotations>...>;
 
 /// Annotation indicating that a Field is transient
 struct transient {};
+
 /// Annotation indicating that a Field is an input
 struct input {};
 
@@ -79,6 +80,7 @@ struct forcible {};
 
 /// Annotation indicating that a Field is a failure
 struct failure {};
+
 /// Annotation indicating that a Field is connectable
 struct connectable {};
 
@@ -99,7 +101,7 @@ const T *GetType(const ::Smp::IField *field,
             dynamic_cast<const T *>(typeRegistry->GetType(typeUuid)))
       return type;
   }
-  ::Xsmp::Exception::throwInvalidFieldType(field);
+  ::Xsmp::Exception::throwInvalidFieldType(field, typeUuid);
 }
 
 template <class T, class = void>

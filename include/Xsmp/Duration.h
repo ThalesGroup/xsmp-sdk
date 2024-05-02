@@ -24,7 +24,7 @@
 
 namespace Xsmp {
 
-struct Duration {
+struct Duration final {
   constexpr Duration() : _value{} {}
   constexpr explicit Duration(::Smp::Duration duration) : _value(duration) {}
 

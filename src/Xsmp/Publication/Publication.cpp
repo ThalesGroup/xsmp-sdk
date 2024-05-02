@@ -163,7 +163,7 @@ void Publication::PublishArray(::Smp::String8 name, ::Smp::String8 description,
 
   if (type == ::Smp::PrimitiveTypeKind::PTK_None ||
       type == ::Smp::PrimitiveTypeKind::PTK_String8)
-    ::Xsmp::Exception::throwInvalidFieldType(_parent);
+    ::Xsmp::Exception::throwInvalidFieldType(_parent, type);
 
   if (output)
     _fields.Add<AnonymousSimpleArrayDataflowField>(name, description, _parent,

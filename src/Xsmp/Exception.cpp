@@ -1122,9 +1122,21 @@ private:
 class InvalidFieldType final : public Exception,
                                public ::Smp::InvalidFieldType {
 public:
-  explicit InvalidFieldType(const ::Smp::IObject *sender)
+  explicit InvalidFieldType(const ::Smp::IObject *sender,
+                            const ::Smp::Uuid &uuid)
       : Exception(sender, __func__, "Cannot publish a field with invalid type",
-                  "The field type of '", sender, "' is invalid.") {}
+                  "The type UUID '", uuid, "' is invalid for field '", sender,
+                  "'.") {}
+  explicit InvalidFieldType(const ::Smp::IObject *sender,
+                            ::Smp::PrimitiveTypeKind kind)
+      : Exception(sender, __func__, "Cannot publish a field with invalid type",
+                  "The primitive type kind '", kind, "' is invalid for field '",
+                  sender, "'.") {}
+  explicit InvalidFieldType(const ::Smp::IObject *sender,
+                            const ::Smp::Publication::IType *type)
+      : Exception(sender, __func__, "Cannot publish a field with invalid type",
+                  "The type '", type->GetName(), "' is invalid for field '",
+                  sender, "'.") {}
   ~InvalidFieldType() noexcept override = default;
   InvalidFieldType(const InvalidFieldType &) = default;
   InvalidFieldType &operator=(const InvalidFieldType &) = default;
@@ -1561,8 +1573,17 @@ void throwInvalidParameterValue(const ::Smp::IObject *sender,
   throw InvalidParameterValue(sender, parameterName, value);
 }
 
-void throwInvalidFieldType(const ::Smp::IObject *sender) {
-  throw InvalidFieldType(sender);
+void throwInvalidFieldType(const ::Smp::IObject *sender,
+                           const ::Smp::Uuid &uuid) {
+  throw InvalidFieldType(sender, uuid);
+}
+void throwInvalidFieldType(const ::Smp::IObject *sender,
+                           const ::Smp::Publication::IType *type) {
+  throw InvalidFieldType(sender, type);
+}
+void throwInvalidFieldType(const ::Smp::IObject *sender,
+                           ::Smp::PrimitiveTypeKind kind) {
+  throw InvalidFieldType(sender, kind);
 }
 void throwDuplicateUuid(const ::Smp::IObject *sender,
                         const ::Smp::IFactory *oldFactory,

@@ -54,7 +54,7 @@ public:
   /// The type registry is typically a singleton, and must not be null,
   /// to allow use of existing types, and registration of new types.
   /// @return  Reference to global type registry.
-  ::Smp::Publication::ITypeRegistry *GetTypeRegistry() const override;
+  ::Smp::Publication::ITypeRegistry *GetTypeRegistry() const final;
 
   /// Publish a Char8 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -75,7 +75,7 @@ public:
                     ::Smp::Char8 *address,
                     ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
                     ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) override;
+                    ::Smp::Bool output = false) final;
 
   /// Publish a Bool field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -96,7 +96,7 @@ public:
                     ::Smp::Bool *address,
                     ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
                     ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) override;
+                    ::Smp::Bool output = false) final;
 
   /// Publish a Int8 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -117,7 +117,7 @@ public:
                     ::Smp::Int8 *address,
                     ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
                     ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) override;
+                    ::Smp::Bool output = false) final;
 
   /// Publish a Int16 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -138,7 +138,7 @@ public:
                     ::Smp::Int16 *address,
                     ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
                     ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) override;
+                    ::Smp::Bool output = false) final;
 
   /// Publish a Int32 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -159,7 +159,7 @@ public:
                     ::Smp::Int32 *address,
                     ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
                     ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) override;
+                    ::Smp::Bool output = false) final;
 
   /// Publish a Int64 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -180,7 +180,7 @@ public:
                     ::Smp::Int64 *address,
                     ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
                     ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) override;
+                    ::Smp::Bool output = false) final;
 
   /// Publish a UInt8 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -201,7 +201,7 @@ public:
                     ::Smp::UInt8 *address,
                     ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
                     ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) override;
+                    ::Smp::Bool output = false) final;
 
   /// Publish a UInt16 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -222,7 +222,7 @@ public:
                     ::Smp::UInt16 *address,
                     ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
                     ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) override;
+                    ::Smp::Bool output = false) final;
 
   /// Publish a UInt32 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -243,7 +243,7 @@ public:
                     ::Smp::UInt32 *address,
                     ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
                     ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) override;
+                    ::Smp::Bool output = false) final;
 
   /// Publish a UInt64 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -264,7 +264,7 @@ public:
                     ::Smp::UInt64 *address,
                     ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
                     ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) override;
+                    ::Smp::Bool output = false) final;
 
   /// Publish a Float32 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -285,7 +285,7 @@ public:
                     ::Smp::Float32 *address,
                     ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
                     ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) override;
+                    ::Smp::Bool output = false) final;
 
   /// Publish a Float64 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -306,7 +306,7 @@ public:
                     ::Smp::Float64 *address,
                     ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
                     ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) override;
+                    ::Smp::Bool output = false) final;
 
   /// Publish a field of any type with the given name, description,
   /// address, type, view kind and state, input and output flags.
@@ -335,7 +335,7 @@ public:
                     void *address, ::Smp::Uuid typeUuid,
                     ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
                     ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) override;
+                    ::Smp::Bool output = false) final;
 
   /// Publish a field defined internally that implements the IField
   /// interface.
@@ -343,7 +343,7 @@ public:
   /// exception of type DuplicateName is thrown.
   /// @param   field Field to publish.
   /// @throws  ::Smp::DuplicateName
-  void PublishField(::Smp::IField *field) override;
+  void PublishField(::Smp::IField *field) final;
 
   /// Publish array of simple type.
   /// This method can only be used for arrays of simple type, as each
@@ -368,7 +368,7 @@ public:
                     ::Smp::PrimitiveTypeKind type,
                     ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
                     ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) override;
+                    ::Smp::Bool output = false) final;
 
   /// Publish top-level node of an array without using the type registry.
   /// This operation can be used, together with subsequent calls to
@@ -387,7 +387,7 @@ public:
   ::Smp::IPublication *
   PublishArray(::Smp::String8 name, ::Smp::String8 description,
                ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
-               ::Smp::Bool state = true) override;
+               ::Smp::Bool state = true) final;
 
   /// Publish top-level node of a structure without using the type
   /// registry.
@@ -403,7 +403,7 @@ public:
   ::Smp::IPublication *
   PublishStructure(::Smp::String8 name, ::Smp::String8 description,
                    ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
-                   ::Smp::Bool state = true) override;
+                   ::Smp::Bool state = true) final;
 
   /// Publish an operation with the given name, description and view
   /// kind.
@@ -423,7 +423,7 @@ public:
   /// @throws  ::Smp::InvalidObjectName
   ::Smp::Publication::IPublishOperation *
   PublishOperation(::Smp::String8 name, ::Smp::String8 description,
-                   ::Smp::ViewKind view = ::Smp::ViewKind::VK_None) override;
+                   ::Smp::ViewKind view = ::Smp::ViewKind::VK_None) final;
 
   /// Publish a property
   /// @param   name Property name.
@@ -433,10 +433,9 @@ public:
   /// @param   view Show field in model tree.
   /// @throws  ::Smp::InvalidObjectName
   /// @throws  ::Smp::Publication::TypeNotRegistered
-  void
-  PublishProperty(::Smp::String8 name, ::Smp::String8 description,
-                  ::Smp::Uuid typeUuid, ::Smp::AccessKind accessKind,
-                  ::Smp::ViewKind view = ::Smp::ViewKind::VK_None) override;
+  void PublishProperty(::Smp::String8 name, ::Smp::String8 description,
+                       ::Smp::Uuid typeUuid, ::Smp::AccessKind accessKind,
+                       ::Smp::ViewKind view = ::Smp::ViewKind::VK_None) final;
 
   /// Get the field of given name.
   ///
@@ -464,12 +463,12 @@ public:
   /// Provides the collection of properties that have been published.
   /// @return  Collection of properties that have been published, which
   ///          may be empty.
-  const ::Smp::PropertyCollection *GetProperties() const override;
+  const ::Smp::PropertyCollection *GetProperties() const final;
 
   /// Provides the collection of operations that have been published.
   /// @return  Collection of operations that have been published, which
   ///          may be empty.
-  const ::Smp::OperationCollection *GetOperations() const override;
+  const ::Smp::OperationCollection *GetOperations() const final;
 
   /// Create request object.
   /// Returns a request object for the given operation that describes the
@@ -478,7 +477,7 @@ public:
   /// could be found.
   /// @param   operationName Name of operation.
   /// @return  Request object for operation.
-  ::Smp::IRequest *CreateRequest(::Smp::String8 operationName) override;
+  ::Smp::IRequest *CreateRequest(::Smp::String8 operationName) final;
 
   /// Delete request object.
   /// Destroys a request object that has been created with the
@@ -486,13 +485,13 @@ public:
   /// The request object must not be used anymore after DeleteRequest has
   /// been called for it.
   /// @param   request Request object to delete.
-  void DeleteRequest(::Smp::IRequest *request) override;
+  void DeleteRequest(::Smp::IRequest *request) final;
 
   /// Call this operation to release all data created during earlier
   /// Publish calls to this instance.
   /// This invalidated all pointers retrieved earlier via GetField(),
   /// GetFields() or CreateRequest().
-  void Unpublish() override;
+  void Unpublish() final;
 
 private:
   ::Smp::IObject *_parent;

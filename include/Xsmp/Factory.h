@@ -21,40 +21,69 @@
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Uuid.h>
 #include <functional>
+#include <memory>
+#include <string>
 #include <type_traits>
-#include <typeinfo>
 
 namespace Smp {
 class ISimulator;
 } // namespace Smp
 
-namespace Xsmp::Factory {
+namespace Xsmp {
 
-using _factory_instantiator_t =
-    std::function<std::unique_ptr<::Smp::IComponent>(
-        ::Smp::String8 name, ::Smp::String8 description,
-        ::Smp::IComposite *parent, ::Smp::ISimulator *simulator)>;
+class Factory final : public ::Smp::IFactory {
+public:
+  using _factory_instantiator_t =
+      std::function<std::unique_ptr<::Smp::IComponent>(
+          ::Smp::String8 name, ::Smp::String8 description,
+          ::Smp::IComposite *parent, ::Smp::ISimulator *simulator)>;
 
-[[nodiscard]] ::Smp::IFactory *
-Create(::Smp::String8 name, ::Smp::String8 description,
-       ::Smp::ISimulator *simulator, ::Smp::Uuid uuid,
-       const std::type_info &type, _factory_instantiator_t &&callback);
+  [[nodiscard]] static ::Smp::IFactory *
+  Create(::Smp::String8 name, ::Smp::String8 description,
+         ::Smp::ISimulator *simulator, ::Smp::Uuid uuid,
+         const std::type_info &type, _factory_instantiator_t &&callback);
 
-template <typename T>
-[[nodiscard]] ::Smp::IFactory *
-Create(::Smp::String8 name, ::Smp::String8 description,
-       ::Smp::ISimulator *simulator, ::Smp::Uuid uuid) {
+  template <typename T>
+  [[nodiscard]] static ::Smp::IFactory *
+  Create(::Smp::String8 name, ::Smp::String8 description,
+         ::Smp::ISimulator *simulator, ::Smp::Uuid uuid) {
 
-  static_assert(std::is_base_of_v<::Smp::IComponent, T>,
-                "T must inherit from ::Smp::IComponent");
+    static_assert(std::is_base_of_v<::Smp::IComponent, T>,
+                  "T must inherit from ::Smp::IComponent");
 
-  return Create(name, description, simulator, uuid, typeid(T),
-                [](::Smp::String8 _name, ::Smp::String8 _description,
-                   ::Smp::IComposite *_parent, ::Smp::ISimulator *_simulator) {
-                  return std::make_unique<T>(_name, _description, _parent,
-                                             _simulator);
-                });
-}
+    return Create(
+        name, description, simulator, uuid, typeid(T),
+        [](::Smp::String8 _name, ::Smp::String8 _description,
+           ::Smp::IComposite *_parent, ::Smp::ISimulator *_simulator) {
+          return std::make_unique<T>(_name, _description, _parent, _simulator);
+        });
+  }
 
-} // namespace Xsmp::Factory
+  ~Factory() noexcept override = default;
+  Factory(const Factory &) = delete;
+  Factory &operator=(const Factory &) = delete;
+  ::Smp::String8 GetName() const override;
+  ::Smp::String8 GetDescription() const override;
+  ::Smp::IObject *GetParent() const override;
+  ::Smp::Uuid GetUuid() const override;
+
+  ::Smp::IComponent *CreateInstance(::Smp::String8 name,
+                                    ::Smp::String8 description,
+                                    ::Smp::IComposite *parent) override;
+  void DeleteInstance(::Smp::IComponent *instance) override;
+  ::Smp::String8 GetTypeName() const override;
+
+private:
+  Factory(::Smp::String8 name, ::Smp::String8 description,
+          ::Smp::ISimulator *simulator, ::Smp::Uuid uuid,
+          const std::type_info &type, _factory_instantiator_t &&callback);
+  std::string _name;
+  std::string _description;
+  ::Smp::ISimulator *_parent;
+  ::Smp::Uuid _uuid;
+  _factory_instantiator_t _callback;
+  std::string _typeName;
+};
+
+} // namespace Xsmp
 #endif // XSMP_FACTORY_H_

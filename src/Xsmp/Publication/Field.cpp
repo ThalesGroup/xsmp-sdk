@@ -23,6 +23,20 @@
 #include <Xsmp/Publication/TypeRegistry.h>
 
 namespace Xsmp::Publication {
+
+namespace {
+// helper function to check if a value is invalid in case of an enumeration type
+bool isInvalidEnumerationValue(const ::Smp::Publication::IType *type,
+                               const ::Smp::AnySimple &value) {
+  const auto *enumeration =
+      dynamic_cast<const ::Xsmp::Publication::EnumerationType *>(type);
+  return enumeration &&
+         enumeration->GetLiterals().find(static_cast<::Smp::Int32>(value)) ==
+             enumeration->GetLiterals().end();
+}
+
+} // namespace
+
 Field::Field(::Smp::String8 name, ::Smp::String8 description,
              ::Smp::IObject *parent, void *address,
              const ::Smp::Publication::IType *type, ::Smp::ViewKind view,
@@ -31,23 +45,18 @@ Field::Field(::Smp::String8 name, ::Smp::String8 description,
       _description(description ? description : ""), _parent(parent),
       _address(address), _type(type), _view(view), _state(state), _input(input),
       _output(output) {
-  // disallow fields with String8 type
-  if (type && type->GetUuid() == ::Smp::Uuids::Uuid_String8)
-    ::Xsmp::Exception::throwInvalidFieldType(this);
+  // disallow fields with String8/void type
+  if (type && (type->GetUuid() == ::Smp::Uuids::Uuid_String8 ||
+               type->GetUuid() == ::Smp::Uuids::Uuid_Void))
+    ::Xsmp::Exception::throwInvalidFieldType(this, type);
 }
 ::Smp::String8 Field::GetName() const { return _name.c_str(); }
-
 ::Smp::String8 Field::GetDescription() const { return _description.c_str(); }
-
 ::Smp::IObject *Field::GetParent() const { return _parent; }
 ::Smp::ViewKind Field::GetView() const { return _view; }
-
 ::Smp::Bool Field::IsState() const { return _state; }
-
 ::Smp::Bool Field::IsInput() const { return _input; }
-
 ::Smp::Bool Field::IsOutput() const { return _output; }
-
 const ::Smp::Publication::IType *Field::GetType() const { return _type; }
 
 std::unique_ptr<Field> Field::Create(::Smp::String8 name,
@@ -104,14 +113,7 @@ std::unique_ptr<Field> Field::Create(::Smp::String8 name,
                                               address, structure, view, state,
                                               input, output);
   }
-  ::Xsmp::Exception::throwInvalidFieldType(parent);
-}
-void Field::checkValid(const ::Xsmp::Publication::EnumerationType *enumeration,
-                       ::Smp::AnySimple value) const {
-
-  if (enumeration && enumeration->GetLiterals().find(static_cast<::Smp::Int32>(
-                         value)) == enumeration->GetLiterals().end())
-    ::Xsmp::Exception::throwInvalidFieldValue(this, value);
+  ::Xsmp::Exception::throwInvalidFieldType(parent, type);
 }
 
 void DataflowField::Connect(::Smp::IField *target) {
@@ -293,8 +295,6 @@ AnonymousSimpleArrayField::GetValue(::Smp::UInt64 index) const {
     return {_kind, static_cast<::Smp::Float32 *>(GetAddress())[index]};
   case ::Smp::PrimitiveTypeKind::PTK_Float64:
     return {_kind, static_cast<::Smp::Float64 *>(GetAddress())[index]};
-  case ::Smp::PrimitiveTypeKind::PTK_None:
-    return {};
   default:
     ::Xsmp::Exception::throwInvalidPrimitiveType(this, "void", _kind);
   }
@@ -503,11 +503,9 @@ void SimpleArrayField::Store(::Smp::IStorageWriter *writer) {
     return {kind, *static_cast<::Smp::Float64 *>(address)};
   case ::Smp::PrimitiveTypeKind::PTK_String8:
     return {kind, static_cast<::Smp::String8>(address)};
-  case ::Smp::PrimitiveTypeKind::PTK_None:
-    return {};
+  default:
+    ::Xsmp::Exception::throwInvalidPrimitiveType(this, "void", kind);
   }
-
-  ::Xsmp::Exception::throwInvalidPrimitiveType(this, "void", kind);
 }
 
 void SimpleArrayField::SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) {
@@ -530,9 +528,8 @@ void SimpleArrayField::SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) {
     *static_cast<::Smp::Int16 *>(address) = value;
     break;
   case ::Smp::PrimitiveTypeKind::PTK_Int32:
-    checkValid(
-        dynamic_cast<const ::Xsmp::Publication::EnumerationType *>(GetType()),
-        value);
+    if (isInvalidEnumerationValue(GetType(), value))
+      ::Xsmp::Exception::throwInvalidArrayValue(this, index, value);
     *static_cast<::Smp::Int32 *>(address) = value;
     break;
   case ::Smp::PrimitiveTypeKind::PTK_Duration:
@@ -702,9 +699,8 @@ void SimpleField::SetValue(::Smp::AnySimple value) {
     *static_cast<::Smp::Int16 *>(GetAddress()) = value;
     break;
   case ::Smp::PrimitiveTypeKind::PTK_Int32:
-    checkValid(
-        dynamic_cast<const ::Xsmp::Publication::EnumerationType *>(GetType()),
-        value);
+    if (isInvalidEnumerationValue(GetType(), value))
+      ::Xsmp::Exception::throwInvalidFieldValue(this, value);
     *static_cast<::Smp::Int32 *>(GetAddress()) = value;
     break;
   case ::Smp::PrimitiveTypeKind::PTK_Duration:

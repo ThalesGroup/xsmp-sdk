@@ -418,7 +418,7 @@ private:
   std::atomic<Status> _simulationStatus{};
   bool _terminate{false};
 
-  mutable std::mutex _execMutex{};
+  std::mutex _execMutex{};
 
   // thread that process zulu events
   std::thread _zuluThread{};

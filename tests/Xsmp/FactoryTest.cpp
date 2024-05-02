@@ -24,7 +24,7 @@
 #include <gtest/gtest.h>
 #include <type_traits>
 
-namespace Xsmp::Factory {
+namespace Xsmp {
 
 namespace {
 class TestComposite : public Xsmp::Component, public virtual Xsmp::Composite {
@@ -57,7 +57,7 @@ TEST(FactoryTest, Create) {
 
   EXPECT_STREQ(factory->GetName(), "M1");
   EXPECT_STREQ(factory->GetDescription(), "M1 model");
-  EXPECT_STREQ(factory->GetTypeName(), "Xsmp::Factory::M1");
+  EXPECT_STREQ(factory->GetTypeName(), "Xsmp::M1");
   EXPECT_EQ(factory->GetUuid(), M1::uuid);
   EXPECT_EQ(factory->GetParent(), nullptr);
 
@@ -87,7 +87,7 @@ TEST(FactoryTest, WrongUuid) {
 
   EXPECT_STREQ(factory->GetName(), "M1");
   EXPECT_STREQ(factory->GetDescription(), "M1 model");
-  EXPECT_STREQ(factory->GetTypeName(), "Xsmp::Factory::M1");
+  EXPECT_STREQ(factory->GetTypeName(), "Xsmp::M1");
   EXPECT_EQ(factory->GetUuid(), M2::uuid);
   EXPECT_EQ(factory->GetParent(), nullptr);
 
@@ -136,4 +136,4 @@ TEST(FactoryCollectionTest, FactoryCollection) {
                Smp::DuplicateUuid);
   EXPECT_EQ(collection.size(), 2);
 }
-} // namespace Xsmp::Factory
+} // namespace Xsmp

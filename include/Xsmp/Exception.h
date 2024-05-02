@@ -223,7 +223,12 @@ throwEntryPointAlreadySubscribed(const ::Smp::IObject *sender,
                                              std::string_view parameterName,
                                              const ::Smp::AnySimple &value);
 
-[[noreturn]] void throwInvalidFieldType(const ::Smp::IObject *sender);
+[[noreturn]] void throwInvalidFieldType(const ::Smp::IObject *sender,
+                                        const ::Smp::Uuid &uuid);
+[[noreturn]] void throwInvalidFieldType(const ::Smp::IObject *sender,
+                                        const ::Smp::Publication::IType *type);
+[[noreturn]] void throwInvalidFieldType(const ::Smp::IObject *sender,
+                                        ::Smp::PrimitiveTypeKind kind);
 
 [[noreturn]] void throwDuplicateUuid(const ::Smp::IObject *sender,
                                      const Smp::IFactory *oldFactory,

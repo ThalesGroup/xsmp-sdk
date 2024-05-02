@@ -106,7 +106,14 @@ TEST(PublicationTest, PublishString8Field) {
                                         Smp::ViewKind::VK_All, true, false,
                                         false),
                Smp::InvalidFieldType);
+  Smp::String8 voidField;
+  EXPECT_THROW(publication.PublishField("voidField", "voidField description",
+                                        &voidField, ::Smp::Uuids::Uuid_Void,
+                                        Smp::ViewKind::VK_All, true, false,
+                                        false),
+               Smp::InvalidFieldType);
 }
+
 template <typename T>
 void TestPublishSimpleField(Smp::PrimitiveTypeKind kind, Smp::ViewKind view,
                             T default_value, T check_Value) {

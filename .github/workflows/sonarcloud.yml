@@ -30,7 +30,7 @@ jobs:
       -  name: Set up Python for gcovr
          uses: actions/setup-python@v5
          with:
-            python-version: 3.11
+            python-version: 3.12
             cache: pip # caching pip dependencies
       -  name: install gcovr & pytest
          run: |
@@ -71,5 +71,5 @@ jobs:
             -Dsonar.sourceEncoding=UTF-8
             -Dsonar.c.file.suffixes=.c
             -Dsonar.cpp.file.suffixes=.cpp,.h
-            -Dsonar.exclusions=src/Xsmp/Tests/**
+            -Dsonar.exclusions=src/Xsmp/Tests/**,src/python/**
             -Dsonar.test.inclusions=src/Xsmp/Tests/**
