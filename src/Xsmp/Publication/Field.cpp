@@ -168,8 +168,8 @@ void DataflowField::Push(::Smp::IField *source, ::Smp::IField *target) {
     auto const *structTarget = dynamic_cast<::Smp::IStructureField *>(target);
 
     std::size_t index = 0;
-    for (auto *f : *structSource->GetFields()) {
-      Push(f, structTarget->GetFields()->at(index));
+    for (auto *field : *structSource->GetFields()) {
+      Push(field, structTarget->GetFields()->at(index));
       ++index;
     }
   }
@@ -549,8 +549,9 @@ void SimpleArrayField::SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) {
     *static_cast<::Smp::Int16 *>(address) = value;
     break;
   case ::Smp::PrimitiveTypeKind::PTK_Int32:
-    if (isInvalidEnumerationValue(GetType(), value))
+    if (isInvalidEnumerationValue(GetType(), value)) {
       ::Xsmp::Exception::throwInvalidArrayValue(this, index, value);
+    }
     *static_cast<::Smp::Int32 *>(address) = value;
     break;
   case ::Smp::PrimitiveTypeKind::PTK_Duration:
@@ -723,8 +724,9 @@ void SimpleField::SetValue(::Smp::AnySimple value) {
     *static_cast<::Smp::Int16 *>(GetAddress()) = value;
     break;
   case ::Smp::PrimitiveTypeKind::PTK_Int32:
-    if (isInvalidEnumerationValue(GetType(), value))
+    if (isInvalidEnumerationValue(GetType(), value)) {
       ::Xsmp::Exception::throwInvalidFieldValue(this, value);
+    }
     *static_cast<::Smp::Int32 *>(GetAddress()) = value;
     break;
   case ::Smp::PrimitiveTypeKind::PTK_Duration:

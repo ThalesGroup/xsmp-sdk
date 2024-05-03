@@ -14,9 +14,9 @@
 
 #include <Smp/AnySimple.h>
 #include <Smp/InvalidAnyType.h>
+#include <Smp/PrimitiveTypes.h>
 #include <Smp/utility.h>
 #include <Xsmp/Exception.h>
-#include <algorithm>
 #include <cmath>
 #include <cstring>
 #include <limits>
@@ -57,7 +57,7 @@ AnySimple &AnySimple::operator=(const ::Smp::AnySimple &other) {
     if (other.type == PrimitiveTypeKind::PTK_String8) {
       if (other.value.string8Value) {
         auto size = std::strlen(other.value.string8Value) + 1;
-        auto dest = new ::Smp::Char8[size];
+        auto *dest = new ::Smp::Char8[size];
         this->value.string8Value = dest;
         std::memcpy(static_cast<void *>(dest), other.value.string8Value, size);
       } else {
@@ -89,8 +89,9 @@ AnySimple::~AnySimple() noexcept { _releaseContent(this); }
 template <typename T, typename U>
 T convertIntegral(U newValue, ::Smp::PrimitiveTypeKind kind,
                   ::Smp::PrimitiveTypeKind expected) {
-  if (!utility::in_range<T>(newValue))
-    ::Xsmp::Exception::throwInvalidAnyType(nullptr, kind, expected);
+  if (!utility::in_range<T>(newValue)) {
+    ::Xsmp::Exception::throwInvalidAnyType(nullptr, expected, kind);
+  }
   return static_cast<T>(newValue);
 }
 
@@ -99,8 +100,9 @@ T convertFloat(U newValue, ::Smp::PrimitiveTypeKind kind,
                ::Smp::PrimitiveTypeKind expected) {
 
   if (std::fabs(newValue - static_cast<U>(static_cast<T>(newValue))) >
-      std::numeric_limits<U>::epsilon())
-    ::Xsmp::Exception::throwInvalidAnyType(nullptr, kind, expected);
+      std::numeric_limits<U>::epsilon()) {
+    ::Xsmp::Exception::throwInvalidAnyType(nullptr, expected, kind);
+  }
   return static_cast<T>(newValue);
 }
 
@@ -138,11 +140,12 @@ void AnySimple::SetValue(::Smp::PrimitiveTypeKind kind,
   if (kind == PrimitiveTypeKind::PTK_String8) {
     if (newValue != nullptr) {
       auto size = std::strlen(newValue) + 1;
-      auto dest = new ::Smp::Char8[size];
+      auto *dest = new ::Smp::Char8[size];
       this->value.string8Value = dest;
       std::memcpy(static_cast<void *>(dest), newValue, size);
-    } else
+    } else {
       this->value.string8Value = nullptr;
+    }
     type = kind;
   } else {
 
@@ -669,19 +672,19 @@ AnySimple::operator ::Smp::Bool() const {
 }
 
 AnySimple::operator ::Smp::Char8() const {
-  if (type == PrimitiveTypeKind::PTK_Char8)
-    return this->value.char8Value;
-
-  ::Xsmp::Exception::throwInvalidAnyType(nullptr, type,
-                                         PrimitiveTypeKind::PTK_Char8);
+  if (type != PrimitiveTypeKind::PTK_Char8) {
+    ::Xsmp::Exception::throwInvalidAnyType(nullptr, type,
+                                           PrimitiveTypeKind::PTK_Char8);
+  }
+  return this->value.char8Value;
 }
 
 AnySimple::operator ::Smp::String8() const {
-  if (type == PrimitiveTypeKind::PTK_String8)
-    return this->value.string8Value;
-
-  ::Xsmp::Exception::throwInvalidAnyType(nullptr, type,
-                                         PrimitiveTypeKind::PTK_String8);
+  if (type != PrimitiveTypeKind::PTK_String8) {
+    ::Xsmp::Exception::throwInvalidAnyType(nullptr, type,
+                                           PrimitiveTypeKind::PTK_String8);
+  }
+  return this->value.string8Value;
 }
 
 AnySimple::operator ::Smp::UInt8() const {
@@ -1026,7 +1029,7 @@ AnySimple::operator ::Smp::Float64() const {
 
 ::Smp::String8 AnySimple::MoveString() {
   if (type == PrimitiveTypeKind::PTK_String8) {
-    auto *result = this->value.string8Value;
+    const auto *result = this->value.string8Value;
     this->value.string8Value = nullptr;
     return result;
   }
@@ -1074,7 +1077,7 @@ bool ::Smp::AnySimple::operator==(const ::Smp::AnySimple & other) const {
     case PrimitiveTypeKind::PTK_Char8:
       return value.char8Value == static_cast<::Smp::Char8>(other);
     case PrimitiveTypeKind::PTK_String8:
-      auto *string8 = static_cast<::Smp::String8>(other);
+      const auto *string8 = static_cast<::Smp::String8>(other);
       return (value.string8Value == string8) ||
              (value.string8Value && string8 &&
               (std::strcmp(value.string8Value, string8) == 0));

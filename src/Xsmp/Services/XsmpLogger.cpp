@@ -54,32 +54,32 @@ namespace Xsmp::Services {
 
 namespace {
 // trim from start (in place)
-inline void ltrim(std::string &s) {
-  s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
-            return !std::isspace(ch);
-          }));
+inline void ltrim(std::string &str) {
+  str.erase(str.begin(),
+            std::find_if(str.begin(), str.end(),
+                         [](unsigned char chr) { return !std::isspace(chr); }));
 }
 
 // trim from end (in place)
-inline void rtrim(std::string &s) {
-  s.erase(std::find_if(s.rbegin(), s.rend(),
-                       [](unsigned char ch) { return !std::isspace(ch); })
-              .base(),
-          s.end());
+inline void rtrim(std::string &str) {
+  str.erase(std::find_if(str.rbegin(), str.rend(),
+                         [](unsigned char chr) { return !std::isspace(chr); })
+                .base(),
+            str.end());
 }
 
 // trim from both ends (in place)
-inline void trim(std::string &s) {
-  ltrim(s);
-  rtrim(s);
+inline void trim(std::string &str) {
+  ltrim(str);
+  rtrim(str);
 }
-inline std::string unescape(std::string_view s) {
+inline std::string unescape(std::string_view str) {
   std::string result;
-  result.reserve(s.size());
-  auto it = s.begin();
-  while (it != s.end()) {
+  result.reserve(str.size());
+  auto it = str.begin();
+  while (it != str.end()) {
     if (*it == '\\') {
-      if (++it != s.end()) {
+      if (++it != str.end()) {
         switch (*it) {
         case '\'':
           result += '\'';
@@ -129,19 +129,19 @@ inline std::string unescape(std::string_view s) {
   return result;
 }
 
-inline std::vector<std::string> split(std::string_view s, char delimiter) {
+inline std::vector<std::string> split(std::string_view str, char delimiter) {
   std::vector<std::string> result;
 
-  auto end = s.find(delimiter);
+  auto end = str.find(delimiter);
   decltype(end) start = 0;
   while (end != std::string::npos) {
-    auto token = std::string(s.substr(start, end - start));
+    auto token = std::string(str.substr(start, end - start));
     trim(token);
     result.push_back(token);
     start = end + 1;
-    end = s.find(delimiter, start);
+    end = str.find(delimiter, start);
   }
-  auto token = std::string(s.substr(start, s.size() - start));
+  auto token = std::string(str.substr(start, str.size() - start));
   trim(token);
   if (!token.empty()) {
     result.push_back(token);
@@ -187,8 +187,8 @@ public:
   void Append(std::ostream &stream, const LogEntry &entry) const override {
     using namespace std::chrono;
 
-    auto format = [&stream, this](std::string::const_iterator &it,
-                                  const auto &value) {
+    auto format = [&stream](std::string::const_iterator &it,
+                            const auto &value) {
       if (auto fmt = GetFormatting(it); fmt.empty()) {
         stream << static_cast<::Smp::Int64>(value);
       } else {
@@ -248,10 +248,10 @@ public:
 private:
   const std::string _pattern;
 
-  std::string
+  static std::string
   ComputePatternLayout(const std::string &path,
                        const std::map<std::string, std::string, std::less<>>
-                           &properties) const noexcept {
+                           &properties) noexcept {
 
     if (auto pattern = properties.find(path + ".conversionPattern");
         pattern != properties.end()) {
@@ -272,7 +272,7 @@ private:
     // use default pattern
     return "%d{%F %T}%t%S%t%p%t%k%t%m%n";
   }
-  std::string GetFormatting(std::string::const_iterator &it) const noexcept {
+  static std::string GetFormatting(std::string::const_iterator &it) noexcept {
     std::string formatting;
     if (it[1] == '{') {
       it += 2;
@@ -373,9 +373,9 @@ public:
   void DoAppend(const LogEntry &entry) override { Append(_stream, entry); }
 
 private:
-  std::string GetFileName(
+  static std::string GetFileName(
       const std::string &path,
-      const std::map<std::string, std::string, std::less<>> &properties) const {
+      const std::map<std::string, std::string, std::less<>> &properties) {
     if (auto file = properties.find(path + ".File"); file != properties.end()) {
       return file->second;
     }
@@ -461,8 +461,8 @@ private:
       _logs.pop();
     }
   }
-
-  std::map<std::string, std::string, std::less<>> parseProperties() const {
+  [[nodiscard]] static std::map<std::string, std::string, std::less<>>
+  parseProperties() {
     std::map<std::string, std::string, std::less<>> properties;
 
     if (std::ifstream pFile("XsmpLogger.properties"); pFile.is_open()) {

@@ -12,10 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/AnySimple.h>
+#include <Smp/IArrayField.h>
+#include <Smp/IField.h>
+#include <Smp/IObject.h>
+#include <Smp/ISimpleArrayField.h>
+#include <Smp/ISimpleField.h>
+#include <Smp/IStorageReader.h>
+#include <Smp/IStorageWriter.h>
+#include <Smp/IStructureField.h>
+#include <Smp/PrimitiveTypes.h>
 #include <Smp/Publication/IType.h>
+#include <Smp/ViewKind.h>
+#include <Xsmp/Collection.h>
+#include <Xsmp/Exception.h>
 #include <Xsmp/FallibleModel.h>
 #include <Xsmp/Field.h>
+#include <Xsmp/Helper.h>
 #include <algorithm>
+#include <cstddef>
+#include <utility>
 
 namespace Xsmp::detail {
 
@@ -40,8 +56,9 @@ Smp::ViewKind AbstractField::GetView() const { return _view; }
 
 ::Smp::Bool Failure::IsFailed() const { return _failed; }
 void Failure::Register() {
-  if (auto *model = dynamic_cast<::Xsmp::FallibleModel *>(this->GetParent()))
+  if (auto *model = dynamic_cast<::Xsmp::FallibleModel *>(this->GetParent())) {
     model->AddFailure(this);
+  }
 }
 
 void Failure::Unfail() { _failed = false; }
@@ -60,16 +77,19 @@ void DataflowField::Push(::Smp::IField *field) {
     simple->internal_push();
   } else if (auto const *simpleArray =
                  dynamic_cast<SimpleArrayConnectableField *>(field)) {
-    for (::Smp::UInt64 i = 0; i < simpleArray->GetSize(); ++i)
+    for (::Smp::UInt64 i = 0; i < simpleArray->GetSize(); ++i) {
       simpleArray->internal_push(i);
+    }
   } else if (const auto *arrayfield =
                  dynamic_cast<const ::Smp::IArrayField *>(field)) {
-    for (::Smp::UInt64 i = 0; i < arrayfield->GetSize(); ++i)
+    for (::Smp::UInt64 i = 0; i < arrayfield->GetSize(); ++i) {
       Push(arrayfield->GetItem(i));
+    }
   } else if (const auto *structfield =
                  dynamic_cast<const ::Smp::IStructureField *>(field)) {
-    for (auto *f : *structfield->GetFields())
-      Push(f);
+    for (auto *structField : *structfield->GetFields()) {
+      Push(structField);
+    }
   }
   // should not happen
   else {
@@ -83,99 +103,102 @@ bool DataflowField::Connect(DataflowField *sender, ::Smp::IField *source,
   if (auto *simpleSource = dynamic_cast<SimpleConnectableField *>(source)) {
     auto *simpleTarget = dynamic_cast<::Smp::ISimpleField *>(target);
     if (!simpleTarget || (simpleTarget->GetPrimitiveTypeKind() !=
-                          simpleSource->GetPrimitiveTypeKind()))
+                          simpleSource->GetPrimitiveTypeKind())) {
       return false;
-
-    if (!simpleSource->_connectedFields.emplace(simpleTarget).second)
+    }
+    if (!simpleSource->_connectedFields.emplace(simpleTarget).second) {
       ::Xsmp::Exception::throwFieldAlreadyConnected(
           sender, dynamic_cast<::Smp::IDataflowField *>(source), target);
+    }
     return true;
-
   }
   // Connect a simple array field
-  else if (auto *simpleArraySource =
-               dynamic_cast<SimpleArrayConnectableField *>(source)) {
+  if (auto *simpleArraySource =
+          dynamic_cast<SimpleArrayConnectableField *>(source)) {
     auto *simpleArrayTarget = dynamic_cast<::Smp::ISimpleArrayField *>(target);
     if (!simpleArrayTarget ||
         simpleArrayTarget->GetSize() != simpleArraySource->GetSize() ||
         simpleArrayTarget->GetType()->GetPrimitiveTypeKind() !=
-            simpleArraySource->GetType()->GetPrimitiveTypeKind())
+            simpleArraySource->GetType()->GetPrimitiveTypeKind()) {
       return false;
-
-    if (!simpleArraySource->_connectedFields.emplace(simpleArrayTarget).second)
+    }
+    if (!simpleArraySource->_connectedFields.emplace(simpleArrayTarget)
+             .second) {
       ::Xsmp::Exception::throwFieldAlreadyConnected(
           sender, dynamic_cast<::Smp::IDataflowField *>(source), target);
+    }
     return true;
   }
   // connect an array field
-  else if (auto const *arraySource =
-               dynamic_cast<::Smp::IArrayField *>(source)) {
+  if (auto const *arraySource = dynamic_cast<::Smp::IArrayField *>(source)) {
     auto const *arrayTarget = dynamic_cast<::Smp::IArrayField *>(target);
-    if (!arrayTarget || arrayTarget->GetSize() != arraySource->GetSize())
+    if (!arrayTarget || arrayTarget->GetSize() != arraySource->GetSize()) {
       return false;
-
+    }
     bool result = true;
-    for (std::size_t i = 0; i < arraySource->GetSize(); ++i)
+    for (std::size_t i = 0; i < arraySource->GetSize(); ++i) {
       result &=
           Connect(sender, arraySource->GetItem(i), arrayTarget->GetItem(i));
-    return result;
-  }
-  // connect a structure field
-  else if (auto *structSource =
-               dynamic_cast<AbstractStructureField *>(source)) {
-    auto const *structTarget = dynamic_cast<::Smp::IStructureField *>(target);
-    if (!structTarget ||
-        structTarget->GetFields()->size() != structSource->GetFields()->size())
-      return false;
-
-    std::size_t index = 0;
-    bool result = true;
-    for (auto *f : *structSource->GetFields()) {
-      result &= Connect(sender, f, structTarget->GetFields()->at(index));
-      ++index;
     }
     return result;
   }
-  // should not happen
-  else {
-    // ignore
+  // connect a structure field
+  if (auto *structSource = dynamic_cast<AbstractStructureField *>(source)) {
+    auto const *structTarget = dynamic_cast<::Smp::IStructureField *>(target);
+    if (!structTarget || structTarget->GetFields()->size() !=
+                             structSource->GetFields()->size()) {
+      return false;
+    }
+    std::size_t index = 0;
+    bool result = true;
+    for (auto *field : *structSource->GetFields()) {
+      result &= Connect(sender, field, structTarget->GetFields()->at(index));
+      ++index;
+    }
+    return result;
   }
 
   return false;
 }
 
 void SimpleConnectableField::internal_push() const {
-  for (auto *f : _connectedFields)
-    f->SetValue(this->GetValue());
+  for (auto *field : _connectedFields) {
+    field->SetValue(this->GetValue());
+  }
 }
 
 void SimpleArrayConnectableField::internal_push(std::size_t index) const {
-  for (auto *f : _connectedFields)
-    f->SetValue(index, this->GetValue(index));
+  for (auto *field : _connectedFields) {
+    field->SetValue(index, this->GetValue(index));
+  }
 }
 
 void SimpleConnectableField::RemoveLinks(const ::Smp::IComponent *target) {
-  for (auto it = _connectedFields.begin(); it != _connectedFields.end();)
-    if (::Xsmp::Helper::GetParentOfType<::Smp::IComponent>(*it) == target)
+  for (auto it = _connectedFields.begin(); it != _connectedFields.end();) {
+    if (::Xsmp::Helper::GetParentOfType<::Smp::IComponent>(*it) == target) {
       it = _connectedFields.erase(it);
-    else
+    } else {
       ++it;
+    }
+  }
 }
 void SimpleArrayConnectableField::RemoveLinks(const ::Smp::IComponent *target) {
-  for (auto it = _connectedFields.begin(); it != _connectedFields.end();)
-    if (::Xsmp::Helper::GetParentOfType<::Smp::IComponent>(*it) == target)
+  for (auto it = _connectedFields.begin(); it != _connectedFields.end();) {
+    if (::Xsmp::Helper::GetParentOfType<::Smp::IComponent>(*it) == target) {
       it = _connectedFields.erase(it);
-    else
+    } else {
       ++it;
+    }
+  }
 }
 
 void DataflowField::Connect(::Smp::IField *target) {
 
   if (!this->IsOutput() || !target->IsInput() || target == this ||
       !::Xsmp::Helper::AreEquivalent(this, target) ||
-      !Connect(this, this, target))
+      !Connect(this, this, target)) {
     ::Xsmp::Exception::throwInvalidTarget(this, this, target);
-
+  }
   Push(this);
 }
 
@@ -186,23 +209,27 @@ void DataflowField::RemoveLinks(const ::Smp::IComponent *target) {
 void DataflowField::RemoveLinks(::Smp::IField *field,
                                 const ::Smp::IComponent *target) {
   // Disconnect a simple field
-  if (auto *simpleSource = dynamic_cast<SimpleConnectableField *>(field))
+  if (auto *simpleSource = dynamic_cast<SimpleConnectableField *>(field)) {
     simpleSource->RemoveLinks(target);
-
+  }
   // Disconnect a simple array field
   else if (auto *simpleArraySource =
-               dynamic_cast<SimpleArrayConnectableField *>(field))
+               dynamic_cast<SimpleArrayConnectableField *>(field)) {
     simpleArraySource->RemoveLinks(target);
-
+  }
   // Disconnect an array field
-  else if (auto const *arraySource = dynamic_cast<::Smp::IArrayField *>(field))
-    for (std::size_t i = 0; i < arraySource->GetSize(); ++i)
+  else if (auto const *arraySource =
+               dynamic_cast<::Smp::IArrayField *>(field)) {
+    for (std::size_t i = 0; i < arraySource->GetSize(); ++i) {
       RemoveLinks(arraySource->GetItem(i), target);
-
+    }
+  }
   // Disconnect a structure field
-  else if (auto *structSource = dynamic_cast<AbstractStructureField *>(field))
-    for (auto *f : *structSource->GetFields())
-      RemoveLinks(f, target);
+  else if (auto *structSource = dynamic_cast<AbstractStructureField *>(field)) {
+    for (auto *structField : *structSource->GetFields()) {
+      RemoveLinks(structField, target);
+    }
+  }
   // should not happen
   else {
     // ignore
@@ -246,7 +273,7 @@ void AbstractStructureField::Restore(::Smp::IStorageReader *reader) {
 }
 void AbstractStructureField::Store(::Smp::IStorageWriter *writer) {
   std::for_each(_fields.begin(), _fields.end(),
-                [writer](Smp::IField *f) { f->Store(writer); });
+                [writer](Smp::IField *field) { field->Store(writer); });
 }
 
 } // namespace Xsmp::detail

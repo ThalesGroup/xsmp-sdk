@@ -1359,8 +1359,8 @@ private:
 };
 
 namespace detail {
-std::ostream &operator<<(std::ostream &os, const ::Smp::IObject *obj) {
-  return os << ::Xsmp::Helper::GetPath(obj);
+std::ostream &operator<<(std::ostream &ostream, const ::Smp::IObject *obj) {
+  return ostream << ::Xsmp::Helper::GetPath(obj);
 }
 void throwException(const ::Smp::IObject *sender, std::string_view name,
                     std::string_view description, std::string_view message) {

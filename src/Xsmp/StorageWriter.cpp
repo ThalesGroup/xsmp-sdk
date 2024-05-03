@@ -35,13 +35,13 @@ std::ofstream createOutputStream(::Smp::String8 path, ::Smp::String8 filename,
     fs::create_directories(path ? path : "");
   }
   auto fullPath = fs::path(path ? path : "") / (filename ? filename : "");
-  std::ofstream os{fullPath, std::ios::binary};
+  std::ofstream outputStream{fullPath, std::ios::binary};
 
-  if (!os.good()) {
+  if (!outputStream.good()) {
     ::Xsmp::Exception::throwCannotStore(object, "Cannot open file: " +
                                                     fullPath.string());
   }
-  return os;
+  return outputStream;
 }
 } // namespace
 

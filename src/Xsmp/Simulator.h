@@ -370,7 +370,7 @@ public:
   void Run(::Smp::Duration duration);
 
 private:
-  void EmitGlobalEvent(::Smp::Services::EventId id);
+  void EmitGlobalEvent(::Smp::Services::EventId eventId);
 
   [[nodiscard]] ::Xsmp::Publication::Publication *
   CreatePublication(::Smp::IComponent *component);

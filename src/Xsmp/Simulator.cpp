@@ -245,10 +245,10 @@ void Simulator::Connect() {
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_EnterStandbyId);
 }
 
-void Simulator::EmitGlobalEvent(::Smp::Services::EventId id) {
-  _lastGlobalEventId = id;
+void Simulator::EmitGlobalEvent(::Smp::Services::EventId eventId) {
+  _lastGlobalEventId = eventId;
   if (_eventManager) {
-    _eventManager->Emit(id);
+    _eventManager->Emit(eventId);
   }
   _lastGlobalEventId = -1;
 }
@@ -499,7 +499,7 @@ void Simulator::Reconnect(::Smp::IComponent *root) {
   _state = ::Smp::SimulatorStateKind::SSK_Reconnecting;
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_EnterReconnectingId);
 
-  if (auto const *composite = dynamic_cast<::Smp::IComposite *>(root))
+  if (auto const *composite = dynamic_cast<::Smp::IComposite *>(root)) {
     recursive_action(composite, [this](::Smp::IComponent *cmp) {
       if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Created) {
         cmp->Publish(CreatePublication(cmp));
@@ -511,7 +511,7 @@ void Simulator::Reconnect(::Smp::IComponent *root) {
         cmp->Connect(this);
       }
     });
-
+  }
   _state = ::Smp::SimulatorStateKind::SSK_Standby;
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_EnterStandbyId);
 }

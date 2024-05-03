@@ -38,11 +38,15 @@ public:
   Getter(const Getter &) = delete;
   Getter &operator=(const Getter &) = delete;
 
-  ::Smp::String8 GetOperationName() const override { return _name.c_str(); }
+  [[nodiscard]] ::Smp::String8 GetOperationName() const override {
+    return _name.c_str();
+  }
 
-  ::Smp::Int32 GetParameterCount() const override { return 0; }
+  [[nodiscard]] ::Smp::Int32 GetParameterCount() const override { return 0; }
 
-  ::Smp::Int32 GetParameterIndex(::Smp::String8) const override { return -1; }
+  [[nodiscard]] ::Smp::Int32 GetParameterIndex(::Smp::String8) const override {
+    return -1;
+  }
 
   [[noreturn]] void SetParameterValue(::Smp::Int32 index,
                                       ::Smp::AnySimple) override {
@@ -56,13 +60,15 @@ public:
 
   void SetReturnValue(::Smp::AnySimple value) override {
     if (!::Xsmp::Publication::Request::isValid(_property, _property->GetType(),
-                                               value))
+                                               value)) {
       ::Xsmp::Exception::throwInvalidReturnValue(_property, value);
-
+    }
     _returnValue = std::move(value);
   }
 
-  ::Smp::AnySimple GetReturnValue() const override { return _returnValue; }
+  [[nodiscard]] ::Smp::AnySimple GetReturnValue() const override {
+    return _returnValue;
+  }
 
 private:
   const ::Smp::IProperty *_property;
@@ -79,11 +85,15 @@ public:
   Setter(const Setter &) = delete;
   Setter &operator=(const Setter &) = delete;
 
-  ::Smp::String8 GetOperationName() const override { return _name.c_str(); }
+  [[nodiscard]] ::Smp::String8 GetOperationName() const override {
+    return _name.c_str();
+  }
 
-  ::Smp::Int32 GetParameterCount() const override { return 1; }
+  [[nodiscard]] ::Smp::Int32 GetParameterCount() const override { return 1; }
 
-  ::Smp::Int32 GetParameterIndex(::Smp::String8) const override { return 0; }
+  [[nodiscard]] ::Smp::Int32 GetParameterIndex(::Smp::String8) const override {
+    return 0;
+  }
 
   void SetParameterValue(::Smp::Int32 index, ::Smp::AnySimple value) override {
     if (index != 0) {
@@ -97,7 +107,8 @@ public:
     _value = std::move(value);
   }
 
-  ::Smp::AnySimple GetParameterValue(::Smp::Int32 index) const override {
+  [[nodiscard]] ::Smp::AnySimple
+  GetParameterValue(::Smp::Int32 index) const override {
     if (index != 0) {
       ::Xsmp::Exception::throwInvalidParameterIndex(_property, index, 0);
     }

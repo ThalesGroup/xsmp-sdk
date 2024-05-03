@@ -71,20 +71,20 @@ protected:
   [[nodiscard]] inline ::Smp::ISimulator *GetSimulator() const noexcept {
     return _simulator;
   }
-
   class Helper;
 
 private:
+  static void
+  RemoveEventProviderLinks(const ::Smp::IEventProvider *eventProvider,
+                           const ::Smp::IComponent *target) noexcept;
+  static void RemoveAggregateLinks(const ::Smp::IAggregate *aggregate,
+                                   const ::Smp::IComponent *target) noexcept;
+  static void RemoveFieldLinks(::Smp::IField *field,
+                               const ::Smp::IComponent *target) noexcept;
+
   std::string _name;
   std::string _description;
   ::Smp::IComposite *_parent;
-  void RemoveEventProviderLinks(::Smp::IEventProvider const *eventProvider,
-                                const ::Smp::IComponent *target) const noexcept;
-
-  void RemoveAggregateLinks(::Smp::IAggregate const *aggregate,
-                            const ::Smp::IComponent *target) const noexcept;
-  void RemoveFieldLinks(::Smp::IField *field,
-                        const ::Smp::IComponent *target) const noexcept;
   ::Smp::ISimulator *_simulator;
   ::Smp::IPublication *_publication = nullptr;
   ::Smp::ComponentStateKind _state = ::Smp::ComponentStateKind::CSK_Created;

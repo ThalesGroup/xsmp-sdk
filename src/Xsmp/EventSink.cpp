@@ -59,9 +59,10 @@ EventSink<void>::EventSink(::Smp::String8 name, ::Smp::String8 description,
       _callback(std::move(callback)) {}
 
 void EventSink<void>::Notify(::Smp::IObject *sender, ::Smp::AnySimple value) {
-  if (value.GetType() != GetEventArgType())
+  if (value.GetType() != GetEventArgType()) {
     ::Xsmp::Exception::throwInvalidAnyType(nullptr, value.GetType(),
                                            GetEventArgType());
+  }
   _callback(sender);
 }
 

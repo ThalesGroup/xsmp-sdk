@@ -97,7 +97,6 @@ void SafeExecute(::Smp::ISimulator *simulator,
 }
 namespace {
 std::string GetNextSegment(::Smp::String8 *path, ::Smp::Char8 *separator) {
-  *separator = '\0';
   if (!(*path) || *path[0] == '\0') {
     return "";
   }
@@ -141,6 +140,164 @@ std::string GetNextSegment(::Smp::String8 *path, ::Smp::Char8 *separator) {
     ++it;
   }
 }
+
+inline ::Smp::IObject *Resolve(const ::Smp::IComposite *composite,
+                               ::Smp::String8 name, ::Smp::String8 path) {
+  if (const auto *containers = composite->GetContainers()) {
+    for (auto const *ctn : *containers) {
+      if (auto *cmp = ctn->GetComponent(name)) {
+        return ::Xsmp::Helper::Resolve(cmp, path);
+      }
+    }
+  }
+  return nullptr;
+}
+inline ::Smp::IObject *Resolve(const ::Smp::IAggregate *aggregate,
+                               ::Smp::String8 name, ::Smp::String8 path) {
+  if (const auto *references = aggregate->GetReferences()) {
+    for (auto const *ref : *references) {
+      if (auto *cmp = ref->GetComponent(name)) {
+        return ::Xsmp::Helper::Resolve(cmp, path);
+      }
+    }
+  }
+  return nullptr;
+}
+inline ::Smp::IObject *
+Resolve(const ::Smp::IDynamicInvocation *dynamicInvocation, ::Smp::String8 name,
+        ::Smp::String8 path) {
+  if (const auto *operations = dynamicInvocation->GetOperations()) {
+    if (auto *operation = operations->at(name)) {
+      return ::Xsmp::Helper::Resolve(operation, path);
+    }
+  }
+  if (const auto *properties = dynamicInvocation->GetProperties()) {
+    if (auto *property = properties->at(name)) {
+      return ::Xsmp::Helper::Resolve(property, path);
+    }
+  }
+  return nullptr;
+}
+inline ::Smp::IObject *Resolve(::Smp::IObject *object, ::Smp::String8 name,
+                               ::Smp::String8 path) {
+
+  if (auto const *eventConsumer =
+          dynamic_cast<const ::Smp::IEventConsumer *>(object)) {
+    if (auto *eventSink = eventConsumer->GetEventSink(name)) {
+      return ::Xsmp::Helper::Resolve(eventSink, path);
+    }
+  }
+  if (auto const *eventProvider =
+          dynamic_cast<const ::Smp::IEventProvider *>(object)) {
+    if (auto *eventSource = eventProvider->GetEventSource(name)) {
+      return ::Xsmp::Helper::Resolve(eventSource, path);
+    }
+  }
+  if (auto const *entryPointPublisher =
+          dynamic_cast<const ::Smp::IEntryPointPublisher *>(object)) {
+    if (auto *entryPoint = entryPointPublisher->GetEntryPoint(name)) {
+      return ::Xsmp::Helper::Resolve(entryPoint, path);
+    }
+  }
+
+  if (auto const *dynamicInvocation =
+          dynamic_cast<const ::Smp::IDynamicInvocation *>(object)) {
+    if (auto *result = Resolve(dynamicInvocation, name, path)) {
+      return result;
+    }
+  }
+
+  if (auto const *fallibleModel =
+          dynamic_cast<const ::Smp::IFallibleModel *>(object)) {
+    if (auto *failure = fallibleModel->GetFailures()->at(name)) {
+      return ::Xsmp::Helper::Resolve(failure, path);
+    }
+  }
+  if (auto const *component = dynamic_cast<const ::Smp::IComponent *>(object)) {
+    if (const auto *fields = component->GetFields()) {
+      if (auto *field = fields->at(name)) {
+        return ::Xsmp::Helper::Resolve(field, path);
+      }
+    }
+  }
+
+  if (auto *field = dynamic_cast<::Smp::IField *>(object)) {
+    return ::Xsmp::Helper::Resolve(field, path);
+  }
+  return nullptr;
+}
+
+inline ::Smp::IObject *ResolveComponent(const ::Smp::IObject *object,
+                                        ::Smp::String8 name,
+                                        ::Smp::String8 path) {
+  if (auto const *composite = dynamic_cast<const ::Smp::IComposite *>(object)) {
+    if (auto *result = Resolve(composite, name, path)) {
+      return result;
+    }
+  }
+
+  // check reference last as references are not unique
+  if (auto const *aggregate = dynamic_cast<const ::Smp::IAggregate *>(object)) {
+    if (auto *result = Resolve(aggregate, name, path)) {
+      return result;
+    }
+  }
+  return nullptr;
+}
+
+inline bool AreEquivalent(const ::Smp::ISimpleArrayField *source,
+                          const ::Smp::ISimpleArrayField *target) {
+  const auto size = source->GetSize();
+  if (target->GetSize() != size) {
+    return false;
+  }
+  // the type is possibly null in case of an anonymous simple array
+  // the Smp::IsimpleArray interface should provide a Smp::PrimitiveTypeKind
+  // GetItemKind() const; method
+  // && simpleArrayTarget->GetType()->GetPrimitiveTypeKind() ==
+  // simpleArraySource->GetType()->GetPrimitiveTypeKind()
+
+  for (::Smp::UInt64 i = 0; i < size; ++i) {
+    if (source->GetValue(i).GetType() != target->GetValue(i).GetType()) {
+      return false;
+    }
+  }
+  return true;
+}
+inline bool AreEquivalent(const ::Smp::IArrayField *source,
+                          const ::Smp::IArrayField *target) {
+  const auto size = source->GetSize();
+  if (target->GetSize() != size) {
+    return false;
+  }
+  for (::Smp::UInt64 i = 0; i < size; ++i) {
+    if (!::Xsmp::Helper::AreEquivalent(source->GetItem(i),
+                                       target->GetItem(i))) {
+      return false;
+    }
+  }
+  return true;
+}
+
+inline bool AreEquivalent(const ::Smp::IStructureField *source,
+                          const ::Smp::IStructureField *target) {
+  if (target->GetFields()->size() != source->GetFields()->size()) {
+    return false;
+  }
+  auto source_it = source->GetFields()->begin();
+  auto target_it = target->GetFields()->begin();
+  const auto end = source->GetFields()->end();
+
+  while (source_it != end) {
+    if (!::Xsmp::Helper::AreEquivalent(*source_it, *target_it)) {
+      return false;
+    }
+    ++source_it;
+    ++target_it;
+  }
+  return true;
+}
+
 } // namespace
 
 std::string GetPath(const ::Smp::IObject *obj) {
@@ -167,7 +324,7 @@ std::string GetPath(const ::Smp::IObject *obj) {
 
 ::Smp::IObject *Resolve(const ::Smp::FieldCollection *fields,
                         ::Smp::String8 path) {
-  ::Smp::Char8 separator = 0;
+  ::Smp::Char8 separator = '\0';
   auto segment = GetNextSegment(&path, &separator);
   if (segment.empty()) {
     return nullptr;
@@ -186,7 +343,7 @@ std::string GetPath(const ::Smp::IObject *obj) {
 }
 ::Smp::IObject *Resolve(::Smp::IField *parent, ::Smp::String8 path) {
 
-  ::Smp::Char8 separator = 0;
+  ::Smp::Char8 separator = '\0';
   auto segment = GetNextSegment(&path, &separator);
   if (segment.empty()) {
     return parent;
@@ -224,118 +381,13 @@ std::string GetPath(const ::Smp::IObject *obj) {
   }
   return nullptr;
 }
-static inline ::Smp::IObject *Resolve(const ::Smp::IComposite *composite,
-                                      ::Smp::String8 name,
-                                      ::Smp::String8 path) {
-  if (const auto *containers = composite->GetContainers()) {
-    for (auto const *ctn : *containers) {
-      if (auto *cmp = ctn->GetComponent(name)) {
-        return Resolve(cmp, path);
-      }
-    }
-  }
-  return nullptr;
-}
-static inline ::Smp::IObject *Resolve(const ::Smp::IAggregate *aggregate,
-                                      ::Smp::String8 name,
-                                      ::Smp::String8 path) {
-  if (const auto *references = aggregate->GetReferences()) {
-    for (auto const *ref : *references) {
-      if (auto *cmp = ref->GetComponent(name)) {
-        return Resolve(cmp, path);
-      }
-    }
-  }
-  return nullptr;
-}
-static inline ::Smp::IObject *
-Resolve(const ::Smp::IDynamicInvocation *dynamicInvocation, ::Smp::String8 name,
-        ::Smp::String8 path) {
-  if (const auto *operations = dynamicInvocation->GetOperations()) {
-    if (auto *operation = operations->at(name)) {
-      return Resolve(operation, path);
-    }
-  }
-  if (const auto *properties = dynamicInvocation->GetProperties()) {
-    if (auto *property = properties->at(name)) {
-      return Resolve(property, path);
-    }
-  }
-  return nullptr;
-}
-static inline ::Smp::IObject *
-Resolve(::Smp::IObject *object, ::Smp::String8 name, ::Smp::String8 path) {
-
-  if (auto const *eventConsumer =
-          dynamic_cast<const ::Smp::IEventConsumer *>(object)) {
-    if (auto *eventSink = eventConsumer->GetEventSink(name)) {
-      return Resolve(eventSink, path);
-    }
-  }
-  if (auto const *eventProvider =
-          dynamic_cast<const ::Smp::IEventProvider *>(object)) {
-    if (auto *eventSource = eventProvider->GetEventSource(name)) {
-      return Resolve(eventSource, path);
-    }
-  }
-  if (auto const *entryPointPublisher =
-          dynamic_cast<const ::Smp::IEntryPointPublisher *>(object)) {
-    if (auto *entryPoint = entryPointPublisher->GetEntryPoint(name)) {
-      return Resolve(entryPoint, path);
-    }
-  }
-
-  if (auto const *dynamicInvocation =
-          dynamic_cast<const ::Smp::IDynamicInvocation *>(object)) {
-    if (auto *result = Resolve(dynamicInvocation, name, path)) {
-      return result;
-    }
-  }
-
-  if (auto const *fallibleModel =
-          dynamic_cast<const ::Smp::IFallibleModel *>(object)) {
-    if (auto *failure = fallibleModel->GetFailures()->at(name)) {
-      return Resolve(failure, path);
-    }
-  }
-  if (auto const *component = dynamic_cast<const ::Smp::IComponent *>(object)) {
-    if (const auto *fields = component->GetFields()) {
-      if (auto *field = fields->at(name)) {
-        return Resolve(field, path);
-      }
-    }
-  }
-
-  if (auto *field = dynamic_cast<::Smp::IField *>(object)) {
-    return Resolve(field, path);
-  }
-  return nullptr;
-}
-
-static inline ::Smp::IObject *ResolveComponent(const ::Smp::IObject *object,
-                                               ::Smp::String8 name,
-                                               ::Smp::String8 path) {
-  if (auto const *composite = dynamic_cast<const ::Smp::IComposite *>(object)) {
-    if (auto *result = Resolve(composite, name, path)) {
-      return result;
-    }
-  }
-
-  // check reference last as references are not unique
-  if (auto const *aggregate = dynamic_cast<const ::Smp::IAggregate *>(object)) {
-    if (auto *result = Resolve(aggregate, name, path)) {
-      return result;
-    }
-  }
-  return nullptr;
-}
 
 ::Smp::IObject *Resolve(::Smp::IObject *parent, ::Smp::String8 path) {
 
   if (path[0] == '\0' || !parent) {
     return parent;
   }
-  ::Smp::Char8 separator = 0;
+  ::Smp::Char8 separator = '\0';
   auto segment = GetNextSegment(&path, &separator);
 
   if (segment.empty()) {
@@ -412,58 +464,6 @@ void CopyString(::Smp::Char8 *destination, std::size_t size,
   } else {
     destination[0] = '\0';
   }
-}
-
-static inline bool AreEquivalent(const ::Smp::ISimpleArrayField *source,
-                                 const ::Smp::ISimpleArrayField *target) {
-  const auto size = source->GetSize();
-  if (target->GetSize() != size) {
-    return false;
-  }
-  // the type is possibly null in case of an anonymous simple array
-  // the Smp::IsimpleArray interface should provide a Smp::PrimitiveTypeKind
-  // GetItemKind() const; method
-  // && simpleArrayTarget->GetType()->GetPrimitiveTypeKind() ==
-  // simpleArraySource->GetType()->GetPrimitiveTypeKind()
-
-  for (::Smp::UInt64 i = 0; i < size; ++i) {
-    if (source->GetValue(i).GetType() != target->GetValue(i).GetType()) {
-      return false;
-    }
-  }
-  return true;
-}
-static inline bool AreEquivalent(const ::Smp::IArrayField *source,
-                                 const ::Smp::IArrayField *target) {
-  const auto size = source->GetSize();
-  if (target->GetSize() != size) {
-    return false;
-  }
-  for (::Smp::UInt64 i = 0; i < size; ++i) {
-    if (!AreEquivalent(source->GetItem(i), target->GetItem(i))) {
-      return false;
-    }
-  }
-  return true;
-}
-
-static inline bool AreEquivalent(const ::Smp::IStructureField *source,
-                                 const ::Smp::IStructureField *target) {
-  if (target->GetFields()->size() != source->GetFields()->size()) {
-    return false;
-  }
-  auto source_it = source->GetFields()->begin();
-  auto target_it = target->GetFields()->begin();
-  const auto end = source->GetFields()->end();
-
-  while (source_it != end) {
-    if (!AreEquivalent(*source_it, *target_it)) {
-      return false;
-    }
-    ++source_it;
-    ++target_it;
-  }
-  return true;
 }
 
 bool AreEquivalent(const ::Smp::IField *first, const ::Smp::IField *second) {

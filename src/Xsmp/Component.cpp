@@ -111,8 +111,9 @@ void Component::Invoke(::Smp::IRequest *request) {
 }
 
 void Component::DeleteRequest(::Smp::IRequest *request) {
-  if (_publication)
+  if (_publication) {
     _publication->DeleteRequest(request);
+  }
 }
 
 const ::Smp::PropertyCollection *Component::GetProperties() const {
@@ -129,8 +130,8 @@ const ::Smp::Uuid &Component::GetUuid() const {
 }
 
 void Component::RemoveEventProviderLinks(
-    ::Smp::IEventProvider const *eventProvider,
-    const ::Smp::IComponent *target) const noexcept {
+    const ::Smp::IEventProvider *eventProvider,
+    const ::Smp::IComponent *target) noexcept {
   if (const auto *eventSources = eventProvider->GetEventSources()) {
     for (auto *eventSource : *eventSources) {
       // we can disconnect only AbstractEventSource
@@ -141,10 +142,8 @@ void Component::RemoveEventProviderLinks(
     }
   }
 }
-
-void Component::RemoveAggregateLinks(
-    ::Smp::IAggregate const *aggregate,
-    const ::Smp::IComponent *target) const noexcept {
+void Component::RemoveAggregateLinks(const ::Smp::IAggregate *aggregate,
+                                     const ::Smp::IComponent *target) noexcept {
   if (const auto *references = aggregate->GetReferences()) {
     for (auto *reference : *references) {
       // we can disconnect only AbstractReference
@@ -154,24 +153,24 @@ void Component::RemoveAggregateLinks(
     }
   }
 }
-void Component::RemoveFieldLinks(
-    ::Smp::IField *field, const ::Smp::IComponent *target) const noexcept {
+void Component::RemoveFieldLinks(::Smp::IField *field,
+                                 const ::Smp::IComponent *target) noexcept {
 
-  if (auto *dff = dynamic_cast<detail::DataflowField *>(field)) {
-    dff->RemoveLinks(target);
+  if (auto *dataflowField = dynamic_cast<detail::DataflowField *>(field)) {
+    dataflowField->RemoveLinks(target);
   }
-  if (auto const *af = dynamic_cast<::Smp::IArrayField *>(field)) {
-    for (::Smp::UInt64 i = 0; i < af->GetSize(); ++i) {
-      RemoveFieldLinks(af->GetItem(i), target);
+  if (auto const *arrayField = dynamic_cast<::Smp::IArrayField *>(field)) {
+    for (::Smp::UInt64 i = 0; i < arrayField->GetSize(); ++i) {
+      RemoveFieldLinks(arrayField->GetItem(i), target);
     }
   }
-  if (auto const *sf = dynamic_cast<::Smp::IStructureField *>(field)) {
-    for (auto *nf : *sf->GetFields()) {
-      RemoveFieldLinks(nf, target);
+  if (auto const *structureField =
+          dynamic_cast<::Smp::IStructureField *>(field)) {
+    for (auto *nestedField : *structureField->GetFields()) {
+      RemoveFieldLinks(nestedField, target);
     }
   }
 }
-
 void Component::RemoveLinks(const ::Smp::IComponent *target) {
 
   // disconnect event sources

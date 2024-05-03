@@ -23,6 +23,7 @@
 #include <Smp/ViewKind.h>
 #include <Xsmp/DateTime.h>
 #include <Xsmp/Duration.h>
+#include <cstdint>
 #include <iomanip>
 #include <iostream>
 
@@ -246,22 +247,22 @@ std::ostream &operator<<(std::ostream &os, const AnySimple &obj) {
             << static_cast<::Smp::Int32>(obj.type) << "\">";
 }
 
-std::ostream &operator<<(std::ostream &os, const ::Smp::Uuid &uuid) {
+std::ostream &operator<<(std::ostream &ostream, const ::Smp::Uuid &uuid) {
 
-  os << std::hex << std::setw(8) << std::setfill('0') << uuid.Data1;
+  ostream << std::hex << std::setw(8) << std::setfill('0') << uuid.Data1;
 
-  os << "-" << std::setw(4) << uuid.Data2[0];
-  os << "-" << std::setw(4) << uuid.Data2[1];
-  os << "-" << std::setw(4) << uuid.Data2[2];
+  ostream << "-" << std::setw(4) << uuid.Data2[0];
+  ostream << "-" << std::setw(4) << uuid.Data2[1];
+  ostream << "-" << std::setw(4) << uuid.Data2[2];
 
-  os << "-";
+  ostream << "-";
 
   for (const std::uint16_t data : uuid.Data3) {
-    os << std::setw(2) << data;
+    ostream << std::setw(2) << data;
   }
-  os << std::setfill(' ') << std::dec;
+  ostream << std::setfill(' ') << std::dec;
 
-  return os;
+  return ostream;
 }
 
 } // namespace Smp

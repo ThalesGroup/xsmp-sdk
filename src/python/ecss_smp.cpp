@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/AnySimple.h>
 #include <Smp/CannotDelete.h>
 #include <Smp/CannotRemove.h>
 #include <Smp/CannotRestore.h>
@@ -21,9 +22,12 @@
 #include <Smp/DuplicateUuid.h>
 #include <Smp/EventSinkAlreadySubscribed.h>
 #include <Smp/EventSinkNotSubscribed.h>
+#include <Smp/Exception.h>
 #include <Smp/FieldAlreadyConnected.h>
 #include <Smp/IAggregate.h>
 #include <Smp/IArrayField.h>
+#include <Smp/IComponent.h>
+#include <Smp/IComposite.h>
 #include <Smp/IContainer.h>
 #include <Smp/IDataflowField.h>
 #include <Smp/IDynamicInvocation.h>
@@ -37,11 +41,16 @@
 #include <Smp/IFallibleModel.h>
 #include <Smp/IForcibleField.h>
 #include <Smp/ILinkingComponent.h>
+#include <Smp/IModel.h>
+#include <Smp/IObject.h>
 #include <Smp/IOperation.h>
 #include <Smp/IParameter.h>
+#include <Smp/IPersist.h>
 #include <Smp/IProperty.h>
 #include <Smp/IReference.h>
+#include <Smp/IService.h>
 #include <Smp/ISimpleArrayField.h>
+#include <Smp/ISimpleField.h>
 #include <Smp/ISimulator.h>
 #include <Smp/IStructureField.h>
 #include <Smp/InvalidAnyType.h>
@@ -67,10 +76,12 @@
 #include <Smp/LibraryNotFound.h>
 #include <Smp/NotContained.h>
 #include <Smp/NotReferenced.h>
+#include <Smp/PrimitiveTypes.h>
 #include <Smp/Publication/DuplicateLiteral.h>
 #include <Smp/Publication/IArrayType.h>
 #include <Smp/Publication/IClassType.h>
 #include <Smp/Publication/IEnumerationType.h>
+#include <Smp/Publication/IStructureType.h>
 #include <Smp/Publication/InvalidPrimitiveType.h>
 #include <Smp/Publication/TypeAlreadyRegistered.h>
 #include <Smp/Publication/TypeNotRegistered.h>
@@ -90,7 +101,6 @@
 #include <Smp/Services/InvalidSimulationTime.h>
 #include <Smp/VoidOperation.h>
 #include <Xsmp/Helper.h>
-#include <algorithm>
 #include <memory>
 #include <python/Smp/AccessKindBinding.h>
 #include <python/Smp/ComponentStateKindBinding.h>
@@ -146,6 +156,9 @@
 #include <python/Smp/ViewKindBinding.h>
 #include <python/ecss_smp.h>
 #include <string>
+#include <type_traits>
+#include <typeinfo>
+#include <utility>
 #include <vector>
 
 #define STRINGIFY(x) #x
@@ -157,11 +170,12 @@ struct TypeHierarchy {
   static TypeHierarchy of(std::vector<TypeHierarchy> _derived = {}) {
     return TypeHierarchy{typeid(T),
                          [](void *src) -> void * {
-                           if constexpr (std::is_same_v<T, ::Smp::IObject>)
+                           if constexpr (std::is_same_v<T, ::Smp::IObject>) {
                              return static_cast<::Smp::IObject *>(src);
-                           else
+                           } else {
                              return dynamic_cast<T *>(
                                  static_cast<::Smp::IObject *>(src));
+                           }
                          },
                          [](const ::Smp::IObject *src) -> bool {
                            return dynamic_cast<const T *>(src);
@@ -520,10 +534,11 @@ py::object convert(const ::Smp::AnySimple &value) {
   return {};
 }
 ::Smp::UInt64 GetIndex(::Smp::Int64 index, ::Smp::UInt64 size) {
-  ::Smp::Int64 result =
+  const ::Smp::Int64 result =
       index < 0 ? static_cast<::Smp::Int64>(size) + index : index;
-  if (result < 0 || static_cast<::Smp::UInt64>(index) >= size)
+  if (result < 0 || static_cast<::Smp::UInt64>(index) >= size) {
     throw py::index_error(std::to_string(index));
+  }
   return static_cast<::Smp::UInt64>(result);
 }
 PYBIND11_MODULE(ecss_smp, ecss_smp) {

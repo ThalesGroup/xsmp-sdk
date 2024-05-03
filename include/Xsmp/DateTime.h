@@ -65,19 +65,19 @@ struct DateTime final {
   /// @param date the string date
   /// @param fmt the date format
   /// @see https://en.cppreference.com/w/cpp/chrono/duration/formatter
-  explicit DateTime(std::string_view date, const char *fmt = _defaultFmt);
+  explicit DateTime(std::string_view date, const char *fmt = "%F %T");
 
   /// A DateTime initialized from a stream and an optional format
   ///
   /// @param is the input stream
   /// @param fmt the date format
   /// @see https://en.cppreference.com/w/cpp/chrono/duration/formatter
-  explicit DateTime(std::istream &is, const char *fmt = _defaultFmt);
+  explicit DateTime(std::istream &inputStream, const char *fmt = "%F %T");
 
   /// Format the current DateTime
   /// @param fmt the date format
   /// @return the formatted DateTime
-  std::string format(const char *fmt = _defaultFmt) const;
+  std::string format(const char *fmt = "%F %T") const;
 
   /// Format the current DateTime
   /// @param fmt the date format
@@ -88,14 +88,15 @@ struct DateTime final {
   /// @param os the stream
   /// @param fmt the date format
   /// @return the stream
-  std::ostream &to_stream(std::ostream &os,
-                          const char *fmt = _defaultFmt) const;
+  std::ostream &to_stream(std::ostream &outputStream,
+                          const char *fmt = "%F %T") const;
 
   /// Output the current DateTime to the stream
   /// @param os the stream
   /// @param fmt the date format
   /// @return the stream
-  std::ostream &to_stream(std::ostream &os, const std::string &fmt) const;
+  std::ostream &to_stream(std::ostream &outputStream,
+                          const std::string &fmt) const;
 
   template <class Clock, class FromDuration>
   constexpr DateTime &
@@ -189,8 +190,6 @@ private:
   /// is 01.01.1970, 00:00 there are 946728000 seconds between epoch time and
   /// MJD2000 +0.5
   static constexpr ::Smp::Duration _epochToMjd = 946728000LL * 1000000000LL;
-  /// Default DateTime format: %Y-%m-%d %H:%M:%S
-  static constexpr const char *_defaultFmt = "%F %T";
 
   ::Smp::DateTime _value;
 
@@ -247,7 +246,7 @@ operator-(const DateTime &dateTime,
       std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count()};
 }
 
-std::ostream &operator<<(std::ostream &os, const DateTime &dateTime);
+std::ostream &operator<<(std::ostream &outputStream, const DateTime &dateTime);
 
 } // namespace Xsmp
 

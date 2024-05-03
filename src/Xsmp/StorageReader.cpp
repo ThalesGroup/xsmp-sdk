@@ -32,13 +32,13 @@ std::ifstream createInputStream(::Smp::String8 path, ::Smp::String8 filename,
                                 const ::Smp::IObject *object) {
 
   auto fullPath = fs::path(path ? path : "") / (filename ? filename : "");
-  std::ifstream is{fullPath, std::ios::binary};
+  std::ifstream ifstream{fullPath, std::ios::binary};
 
-  if (!is.good()) {
+  if (!ifstream.good()) {
     ::Xsmp::Exception::throwCannotRestore(object, "Cannot open file: " +
                                                       fullPath.string());
   }
-  return is;
+  return ifstream;
 }
 } // namespace
 

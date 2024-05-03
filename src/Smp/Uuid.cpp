@@ -107,16 +107,17 @@ bool ::Smp::Uuid::operator!=(const ::Smp::Uuid & other) const {
 namespace std {
 std::size_t std::hash<::Smp::Uuid>::operator()(const ::Smp::Uuid &uuid) const {
 
-  const std::uint64_t h0 = (static_cast<std::uint64_t>(uuid.Data1) << 32) |
-                           (static_cast<std::uint64_t>(uuid.Data2[0]) << 16) |
-                           static_cast<std::uint64_t>(uuid.Data2[1]);
-  const std::uint64_t h1 = (static_cast<std::uint64_t>(uuid.Data2[2]) << 48) |
-                           (static_cast<std::uint64_t>(uuid.Data3[0]) << 40) |
-                           (static_cast<std::uint64_t>(uuid.Data3[1]) << 32) |
-                           (static_cast<std::uint64_t>(uuid.Data3[2]) << 24) |
-                           (static_cast<std::uint64_t>(uuid.Data3[3]) << 16) |
-                           (static_cast<std::uint64_t>(uuid.Data3[4]) << 8) |
-                           static_cast<std::uint64_t>(uuid.Data3[5]);
-  return h0 ^ h1;
+  const std::uint64_t left = (static_cast<std::uint64_t>(uuid.Data1) << 32) |
+                             (static_cast<std::uint64_t>(uuid.Data2[0]) << 16) |
+                             static_cast<std::uint64_t>(uuid.Data2[1]);
+  const std::uint64_t right =
+      (static_cast<std::uint64_t>(uuid.Data2[2]) << 48) |
+      (static_cast<std::uint64_t>(uuid.Data3[0]) << 40) |
+      (static_cast<std::uint64_t>(uuid.Data3[1]) << 32) |
+      (static_cast<std::uint64_t>(uuid.Data3[2]) << 24) |
+      (static_cast<std::uint64_t>(uuid.Data3[3]) << 16) |
+      (static_cast<std::uint64_t>(uuid.Data3[4]) << 8) |
+      static_cast<std::uint64_t>(uuid.Data3[5]);
+  return left ^ right;
 }
 } // namespace std

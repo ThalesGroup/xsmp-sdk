@@ -150,8 +150,8 @@ void Request::SetParameterValue(::Smp::Int32 index, ::Smp::AnySimple value) {
                value)) {
     auto it = std::find_if(
         _indexes.begin(), _indexes.end(),
-        [index](std::map<std::string, ::Smp::Int32>::const_reference e) {
-          return e.second == index;
+        [index](std::map<std::string, ::Smp::Int32>::const_reference entry) {
+          return entry.second == index;
         });
 
     ::Xsmp::Exception::throwInvalidParameterValue(_operation, it->first, value);

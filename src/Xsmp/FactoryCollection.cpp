@@ -30,8 +30,9 @@ FactoryCollection::FactoryCollection(::Smp::IObject *parent)
 
 ::Smp::IObject *FactoryCollection::GetParent() const { return _parent; }
 ::Smp::IFactory *FactoryCollection::at(::Smp::String8 name) const {
-  if (!name)
+  if (!name) {
     return nullptr;
+  }
   auto it = _factory_map.find(name);
   return (it == _factory_map.end()) ? nullptr : it->second;
 }
@@ -56,12 +57,12 @@ FactoryCollection::const_iterator FactoryCollection::end() const {
 // Add an element to the collection
 void FactoryCollection::Add(::Smp::IFactory *factory) {
 
-  auto f = std::unique_ptr<::Smp::IFactory>(factory);
+  auto factoryPointer = std::unique_ptr<::Smp::IFactory>(factory);
   if (auto it = _uuid_map.find(factory->GetUuid()); it != _uuid_map.end()) {
     ::Xsmp::Exception::throwDuplicateUuid(this, it->second.get(),
                                           factory->GetName());
   }
-  _uuid_map.try_emplace(factory->GetUuid(), std::move(f));
+  _uuid_map.try_emplace(factory->GetUuid(), std::move(factoryPointer));
   _factory_map.try_emplace(factory->GetName(), factory);
   _factories.push_back(factory);
 }

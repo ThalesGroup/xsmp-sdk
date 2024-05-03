@@ -23,24 +23,23 @@
 
 namespace Xsmp {
 
-const constexpr char *Duration::_defaultFmt;
-
 namespace {
-::Smp::Duration from(std::istream &is, const char *fmt) {
-  std::chrono::nanoseconds tp;
-  is >> date::parse(fmt, tp);
-  return tp.count();
+::Smp::Duration from(std::istream &inputStream, const char *fmt) {
+  std::chrono::nanoseconds timePoint;
+  inputStream >> date::parse(fmt, timePoint);
+  return timePoint.count();
 }
 ::Smp::Duration from(std::string_view date, const char *fmt) {
-  std::istringstream is{std::string(date)};
-  return from(is, fmt);
+  std::istringstream inputStream{std::string(date)};
+  return from(inputStream, fmt);
 }
 } // namespace
 
 Duration::Duration(std::string_view date, const char *fmt)
     : _value{from(date, fmt)} {}
 
-Duration::Duration(std::istream &is, const char *fmt) : _value{from(is, fmt)} {}
+Duration::Duration(std::istream &inputStream, const char *fmt)
+    : _value{from(inputStream, fmt)} {}
 
 std::string Duration::format(const char *fmt) const {
   return date::format(fmt, static_cast<std::chrono::nanoseconds>(*this));
@@ -50,16 +49,19 @@ std::string Duration::format(const std::string &fmt) const {
   return date::format(fmt, static_cast<std::chrono::nanoseconds>(*this));
 }
 
-std::ostream &Duration::to_stream(std::ostream &os, const char *fmt) const {
-  return date::to_stream(os, fmt, static_cast<std::chrono::nanoseconds>(*this));
+std::ostream &Duration::to_stream(std::ostream &outputStream,
+                                  const char *fmt) const {
+  return date::to_stream(outputStream, fmt,
+                         static_cast<std::chrono::nanoseconds>(*this));
 }
 
-std::ostream &Duration::to_stream(std::ostream &os,
+std::ostream &Duration::to_stream(std::ostream &outputStream,
                                   const std::string &fmt) const {
-  return to_stream(os, fmt.c_str());
+  return to_stream(outputStream, fmt.c_str());
 }
 
-std::ostream &operator<<(std::ostream &os, const Duration &d) {
-  return date::to_stream(os, "%T", static_cast<std::chrono::nanoseconds>(d));
+std::ostream &operator<<(std::ostream &outputStream, const Duration &duration) {
+  return date::to_stream(outputStream, "%T",
+                         static_cast<std::chrono::nanoseconds>(duration));
 }
 } // namespace Xsmp

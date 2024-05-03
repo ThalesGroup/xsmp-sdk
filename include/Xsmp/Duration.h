@@ -32,16 +32,17 @@ struct Duration final {
   constexpr explicit Duration(const std::chrono::duration<Rep, Period> &d)
       : _value{
             std::chrono::duration_cast<std::chrono::nanoseconds>(d).count()} {}
-  explicit Duration(std::string_view date, const char *fmt = _defaultFmt);
+  explicit Duration(std::string_view date, const char *fmt = "%T");
 
-  explicit Duration(std::istream &is, const char *fmt = _defaultFmt);
+  explicit Duration(std::istream &inputStream, const char *fmt = "%T");
 
-  std::string format(const char *fmt = _defaultFmt) const;
+  std::string format(const char *fmt = "%T") const;
   std::string format(const std::string &fmt) const;
 
-  std::ostream &to_stream(std::ostream &os,
-                          const char *fmt = _defaultFmt) const;
-  std::ostream &to_stream(std::ostream &os, const std::string &fmt) const;
+  std::ostream &to_stream(std::ostream &outputStream,
+                          const char *fmt = "%T") const;
+  std::ostream &to_stream(std::ostream &outputStream,
+                          const std::string &fmt) const;
 
   template <class Rep, class Period>
   inline Duration &operator=(const std::chrono::duration<Rep, Period> &d) {
@@ -228,7 +229,6 @@ struct Duration final {
   }
 
 private:
-  static const constexpr char *_defaultFmt = "%T";
   ::Smp::Duration _value;
 };
 
@@ -270,7 +270,7 @@ constexpr bool operator>=(const std::chrono::duration<Rep, Period> &rhs,
   return d <= rhs;
 }
 
-std::ostream &operator<<(std::ostream &os, const Duration &d);
+std::ostream &operator<<(std::ostream &outputStream, const Duration &duration);
 
 /// Provides ::Xsmp::Duration literals for _ns/_us/_ms/_s/_mn/_h/_d
 /// e.g: 5_mn + 10_s + 3_ms
