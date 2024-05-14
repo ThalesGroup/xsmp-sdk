@@ -19,6 +19,7 @@
 #include <Smp/IReference.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Exception.h>
+#include <algorithm>
 #include <cstddef>
 #include <stdexcept>
 #include <string>
