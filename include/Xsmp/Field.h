@@ -185,7 +185,7 @@ private:
 
 class SimpleArrayConnectableField : public virtual ::Smp::ISimpleArrayField {
 protected:
-  void internal_push(std::size_t index) const;
+  void internal_push(::Smp::UInt64 index) const;
 
 private:
   void RemoveLinks(const ::Smp::IComponent *target);

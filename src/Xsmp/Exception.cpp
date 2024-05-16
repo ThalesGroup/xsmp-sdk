@@ -80,7 +80,6 @@
 #include <Xsmp/Duration.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
-#include <cstddef>
 #include <ostream>
 #include <string>
 #include <string_view>
@@ -1479,12 +1478,12 @@ void throwInvalidParameterType(const ::Smp::IObject *sender,
 }
 
 void throwInvalidArrayIndex(const ::Smp::IArrayField *sender,
-                            std::size_t invalidIndex) {
+                            ::Smp::UInt64 invalidIndex) {
   throw InvalidArrayIndex(sender, static_cast<::Smp::Int64>(sender->GetSize()),
                           static_cast<::Smp::Int64>(invalidIndex));
 }
 void throwInvalidArrayIndex(const ::Smp::ISimpleArrayField *sender,
-                            std::size_t invalidIndex) {
+                            ::Smp::UInt64 invalidIndex) {
   throw InvalidArrayIndex(sender, static_cast<::Smp::Int64>(sender->GetSize()),
                           static_cast<::Smp::Int64>(invalidIndex));
 }
@@ -1495,7 +1494,7 @@ void throwInvalidFieldValue(const ::Smp::IField *sender,
 }
 
 void throwInvalidArrayValue(const ::Smp::ISimpleArrayField *sender,
-                            std::size_t index,
+                            ::Smp::UInt64 index,
                             const ::Smp::AnySimple &invalidValue) {
   throw InvalidArrayValue(sender, static_cast<::Smp::Int64>(index),
                           invalidValue);

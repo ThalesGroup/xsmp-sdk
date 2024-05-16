@@ -22,7 +22,6 @@
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Request.h>
-#include <cstddef>
 #include <string>
 
 namespace Xsmp {
@@ -30,7 +29,7 @@ namespace Xsmp {
 void Request::setValue(::Smp::IComponent const *component,
                        ::Smp::IRequest *request, const std::string &name,
                        const ::Smp::AnySimple &value) {
-  const ::Smp::Int32 index = request->GetParameterIndex(name.c_str());
+  const auto index = request->GetParameterIndex(name.c_str());
   if (index == -1) {
     ::Xsmp::Exception::throwException(component, name,
                                       "No Parameter named " + name +
@@ -45,7 +44,7 @@ void Request::setValue(::Smp::IComponent const *component,
                                    const std::string &name,
                                    ::Smp::PrimitiveTypeKind kind,
                                    bool useDefaultValue) {
-  const ::Smp::Int32 index = request->GetParameterIndex(name.c_str());
+  const auto index = request->GetParameterIndex(name.c_str());
   if (index == -1) {
     if (useDefaultValue) {
       return {};
@@ -69,7 +68,7 @@ void Request::extract(::Smp::IRequest *request, ::Smp::IField *field,
 
   // simple field
   if (auto *simple = dynamic_cast<::Smp::ISimpleField *>(field)) {
-    auto index = request->GetParameterIndex(name.c_str());
+    const auto index = request->GetParameterIndex(name.c_str());
     if (index == -1) {
       if (ignoreMissingParameters) {
         return;
@@ -85,9 +84,9 @@ void Request::extract(::Smp::IRequest *request, ::Smp::IField *field,
   else if (auto *simpleArray =
                dynamic_cast<::Smp::ISimpleArrayField *>(field)) {
 
-    for (std::size_t i = 0; i < simpleArray->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0; i < simpleArray->GetSize(); ++i) {
       const std::string itemName = name + "[" + std::to_string(i) + "]";
-      auto index = request->GetParameterIndex(itemName.c_str());
+      const auto index = request->GetParameterIndex(itemName.c_str());
       if (index != -1) {
         simpleArray->SetValue(i, request->GetParameterValue(index));
       } else if (ignoreMissingParameters) {
@@ -102,7 +101,7 @@ void Request::extract(::Smp::IRequest *request, ::Smp::IField *field,
   }
   // array field
   else if (auto const *array = dynamic_cast<::Smp::IArrayField *>(field)) {
-    for (std::size_t i = 0; i < array->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0; i < array->GetSize(); ++i) {
       extract(request, array->GetItem(i), name + "[" + std::to_string(i) + "]",
               ignoreMissingParameters);
     }
@@ -126,7 +125,7 @@ void Request::inject(::Smp::IRequest *request, ::Smp::IField *field,
 
   // simple field
   if (auto const *simple = dynamic_cast<::Smp::ISimpleField *>(field)) {
-    auto index = request->GetParameterIndex(name.c_str());
+    const auto index = request->GetParameterIndex(name.c_str());
     if (index == -1) {
       ::Xsmp::Exception::throwException(field, name,
                                         "No Parameter named " + name +
@@ -138,9 +137,9 @@ void Request::inject(::Smp::IRequest *request, ::Smp::IField *field,
   // simple array field
   else if (auto const *simpleArray =
                dynamic_cast<::Smp::ISimpleArrayField *>(field)) {
-    for (std::size_t i = 0; i < simpleArray->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0; i < simpleArray->GetSize(); ++i) {
       const std::string itemName = name + "[" + std::to_string(i) + "]";
-      auto index = request->GetParameterIndex(itemName.c_str());
+      const auto index = request->GetParameterIndex(itemName.c_str());
       if (index == -1) {
         ::Xsmp::Exception::throwException(
             field, itemName,
@@ -152,7 +151,7 @@ void Request::inject(::Smp::IRequest *request, ::Smp::IField *field,
   }
   // array field
   else if (auto const *array = dynamic_cast<::Smp::IArrayField *>(field)) {
-    for (std::size_t i = 0; i < array->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0; i < array->GetSize(); ++i) {
       inject(request, array->GetItem(i), name + "[" + std::to_string(i) + "]");
     }
   }

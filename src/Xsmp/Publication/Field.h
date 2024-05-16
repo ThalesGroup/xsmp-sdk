@@ -26,7 +26,6 @@
 #include <Smp/ViewKind.h>
 #include <Xsmp/Collection.h>
 #include <Xsmp/Publication/Publication.h>
-#include <cstddef>
 #include <memory>
 #include <set>
 #include <string>
@@ -154,7 +153,7 @@ public:
   void SetValues(::Smp::UInt64 length, ::Smp::AnySimpleArray values) final;
 
 private:
-  std::size_t GetItemSize() const;
+  ::Smp::UInt64 GetItemSize() const;
   ::Smp::UInt64 _count;
   ::Smp::PrimitiveTypeKind _kind;
 };

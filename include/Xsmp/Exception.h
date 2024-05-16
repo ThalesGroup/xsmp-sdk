@@ -20,7 +20,6 @@
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Services/EventId.h>
 #include <Smp/SimulatorStateKind.h>
-#include <cstddef>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -157,21 +156,21 @@ throwInvalidParameterCount(const ::Smp::IOperation *sender,
     ::Smp::PrimitiveTypeKind expectedType);
 
 [[noreturn]] void throwInvalidArrayIndex(const ::Smp::IArrayField *sender,
-                                         std::size_t invalidIndex);
+                                         ::Smp::UInt64 invalidIndex);
 
 [[noreturn]] void throwInvalidArrayIndex(const ::Smp::ISimpleArrayField *sender,
-                                         std::size_t invalidIndex);
+                                         ::Smp::UInt64 invalidIndex);
 
 [[noreturn]] void throwInvalidArrayIndex(const ::Smp::IObject *sender,
-                                         std::size_t arraySize,
-                                         std::size_t invalidIndex);
+                                         ::Smp::UInt64 arraySize,
+                                         ::Smp::UInt64 invalidIndex);
 
 [[noreturn]] void
 throwInvalidFieldValue(const ::Smp::IField *sender,
                        const ::Smp::AnySimple &invalidFieldValue);
 
 [[noreturn]] void throwInvalidArrayValue(const ::Smp::ISimpleArrayField *sender,
-                                         std::size_t index,
+                                         ::Smp::UInt64 index,
                                          const ::Smp::AnySimple &invalidValue);
 
 [[noreturn]] void throwInvalidArraySize(const ::Smp::ISimpleArrayField *sender,

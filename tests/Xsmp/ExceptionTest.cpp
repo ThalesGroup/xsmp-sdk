@@ -75,6 +75,7 @@
 #include <Xsmp/Factory.h>
 #include <Xsmp/Field.h>
 #include <Xsmp/Model.h>
+#include <Xsmp/Object.h>
 #include <Xsmp/Publication/Field.h>
 #include <Xsmp/Publication/Operation.h>
 #include <Xsmp/Publication/Type.h>

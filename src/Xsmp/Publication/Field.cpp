@@ -149,7 +149,7 @@ void DataflowField::Push(::Smp::IField *source, ::Smp::IField *target) {
   else if (auto const *simpleArraySource =
                dynamic_cast<::Smp::ISimpleArrayField *>(source)) {
     auto *simpleArrayTarget = dynamic_cast<::Smp::ISimpleArrayField *>(target);
-    for (std::size_t i = 0; i < simpleArraySource->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0; i < simpleArraySource->GetSize(); ++i) {
       simpleArrayTarget->SetValue(i, simpleArraySource->GetValue(i));
     }
   }
@@ -158,7 +158,7 @@ void DataflowField::Push(::Smp::IField *source, ::Smp::IField *target) {
                dynamic_cast<::Smp::IArrayField *>(source)) {
     auto const *arrayTarget = dynamic_cast<::Smp::IArrayField *>(target);
 
-    for (std::size_t i = 0; i < arraySource->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0; i < arraySource->GetSize(); ++i) {
       Push(arraySource->GetItem(i), arrayTarget->GetItem(i));
     }
   }
@@ -241,7 +241,7 @@ void AnonymousSimpleArrayField::Store(::Smp::IStorageWriter *writer) {
   }
 }
 
-std::size_t AnonymousSimpleArrayField::GetItemSize() const {
+::Smp::UInt64 AnonymousSimpleArrayField::GetItemSize() const {
   switch (_kind) {
   case ::Smp::PrimitiveTypeKind::PTK_Bool:
     return sizeof(::Smp::Bool);
@@ -368,7 +368,7 @@ void AnonymousSimpleArrayField::GetValues(::Smp::UInt64 length,
   if (length != GetSize()) {
     ::Xsmp::Exception::throwInvalidArraySize(this, length);
   }
-  for (std::size_t i = 0; i < length; ++i) {
+  for (::Smp::UInt64 i = 0; i < length; ++i) {
     values[i] = GetValue(i);
   }
 }
@@ -378,7 +378,7 @@ void AnonymousSimpleArrayField::SetValues(::Smp::UInt64 length,
   if (length != GetSize()) {
     ::Xsmp::Exception::throwInvalidArraySize(this, length);
   }
-  for (std::size_t i = 0; i < length; ++i) {
+  for (::Smp::UInt64 i = 0; i < length; ++i) {
     SetValue(i, values[i]);
   }
 }
@@ -423,7 +423,7 @@ ArrayField::ArrayField(::Smp::String8 name, ::Smp::String8 description,
     : Field(name, description, parent, address, type, view, state, input,
             output) {
 
-  for (std::size_t i = 0; i < type->GetSize(); ++i) {
+  for (::Smp::UInt64 i = 0; i < type->GetSize(); ++i) {
     /// The parent of the item is the parent of the array
     /// The item name is the array name + [index]
     _fields.push_back(
@@ -596,7 +596,7 @@ void SimpleArrayField::GetValues(::Smp::UInt64 length,
   if (length != GetSize()) {
     ::Xsmp::Exception::throwInvalidArraySize(this, length);
   }
-  for (std::size_t i = 0; i < length; ++i) {
+  for (::Smp::UInt64 i = 0; i < length; ++i) {
     values[i] = GetValue(i);
   }
 }
@@ -607,7 +607,7 @@ void SimpleArrayField::SetValues(::Smp::UInt64 length,
     ::Xsmp::Exception::throwInvalidArraySize(this, length);
   }
   auto _itemKind = _itemType->GetPrimitiveTypeKind();
-  for (std::size_t i = 0; i < length; ++i) {
+  for (::Smp::UInt64 i = 0; i < length; ++i) {
     if (values[i].type != _itemKind) {
       ::Xsmp::Exception::throwInvalidArrayValue(this, i, values[i]);
     }

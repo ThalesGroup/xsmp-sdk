@@ -15,10 +15,11 @@
 #ifndef SMP_UTILITY_H_
 #define SMP_UTILITY_H_
 
-#include <cstddef>
 #include <limits>
 #include <type_traits>
+#if __cplusplus >= 202002L
 #include <utility>
+#endif
 
 namespace Smp::utility {
 

@@ -30,7 +30,6 @@
 #include <Xsmp/Field.h>
 #include <Xsmp/Helper.h>
 #include <algorithm>
-#include <cstddef>
 #include <utility>
 
 namespace Xsmp::detail {
@@ -136,7 +135,7 @@ bool DataflowField::Connect(DataflowField *sender, ::Smp::IField *source,
       return false;
     }
     bool result = true;
-    for (std::size_t i = 0; i < arraySource->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0; i < arraySource->GetSize(); ++i) {
       result &=
           Connect(sender, arraySource->GetItem(i), arrayTarget->GetItem(i));
     }
@@ -149,7 +148,7 @@ bool DataflowField::Connect(DataflowField *sender, ::Smp::IField *source,
                              structSource->GetFields()->size()) {
       return false;
     }
-    std::size_t index = 0;
+    ::Smp::UInt64 index = 0;
     bool result = true;
     for (auto *field : *structSource->GetFields()) {
       result &= Connect(sender, field, structTarget->GetFields()->at(index));
@@ -167,7 +166,7 @@ void SimpleConnectableField::internal_push() const {
   }
 }
 
-void SimpleArrayConnectableField::internal_push(std::size_t index) const {
+void SimpleArrayConnectableField::internal_push(::Smp::UInt64 index) const {
   for (auto *field : _connectedFields) {
     field->SetValue(index, this->GetValue(index));
   }
@@ -220,7 +219,7 @@ void DataflowField::RemoveLinks(::Smp::IField *field,
   // Disconnect an array field
   else if (auto const *arraySource =
                dynamic_cast<::Smp::IArrayField *>(field)) {
-    for (std::size_t i = 0; i < arraySource->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0; i < arraySource->GetSize(); ++i) {
       RemoveLinks(arraySource->GetItem(i), target);
     }
   }
