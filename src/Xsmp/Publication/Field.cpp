@@ -149,7 +149,8 @@ void DataflowField::Push(::Smp::IField *source, ::Smp::IField *target) {
   else if (auto const *simpleArraySource =
                dynamic_cast<::Smp::ISimpleArrayField *>(source)) {
     auto *simpleArrayTarget = dynamic_cast<::Smp::ISimpleArrayField *>(target);
-    for (::Smp::UInt64 i = 0; i < simpleArraySource->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0, size = simpleArraySource->GetSize(); i < size;
+         ++i) {
       simpleArrayTarget->SetValue(i, simpleArraySource->GetValue(i));
     }
   }
@@ -157,8 +158,7 @@ void DataflowField::Push(::Smp::IField *source, ::Smp::IField *target) {
   else if (auto const *arraySource =
                dynamic_cast<::Smp::IArrayField *>(source)) {
     auto const *arrayTarget = dynamic_cast<::Smp::IArrayField *>(target);
-
-    for (::Smp::UInt64 i = 0; i < arraySource->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0, size = arraySource->GetSize(); i < size; ++i) {
       Push(arraySource->GetItem(i), arrayTarget->GetItem(i));
     }
   }
@@ -422,8 +422,7 @@ ArrayField::ArrayField(::Smp::String8 name, ::Smp::String8 description,
                        ::Smp::Bool input, ::Smp::Bool output)
     : Field(name, description, parent, address, type, view, state, input,
             output) {
-
-  for (::Smp::UInt64 i = 0; i < type->GetSize(); ++i) {
+  for (::Smp::UInt64 i = 0, size = type->GetSize(); i < size; ++i) {
     /// The parent of the item is the parent of the array
     /// The item name is the array name + [index]
     _fields.push_back(

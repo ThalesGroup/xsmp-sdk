@@ -162,12 +162,22 @@ constexpr const char *_basePath = "log";
 
 class Layout {
 public:
+  Layout() = default;
+  Layout(const Layout &) = delete;
+  Layout(Layout &&) = delete;
+  Layout &operator=(const Layout &) = delete;
+  Layout &operator=(Layout &&) = delete;
   virtual ~Layout() noexcept = default;
   virtual void Append(std::ostream &stream, const LogEntry &entry) const = 0;
 };
 
 class SimpleLayout final : public Layout {
 public:
+  SimpleLayout() = default;
+  SimpleLayout(const SimpleLayout &) = delete;
+  SimpleLayout(SimpleLayout &&) = delete;
+  SimpleLayout &operator=(const SimpleLayout &) = delete;
+  SimpleLayout &operator=(SimpleLayout &&) = delete;
   ~SimpleLayout() noexcept override = default;
   void Append(std::ostream &stream, const LogEntry &entry) const override {
     stream << entry.simulationTime << "\t" << entry.sender << '\t' << entry.kind
@@ -182,7 +192,10 @@ public:
       const std::map<std::string, std::string, std::less<>> &properties)
       : _pattern{ComputePatternLayout(path, properties)} {}
   ~PatternLayout() noexcept override = default;
-
+  PatternLayout(const PatternLayout &) = delete;
+  PatternLayout(PatternLayout &&) = delete;
+  PatternLayout &operator=(const PatternLayout &) = delete;
+  PatternLayout &operator=(PatternLayout &&) = delete;
   void Append(std::ostream &stream, const LogEntry &entry) const override {
     using namespace std::chrono;
 
@@ -245,7 +258,7 @@ public:
   }
 
 private:
-  const std::string _pattern;
+  std::string _pattern;
 
   static std::string
   ComputePatternLayout(const std::string &path,
@@ -326,6 +339,8 @@ public:
   virtual ~Appender() noexcept = default;
   Appender(const Appender &) = delete;
   Appender &operator=(const Appender &) = delete;
+  Appender(Appender &&) = delete;
+  Appender &operator=(Appender &&) = delete;
 
   void Append(const LogEntry &entry) {
 
@@ -354,6 +369,10 @@ class ConsoleAppender final : public Appender {
 public:
   using Appender::Appender;
   ~ConsoleAppender() noexcept override = default;
+  ConsoleAppender(const ConsoleAppender &) = delete;
+  ConsoleAppender &operator=(const ConsoleAppender &) = delete;
+  ConsoleAppender(ConsoleAppender &&) = delete;
+  ConsoleAppender &operator=(ConsoleAppender &&) = delete;
   void DoAppend(const LogEntry &entry) override {
     const std::scoped_lock lck{_mutex};
     Append(std::cout, entry);
@@ -369,6 +388,10 @@ public:
       const std::map<std::string, std::string, std::less<>> &properties)
       : Appender(path, properties), _stream{GetFileName(path, properties)} {}
   ~FileAppender() noexcept override = default;
+  FileAppender(const FileAppender &) = delete;
+  FileAppender &operator=(const FileAppender &) = delete;
+  FileAppender(FileAppender &&) = delete;
+  FileAppender &operator=(FileAppender &&) = delete;
   void DoAppend(const LogEntry &entry) override { Append(_stream, entry); }
 
 private:
@@ -403,7 +426,10 @@ public:
     // initialize the working thread
     workingThread = std::thread{&LoggerProcessor::Process, this};
   }
-
+  LoggerProcessor(const LoggerProcessor &) = delete;
+  LoggerProcessor &operator=(const LoggerProcessor &) = delete;
+  LoggerProcessor(LoggerProcessor &&) = delete;
+  LoggerProcessor &operator=(LoggerProcessor &&) = delete;
   ~LoggerProcessor() {
     // terminate the working thread
     Stop();

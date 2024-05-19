@@ -83,8 +83,7 @@ void Request::extract(::Smp::IRequest *request, ::Smp::IField *field,
   // simple array field
   else if (auto *simpleArray =
                dynamic_cast<::Smp::ISimpleArrayField *>(field)) {
-
-    for (::Smp::UInt64 i = 0; i < simpleArray->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0, size = simpleArray->GetSize(); i < size; ++i) {
       const std::string itemName = name + "[" + std::to_string(i) + "]";
       const auto index = request->GetParameterIndex(itemName.c_str());
       if (index != -1) {
@@ -101,7 +100,7 @@ void Request::extract(::Smp::IRequest *request, ::Smp::IField *field,
   }
   // array field
   else if (auto const *array = dynamic_cast<::Smp::IArrayField *>(field)) {
-    for (::Smp::UInt64 i = 0; i < array->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0, size = array->GetSize(); i < size; ++i) {
       extract(request, array->GetItem(i), name + "[" + std::to_string(i) + "]",
               ignoreMissingParameters);
     }
@@ -137,7 +136,7 @@ void Request::inject(::Smp::IRequest *request, ::Smp::IField *field,
   // simple array field
   else if (auto const *simpleArray =
                dynamic_cast<::Smp::ISimpleArrayField *>(field)) {
-    for (::Smp::UInt64 i = 0; i < simpleArray->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0, size = simpleArray->GetSize(); i < size; ++i) {
       const std::string itemName = name + "[" + std::to_string(i) + "]";
       const auto index = request->GetParameterIndex(itemName.c_str());
       if (index == -1) {
@@ -151,7 +150,7 @@ void Request::inject(::Smp::IRequest *request, ::Smp::IField *field,
   }
   // array field
   else if (auto const *array = dynamic_cast<::Smp::IArrayField *>(field)) {
-    for (::Smp::UInt64 i = 0; i < array->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0, size = array->GetSize(); i < size; ++i) {
       inject(request, array->GetItem(i), name + "[" + std::to_string(i) + "]");
     }
   }

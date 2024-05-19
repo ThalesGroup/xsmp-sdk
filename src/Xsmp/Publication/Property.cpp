@@ -36,7 +36,9 @@ public:
       : _property{property}, _name{std::string("get_") + property->GetName()} {}
   ~Getter() noexcept override = default;
   Getter(const Getter &) = delete;
+  Getter(Getter &&) = delete;
   Getter &operator=(const Getter &) = delete;
+  Getter &operator=(Getter &&) = delete;
 
   [[nodiscard]] ::Smp::String8 GetOperationName() const override {
     return _name.c_str();
@@ -83,7 +85,9 @@ public:
       : _property{property}, _name{std::string("set_") + property->GetName()} {}
   ~Setter() noexcept override = default;
   Setter(const Setter &) = delete;
+  Setter(Setter &&) = delete;
   Setter &operator=(const Setter &) = delete;
+  Setter &operator=(Setter &&) = delete;
 
   [[nodiscard]] ::Smp::String8 GetOperationName() const override {
     return _name.c_str();

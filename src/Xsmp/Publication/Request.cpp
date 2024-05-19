@@ -101,7 +101,7 @@ void Request::init(const std::string &name,
   // init an array type
   else if (const auto *array =
                dynamic_cast<const ::Smp::Publication::IArrayType *>(type)) {
-    for (::Smp::UInt64 i = 0; i < array->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0, size = array->GetSize(); i < size; ++i) {
       init(name + "[" + std::to_string(i) + "]", array->GetItemType(),
            typeRegistry);
     }

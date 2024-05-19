@@ -51,7 +51,8 @@ inline Uuid from(const char *value) {
   }
 
   /// 8 hex nibbles.
-  auto data1 = static_cast<std::uint32_t>(std::strtoul(&value[0], nullptr, 16));
+  const auto data1 =
+      static_cast<std::uint32_t>(std::strtoul(&value[0], nullptr, 16));
 
   /// 3x4 hex nibbles.
   const std::array<std::uint16_t, 3> data2{
@@ -59,13 +60,18 @@ inline Uuid from(const char *value) {
       static_cast<std::uint16_t>(std::strtoul(&value[14], nullptr, 16)),
       static_cast<std::uint16_t>(std::strtoul(&value[19], nullptr, 16))};
 
-  auto d3 = static_cast<std::uint64_t>(std::strtoull(&value[24], nullptr, 16));
+  const auto d3 =
+      static_cast<std::uint64_t>(std::strtoull(&value[24], nullptr, 16));
 
   /// 6x2 hex nibbles.
-  std::array<std::uint8_t, 6> data3;
-  for (std::size_t i = 0; i < data3.size(); ++i) {
-    data3[i] = (d3 >> ((5 - i) * 8)) & 0xFF;
-  }
+  const std::array<std::uint8_t, 6> data3{
+      static_cast<std::uint8_t>((d3 >> 40U) & 0xFF),
+      static_cast<std::uint8_t>((d3 >> 32U) & 0xFF),
+      static_cast<std::uint8_t>((d3 >> 24U) & 0xFF),
+      static_cast<std::uint8_t>((d3 >> 16U) & 0xFF),
+      static_cast<std::uint8_t>((d3 >> 8U) & 0xFF),
+      static_cast<std::uint8_t>(d3 & 0xFF)};
+
   return {data1, data2, data3};
 }
 } // namespace

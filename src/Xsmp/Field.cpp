@@ -76,12 +76,12 @@ void DataflowField::Push(::Smp::IField *field) {
     simple->internal_push();
   } else if (auto const *simpleArray =
                  dynamic_cast<SimpleArrayConnectableField *>(field)) {
-    for (::Smp::UInt64 i = 0; i < simpleArray->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0, size = simpleArray->GetSize(); i < size; ++i) {
       simpleArray->internal_push(i);
     }
   } else if (const auto *arrayfield =
                  dynamic_cast<const ::Smp::IArrayField *>(field)) {
-    for (::Smp::UInt64 i = 0; i < arrayfield->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0, size = arrayfield->GetSize(); i < size; ++i) {
       Push(arrayfield->GetItem(i));
     }
   } else if (const auto *structfield =
@@ -135,7 +135,7 @@ bool DataflowField::Connect(DataflowField *sender, ::Smp::IField *source,
       return false;
     }
     bool result = true;
-    for (::Smp::UInt64 i = 0; i < arraySource->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0, size = arraySource->GetSize(); i < size; ++i) {
       result &=
           Connect(sender, arraySource->GetItem(i), arrayTarget->GetItem(i));
     }
@@ -219,7 +219,7 @@ void DataflowField::RemoveLinks(::Smp::IField *field,
   // Disconnect an array field
   else if (auto const *arraySource =
                dynamic_cast<::Smp::IArrayField *>(field)) {
-    for (::Smp::UInt64 i = 0; i < arraySource->GetSize(); ++i) {
+    for (::Smp::UInt64 i = 0, size = arraySource->GetSize(); i < size; ++i) {
       RemoveLinks(arraySource->GetItem(i), target);
     }
   }

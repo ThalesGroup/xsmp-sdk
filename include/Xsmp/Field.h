@@ -260,8 +260,9 @@ public:
         ::Smp::ViewKind view)
       : AbstractField(name, description, parent, view) {
     if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::failure,
-                                             Annotations...>)
+                                             Annotations...>) {
       this->Failure::Register();
+    }
   }
 
   Smp::Bool IsState() const final {
@@ -596,9 +597,10 @@ public:
   Smp::UInt64 GetSize() const override { return _size; }
 
   Smp::IField *GetItem(Smp::UInt64 index) const override {
-    if (index >= _size)
+    if (index >= _size) {
       ::Xsmp::Exception::throwInvalidArrayIndex(this, index);
-    return &internalArray[index];
+    }
+    return const_cast<value_type *>(&internalArray[index]);
   }
   const Smp::Publication::IArrayType *GetType() const override { return _type; }
 
@@ -738,7 +740,7 @@ private:
 
   const ::Smp::Publication::IArrayType *_type;
 
-  mutable std::array<value_type, _size> internalArray;
+  std::array<value_type, _size> internalArray;
 };
 
 template <typename T, typename... Annotations>
@@ -773,28 +775,28 @@ public:
 
   Smp::UInt64 GetSize() const override { return _size; }
   Smp::AnySimple GetValue(Smp::UInt64 index) const override {
-    if (index >= _size)
+    if (index >= _size) {
       ::Xsmp::Exception::throwInvalidArrayIndex(this, index);
-
+    }
     return AnySimpleConverter<value_type>::convert(
         _type->GetItemType()->GetPrimitiveTypeKind(), _value[index]);
   }
 
   void SetValue(Smp::UInt64 index, Smp::AnySimple value) override {
-    if (index >= _size)
+    if (index >= _size) {
       ::Xsmp::Exception::throwInvalidArrayIndex(this, index);
-
-    if (_type->GetItemType()->GetPrimitiveTypeKind() != value.type)
+    }
+    if (_type->GetItemType()->GetPrimitiveTypeKind() != value.type) {
       ::Xsmp::Exception::throwInvalidFieldValue(this, value);
-
+    }
     _value[index] = AnySimpleConverter<value_type>::convert(value);
   }
 
   void GetValues(Smp::UInt64 length,
                  Smp::AnySimpleArray values) const override {
-    if (length != _size)
+    if (length != _size) {
       ::Xsmp::Exception::throwInvalidArraySize(this, length);
-
+    }
     auto _itemKind = _type->GetItemType()->GetPrimitiveTypeKind();
     for (std::size_t i = 0; i < _size; ++i) {
       values[i] = AnySimpleConverter<value_type>::convert(_itemKind, _value[i]);
@@ -802,9 +804,9 @@ public:
   }
 
   void SetValues(Smp::UInt64 length, Smp::AnySimpleArray values) override {
-    if (length != _size)
+    if (length != _size) {
       ::Xsmp::Exception::throwInvalidArraySize(this, length);
-
+    }
     auto _itemKind = _type->GetItemType()->GetPrimitiveTypeKind();
     for (std::size_t i = 0; i < _size; ++i) {
       if (values[i].type != _itemKind) {
@@ -931,55 +933,43 @@ public:
     pointer operator->() const noexcept {
       return pointer{_parent, *_value, _index};
     }
-
     protected_iterator &operator++() noexcept {
       ++_value;
       ++_index;
       return *this;
     }
-
     protected_iterator operator++(int) noexcept {
       return protected_iterator(_parent, _value++, _index++);
     }
-
     // Bidirectional iterator requirements
-
     protected_iterator &operator--() noexcept {
       --_value;
       --_index;
       return *this;
     }
-
     protected_iterator operator--(int) noexcept {
       return protected_iterator(_parent, _value--, _index--);
     }
-
     // Random access iterator requirements
-
     reference operator[](difference_type index) const noexcept {
       return {_parent, _value[index], _index + index};
     }
-
     protected_iterator &operator+=(difference_type index) noexcept {
       _value += index;
       _index += index;
       return *this;
     }
-
     protected_iterator operator+(difference_type index) const noexcept {
       return protected_iterator(_parent, _value + index, _index + index);
     }
-
     protected_iterator &operator-=(difference_type index) noexcept {
       _value -= index;
       _index -= index;
       return *this;
     }
-
     protected_iterator operator-(difference_type index) const noexcept {
       return protected_iterator(_parent, _value - index, _index - index);
     }
-
     const value_type *base() const noexcept { return _value; }
 
   private:
@@ -992,12 +982,10 @@ public:
       ::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable, Annotations...>,
       protected_iterator, value_type *>;
   using const_iterator = const value_type *;
-
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
   operator const T &() const noexcept { return _value; }
-
   operator T &() noexcept { return _value; }
 
   void fill(const value_type &_u) { _value.fill(_u); }
@@ -1012,7 +1000,6 @@ public:
       return _value.begin();
     }
   }
-
   [[nodiscard]] const_iterator begin() const noexcept { return _value.begin(); }
 
   [[nodiscard]] iterator end() noexcept {

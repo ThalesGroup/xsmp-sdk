@@ -231,7 +231,7 @@ ModelWithOperationsGen::InitRequestHandlers() {
     handlers["boolOperation"] = [](ModelWithOperationsGen *cmp,
                                    ::Smp::IRequest *req) {
       /// Invoke boolOperation
-      auto p_return = cmp->boolOperation();
+      const auto p_return = cmp->boolOperation();
 
       ::Xsmp::Request::setReturnValue(req, ::Smp::PrimitiveTypeKind::PTK_Bool,
                                       p_return);
@@ -241,7 +241,7 @@ ModelWithOperationsGen::InitRequestHandlers() {
     handlers["char8Operation"] = [](ModelWithOperationsGen *cmp,
                                     ::Smp::IRequest *req) {
       /// Invoke char8Operation
-      auto p_return = cmp->char8Operation();
+      const auto p_return = cmp->char8Operation();
 
       ::Xsmp::Request::setReturnValue(req, ::Smp::PrimitiveTypeKind::PTK_Char8,
                                       p_return);
@@ -251,7 +251,7 @@ ModelWithOperationsGen::InitRequestHandlers() {
     handlers["dateTimeOperation"] = [](ModelWithOperationsGen *cmp,
                                        ::Smp::IRequest *req) {
       /// Invoke dateTimeOperation
-      auto p_return = cmp->dateTimeOperation();
+      const auto p_return = cmp->dateTimeOperation();
 
       ::Xsmp::Request::setReturnValue(
           req, ::Smp::PrimitiveTypeKind::PTK_DateTime, p_return);
@@ -261,7 +261,7 @@ ModelWithOperationsGen::InitRequestHandlers() {
     handlers["durationOperation"] = [](ModelWithOperationsGen *cmp,
                                        ::Smp::IRequest *req) {
       /// Invoke durationOperation
-      auto p_return = cmp->durationOperation();
+      const auto p_return = cmp->durationOperation();
 
       ::Xsmp::Request::setReturnValue(
           req, ::Smp::PrimitiveTypeKind::PTK_Duration, p_return);
@@ -271,7 +271,7 @@ ModelWithOperationsGen::InitRequestHandlers() {
     handlers["float32Operation"] = [](ModelWithOperationsGen *cmp,
                                       ::Smp::IRequest *req) {
       /// Invoke float32Operation
-      auto p_return = cmp->float32Operation();
+      const auto p_return = cmp->float32Operation();
 
       ::Xsmp::Request::setReturnValue(
           req, ::Smp::PrimitiveTypeKind::PTK_Float32, p_return);
@@ -281,7 +281,7 @@ ModelWithOperationsGen::InitRequestHandlers() {
     handlers["float64Operation"] = [](ModelWithOperationsGen *cmp,
                                       ::Smp::IRequest *req) {
       /// Invoke float64Operation
-      auto p_return = cmp->float64Operation();
+      const auto p_return = cmp->float64Operation();
 
       ::Xsmp::Request::setReturnValue(
           req, ::Smp::PrimitiveTypeKind::PTK_Float64, p_return);
@@ -291,7 +291,7 @@ ModelWithOperationsGen::InitRequestHandlers() {
     handlers["int16Operation"] = [](ModelWithOperationsGen *cmp,
                                     ::Smp::IRequest *req) {
       /// Invoke int16Operation
-      auto p_return = cmp->int16Operation();
+      const auto p_return = cmp->int16Operation();
 
       ::Xsmp::Request::setReturnValue(req, ::Smp::PrimitiveTypeKind::PTK_Int16,
                                       p_return);
@@ -301,7 +301,7 @@ ModelWithOperationsGen::InitRequestHandlers() {
     handlers["int32Operation"] = [](ModelWithOperationsGen *cmp,
                                     ::Smp::IRequest *req) {
       /// Invoke int32Operation
-      auto p_return = cmp->int32Operation();
+      const auto p_return = cmp->int32Operation();
 
       ::Xsmp::Request::setReturnValue(req, ::Smp::PrimitiveTypeKind::PTK_Int32,
                                       p_return);
@@ -311,7 +311,7 @@ ModelWithOperationsGen::InitRequestHandlers() {
     handlers["int64Operation"] = [](ModelWithOperationsGen *cmp,
                                     ::Smp::IRequest *req) {
       /// Invoke int64Operation
-      auto p_return = cmp->int64Operation();
+      const auto p_return = cmp->int64Operation();
 
       ::Xsmp::Request::setReturnValue(req, ::Smp::PrimitiveTypeKind::PTK_Int64,
                                       p_return);
@@ -321,7 +321,7 @@ ModelWithOperationsGen::InitRequestHandlers() {
     handlers["int8Operation"] = [](ModelWithOperationsGen *cmp,
                                    ::Smp::IRequest *req) {
       /// Invoke int8Operation
-      auto p_return = cmp->int8Operation();
+      const auto p_return = cmp->int8Operation();
 
       ::Xsmp::Request::setReturnValue(req, ::Smp::PrimitiveTypeKind::PTK_Int8,
                                       p_return);
@@ -331,7 +331,7 @@ ModelWithOperationsGen::InitRequestHandlers() {
     handlers["string8Operation"] = [](ModelWithOperationsGen *cmp,
                                       ::Smp::IRequest *req) {
       /// Invoke string8Operation
-      auto p_return = cmp->string8Operation();
+      const auto p_return = cmp->string8Operation();
 
       ::Xsmp::Request::setReturnValue(
           req, ::Smp::PrimitiveTypeKind::PTK_String8, p_return);
@@ -341,7 +341,7 @@ ModelWithOperationsGen::InitRequestHandlers() {
     handlers["uint16Operation"] = [](ModelWithOperationsGen *cmp,
                                      ::Smp::IRequest *req) {
       /// Invoke uint16Operation
-      auto p_return = cmp->uint16Operation();
+      const auto p_return = cmp->uint16Operation();
 
       ::Xsmp::Request::setReturnValue(req, ::Smp::PrimitiveTypeKind::PTK_UInt16,
                                       p_return);
@@ -351,7 +351,7 @@ ModelWithOperationsGen::InitRequestHandlers() {
     handlers["uint32Operation"] = [](ModelWithOperationsGen *cmp,
                                      ::Smp::IRequest *req) {
       /// Invoke uint32Operation
-      auto p_return = cmp->uint32Operation();
+      const auto p_return = cmp->uint32Operation();
 
       ::Xsmp::Request::setReturnValue(req, ::Smp::PrimitiveTypeKind::PTK_UInt32,
                                       p_return);
@@ -361,7 +361,7 @@ ModelWithOperationsGen::InitRequestHandlers() {
     handlers["uint64Operation"] = [](ModelWithOperationsGen *cmp,
                                      ::Smp::IRequest *req) {
       /// Invoke uint64Operation
-      auto p_return = cmp->uint64Operation();
+      const auto p_return = cmp->uint64Operation();
 
       ::Xsmp::Request::setReturnValue(req, ::Smp::PrimitiveTypeKind::PTK_UInt64,
                                       p_return);
@@ -371,7 +371,7 @@ ModelWithOperationsGen::InitRequestHandlers() {
     handlers["uint8Operation"] = [](ModelWithOperationsGen *cmp,
                                     ::Smp::IRequest *req) {
       /// Invoke uint8Operation
-      auto p_return = cmp->uint8Operation();
+      const auto p_return = cmp->uint8Operation();
 
       ::Xsmp::Request::setReturnValue(req, ::Smp::PrimitiveTypeKind::PTK_UInt8,
                                       p_return);
