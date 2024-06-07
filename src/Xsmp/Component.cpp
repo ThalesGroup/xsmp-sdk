@@ -96,8 +96,6 @@ void Component::Disconnect() {
   }
   _state = ::Smp::ComponentStateKind::CSK_Disconnected;
 
-  _publication->Unpublish();
-  _publication = nullptr;
   _simulator = nullptr;
 }
 
