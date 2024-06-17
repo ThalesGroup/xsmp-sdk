@@ -87,11 +87,11 @@ void AbstractEventSource::DoEmit(::Smp::IObject *sender,
 EventSource<void>::EventSource(::Smp::String8 name, ::Smp::String8 description,
                                ::Xsmp::EventProvider *parent)
     : AbstractEventSource(name, description, parent,
-                          Smp::PrimitiveTypeKind::PTK_None) {}
+                          ::Smp::PrimitiveTypeKind::PTK_None) {}
 EventSource<void>::EventSource(::Smp::String8 name, ::Smp::String8 description,
                                ::Smp::IObject *parent)
     : AbstractEventSource(name, description, parent,
-                          Smp::PrimitiveTypeKind::PTK_None) {}
+                          ::Smp::PrimitiveTypeKind::PTK_None) {}
 
 void EventSource<void>::Emit(::Smp::IObject *sender) const {
   AbstractEventSource::DoEmit(sender, ::Smp::AnySimple{});

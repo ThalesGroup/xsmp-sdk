@@ -230,7 +230,7 @@ throwEntryPointAlreadySubscribed(const ::Smp::IObject *sender,
                                         ::Smp::PrimitiveTypeKind kind);
 
 [[noreturn]] void throwDuplicateUuid(const ::Smp::IObject *sender,
-                                     const Smp::IFactory *oldFactory,
+                                     const ::Smp::IFactory *oldFactory,
                                      ::Smp::String8 newName);
 
 [[noreturn]] void throwLibraryNotFound(const ::Smp::IObject *sender,

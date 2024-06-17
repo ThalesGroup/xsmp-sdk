@@ -64,7 +64,7 @@ public:
   void DeleteRequest(::Smp::IRequest *request) override;
   const ::Smp::PropertyCollection *GetProperties() const override;
   const ::Smp::OperationCollection *GetOperations() const override;
-  void RemoveLinks(const Smp::IComponent *target) override;
+  void RemoveLinks(const ::Smp::IComponent *target) override;
   const ::Smp::Uuid &GetUuid() const override;
 
 protected:

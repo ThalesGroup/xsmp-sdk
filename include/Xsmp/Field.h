@@ -57,7 +57,7 @@ template <typename, class U = void> struct FieldTypeHelper {};
 } // namespace detail
 template <typename T, typename... Annotations>
 using Field =
-    typename detail::FieldTypeHelper<T>::template field<Annotations...>;
+    typename ::Xsmp::detail::FieldTypeHelper<T>::template field<Annotations...>;
 
 namespace Annotation {
 
@@ -112,18 +112,19 @@ struct is_simple_array_field : std::false_type {};
 template <typename ItemType, std::size_t Nm, typename... Annotations>
 struct is_simple_array_field<
     ::Xsmp::Array<ItemType, Nm, Annotations...>,
-    std::enable_if_t<::Xsmp::Annotation::any_of<Xsmp::Annotation::simpleArray,
-                                                Annotations...> &&
-                     Helper::is_simple_type_v<ItemType>>> : std::true_type {};
+    std::enable_if_t<::Xsmp::Annotation::any_of<::Xsmp::Annotation::simpleArray,
+                                                Annotations...>
+                         && ::Xsmp::Helper::is_simple_type_v<ItemType>>>
+    : std::true_type {};
 
-class AbstractForcibleField : public virtual Smp::IForcibleField {
+class AbstractForcibleField : public virtual ::Smp::IForcibleField {
 public:
-  void Force(Smp::AnySimple value) final;
+  void Force(::Smp::AnySimple value) final;
   void Unforce() final;
-  Smp::Bool IsForced() final;
+  ::Smp::Bool IsForced() final;
   void Freeze() final;
-  void Restore(Smp::IStorageReader *reader) override;
-  void Store(Smp::IStorageWriter *writer) override;
+  void Restore(::Smp::IStorageReader *reader) override;
+  void Store(::Smp::IStorageWriter *writer) override;
 
 private:
   bool _forced{};
@@ -132,17 +133,18 @@ template <typename T> class ForcibleField : public AbstractForcibleField {
 public:
   using AbstractForcibleField::Force;
   void Force(const T &value) {
-    Force(AnySimpleConverter<T>::convert(this->GetPrimitiveTypeKind(), value));
+    Force(::Xsmp::AnySimpleConverter<T>::convert(this->GetPrimitiveTypeKind(),
+                                                 value));
   }
 };
 
-class Failure : public virtual Smp::IFailure {
+class Failure : public virtual ::Smp::IFailure {
 public:
   void Fail() final;
   void Unfail() final;
-  Smp::Bool IsFailed() const final;
-  void Restore(Smp::IStorageReader *reader) override;
-  void Store(Smp::IStorageWriter *writer) override;
+  ::Smp::Bool IsFailed() const final;
+  void Restore(::Smp::IStorageReader *reader) override;
+  void Store(::Smp::IStorageWriter *writer) override;
 
 protected:
   void Register();
@@ -193,24 +195,24 @@ private:
   friend class DataflowField;
 };
 
-class AbstractStructureField : public virtual Smp::IStructureField {
+class AbstractStructureField : public virtual ::Smp::IStructureField {
 public:
   AbstractStructureField();
-  void Restore(Smp::IStorageReader *reader) override;
-  void Store(Smp::IStorageWriter *writer) override;
-  const Smp::FieldCollection *GetFields() const final;
-  Smp::IField *GetField(Smp::String8 name) const final;
+  void Restore(::Smp::IStorageReader *reader) override;
+  void Store(::Smp::IStorageWriter *writer) override;
+  const ::Smp::FieldCollection *GetFields() const final;
+  ::Smp::IField *GetField(::Smp::String8 name) const final;
 
 protected:
   // AbstractDataflowField requires access to GetFields()
   friend class DataflowField;
-  Collection<::Smp::IField> *GetFields();
+  ::Xsmp::Collection<::Smp::IField> *GetFields();
 
   friend class AbstractField;
-  inline void AddField(Smp::IField &field) { _fields.Add(&field); }
+  inline void AddField(::Smp::IField &field) { _fields.Add(&field); }
 
 private:
-  Collection<::Smp::IField> _fields;
+  ::Xsmp::Collection<::Smp::IField> _fields;
 };
 
 class AbstractField : public virtual ::Smp::IField {
@@ -221,7 +223,7 @@ public:
   ::Smp::String8 GetName() const final;
   ::Smp::String8 GetDescription() const final;
   ::Smp::IObject *GetParent() const final;
-  Smp::ViewKind GetView() const final;
+  ::Smp::ViewKind GetView() const final;
 
 protected:
   AbstractField(::Smp::String8 name, ::Smp::String8 description,
@@ -231,59 +233,64 @@ private:
   std::string _name;
   std::string _description;
   ::Smp::IObject *_parent;
-  Smp::ViewKind _view;
+  ::Smp::ViewKind _view;
 };
 
 template <typename T, typename... Annotations>
-class Field
-    : public AbstractField,
+class Field : public AbstractField,
 
-      public virtual std::conditional_t<
-          ::Xsmp::Annotation::any_of<Xsmp::Annotation::output, Annotations...>,
-          DataflowField, ::Smp::IField>,
+              public virtual std::conditional_t<
+                  ::Xsmp::Annotation::any_of<::Xsmp::Annotation::output,
+                                             Annotations...>,
+                  DataflowField, ::Smp::IField>,
 
-      public virtual std::conditional_t<
-          ::Xsmp::Annotation::any_of<Xsmp::Annotation::failure, Annotations...>,
-          Failure, ::Smp::IPersist> {
+              public virtual std::conditional_t<
+                  ::Xsmp::Annotation::any_of<::Xsmp::Annotation::failure,
+                                             Annotations...>,
+                  Failure, ::Smp::IPersist> {
 
 public:
-  using transient = Xsmp::Field<T, Annotations..., Xsmp::Annotation::transient>;
-  using input = Xsmp::Field<T, Annotations..., Xsmp::Annotation::input>;
-  using output = Xsmp::Field<T, Annotations..., Xsmp::Annotation::output,
-                             Xsmp::Annotation::connectable>;
+  using transient =
+      ::Xsmp::Field<T, Annotations..., ::Xsmp::Annotation::transient>;
+  using input = ::Xsmp::Field<T, Annotations..., ::Xsmp::Annotation::input>;
+  using output = ::Xsmp::Field<T, Annotations..., ::Xsmp::Annotation::output,
+                               ::Xsmp::Annotation::connectable>;
   using connectable =
-      Xsmp::Field<T, Annotations..., Xsmp::Annotation::connectable>;
-  using forcible = Xsmp::Field<T, Annotations..., Xsmp::Annotation::forcible>;
-  using failure = Xsmp::Field<T, Annotations..., Xsmp::Annotation::failure>;
+      ::Xsmp::Field<T, Annotations..., ::Xsmp::Annotation::connectable>;
+  using forcible =
+      ::Xsmp::Field<T, Annotations..., ::Xsmp::Annotation::forcible>;
+  using failure = ::Xsmp::Field<T, Annotations..., ::Xsmp::Annotation::failure>;
 
   Field(::Smp::String8 name, ::Smp::String8 description, ::Smp::IObject *parent,
         ::Smp::ViewKind view)
       : AbstractField(name, description, parent, view) {
-    if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::failure,
+    if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::failure,
                                              Annotations...>) {
       this->Failure::Register();
     }
   }
 
-  Smp::Bool IsState() const final {
-    return !::Xsmp::Annotation::any_of<Xsmp::Annotation::transient,
+  ::Smp::Bool IsState() const final {
+    return !::Xsmp::Annotation::any_of<::Xsmp::Annotation::transient,
                                        Annotations...>;
   }
-  Smp::Bool IsInput() const final {
-    return ::Xsmp::Annotation::any_of<Xsmp::Annotation::input, Annotations...>;
+  ::Smp::Bool IsInput() const final {
+    return ::Xsmp::Annotation::any_of<::Xsmp::Annotation::input,
+                                      Annotations...>;
   }
-  Smp::Bool IsOutput() const final {
-    return ::Xsmp::Annotation::any_of<Xsmp::Annotation::output, Annotations...>;
+  ::Smp::Bool IsOutput() const final {
+    return ::Xsmp::Annotation::any_of<::Xsmp::Annotation::output,
+                                      Annotations...>;
   }
 
-  void Restore(Smp::IStorageReader *reader) override {
-    if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::failure,
+  void Restore(::Smp::IStorageReader *reader) override {
+    if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::failure,
                                              Annotations...>) {
       Failure::Restore(reader);
     }
   }
-  void Store(Smp::IStorageWriter *writer) override {
-    if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::failure,
+  void Store(::Smp::IStorageWriter *writer) override {
+    if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::failure,
                                              Annotations...>) {
       Failure::Store(writer);
     }
@@ -293,21 +300,21 @@ public:
 
 template <typename T, typename... Annotations>
 class SimpleField final
-    : public Xsmp::detail::Field<T, Annotations...>,
+    : public ::Xsmp::detail::Field<T, Annotations...>,
       public virtual std::conditional_t<
-          ::Xsmp::Annotation::any_of<Xsmp::Annotation::forcible,
+          ::Xsmp::Annotation::any_of<::Xsmp::Annotation::forcible,
                                      Annotations...>,
-          detail::ForcibleField<T>, Smp::ISimpleField>,
+          ::Xsmp::detail::ForcibleField<T>, ::Smp::ISimpleField>,
       public virtual std::conditional_t<
-          ::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
+          ::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
                                      Annotations...> ||
-              ::Xsmp::Annotation::any_of<Xsmp::Annotation::output,
+              ::Xsmp::Annotation::any_of<::Xsmp::Annotation::output,
                                          Annotations...>,
-          detail::SimpleConnectableField, Smp::IField>
+          ::Xsmp::detail::SimpleConnectableField, ::Smp::IField>
 
 {
 
-  using base_class = Xsmp::detail::Field<T, Annotations...>;
+  using base_class = ::Xsmp::detail::Field<T, Annotations...>;
 
 public:
   SimpleField(const SimpleField &) = delete;
@@ -317,59 +324,61 @@ public:
               ::Smp::String8 description = "", ::Smp::IObject *parent = nullptr,
               ::Smp::ViewKind view = ::Smp::ViewKind::VK_None,
               const T &value = {})
-      : Xsmp::detail::Field<T, Annotations...>(name, description, parent, view),
-        _type{Xsmp::detail::GetType<>(this, typeRegistry, typeUuid)},
+      : ::Xsmp::detail::Field<T, Annotations...>(name, description, parent,
+                                                 view),
+        _type{::Xsmp::detail::GetType<>(this, typeRegistry, typeUuid)},
         _value{value} {}
 
-  Smp::PrimitiveTypeKind GetPrimitiveTypeKind() const override {
+  ::Smp::PrimitiveTypeKind GetPrimitiveTypeKind() const override {
     return _type->GetPrimitiveTypeKind();
   }
 
-  Smp::AnySimple GetValue() const override {
-    return AnySimpleConverter<T>::convert(GetPrimitiveTypeKind(), _value);
+  ::Smp::AnySimple GetValue() const override {
+    return ::Xsmp::AnySimpleConverter<T>::convert(GetPrimitiveTypeKind(),
+                                                  _value);
   }
 
-  void SetValue(Smp::AnySimple value) override {
-    SetValue(AnySimpleConverter<T>::convert(value));
+  void SetValue(::Smp::AnySimple value) override {
+    SetValue(::Xsmp::AnySimpleConverter<T>::convert(value));
   }
 
-  void Restore(Smp::IStorageReader *reader) override {
-    if constexpr (!::Xsmp::Annotation::any_of<Xsmp::Annotation::transient,
+  void Restore(::Smp::IStorageReader *reader) override {
+    if constexpr (!::Xsmp::Annotation::any_of<::Xsmp::Annotation::transient,
                                               Annotations...>) {
       reader->Restore(&_value, sizeof(_value));
-      if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::forcible,
+      if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::forcible,
                                                Annotations...>) {
-        detail::ForcibleField<T>::Restore(reader);
+        ::Xsmp::detail::ForcibleField<T>::Restore(reader);
       }
       base_class::Restore(reader);
     }
   }
-  void Store(Smp::IStorageWriter *writer) override {
-    if constexpr (!::Xsmp::Annotation::any_of<Xsmp::Annotation::transient,
+  void Store(::Smp::IStorageWriter *writer) override {
+    if constexpr (!::Xsmp::Annotation::any_of<::Xsmp::Annotation::transient,
                                               Annotations...>) {
       writer->Store(&_value, sizeof(_value));
-      if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::forcible,
+      if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::forcible,
                                                Annotations...>) {
-        detail::ForcibleField<T>::Store(writer);
+        ::Xsmp::detail::ForcibleField<T>::Store(writer);
       }
       base_class::Store(writer);
     }
   }
-  const Smp::Publication::IType *GetType() const override { return _type; }
+  const ::Smp::Publication::IType *GetType() const override { return _type; }
 
   using reference =
       std::conditional_t<::Xsmp::Annotation::any_of<
-                             Xsmp::Annotation::connectable, Annotations...> ||
+                             ::Xsmp::Annotation::connectable, Annotations...> ||
                              ::Xsmp::Annotation::any_of<
-                                 Xsmp::Annotation::forcible, Annotations...>,
+                                 ::Xsmp::Annotation::forcible, Annotations...>,
                          const T &, T &>;
   using const_reference = const T &;
 
   using pointer =
       std::conditional_t<::Xsmp::Annotation::any_of<
-                             Xsmp::Annotation::connectable, Annotations...> ||
+                             ::Xsmp::Annotation::connectable, Annotations...> ||
                              ::Xsmp::Annotation::any_of<
-                                 Xsmp::Annotation::forcible, Annotations...>,
+                                 ::Xsmp::Annotation::forcible, Annotations...>,
                          const T *, T *>;
   using const_pointer = const T *;
   operator const_reference() const noexcept { return _value; }
@@ -418,21 +427,21 @@ public:
 
 private:
   inline SimpleField &SetValue(const T &value) {
-    if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::forcible,
+    if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::forcible,
                                              Annotations...>) {
       if (this->IsForced()) {
         return *this; // or throw an exception ?
       }
     }
     _value = value;
-    if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
+    if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
                                              Annotations...>) {
       this->internal_push();
     }
     return *this;
   }
 
-  const Smp::Publication::IType *_type;
+  const ::Smp::Publication::IType *_type;
   T _value;
 };
 
@@ -545,10 +554,10 @@ operator>=(const SimpleField<T, Annotations...> &lhs,
 }
 
 template <typename T, typename... Annotations>
-class ArrayField final : public Xsmp::detail::Field<T, Annotations...>,
-                         public virtual Smp::IArrayField {
+class ArrayField final : public ::Xsmp::detail::Field<T, Annotations...>,
+                         public virtual ::Smp::IArrayField {
 
-  static constexpr std::size_t _size = detail::FieldTypeHelper<T>::size;
+  static constexpr std::size_t _size = ::Xsmp::detail::FieldTypeHelper<T>::size;
 
   template <typename... Options> struct apply_options {
     template <typename U> struct on {
@@ -561,17 +570,18 @@ class ArrayField final : public Xsmp::detail::Field<T, Annotations...>,
       using type = U;
     };
 
-    template <typename U> struct annotation<U, Xsmp::Annotation::output> {
+    template <typename U> struct annotation<U, ::Xsmp::Annotation::output> {
       using type = typename U::output;
     };
-    template <typename U> struct annotation<U, Xsmp::Annotation::connectable> {
+    template <typename U>
+    struct annotation<U, ::Xsmp::Annotation::connectable> {
       using type = typename U::connectable;
     };
-    template <typename U> struct annotation<U, Xsmp::Annotation::input> {
+    template <typename U> struct annotation<U, ::Xsmp::Annotation::input> {
       using type = typename U::input;
     };
 
-    template <typename U> struct annotation<U, Xsmp::Annotation::forcible> {
+    template <typename U> struct annotation<U, ::Xsmp::Annotation::forcible> {
       using type = typename U::forcible;
     };
     template <typename U> struct on {
@@ -588,36 +598,39 @@ public:
              ::Smp::String8 description = "", ::Smp::IObject *parent = nullptr,
              ::Smp::ViewKind view = ::Smp::ViewKind::VK_None,
              const T &value = {})
-      : Xsmp::detail::Field<T, Annotations...>(name, description, parent, view),
-        _type{Xsmp::detail::GetType<::Smp::Publication::IArrayType>(
+      : ::Xsmp::detail::Field<T, Annotations...>(name, description, parent,
+                                                 view),
+        _type{::Xsmp::detail::GetType<::Smp::Publication::IArrayType>(
             this, typeRegistry, typeUuid)},
         internalArray{create_array_impl(typeRegistry, value,
                                         std::make_index_sequence<_size>{})} {}
 
-  Smp::UInt64 GetSize() const override { return _size; }
+  ::Smp::UInt64 GetSize() const override { return _size; }
 
-  Smp::IField *GetItem(Smp::UInt64 index) const override {
+  ::Smp::IField *GetItem(::Smp::UInt64 index) const override {
     if (index >= _size) {
       ::Xsmp::Exception::throwInvalidArrayIndex(this, index);
     }
     return const_cast<value_type *>(&internalArray[index]);
   }
-  const Smp::Publication::IArrayType *GetType() const override { return _type; }
+  const ::Smp::Publication::IArrayType *GetType() const override {
+    return _type;
+  }
 
-  void Restore(Smp::IStorageReader *reader) override {
-    if constexpr (!::Xsmp::Annotation::any_of<Xsmp::Annotation::transient,
+  void Restore(::Smp::IStorageReader *reader) override {
+    if constexpr (!::Xsmp::Annotation::any_of<::Xsmp::Annotation::transient,
                                               Annotations...>) {
       std::for_each(internalArray.begin(), internalArray.end(),
                     [reader](auto &field) { field.Restore(reader); });
-      Xsmp::detail::Field<T, Annotations...>::Restore(reader);
+      ::Xsmp::detail::Field<T, Annotations...>::Restore(reader);
     }
   }
-  void Store(Smp::IStorageWriter *writer) override {
-    if constexpr (!::Xsmp::Annotation::any_of<Xsmp::Annotation::transient,
+  void Store(::Smp::IStorageWriter *writer) override {
+    if constexpr (!::Xsmp::Annotation::any_of<::Xsmp::Annotation::transient,
                                               Annotations...>) {
       std::for_each(internalArray.begin(), internalArray.end(),
                     [writer](auto &field) { field.Store(writer); });
-      Xsmp::detail::Field<T, Annotations...>::Store(writer);
+      ::Xsmp::detail::Field<T, Annotations...>::Store(writer);
     }
   }
   operator T() const noexcept {
@@ -630,7 +643,7 @@ public:
     return *this;
   }
   using value_type = typename apply_options<Annotations...>::template on<
-      Xsmp::Field<typename T::value_type>>::type;
+      ::Xsmp::Field<typename T::value_type>>::type;
   using pointer = value_type *;
   using const_pointer = const value_type *;
   using reference = value_type &;
@@ -745,19 +758,20 @@ private:
 
 template <typename T, typename... Annotations>
 class SimpleArrayField final
-    : public Xsmp::detail::Field<T, Annotations...>,
+    : public ::Xsmp::detail::Field<T, Annotations...>,
       public virtual std::conditional_t<
-          ::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
+          ::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
                                      Annotations...> ||
-              ::Xsmp::Annotation::any_of<Xsmp::Annotation::output,
+              ::Xsmp::Annotation::any_of<::Xsmp::Annotation::output,
                                          Annotations...>,
-          detail::SimpleArrayConnectableField, ::Smp::ISimpleArrayField> {
-  static_assert(Helper::is_simple_type_v<typename T::value_type>,
+          ::Xsmp::detail::SimpleArrayConnectableField,
+          ::Smp::ISimpleArrayField> {
+  static_assert(::Xsmp::Helper::is_simple_type_v<typename T::value_type>,
                 "Only Smp Simple types are supported.");
   static_assert(
-      !::Xsmp::Annotation::any_of<Xsmp::Annotation::forcible, Annotations...>,
+      !::Xsmp::Annotation::any_of<::Xsmp::Annotation::forcible, Annotations...>,
       "A SimpleArrayField cannot be forcible.");
-  static constexpr std::size_t _size = detail::FieldTypeHelper<T>::size;
+  static constexpr std::size_t _size = ::Xsmp::detail::FieldTypeHelper<T>::size;
 
 public:
   SimpleArrayField(const SimpleArrayField &) = delete;
@@ -768,42 +782,44 @@ public:
                    ::Smp::IObject *parent = nullptr,
                    ::Smp::ViewKind view = ::Smp::ViewKind::VK_None,
                    const T &value = {})
-      : Xsmp::detail::Field<T, Annotations...>(name, description, parent, view),
-        _type{Xsmp::detail::GetType<::Smp::Publication::IArrayType>(
+      : ::Xsmp::detail::Field<T, Annotations...>(name, description, parent,
+                                                 view),
+        _type{::Xsmp::detail::GetType<::Smp::Publication::IArrayType>(
             this, typeRegistry, typeUuid)},
         _value{value} {}
 
-  Smp::UInt64 GetSize() const override { return _size; }
-  Smp::AnySimple GetValue(Smp::UInt64 index) const override {
+  ::Smp::UInt64 GetSize() const override { return _size; }
+  ::Smp::AnySimple GetValue(::Smp::UInt64 index) const override {
     if (index >= _size) {
       ::Xsmp::Exception::throwInvalidArrayIndex(this, index);
     }
-    return AnySimpleConverter<value_type>::convert(
+    return ::Xsmp::AnySimpleConverter<value_type>::convert(
         _type->GetItemType()->GetPrimitiveTypeKind(), _value[index]);
   }
 
-  void SetValue(Smp::UInt64 index, Smp::AnySimple value) override {
+  void SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) override {
     if (index >= _size) {
       ::Xsmp::Exception::throwInvalidArrayIndex(this, index);
     }
     if (_type->GetItemType()->GetPrimitiveTypeKind() != value.type) {
       ::Xsmp::Exception::throwInvalidFieldValue(this, value);
     }
-    _value[index] = AnySimpleConverter<value_type>::convert(value);
+    _value[index] = ::Xsmp::AnySimpleConverter<value_type>::convert(value);
   }
 
-  void GetValues(Smp::UInt64 length,
-                 Smp::AnySimpleArray values) const override {
+  void GetValues(::Smp::UInt64 length,
+                 ::Smp::AnySimpleArray values) const override {
     if (length != _size) {
       ::Xsmp::Exception::throwInvalidArraySize(this, length);
     }
     auto _itemKind = _type->GetItemType()->GetPrimitiveTypeKind();
     for (std::size_t i = 0; i < _size; ++i) {
-      values[i] = AnySimpleConverter<value_type>::convert(_itemKind, _value[i]);
+      values[i] =
+          ::Xsmp::AnySimpleConverter<value_type>::convert(_itemKind, _value[i]);
     }
   }
 
-  void SetValues(Smp::UInt64 length, Smp::AnySimpleArray values) override {
+  void SetValues(::Smp::UInt64 length, ::Smp::AnySimpleArray values) override {
     if (length != _size) {
       ::Xsmp::Exception::throwInvalidArraySize(this, length);
     }
@@ -812,25 +828,27 @@ public:
       if (values[i].type != _itemKind) {
         ::Xsmp::Exception::throwInvalidArrayValue(this, i, values[i]);
       }
-      _value[i] = AnySimpleConverter<value_type>::convert(values[i]);
+      _value[i] = ::Xsmp::AnySimpleConverter<value_type>::convert(values[i]);
     }
   }
 
-  void Restore(Smp::IStorageReader *reader) override {
-    if constexpr (!::Xsmp::Annotation::any_of<Xsmp::Annotation::transient,
+  void Restore(::Smp::IStorageReader *reader) override {
+    if constexpr (!::Xsmp::Annotation::any_of<::Xsmp::Annotation::transient,
                                               Annotations...>) {
       reader->Restore(_value.data(), sizeof(_value));
-      Xsmp::detail::Field<T, Annotations...>::Restore(reader);
+      ::Xsmp::detail::Field<T, Annotations...>::Restore(reader);
     }
   }
-  void Store(Smp::IStorageWriter *writer) override {
-    if constexpr (!::Xsmp::Annotation::any_of<Xsmp::Annotation::transient,
+  void Store(::Smp::IStorageWriter *writer) override {
+    if constexpr (!::Xsmp::Annotation::any_of<::Xsmp::Annotation::transient,
                                               Annotations...>) {
       writer->Store(_value.data(), sizeof(_value));
-      Xsmp::detail::Field<T, Annotations...>::Store(writer);
+      ::Xsmp::detail::Field<T, Annotations...>::Store(writer);
     }
   }
-  const Smp::Publication::IArrayType *GetType() const override { return _type; }
+  const ::Smp::Publication::IArrayType *GetType() const override {
+    return _type;
+  }
 
   using value_type = typename T::value_type;
   using pointer = value_type *;
@@ -905,9 +923,10 @@ public:
     std::size_t _index;
   };
 
-  using reference = std::conditional_t<
-      ::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable, Annotations...>,
-      protected_reference, value_type &>;
+  using reference =
+      std::conditional_t<::Xsmp::Annotation::any_of<
+                             ::Xsmp::Annotation::connectable, Annotations...>,
+                         protected_reference, value_type &>;
   using const_reference = const value_type &;
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
@@ -978,9 +997,10 @@ public:
     std::size_t _index;
   };
 
-  using iterator = std::conditional_t<
-      ::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable, Annotations...>,
-      protected_iterator, value_type *>;
+  using iterator =
+      std::conditional_t<::Xsmp::Annotation::any_of<
+                             ::Xsmp::Annotation::connectable, Annotations...>,
+                         protected_iterator, value_type *>;
   using const_iterator = const value_type *;
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
@@ -993,7 +1013,7 @@ public:
 
   // Iterators.
   [[nodiscard]] iterator begin() noexcept {
-    if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
+    if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
                                              Annotations...>) {
       return iterator{this, _value.begin(), 0};
     } else {
@@ -1003,7 +1023,7 @@ public:
   [[nodiscard]] const_iterator begin() const noexcept { return _value.begin(); }
 
   [[nodiscard]] iterator end() noexcept {
-    if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
+    if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
                                              Annotations...>) {
       return iterator{this, _value.end(), _size};
     } else {
@@ -1014,7 +1034,7 @@ public:
   [[nodiscard]] const_iterator end() const noexcept { return _value.end(); }
 
   [[nodiscard]] reverse_iterator rbegin() noexcept {
-    if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
+    if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
                                              Annotations...>) {
       return std::make_reverse_iterator(iterator{this, _value.end(), _size});
     } else {
@@ -1027,7 +1047,7 @@ public:
   }
 
   [[nodiscard]] reverse_iterator rend() noexcept {
-    if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
+    if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
                                              Annotations...>) {
       return std::make_reverse_iterator(iterator{this, _value.begin(), 0});
     } else {
@@ -1062,7 +1082,7 @@ public:
 
   // Element access.
   [[nodiscard]] reference operator[](size_type index) noexcept {
-    if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
+    if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
                                              Annotations...>) {
       return reference{this, _value[index], index};
     } else {
@@ -1075,7 +1095,7 @@ public:
   }
 
   reference at(size_type index) {
-    if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
+    if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
                                              Annotations...>) {
       return reference{this, _value.at(index), index};
     } else {
@@ -1086,7 +1106,7 @@ public:
   const_reference at(size_type index) const { return _value.at(index); }
 
   [[nodiscard]] reference front() noexcept {
-    if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
+    if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
                                              Annotations...>) {
       return reference{this, _value.front(), 0};
     } else {
@@ -1099,7 +1119,7 @@ public:
   }
 
   [[nodiscard]] reference back() noexcept {
-    if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
+    if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
                                              Annotations...>) {
       return reference{this, _value.back(), _size - 1};
     } else {
@@ -1110,7 +1130,7 @@ public:
   [[nodiscard]] const_reference back() const noexcept { return _value.back(); }
 
   [[nodiscard]] pointer data() noexcept {
-    if constexpr (::Xsmp::Annotation::any_of<Xsmp::Annotation::connectable,
+    if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
                                              Annotations...>) {
       return iterator{this, _value.data(), 0};
     } else {
@@ -1216,8 +1236,8 @@ template <typename T, typename... Annotations, typename Other>
 }
 
 template <typename T, typename... Annotations>
-class StructureField : public Xsmp::detail::Field<T, Annotations...>,
-                       public detail::AbstractStructureField {
+class StructureField : public ::Xsmp::detail::Field<T, Annotations...>,
+                       public ::Xsmp::detail::AbstractStructureField {
 
 public:
   // Constructor
@@ -1225,29 +1245,30 @@ public:
                  ::Smp::Uuid typeUuid, ::Smp::String8 name,
                  ::Smp::String8 description, ::Smp::IObject *parent,
                  ::Smp::ViewKind view)
-      : Xsmp::detail::Field<T, Annotations...>(name, description, parent, view),
+      : ::Xsmp::detail::Field<T, Annotations...>(name, description, parent,
+                                                 view),
 
-        _type{Xsmp::detail::GetType<::Smp::Publication::IStructureType>(
+        _type{::Xsmp::detail::GetType<::Smp::Publication::IStructureType>(
             this, typeRegistry, typeUuid)} {}
   StructureField(const StructureField &) = delete;
   StructureField &operator=(const StructureField &) = delete;
 
-  const Smp::Publication::IStructureType *GetType() const final {
+  const ::Smp::Publication::IStructureType *GetType() const final {
     return _type;
   }
 
-  void Restore(Smp::IStorageReader *reader) final {
-    if constexpr (!::Xsmp::Annotation::any_of<Xsmp::Annotation::transient,
+  void Restore(::Smp::IStorageReader *reader) final {
+    if constexpr (!::Xsmp::Annotation::any_of<::Xsmp::Annotation::transient,
                                               Annotations...>) {
-      detail::AbstractStructureField::Restore(reader);
-      Xsmp::detail::Field<T, Annotations...>::Restore(reader);
+      ::Xsmp::detail::AbstractStructureField::Restore(reader);
+      ::Xsmp::detail::Field<T, Annotations...>::Restore(reader);
     }
   }
-  void Store(Smp::IStorageWriter *writer) final {
-    if constexpr (!::Xsmp::Annotation::any_of<Xsmp::Annotation::transient,
+  void Store(::Smp::IStorageWriter *writer) final {
+    if constexpr (!::Xsmp::Annotation::any_of<::Xsmp::Annotation::transient,
                                               Annotations...>) {
-      detail::AbstractStructureField::Store(writer);
-      Xsmp::detail::Field<T, Annotations...>::Store(writer);
+      ::Xsmp::detail::AbstractStructureField::Store(writer);
+      ::Xsmp::detail::Field<T, Annotations...>::Store(writer);
     }
   }
 
@@ -1263,11 +1284,11 @@ protected:
       using type = U;
     };
 
-    template <typename U> struct annotation<U, Xsmp::Annotation::output> {
+    template <typename U> struct annotation<U, ::Xsmp::Annotation::output> {
       using type = typename U::connectable;
     };
 
-    template <typename U> struct annotation<U, Xsmp::Annotation::forcible> {
+    template <typename U> struct annotation<U, ::Xsmp::Annotation::forcible> {
       using type = typename U::forcible;
     };
     template <typename U> struct on {
@@ -1277,8 +1298,8 @@ protected:
   };
 
   template <typename U>
-  using Field =
-      typename apply_options<Annotations...>::template on<Xsmp::Field<U>>::type;
+  using Field = typename apply_options<Annotations...>::template on<
+      ::Xsmp::Field<U>>::type;
 
 private:
   const ::Smp::Publication::IStructureType *_type;
@@ -1300,7 +1321,8 @@ struct FieldTypeHelper<T, std::enable_if_t<has_field<T>::value>> {
 };
 
 template <typename T>
-struct FieldTypeHelper<T, std::enable_if_t<Xsmp::Helper::is_simple_type_v<T>>> {
+struct FieldTypeHelper<T,
+                       std::enable_if_t<::Xsmp::Helper::is_simple_type_v<T>>> {
   template <typename... Annotations>
   using field = SimpleField<T, Annotations...>;
 };

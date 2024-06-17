@@ -28,9 +28,9 @@ class Failure;
 class FallibleModel : public virtual ::Smp::IFallibleModel {
 public:
   FallibleModel();
-  Smp::Bool IsFailed() const override;
-  const Smp::FailureCollection *GetFailures() const override;
-  Smp::IFailure *GetFailure(Smp::String8 name) const override;
+  ::Smp::Bool IsFailed() const override;
+  const ::Smp::FailureCollection *GetFailures() const override;
+  ::Smp::IFailure *GetFailure(::Smp::String8 name) const override;
 
 protected:
   inline void AddFailure(::Smp::IFailure *failure) { _failures.Add(failure); }

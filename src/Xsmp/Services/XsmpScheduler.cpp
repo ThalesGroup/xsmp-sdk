@@ -212,7 +212,7 @@ XsmpScheduler::AddEvent(const ::Smp::IEntryPoint *entryPoint,
   if (repeat != 0 && cycleTime <= 0) {
     ::Xsmp::Exception::throwInvalidCycleTime(this, cycleTime);
   }
-  Smp::Services::EventId eventId = -1;
+  ::Smp::Services::EventId eventId = -1;
   {
     // create the event
     const std::scoped_lock lck{_eventsMutex, _zuluEventsTableMutex};
