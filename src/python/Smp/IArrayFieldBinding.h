@@ -39,7 +39,8 @@ inline void RegisterIArrayField(const py::module_ &m) {
            "Get the size (number of array items) of the field.")
 
       .def("GetItem", &::Smp::IArrayField::GetItem,
-           py::return_value_policy::reference, "Get an array item by index.")
+           py::return_value_policy::reference, py::arg("index"),
+           "Get an array item by index.")
 
       .doc() = "Interface of a field which is of array type.";
 }

@@ -329,10 +329,10 @@ This method must only be called when in Standby state, and enters Executing stat
           py::arg("seconds") = 0., py::arg("minutes") = 0.,
           py::arg("hours") = 0., py::arg("days") = 0., py::arg("weeks") = 0.,
           R"(This method changes from Standby to Executing state for the specified duration.
-                    This method must only be called when in Standby state, and enters Executing state.))
+This method must only be called when in Standby state, and enters Executing state.)")
 
-    .def("Hold", &::Smp::ISimulator::Hold, py::arg("immediate"),
-            R"(This method changes from Executing to Standby state.
+      .def("Hold", &::Smp::ISimulator::Hold, py::arg("immediate"),
+           R"(This method changes from Executing to Standby state.
 This method must only be called when in Executing state, and enters Standby state.)")
 
       .def("Store", &::Smp::ISimulator::Store, py::arg("file_name"),
@@ -426,7 +426,7 @@ The method will never throw the InvalidObjectType exception either, as it gets a
       .def("GetTypeRegistry", &::Smp::ISimulator::GetTypeRegistry,
            py::return_value_policy::reference,
            R"(Give access to the global type registry.
-        The type registry is typically a singleton, and must not be null, to allow use of existing types, and registration of new types.)")
+The type registry is typically a singleton, and must not be null, to allow use of existing types, and registration of new types.)")
 
       .def(
           "LoadLibrary",

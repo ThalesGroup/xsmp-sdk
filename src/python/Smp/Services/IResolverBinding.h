@@ -26,7 +26,7 @@ inline void RegisterIResolver(const py::module_ &m) {
       .def("ResolveAbsolute", &::Smp::Services::IResolver::ResolveAbsolute,
            py::arg("absolute_path"),
            R"(Resolve reference to an object via absolute path.
-An absolute path contains the name of either a Model or ervice, but not the name of the simulator, although the simulator itself is the top-level object.
+An absolute path contains the name of either a Model or Service, but not the name of the simulator, although the simulator itself is the top-level object.
 This allows keeping names as short as possible, and avoids a dependency on the name of the simulator itself.)")
 
       .def("ResolveRelative", &::Smp::Services::IResolver::ResolveRelative,

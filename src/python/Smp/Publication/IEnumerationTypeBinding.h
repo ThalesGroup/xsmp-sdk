@@ -23,7 +23,11 @@ inline void RegisterIEnumerationType(const py::module_ &m) {
       m, "IEnumerationType", py::multiple_inheritance())
 
       .def("AddLiteral", &::Smp::Publication::IEnumerationType::AddLiteral,
-           "Get the size (number of array items) of the array type.")
+           py::arg("name"), py::arg("description"), py::arg("value"),
+           R"(Add a literal to the Enumeration.
+If the name is not a valid object name, an exception of type InvalidObjectName is thrown.
+If the name has already been used for another literal, an exception of type DuplicateName is thrown.
+If the value has already been used for another literal, a exception of type DuplicateLiteral is thrown.)")
 
       .doc() = "This interface defines a user defined enumeration type.";
 }
