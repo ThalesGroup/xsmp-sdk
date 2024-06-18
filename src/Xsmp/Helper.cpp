@@ -247,22 +247,9 @@ inline ::Smp::IObject *ResolveComponent(const ::Smp::IObject *object,
 
 inline bool AreEquivalent(const ::Smp::ISimpleArrayField *source,
                           const ::Smp::ISimpleArrayField *target) {
-  const auto size = source->GetSize();
-  if (target->GetSize() != size) {
-    return false;
-  }
-  // the type is possibly null in case of an anonymous simple array
-  // the Smp::IsimpleArray interface should provide a Smp::PrimitiveTypeKind
-  // GetItemKind() const; method
-  // && simpleArrayTarget->GetType()->GetPrimitiveTypeKind() ==
-  // simpleArraySource->GetType()->GetPrimitiveTypeKind()
-
-  for (::Smp::UInt64 i = 0; i < size; ++i) {
-    if (source->GetValue(i).GetType() != target->GetValue(i).GetType()) {
-      return false;
-    }
-  }
-  return true;
+  return target->GetSize() == source->GetSize() &&
+         target->GetType()->GetPrimitiveTypeKind() ==
+             source->GetType()->GetPrimitiveTypeKind();
 }
 inline bool AreEquivalent(const ::Smp::IArrayField *source,
                           const ::Smp::IArrayField *target) {

@@ -406,7 +406,7 @@ const ::Smp::IObject *IObjectHook(const ::Smp::IObject *src,
 
   if (src) {
     type = &typeid(*src);
-    if (py::detail::get_local_type_info(*type) == nullptr) {
+    if (!py::detail::get_local_type_info(*type)) {
       IObjectClass(src).doc() =
           "Automatic Python binding for '" + Xsmp::Helper::TypeName(src) + "'.";
     }

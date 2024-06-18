@@ -52,7 +52,8 @@ public:
         void *address, const ::Smp::Publication::IType *type,
         ::Smp::ViewKind view, ::Smp::Bool state, ::Smp::Bool input,
         ::Smp::Bool output);
-
+  Field(::Smp::String8 name, ::Smp::String8 description, ::Smp::IObject *parent,
+        ::Smp::ViewKind view, ::Smp::Bool state);
   /// Field cannot be copied
   Field(const Field &) = delete;
   /// Field cannot be copied
@@ -133,7 +134,8 @@ class AnonymousSimpleArrayField : public Field,
 public:
   AnonymousSimpleArrayField(::Smp::String8 name, ::Smp::String8 description,
                             ::Smp::IObject *parent, ::Smp::Int64 count,
-                            void *address, ::Smp::PrimitiveTypeKind kind,
+                            void *address,
+                            const ::Smp::Publication::IType *type,
                             ::Smp::ViewKind view, ::Smp::Bool state,
                             ::Smp::Bool input, ::Smp::Bool output);
 
@@ -155,7 +157,6 @@ public:
 private:
   ::Smp::UInt64 GetItemSize() const;
   ::Smp::UInt64 _count;
-  ::Smp::PrimitiveTypeKind _kind;
 };
 
 class AnonymousSimpleArrayDataflowField final
@@ -255,7 +256,10 @@ public:
 
 class SimpleField : public Field, public virtual ::Smp::ISimpleField {
 public:
-  using Field::Field;
+  SimpleField(::Smp::String8 name, ::Smp::String8 description,
+              ::Smp::IObject *parent, void *address,
+              const ::Smp::Publication::IType *type, ::Smp::ViewKind view,
+              ::Smp::Bool state, ::Smp::Bool input, ::Smp::Bool output);
 
   void Restore(::Smp::IStorageReader *reader) final;
 

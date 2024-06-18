@@ -44,6 +44,14 @@ bool isInvalidEnumerationValue(const ::Smp::Publication::IType *type,
              enumeration->GetLiterals().end();
 }
 
+void checkValidFieldType(::Smp::IField *field,
+                         const ::Smp::Publication::IType *type) {
+  // disallow fields with String8/void type
+  if (type->GetUuid() == ::Smp::Uuids::Uuid_String8 ||
+      type->GetUuid() == ::Smp::Uuids::Uuid_Void) {
+    ::Xsmp::Exception::throwInvalidFieldType(field, type);
+  }
+}
 } // namespace
 
 Field::Field(::Smp::String8 name, ::Smp::String8 description,
@@ -54,12 +62,18 @@ Field::Field(::Smp::String8 name, ::Smp::String8 description,
       _description(description ? description : ""), _parent(parent),
       _address(address), _type(type), _view(view), _state(state), _input(input),
       _output(output) {
-  // disallow fields with String8/void type
-  if (type && (type->GetUuid() == ::Smp::Uuids::Uuid_String8 ||
-               type->GetUuid() == ::Smp::Uuids::Uuid_Void)) {
+  // type must be defined
+  if (!type) {
     ::Xsmp::Exception::throwInvalidFieldType(this, type);
   }
 }
+Field::Field(::Smp::String8 name, ::Smp::String8 description,
+             ::Smp::IObject *parent, ::Smp::ViewKind view, ::Smp::Bool state)
+    : _name(::Xsmp::Helper::checkName(name, parent)),
+      _description(description ? description : ""), _parent(parent),
+      _address(nullptr), _type(nullptr), _view(view), _state(state),
+      _input(false), _output(false) {}
+
 ::Smp::String8 Field::GetName() const { return _name.c_str(); }
 ::Smp::String8 Field::GetDescription() const { return _description.c_str(); }
 ::Smp::IObject *Field::GetParent() const { return _parent; }
@@ -189,8 +203,7 @@ AnonymousArrayField::AnonymousArrayField(
     ::Smp::String8 name, ::Smp::String8 description, ::Smp::IObject *parent,
     ::Smp::Publication::ITypeRegistry *typeRegistry, ::Smp::ViewKind view,
     ::Smp::Bool state)
-    : Field(name, description, parent, nullptr, nullptr, view, state, false,
-            false),
+    : Field(name, description, parent, view, state),
       ::Xsmp::Publication::Publication(parent, typeRegistry) {}
 
 void AnonymousArrayField::Restore(::Smp::IStorageReader *reader) {
@@ -222,12 +235,14 @@ void AnonymousArrayField::Store(::Smp::IStorageWriter *writer) {
 
 AnonymousSimpleArrayField::AnonymousSimpleArrayField(
     ::Smp::String8 name, ::Smp::String8 description, ::Smp::IObject *parent,
-    ::Smp::Int64 count, void *address, ::Smp::PrimitiveTypeKind kind,
+    ::Smp::Int64 count, void *address, const ::Smp::Publication::IType *type,
     ::Smp::ViewKind view, ::Smp::Bool state, ::Smp::Bool input,
     ::Smp::Bool output)
-    : Field(name, description, parent, address, nullptr, view, state, input,
+    : Field(name, description, parent, address, type, view, state, input,
             output),
-      _count(count >= 0 ? static_cast<::Smp::UInt64>(count) : 0), _kind(kind) {}
+      _count(count >= 0 ? static_cast<::Smp::UInt64>(count) : 0) {
+  checkValidFieldType(this, type);
+}
 
 void AnonymousSimpleArrayField::Restore(::Smp::IStorageReader *reader) {
   if (IsState()) {
@@ -242,7 +257,8 @@ void AnonymousSimpleArrayField::Store(::Smp::IStorageWriter *writer) {
 }
 
 ::Smp::UInt64 AnonymousSimpleArrayField::GetItemSize() const {
-  switch (_kind) {
+  auto kind = GetType()->GetPrimitiveTypeKind();
+  switch (kind) {
   case ::Smp::PrimitiveTypeKind::PTK_Bool:
     return sizeof(::Smp::Bool);
   case ::Smp::PrimitiveTypeKind::PTK_Char8:
@@ -270,7 +286,7 @@ void AnonymousSimpleArrayField::Store(::Smp::IStorageWriter *writer) {
   case ::Smp::PrimitiveTypeKind::PTK_Float64:
     return sizeof(::Smp::Float64);
   default:
-    ::Xsmp::Exception::throwInvalidPrimitiveType(this, "void", _kind);
+    ::Xsmp::Exception::throwInvalidPrimitiveType(this, "void", kind);
   }
 }
 
@@ -281,35 +297,36 @@ AnonymousSimpleArrayField::GetValue(::Smp::UInt64 index) const {
   if (index >= GetSize()) {
     ::Xsmp::Exception::throwInvalidArrayIndex(this, index);
   }
-  switch (_kind) {
+  auto kind = GetType()->GetPrimitiveTypeKind();
+  switch (kind) {
   case ::Smp::PrimitiveTypeKind::PTK_Bool:
-    return {_kind, static_cast<::Smp::Bool *>(GetAddress())[index]};
+    return {kind, static_cast<::Smp::Bool *>(GetAddress())[index]};
   case ::Smp::PrimitiveTypeKind::PTK_Char8:
-    return {_kind, static_cast<::Smp::Char8 *>(GetAddress())[index]};
+    return {kind, static_cast<::Smp::Char8 *>(GetAddress())[index]};
   case ::Smp::PrimitiveTypeKind::PTK_Int8:
-    return {_kind, static_cast<::Smp::Int8 *>(GetAddress())[index]};
+    return {kind, static_cast<::Smp::Int8 *>(GetAddress())[index]};
   case ::Smp::PrimitiveTypeKind::PTK_Int16:
-    return {_kind, static_cast<::Smp::Int16 *>(GetAddress())[index]};
+    return {kind, static_cast<::Smp::Int16 *>(GetAddress())[index]};
   case ::Smp::PrimitiveTypeKind::PTK_Int32:
-    return {_kind, static_cast<::Smp::Int32 *>(GetAddress())[index]};
+    return {kind, static_cast<::Smp::Int32 *>(GetAddress())[index]};
   case ::Smp::PrimitiveTypeKind::PTK_Duration:
   case ::Smp::PrimitiveTypeKind::PTK_DateTime:
   case ::Smp::PrimitiveTypeKind::PTK_Int64:
-    return {_kind, static_cast<::Smp::Int64 *>(GetAddress())[index]};
+    return {kind, static_cast<::Smp::Int64 *>(GetAddress())[index]};
   case ::Smp::PrimitiveTypeKind::PTK_UInt8:
-    return {_kind, static_cast<::Smp::UInt8 *>(GetAddress())[index]};
+    return {kind, static_cast<::Smp::UInt8 *>(GetAddress())[index]};
   case ::Smp::PrimitiveTypeKind::PTK_UInt16:
-    return {_kind, static_cast<::Smp::UInt16 *>(GetAddress())[index]};
+    return {kind, static_cast<::Smp::UInt16 *>(GetAddress())[index]};
   case ::Smp::PrimitiveTypeKind::PTK_UInt32:
-    return {_kind, static_cast<::Smp::UInt32 *>(GetAddress())[index]};
+    return {kind, static_cast<::Smp::UInt32 *>(GetAddress())[index]};
   case ::Smp::PrimitiveTypeKind::PTK_UInt64:
-    return {_kind, static_cast<::Smp::UInt64 *>(GetAddress())[index]};
+    return {kind, static_cast<::Smp::UInt64 *>(GetAddress())[index]};
   case ::Smp::PrimitiveTypeKind::PTK_Float32:
-    return {_kind, static_cast<::Smp::Float32 *>(GetAddress())[index]};
+    return {kind, static_cast<::Smp::Float32 *>(GetAddress())[index]};
   case ::Smp::PrimitiveTypeKind::PTK_Float64:
-    return {_kind, static_cast<::Smp::Float64 *>(GetAddress())[index]};
+    return {kind, static_cast<::Smp::Float64 *>(GetAddress())[index]};
   default:
-    ::Xsmp::Exception::throwInvalidPrimitiveType(this, "void", _kind);
+    ::Xsmp::Exception::throwInvalidPrimitiveType(this, "void", kind);
   }
 }
 
@@ -318,7 +335,8 @@ void AnonymousSimpleArrayField::SetValue(::Smp::UInt64 index,
   if (index >= GetSize()) {
     ::Xsmp::Exception::throwInvalidArrayIndex(this, index);
   }
-  switch (_kind) {
+  auto kind = GetType()->GetPrimitiveTypeKind();
+  switch (kind) {
   case ::Smp::PrimitiveTypeKind::PTK_Bool:
     static_cast<::Smp::Bool *>(GetAddress())[index] = value;
     break;
@@ -364,7 +382,6 @@ void AnonymousSimpleArrayField::SetValue(::Smp::UInt64 index,
 
 void AnonymousSimpleArrayField::GetValues(::Smp::UInt64 length,
                                           ::Smp::AnySimpleArray values) const {
-
   if (length != GetSize()) {
     ::Xsmp::Exception::throwInvalidArraySize(this, length);
   }
@@ -387,8 +404,7 @@ AnonymousStructureField::AnonymousStructureField(
     ::Smp::String8 name, ::Smp::String8 description, ::Smp::IObject *parent,
     ::Smp::Publication::ITypeRegistry *typeRegistry, ::Smp::ViewKind view,
     ::Smp::Bool state)
-    : Field(name, description, parent, nullptr, nullptr, view, state, false,
-            false),
+    : Field(name, description, parent, view, state),
       Publication(this, typeRegistry) {}
 
 const ::Smp::FieldCollection *AnonymousStructureField::GetFields() const {
@@ -422,6 +438,7 @@ ArrayField::ArrayField(::Smp::String8 name, ::Smp::String8 description,
                        ::Smp::Bool input, ::Smp::Bool output)
     : Field(name, description, parent, address, type, view, state, input,
             output) {
+  checkValidFieldType(this, type);
   for (::Smp::UInt64 i = 0, size = type->GetSize(); i < size; ++i) {
     /// The parent of the item is the parent of the array
     /// The item name is the array name + [index]
@@ -466,21 +483,19 @@ SimpleArrayField::SimpleArrayField(::Smp::String8 name,
     : Field(name, description, parent, address, type, view, state, input,
             output),
       _size(type->GetSize()), _itemType(type->GetItemType()),
-      _itemSize(type->GetItemSize()) {}
+      _itemSize(type->GetItemSize()) {
+  checkValidFieldType(this, type);
+}
 
 void SimpleArrayField::Restore(::Smp::IStorageReader *reader) {
   if (IsState()) {
-    const auto *type =
-        dynamic_cast<const ::Xsmp::Publication::ArrayType *>(GetType());
-    reader->Restore(GetAddress(), type->GetItemSize() * GetSize());
+    reader->Restore(GetAddress(), _itemSize * _size);
   }
 }
 
 void SimpleArrayField::Store(::Smp::IStorageWriter *writer) {
   if (IsState()) {
-    const auto *type =
-        dynamic_cast<const ::Xsmp::Publication::ArrayType *>(GetType());
-    writer->Store(GetAddress(), type->GetItemSize() * GetSize());
+    writer->Store(GetAddress(), _itemSize * _size);
   }
 }
 
@@ -591,7 +606,6 @@ void SimpleArrayField::SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) {
 
 void SimpleArrayField::GetValues(::Smp::UInt64 length,
                                  ::Smp::AnySimpleArray values) const {
-
   if (length != GetSize()) {
     ::Xsmp::Exception::throwInvalidArraySize(this, length);
   }
@@ -613,7 +627,15 @@ void SimpleArrayField::SetValues(::Smp::UInt64 length,
     SetValue(i, values[i]);
   }
 }
-
+SimpleField::SimpleField(::Smp::String8 name, ::Smp::String8 description,
+                         ::Smp::IObject *parent, void *address,
+                         const ::Smp::Publication::IType *type,
+                         ::Smp::ViewKind view, ::Smp::Bool state,
+                         ::Smp::Bool input, ::Smp::Bool output)
+    : Field(name, description, parent, address, type, view, state, input,
+            output) {
+  checkValidFieldType(this, type);
+}
 void SimpleField::Restore(::Smp::IStorageReader *reader) {
   if (IsState()) {
     reader->Restore(GetAddress(), static_cast<::Smp::UInt64>(GetSize()));
@@ -709,7 +731,6 @@ void SimpleField::Store(::Smp::IStorageWriter *writer) {
 void SimpleField::SetValue(::Smp::AnySimple value) {
   auto kind = GetPrimitiveTypeKind();
   switch (kind) {
-
   case ::Smp::PrimitiveTypeKind::PTK_Bool:
     *static_cast<::Smp::Bool *>(GetAddress()) = value;
     break;
@@ -773,7 +794,6 @@ StructureField::StructureField(::Smp::String8 name, ::Smp::String8 description,
     : Field(name, description, parent, address, type, view, state, input,
             output),
       _fields{"Fields", "", this} {
-
   for (const auto &field : type->GetFields()) {
     if (auto const *fieldType = type->GetTypeRegistry()->GetType(field.uuid)) {
       _fields.Add(Create(field.name.c_str(), field.description.c_str(), this,

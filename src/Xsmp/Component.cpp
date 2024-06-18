@@ -61,7 +61,7 @@ void Component::Publish(::Smp::IPublication *receiver) {
     ::Xsmp::Exception::throwInvalidComponentState(
         this, _state, ::Smp::ComponentStateKind::CSK_Created);
   }
-  if (receiver == nullptr) {
+  if (!receiver) {
     ::Xsmp::Exception::throwException(this, "NullPointerException", "",
                                       "the publication receiver is null");
   }

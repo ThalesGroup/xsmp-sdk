@@ -138,7 +138,7 @@ void AnySimple::SetValue(::Smp::PrimitiveTypeKind kind,
   _releaseContent(this);
 
   if (kind == PrimitiveTypeKind::PTK_String8) {
-    if (newValue != nullptr) {
+    if (newValue) {
       auto size = std::strlen(newValue) + 1;
       auto *dest = new ::Smp::Char8[size];
       this->value.string8Value = dest;

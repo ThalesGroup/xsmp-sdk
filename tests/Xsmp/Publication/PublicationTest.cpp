@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/IField.h>
+
 #include <Smp/AccessKind.h>
 #include <Smp/AnySimple.h>
-#include <Smp/IField.h>
 #include <Smp/FieldAlreadyConnected.h>
 #include <Smp/IArrayField.h>
 #include <Smp/IDataflowField.h>
@@ -248,7 +249,7 @@ void TestPublishSimpleArray(Smp::PrimitiveTypeKind kind, Smp::ViewKind view,
   EXPECT_STREQ(stateField->GetDescription(), "description");
   EXPECT_EQ(stateField->GetParent(), &component);
   EXPECT_EQ(stateField->GetView(), view);
-  EXPECT_EQ(stateField->GetType(), nullptr);
+  EXPECT_EQ(stateField->GetType(), registry.GetType(kind));
   EXPECT_TRUE(stateField->IsState());
   EXPECT_FALSE(stateField->IsInput());
   EXPECT_FALSE(stateField->IsOutput());

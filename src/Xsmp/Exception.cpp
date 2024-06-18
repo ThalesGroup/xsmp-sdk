@@ -1135,8 +1135,8 @@ public:
   explicit InvalidFieldType(const ::Smp::IObject *sender,
                             const ::Smp::Publication::IType *type)
       : Exception(sender, __func__, "Cannot publish a field with invalid type",
-                  "The type '", type->GetName(), "' is invalid for field '",
-                  sender, "'.") {}
+                  "The type '", type ? type->GetName() : "nullptr",
+                  "' is invalid for field '", sender, "'.") {}
   ~InvalidFieldType() noexcept override = default;
   InvalidFieldType(const InvalidFieldType &) = default;
   InvalidFieldType &operator=(const InvalidFieldType &) = default;

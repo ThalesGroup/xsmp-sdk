@@ -49,7 +49,6 @@ void Publication::PublishField(::Smp::String8 name, ::Smp::String8 description,
                                ::Smp::Char8 *address, ::Smp::ViewKind view,
                                ::Smp::Bool state, ::Smp::Bool input,
                                ::Smp::Bool output) {
-
   PublishField(name, description, address, ::Smp::Uuids::Uuid_Char8, view,
                state, input, output);
 }
@@ -146,7 +145,6 @@ void Publication::PublishField(::Smp::String8 name, ::Smp::String8 description,
                                void *address, ::Smp::Uuid typeUuid,
                                ::Smp::ViewKind view, ::Smp::Bool state,
                                ::Smp::Bool input, ::Smp::Bool output) {
-
   if (auto const *type = _typeRegistry->GetType(typeUuid)) {
     _fields.Add(Field::Create(name, description, _parent, address, type, view,
                               state, input, output));
@@ -162,19 +160,14 @@ void Publication::PublishArray(::Smp::String8 name, ::Smp::String8 description,
                                ::Smp::PrimitiveTypeKind type,
                                ::Smp::ViewKind view, ::Smp::Bool state,
                                ::Smp::Bool input, ::Smp::Bool output) {
-
-  if (type == ::Smp::PrimitiveTypeKind::PTK_None ||
-      type == ::Smp::PrimitiveTypeKind::PTK_String8) {
-    ::Xsmp::Exception::throwInvalidFieldType(_parent, type);
-  }
   if (output) {
-    _fields.Add<AnonymousSimpleArrayDataflowField>(name, description, _parent,
-                                                   count, address, type, view,
-                                                   state, input, output);
+    _fields.Add<AnonymousSimpleArrayDataflowField>(
+        name, description, _parent, count, address,
+        _typeRegistry->GetType(type), view, state, input, output);
   } else {
-    _fields.Add<AnonymousSimpleArrayField>(name, description, _parent, count,
-                                           address, type, view, state, input,
-                                           output);
+    _fields.Add<AnonymousSimpleArrayField>(
+        name, description, _parent, count, address,
+        _typeRegistry->GetType(type), view, state, input, output);
   }
 }
 
@@ -182,7 +175,6 @@ void Publication::PublishArray(::Smp::String8 name, ::Smp::String8 description,
                                                ::Smp::String8 description,
                                                ::Smp::ViewKind view,
                                                ::Smp::Bool state) {
-
   return _fields.Add<AnonymousArrayField>(name, description, _parent,
                                           _typeRegistry, view, state);
 }
@@ -191,7 +183,6 @@ void Publication::PublishArray(::Smp::String8 name, ::Smp::String8 description,
                                                    ::Smp::String8 description,
                                                    ::Smp::ViewKind view,
                                                    ::Smp::Bool state) {
-
   return _fields.Add<AnonymousStructureField>(name, description, _parent,
                                               _typeRegistry, view, state);
 }
@@ -199,7 +190,6 @@ void Publication::PublishArray(::Smp::String8 name, ::Smp::String8 description,
 ::Smp::Publication::IPublishOperation *
 Publication::PublishOperation(::Smp::String8 name, ::Smp::String8 description,
                               ::Smp::ViewKind view) {
-
   auto *operation = dynamic_cast<Operation *>(_operations.at(name));
   if (operation) {
     operation->Update(description, view);
@@ -207,7 +197,6 @@ Publication::PublishOperation(::Smp::String8 name, ::Smp::String8 description,
     operation = _operations.Add<Operation>(name, description, _parent, view,
                                            _typeRegistry);
   }
-
   return operation;
 }
 
@@ -216,7 +205,6 @@ void Publication::PublishProperty(::Smp::String8 name,
                                   ::Smp::Uuid typeUuid,
                                   ::Smp::AccessKind accessKind,
                                   ::Smp::ViewKind view) {
-
   auto *type = GetTypeRegistry()->GetType(typeUuid);
   if (!type) {
     ::Xsmp::Exception::throwTypeNotRegistered(_parent, typeUuid);
@@ -232,7 +220,7 @@ void Publication::PublishProperty(::Smp::String8 name,
 ::Smp::IField *Publication::GetField(::Smp::String8 fullName) const {
   if (fullName) {
     if (auto *field = dynamic_cast<::Smp::IField *>(
-            ::Xsmp::Helper::Resolve(GetFields(), fullName))) {
+            ::Xsmp::Helper::Resolve(&_allFields, fullName))) {
       return field;
     }
   }
