@@ -41,9 +41,8 @@ bool Initialise_xsmp_scheduler(::Smp::ISimulator *simulator,
                                ::Smp::Publication::ITypeRegistry *typeRegistry);
 
 /// Finalise Package xsmp_scheduler.
-/// @param simulator Optional Simulator.
 /// @return True if finalisation was successful, false otherwise.
-bool Finalise_xsmp_scheduler(::Smp::ISimulator *simulator = nullptr);
+bool Finalise_xsmp_scheduler();
 }
 
 #endif // XSMP_SCHEDULER_H_

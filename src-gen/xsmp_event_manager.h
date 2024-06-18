@@ -42,9 +42,8 @@ bool Initialise_xsmp_event_manager(
     ::Smp::Publication::ITypeRegistry *typeRegistry);
 
 /// Finalise Package xsmp_event_manager.
-/// @param simulator Optional Simulator.
 /// @return True if finalisation was successful, false otherwise.
-bool Finalise_xsmp_event_manager(::Smp::ISimulator *simulator = nullptr);
+bool Finalise_xsmp_event_manager();
 }
 
 #endif // XSMP_EVENT_MANAGER_H_

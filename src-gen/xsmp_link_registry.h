@@ -42,9 +42,8 @@ bool Initialise_xsmp_link_registry(
     ::Smp::Publication::ITypeRegistry *typeRegistry);
 
 /// Finalise Package xsmp_link_registry.
-/// @param simulator Optional Simulator.
 /// @return True if finalisation was successful, false otherwise.
-bool Finalise_xsmp_link_registry(::Smp::ISimulator *simulator = nullptr);
+bool Finalise_xsmp_link_registry();
 }
 
 #endif // XSMP_LINK_REGISTRY_H_

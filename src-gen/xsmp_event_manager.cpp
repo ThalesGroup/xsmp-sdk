@@ -75,17 +75,13 @@ bool Initialise_xsmp_event_manager(
 
 extern "C" {
 /// Finalise Package xsmp_event_manager.
-/// @param simulator Simulator.
 /// @return True if finalisation was successful, false otherwise.
-bool Finalise_xsmp_event_manager(::Smp::ISimulator *simulator) {
-  // backward compatibility
-  if (!simulator) {
-    ::simulators.clear();
-  }
+bool Finalise_xsmp_event_manager() {
   // avoid double finalisation
-  else if (!::simulators.erase(simulator)) {
+  if (::simulators.empty()) {
     return true;
   }
+  ::simulators.clear();
 
   return true;
 }

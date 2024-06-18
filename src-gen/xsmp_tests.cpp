@@ -293,17 +293,13 @@ bool Initialise_xsmp_tests(
 
 extern "C" {
 /// Finalise Package xsmp_tests.
-/// @param simulator Simulator.
 /// @return True if finalisation was successful, false otherwise.
-bool Finalise_xsmp_tests(::Smp::ISimulator *simulator) {
-  // backward compatibility
-  if (!simulator) {
-    ::simulators.clear();
-  }
+bool Finalise_xsmp_tests() {
   // avoid double finalisation
-  else if (!::simulators.erase(simulator)) {
+  if (::simulators.empty()) {
     return true;
   }
+  ::simulators.clear();
 
   return true;
 }

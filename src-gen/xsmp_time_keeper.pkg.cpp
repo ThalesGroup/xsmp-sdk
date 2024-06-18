@@ -55,7 +55,7 @@ extern "C" {
 /// Global Finalise function of Package xsmp_time_keeper.
 /// @param simulator Simulator.
 /// @return True if finalisation was successful, false otherwise.
-DLL_EXPORT bool Finalise(::Smp::ISimulator *simulator) {
-  return Finalise_xsmp_time_keeper(simulator);
+DLL_EXPORT bool Finalise(::Smp::ISimulator *) {
+  return Finalise_xsmp_time_keeper();
 }
 }

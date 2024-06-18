@@ -78,24 +78,20 @@ bool Initialise_xsmp_services(
 
 extern "C" {
 /// Finalise Package xsmp_services.
-/// @param simulator Simulator.
 /// @return True if finalisation was successful, false otherwise.
-bool Finalise_xsmp_services(::Smp::ISimulator *simulator) {
-  // backward compatibility
-  if (!simulator) {
-    ::simulators.clear();
-  }
+bool Finalise_xsmp_services() {
   // avoid double finalisation
-  else if (!::simulators.erase(simulator)) {
+  if (::simulators.empty()) {
     return true;
   }
+  ::simulators.clear();
 
-  auto finalised = Finalise_xsmp_scheduler(simulator);
-  finalised &= Finalise_xsmp_link_registry(simulator);
-  finalised &= Finalise_xsmp_event_manager(simulator);
-  finalised &= Finalise_xsmp_resolver(simulator);
-  finalised &= Finalise_xsmp_time_keeper(simulator);
-  finalised &= Finalise_xsmp_logger(simulator);
+  auto finalised = Finalise_xsmp_scheduler();
+  finalised &= Finalise_xsmp_link_registry();
+  finalised &= Finalise_xsmp_event_manager();
+  finalised &= Finalise_xsmp_resolver();
+  finalised &= Finalise_xsmp_time_keeper();
+  finalised &= Finalise_xsmp_logger();
 
   return finalised;
 }

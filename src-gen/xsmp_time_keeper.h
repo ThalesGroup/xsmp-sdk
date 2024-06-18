@@ -42,9 +42,8 @@ bool Initialise_xsmp_time_keeper(
     ::Smp::Publication::ITypeRegistry *typeRegistry);
 
 /// Finalise Package xsmp_time_keeper.
-/// @param simulator Optional Simulator.
 /// @return True if finalisation was successful, false otherwise.
-bool Finalise_xsmp_time_keeper(::Smp::ISimulator *simulator = nullptr);
+bool Finalise_xsmp_time_keeper();
 }
 
 #endif // XSMP_TIME_KEEPER_H_

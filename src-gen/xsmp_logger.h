@@ -41,9 +41,8 @@ bool Initialise_xsmp_logger(::Smp::ISimulator *simulator,
                             ::Smp::Publication::ITypeRegistry *typeRegistry);
 
 /// Finalise Package xsmp_logger.
-/// @param simulator Optional Simulator.
 /// @return True if finalisation was successful, false otherwise.
-bool Finalise_xsmp_logger(::Smp::ISimulator *simulator = nullptr);
+bool Finalise_xsmp_logger();
 }
 
 #endif // XSMP_LOGGER_H_

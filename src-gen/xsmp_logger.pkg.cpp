@@ -55,7 +55,5 @@ extern "C" {
 /// Global Finalise function of Package xsmp_logger.
 /// @param simulator Simulator.
 /// @return True if finalisation was successful, false otherwise.
-DLL_EXPORT bool Finalise(::Smp::ISimulator *simulator) {
-  return Finalise_xsmp_logger(simulator);
-}
+DLL_EXPORT bool Finalise(::Smp::ISimulator *) { return Finalise_xsmp_logger(); }
 }

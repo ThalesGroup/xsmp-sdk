@@ -45,9 +45,8 @@ bool Initialise_xsmp_services(::Smp::ISimulator *simulator,
                               ::Smp::Publication::ITypeRegistry *typeRegistry);
 
 /// Finalise Package xsmp_services.
-/// @param simulator Optional Simulator.
 /// @return True if finalisation was successful, false otherwise.
-bool Finalise_xsmp_services(::Smp::ISimulator *simulator = nullptr);
+bool Finalise_xsmp_services();
 }
 
 #endif // XSMP_SERVICES_H_

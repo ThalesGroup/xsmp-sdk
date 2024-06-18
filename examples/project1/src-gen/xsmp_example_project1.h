@@ -32,9 +32,8 @@ bool Initialise_xsmp_example_project1(
     ::Smp::Publication::ITypeRegistry *typeRegistry);
 
 /// Finalise Package xsmp_example_project1.
-/// @param simulator Optional Simulator.
 /// @return True if finalisation was successful, false otherwise.
-bool Finalise_xsmp_example_project1(::Smp::ISimulator *simulator = nullptr);
+bool Finalise_xsmp_example_project1();
 }
 
 #endif // XSMP_EXAMPLE_PROJECT1_H_
