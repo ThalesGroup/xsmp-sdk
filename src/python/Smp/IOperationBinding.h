@@ -26,7 +26,6 @@
 #include <functional>
 #include <memory>
 #include <python/ecss_smp.h>
-#include <string>
 
 inline py::object callOperation(::Smp::IOperation &self, const py::args &args,
                                 const py::kwargs &kwargs) {
@@ -72,22 +71,29 @@ inline py::object callOperation(::Smp::IOperation &self, const py::args &args,
 
   self.Invoke(request.get());
 
-  py::tuple result;
+  py::object SimpleNamespace =
+      py::module_::import("types").attr("SimpleNamespace");
+  py::object result = SimpleNamespace();
+  bool none = true;
   if (const auto *returnParameter = self.GetReturnParameter()) {
-    result.attr(returnParameter->GetName()) =
-        convert(request->GetReturnValue());
+    py::setattr(result, GetPythonName(returnParameter).c_str(),
+                convert(request->GetReturnValue()));
+    none = false;
   }
 
   for (const auto *parameter : *parameters) {
     if (parameter->GetDirection() !=
-        ::Smp::Publication::ParameterDirectionKind::PDK_In)
-      result.attr(parameter->GetName()) = convert(request->GetParameterValue(
-          request->GetParameterIndex(parameter->GetName())));
+        ::Smp::Publication::ParameterDirectionKind::PDK_In) {
+      py::setattr(result, GetPythonName(parameter).c_str(),
+                  convert(request->GetParameterValue(
+                      request->GetParameterIndex(parameter->GetName()))));
+      none = false;
+    }
   }
 
-  if (result.empty())
+  if (none) {
     return py::none();
-
+  }
   return result;
 }
 

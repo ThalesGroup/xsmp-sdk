@@ -155,6 +155,7 @@
 #include <python/Smp/UuidBinding.h>
 #include <python/Smp/ViewKindBinding.h>
 #include <python/ecss_smp.h>
+#include <set>
 #include <string>
 #include <type_traits>
 #include <typeinfo>
@@ -541,6 +542,22 @@ py::object convert(const ::Smp::AnySimple &value) {
   }
   return static_cast<::Smp::UInt64>(result);
 }
+
+const std::set<std::string, std::less<>> reservedPythonKeywords{
+    "False",   "def",      "if",       "raise",  "None",   "del",  "import",
+    "return",  "True",     "elif",     "in",     "try",    "and",  "else",
+    "is",      "while",    "as",       "except", "lambda", "with", "assert",
+    "finally", "nonlocal", "yield",    "break",  "for",    "not",  "class",
+    "from",    "or",       "continue", "global", "pass"};
+
+std::string GetPythonName(const ::Smp::IObject *obj) {
+  const auto *name = obj->GetName();
+  if (reservedPythonKeywords.find(name) == reservedPythonKeywords.end()) {
+    return name;
+  }
+  return "_" + std::string(name);
+}
+
 PYBIND11_MODULE(ecss_smp, ecss_smp) {
   ecss_smp.doc() = "Specifies the SMP Component Model as SMDL Catalogue.";
 

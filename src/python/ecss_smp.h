@@ -19,6 +19,7 @@
 #include <Smp/IObject.h>
 #include <Smp/PrimitiveTypes.h>
 #include <pybind11/pybind11.h>
+#include <string>
 #include <type_traits>
 #include <typeinfo>
 
@@ -37,6 +38,10 @@ py::object convert(const ::Smp::AnySimple &value);
 
 /// Get the index with support for negative index (python like)
 ::Smp::UInt64 GetIndex(::Smp::Int64 index, ::Smp::UInt64 size);
+
+/// Get the python name of an IObject. In the case of a python reserved keyword
+/// the name is prefixed with "_"
+std::string GetPythonName(const ::Smp::IObject *obj);
 
 namespace PYBIND11_NAMESPACE {
 
