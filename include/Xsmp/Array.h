@@ -194,50 +194,44 @@ template <typename Tp, std::size_t Nm, typename... options> struct Array {
   [[nodiscard]] constexpr const_pointer data() const noexcept {
     return static_cast<const_pointer>(internalArray);
   }
+
+  // Array comparisons.
+  [[nodiscard]] constexpr friend bool operator==(const Array &_one,
+                                                 const Array &_two) {
+    return std::equal(_one.begin(), _one.end(), _two.begin());
+  }
+
+  [[nodiscard]] constexpr friend bool operator!=(const Array &_one,
+                                                 const Array &_two) {
+    return !(_one == _two);
+  }
+
+  [[nodiscard]] constexpr friend bool operator<(const Array &_one,
+                                                const Array &_two) {
+    return std::lexicographical_compare(_one.begin(), _one.end(), _two.begin(),
+                                        _two.end());
+  }
+
+  [[nodiscard]] constexpr friend bool operator>(const Array &_one,
+                                                const Array &_two) {
+    return _two < _one;
+  }
+
+  [[nodiscard]] constexpr friend bool operator<=(const Array &_one,
+                                                 const Array &_two) {
+    return !(_one > _two);
+  }
+
+  [[nodiscard]] constexpr friend bool operator>=(const Array &_one,
+                                                 const Array &_two) {
+    return !(_one < _two);
+  }
 };
 
 // deduction guide
 template <class Tp, class... Args,
           class = std::enable_if_t<(std::is_same_v<Tp, Args> && ...), void>>
 Array(Tp, Args...) -> Array<Tp, 1 + sizeof...(Args)>;
-
-// Array comparisons.
-template <typename Tp, std::size_t Nm, typename... options>
-[[nodiscard]] constexpr bool operator==(const Array<Tp, Nm, options...> &_one,
-                                        const Array<Tp, Nm, options...> &_two) {
-  return std::equal(_one.begin(), _one.end(), _two.begin());
-}
-
-template <typename Tp, std::size_t Nm, typename... options>
-[[nodiscard]] constexpr bool operator!=(const Array<Tp, Nm, options...> &_one,
-                                        const Array<Tp, Nm, options...> &_two) {
-  return !(_one == _two);
-}
-
-template <typename Tp, std::size_t Nm, typename... options>
-[[nodiscard]] constexpr bool operator<(const Array<Tp, Nm, options...> &_one,
-                                       const Array<Tp, Nm, options...> &_two) {
-  return std::lexicographical_compare(_one.begin(), _one.end(), _two.begin(),
-                                      _two.end());
-}
-
-template <typename Tp, std::size_t Nm, typename... options>
-[[nodiscard]] constexpr bool operator>(const Array<Tp, Nm, options...> &_one,
-                                       const Array<Tp, Nm, options...> &_two) {
-  return _two < _one;
-}
-
-template <typename Tp, std::size_t Nm, typename... options>
-[[nodiscard]] constexpr bool operator<=(const Array<Tp, Nm, options...> &_one,
-                                        const Array<Tp, Nm, options...> &_two) {
-  return !(_one > _two);
-}
-
-template <typename Tp, std::size_t Nm, typename... options>
-[[nodiscard]] constexpr bool operator>=(const Array<Tp, Nm, options...> &_one,
-                                        const Array<Tp, Nm, options...> &_two) {
-  return !(_one < _two);
-}
 
 } // namespace Xsmp
 

@@ -202,51 +202,55 @@ private:
                .count() -
            _epochToMjd;
   }
+
+  constexpr friend DateTime
+  operator+(const DateTime &dateTime,
+            const ::Smp::Duration &duration) noexcept {
+    return DateTime{static_cast<::Smp::DateTime>(dateTime) + duration};
+  }
+  constexpr friend DateTime operator+(const ::Smp::Duration &duration,
+                                      const DateTime &dateTime) noexcept {
+    return DateTime{duration + static_cast<::Smp::DateTime>(dateTime)};
+  }
+  constexpr friend DateTime
+  operator-(const DateTime &dateTime,
+            const ::Smp::Duration &duration) noexcept {
+    return DateTime{static_cast<::Smp::DateTime>(dateTime) - duration};
+  }
+
+  template <class Rep, class Period>
+  constexpr friend DateTime
+  operator+(const DateTime &dateTime,
+            const std::chrono::duration<Rep, Period> &duration) noexcept {
+    return DateTime{
+        static_cast<::Smp::DateTime>(dateTime) +
+        std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count()};
+  }
+  template <class Rep, class Period>
+  constexpr friend DateTime
+  operator+(const std::chrono::duration<Rep, Period> &duration,
+            const DateTime &dateTime) noexcept {
+    return DateTime{
+        std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count() +
+        static_cast<::Smp::DateTime>(dateTime)};
+  }
+  template <class Rep, class Period>
+  constexpr friend DateTime
+  operator-(const DateTime &dateTime,
+            const std::chrono::duration<Rep, Period> &duration) noexcept {
+    return DateTime{
+        static_cast<::Smp::DateTime>(dateTime) -
+        std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count()};
+  }
+
+  friend std::ostream &operator<<(std::ostream &outputStream,
+                                  const DateTime &dateTime);
 };
 
 static_assert(sizeof(::Smp::DateTime) == sizeof(::Xsmp::DateTime),
               "Size of ::Xsmp::DateTime shall be identical to ::Smp::DateTime");
 static_assert(std::is_standard_layout_v<::Xsmp::DateTime>,
               "::Xsmp::DateTime shall be a standard layout class");
-
-constexpr DateTime operator+(const DateTime &dateTime,
-                             const ::Smp::Duration &duration) noexcept {
-  return DateTime{static_cast<::Smp::DateTime>(dateTime) + duration};
-}
-constexpr DateTime operator+(const ::Smp::Duration &duration,
-                             const DateTime &dateTime) noexcept {
-  return DateTime{duration + static_cast<::Smp::DateTime>(dateTime)};
-}
-constexpr DateTime operator-(const DateTime &dateTime,
-                             const ::Smp::Duration &duration) noexcept {
-  return DateTime{static_cast<::Smp::DateTime>(dateTime) - duration};
-}
-
-template <class Rep, class Period>
-constexpr DateTime
-operator+(const DateTime &dateTime,
-          const std::chrono::duration<Rep, Period> &duration) noexcept {
-  return DateTime{
-      static_cast<::Smp::DateTime>(dateTime) +
-      std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count()};
-}
-template <class Rep, class Period>
-constexpr DateTime operator+(const std::chrono::duration<Rep, Period> &duration,
-                             const DateTime &dateTime) noexcept {
-  return DateTime{
-      std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count() +
-      static_cast<::Smp::DateTime>(dateTime)};
-}
-template <class Rep, class Period>
-constexpr DateTime
-operator-(const DateTime &dateTime,
-          const std::chrono::duration<Rep, Period> &duration) noexcept {
-  return DateTime{
-      static_cast<::Smp::DateTime>(dateTime) -
-      std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count()};
-}
-
-std::ostream &operator<<(std::ostream &outputStream, const DateTime &dateTime);
 
 } // namespace Xsmp
 

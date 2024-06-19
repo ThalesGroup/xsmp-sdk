@@ -230,6 +230,9 @@ struct Duration final {
 
 private:
   ::Smp::Duration _value;
+
+  friend std::ostream &operator<<(std::ostream &outputStream,
+                                  const Duration &duration);
 };
 
 static_assert(sizeof(::Smp::Duration) == sizeof(::Xsmp::Duration),
@@ -269,8 +272,6 @@ constexpr bool operator>=(const std::chrono::duration<Rep, Period> &rhs,
                           const Duration &d) noexcept {
   return d <= rhs;
 }
-
-std::ostream &operator<<(std::ostream &outputStream, const Duration &duration);
 
 /// Provides ::Xsmp::Duration literals for _ns/_us/_ms/_s/_mn/_h/_d
 /// e.g: 5_mn + 10_s + 3_ms

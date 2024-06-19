@@ -44,7 +44,7 @@ bool isInvalidEnumerationValue(const ::Smp::Publication::IType *type,
              enumeration->GetLiterals().end();
 }
 
-void checkValidFieldType(::Smp::IField *field,
+void checkValidFieldType(const ::Smp::IField *field,
                          const ::Smp::Publication::IType *type) {
   // disallow fields with String8/void type
   if (type->GetUuid() == ::Smp::Uuids::Uuid_String8 ||

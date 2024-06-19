@@ -54,7 +54,7 @@ extern "C" {
 /// Global Finalise function of Package xsmp_services.
 /// @param simulator Simulator.
 /// @return True if finalisation was successful, false otherwise.
-DLL_EXPORT bool Finalise(::Smp::ISimulator *sim) {
+DLL_EXPORT bool Finalise(::Smp::ISimulator *) {
   return Finalise_xsmp_services();
 }
 }
