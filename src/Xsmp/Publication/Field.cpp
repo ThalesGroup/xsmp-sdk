@@ -441,10 +441,10 @@ ArrayField::ArrayField(::Smp::String8 name, ::Smp::String8 description,
   checkValidFieldType(this, type);
   for (::Smp::UInt64 i = 0, size = type->GetSize(); i < size; ++i) {
     /// The parent of the item is the parent of the array
-    /// The item name is the array name + [index]
+    /// The item name is "[" + index + "]"
     _fields.push_back(
-        Create((std::string(name) + "[" + std::to_string(i) + "]").c_str(), "",
-               parent, static_cast<char *>(address) + i * type->GetItemSize(),
+        Create(("[" + std::to_string(i) + "]").c_str(), "", this,
+               static_cast<char *>(address) + i * type->GetItemSize(),
                type->GetItemType(), view, state, input, output));
   }
 }

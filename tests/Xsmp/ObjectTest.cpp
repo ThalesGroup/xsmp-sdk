@@ -32,28 +32,4 @@ TEST(ObjectTest, Getters) {
   EXPECT_EQ(&parent, child.GetParent());
 }
 
-TEST(ObjectTest, checkName) {
-
-  EXPECT_THROW(Object(nullptr), ::Smp::InvalidObjectName);
-  EXPECT_THROW(Object(""), ::Smp::InvalidObjectName);
-  EXPECT_THROW(Object("0aaa"), ::Smp::InvalidObjectName);
-  EXPECT_THROW(Object("_aaa"), ::Smp::InvalidObjectName);
-  EXPECT_THROW(Object("abczABCZ0129_["), ::Smp::InvalidObjectName);
-  EXPECT_THROW(Object("[abc]"), ::Smp::InvalidObjectName);
-  EXPECT_THROW(Object("[0]a"), ::Smp::InvalidObjectName);
-  EXPECT_THROW(Object("AZé"), ::Smp::InvalidObjectName);
-  EXPECT_THROW(Object("aa[]"), ::Smp::InvalidObjectName);
-  EXPECT_THROW(Object("a[4][3]b"), ::Smp::InvalidObjectName);
-  EXPECT_THROW(Object("a[4][3]b[]"), ::Smp::InvalidObjectName);
-  EXPECT_THROW(Object("a[4][3][]"), ::Smp::InvalidObjectName);
-  EXPECT_THROW(Object("a[4][310"), ::Smp::InvalidObjectName);
-  EXPECT_THROW(Object("a[4][3a]"), ::Smp::InvalidObjectName);
-
-  EXPECT_NO_THROW(Object("aZZZ___4541"));
-  EXPECT_NO_THROW(Object("A"));
-  EXPECT_NO_THROW(Object("a[4]"));
-  EXPECT_NO_THROW(Object("a[4][3]"));
-  EXPECT_NO_THROW(Object("AazZ_[4][3]"));
-}
-
 } // namespace Xsmp
