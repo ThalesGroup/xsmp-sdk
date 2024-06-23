@@ -745,10 +745,10 @@ private:
   std::array<value_type, _size>
   create_array_impl(::Smp::Publication::ITypeRegistry *typeRegistry,
                     const T &value, std::index_sequence<I...>) {
-    return std::array<value_type, _size>{{value_type(
-        typeRegistry, GetType()->GetItemType()->GetUuid(),
-        (std::string(GetName()) + "[" + std::to_string(I) + "]").c_str(), "",
-        GetParent(), GetView(), value[I])...}};
+    return std::array<value_type, _size>{
+        {value_type(typeRegistry, GetType()->GetItemType()->GetUuid(),
+                    ("[" + std::to_string(I) + "]").c_str(), "", this,
+                    GetView(), value[I])...}};
   }
 
   const ::Smp::Publication::IArrayType *_type;

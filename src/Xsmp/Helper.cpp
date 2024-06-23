@@ -304,6 +304,11 @@ std::string GetPath(const ::Smp::IObject *obj) {
   if (dynamic_cast<const ::Smp::IComponent *>(obj)) {
     return GetPath(parent) + "/" + obj->GetName();
   }
+  // no separator for array items
+  if (dynamic_cast<const ::Smp::IArrayField *>(parent)) {
+    return GetPath(parent) + obj->GetName();
+  }
+
   // use '.' separator between all others elements : fields, entry points, event
   // sink/sources, ...
   return GetPath(parent) + "." + obj->GetName();
@@ -507,19 +512,17 @@ std::string checkName(::Smp::String8 name, ::Smp::IObject const *parent) {
   }
   const auto *next = name;
   // the name must start with a letter
-  if (!std::isalpha(static_cast<unsigned char>(*next))) {
-    ::Xsmp::Exception::throwInvalidObjectName(
-        parent, name,
-        "Name '" + std::string{name} + "' shall start with a letter.");
-  }
-  ++next;
+  if (std::isalpha(static_cast<unsigned char>(*next))) {
 
-  // skip following letters, digits and "_"
-  while (std::isalnum(static_cast<unsigned char>(*next)) || (*next == '_')) {
     ++next;
+
+    // skip following letters, digits and "_"
+    while (std::isalnum(static_cast<unsigned char>(*next)) || (*next == '_')) {
+      ++next;
+    }
   }
-  // parse an optional array
-  while (*next == '[') {
+  // or an opening square bracket for arrays
+  else if (*next == '[') {
     ++next;
     // index must start with a digit
     if (!std::isdigit(static_cast<unsigned char>(*next))) {
@@ -541,6 +544,11 @@ std::string checkName(::Smp::String8 name, ::Smp::IObject const *parent) {
               "' shall be followed by a digit or a ']'.");
     }
     ++next;
+  } else {
+    ::Xsmp::Exception::throwInvalidObjectName(
+        parent, name,
+        "Name '" + std::string{name} +
+            "' shall start with a letter or an opening square bracket.");
   }
 
   // check end of name

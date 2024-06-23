@@ -89,6 +89,9 @@ template <typename T>
 [[nodiscard]] bool AreEquivalent(const ::Smp::IField *first,
                                  const ::Smp::IField *second);
 
+/// Check that an Object name is valid
+/// return the object name as std::string
+/// @throw Smp::InvalidObjectName if the name is invalid
 std::string checkName(::Smp::String8 name, ::Smp::IObject const *parent);
 
 /// helper to check if a type is an smp string of the form
