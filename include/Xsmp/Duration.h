@@ -147,14 +147,16 @@ struct Duration final {
     _value ^= _i;
     return *this;
   }
-  template <typename T> constexpr bool operator==(const T &_i) const noexcept {
-    return _value == _i;
+  template <typename T>
+  friend constexpr bool operator==(const Duration &lhs, const T &rhs) noexcept {
+    return lhs._value == rhs;
   }
   template <typename Rep, typename Period>
-  constexpr bool
-  operator==(const std::chrono::duration<Rep, Period> &_i) const noexcept {
-    return _value ==
-           std::chrono::duration_cast<std::chrono::nanoseconds>(_i).count();
+  friend constexpr bool
+  operator==(const Duration &lhs,
+             const std::chrono::duration<Rep, Period> &rhs) noexcept {
+    return lhs._value ==
+           std::chrono::duration_cast<std::chrono::nanoseconds>(rhs).count();
   }
   template <typename T> constexpr bool operator!=(const T &_i) const noexcept {
     return !((*this) == _i);

@@ -188,6 +188,9 @@ void AbstractContainer::DeleteComponent(::Smp::IComponent *component) {
       static_cast<std::size_t>(GetLower())) {
     ::Xsmp::Exception::throwCannotDelete(this, component);
   }
+  if (component->GetState() == ::Smp::ComponentStateKind::CSK_Connected) {
+    component->Disconnect();
+  }
   delete component;
 }
 
