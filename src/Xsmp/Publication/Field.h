@@ -28,7 +28,7 @@
 #include <Xsmp/Publication/Publication.h>
 #include <memory>
 #include <set>
-#include <string>
+#include <Xsmp/cstring.h>
 #include <vector>
 
 namespace Smp {
@@ -88,8 +88,8 @@ protected:
   inline void *GetAddress() const noexcept { return _address; }
 
 private:
-  std::string _name;
-  std::string _description;
+  ::Xsmp::cstring _name;
+  ::Xsmp::cstring _description;
   ::Smp::IObject *_parent;
   void *_address;
   const ::Smp::Publication::IType *_type;

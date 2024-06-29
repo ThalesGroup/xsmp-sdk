@@ -20,7 +20,8 @@
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/AnySimpleConverter.h>
 #include <functional>
-#include <string>
+
+#include <Xsmp/cstring.h>
 
 namespace Xsmp {
 
@@ -41,8 +42,8 @@ public:
   ::Smp::IObject *GetParent() const final;
 
 private:
-  std::string _name;
-  std::string _description;
+  ::Xsmp::cstring _name;
+  ::Xsmp::cstring _description;
   ::Smp::IObject *_parent;
 };
 } // namespace detail

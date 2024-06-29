@@ -19,10 +19,10 @@
 #include <Smp/IContainer.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Exception.h>
+#include <Xsmp/cstring.h>
 #include <algorithm>
 #include <cstddef>
 #include <stdexcept>
-#include <string>
 #include <string_view>
 #include <vector>
 
@@ -73,8 +73,8 @@ private:
   private:
     AbstractContainer &_parent;
   };
-  std::string _name;
-  std::string _description;
+  ::Xsmp::cstring _name;
+  ::Xsmp::cstring _description;
   ::Smp::IObject *_parent;
   Collection _collection;
   ::Smp::Int64 _lower;

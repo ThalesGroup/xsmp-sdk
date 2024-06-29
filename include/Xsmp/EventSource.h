@@ -19,8 +19,8 @@
 #include <Smp/IEventSource.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/AnySimpleConverter.h>
+#include <Xsmp/cstring.h>
 #include <set>
-#include <string>
 
 namespace Smp {
 class IComponent;
@@ -57,8 +57,8 @@ protected:
   void DoEmit(::Smp::IObject *sender, const ::Smp::AnySimple &value) const;
 
 private:
-  std::string _name;
-  std::string _description;
+  ::Xsmp::cstring _name;
+  ::Xsmp::cstring _description;
   ::Smp::IObject *_parent;
   std::set<::Smp::IEventSink *> _event_sinks{};
   ::Smp::PrimitiveTypeKind _eventArgType;

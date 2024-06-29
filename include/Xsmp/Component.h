@@ -22,7 +22,7 @@
 #include <Smp/IOperation.h>
 #include <Smp/IProperty.h>
 #include <Smp/PrimitiveTypes.h>
-#include <string>
+#include <Xsmp/cstring.h>
 
 namespace Smp {
 class IAggregate;
@@ -82,8 +82,8 @@ private:
   static void RemoveFieldLinks(::Smp::IField *field,
                                const ::Smp::IComponent *target) noexcept;
 
-  std::string _name;
-  std::string _description;
+  ::Xsmp::cstring _name;
+  ::Xsmp::cstring _description;
   ::Smp::IComposite *_parent;
   ::Smp::ISimulator *_simulator;
   ::Smp::IPublication *_publication = nullptr;

@@ -20,9 +20,9 @@
 #include <Smp/ISimulator.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Uuid.h>
+#include <Xsmp/cstring.h>
 #include <functional>
 #include <memory>
-#include <string>
 #include <type_traits>
 
 namespace Smp {
@@ -77,12 +77,12 @@ private:
   Factory(::Smp::String8 name, ::Smp::String8 description,
           ::Smp::ISimulator *simulator, ::Smp::Uuid uuid,
           const std::type_info &type, _factory_instantiator_t &&callback);
-  std::string _name;
-  std::string _description;
+  ::Xsmp::cstring _name;
+  ::Xsmp::cstring _description;
   ::Smp::ISimulator *_simulator;
   ::Smp::Uuid _uuid;
   _factory_instantiator_t _callback;
-  std::string _typeName;
+  ::Xsmp::cstring _typeName;
 };
 
 } // namespace Xsmp

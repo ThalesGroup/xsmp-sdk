@@ -12,22 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <Smp/IObject.h>
-#include <Smp/PrimitiveTypes.h>
-#include <Xsmp/Helper.h>
-#include <Xsmp/Object.h>
+#include <Xsmp/cstring.h>
+#include <cstring>
 
 namespace Xsmp {
 
-Object::Object(::Smp::String8 name, ::Smp::String8 description,
-               ::Smp::IObject *parent)
-    : _name(::Xsmp::Helper::checkName(name, parent)), _description(description),
-      _parent(parent) {}
+cstring::cstring(const char *value, std::size_t size)
+    : _value{std::make_unique<char[]>(size + 1)} {
+  std::memcpy(_value.get(), value, size);
+  _value.get()[size] = '\0';
+}
+cstring::cstring(const char *value) : cstring(value, std::strlen(value)) {}
+cstring::cstring(std::string_view value)
+    : cstring(value.data(), value.size()) {}
 
-::Smp::String8 Object::GetName() const { return _name; }
-
-::Smp::String8 Object::GetDescription() const { return _description; }
-
-::Smp::IObject *Object::GetParent() const { return _parent; }
-
+cstring::operator const char *() const noexcept { return _value.get(); }
 } // namespace Xsmp

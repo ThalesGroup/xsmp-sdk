@@ -17,8 +17,8 @@
 
 #include <Smp/IEntryPoint.h>
 #include <Smp/PrimitiveTypes.h>
+#include <Xsmp/cstring.h>
 #include <functional>
-#include <string>
 
 namespace Xsmp {
 
@@ -41,8 +41,8 @@ public:
   inline void operator()() const { std::invoke(_callback); }
 
 private:
-  std::string _name;
-  std::string _description;
+  ::Xsmp::cstring _name;
+  ::Xsmp::cstring _description;
   ::Smp::IObject *_parent;
   std::function<void()> _callback;
 };

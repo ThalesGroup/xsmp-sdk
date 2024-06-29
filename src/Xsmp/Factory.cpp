@@ -27,12 +27,12 @@ Factory::Factory(::Smp::String8 name, ::Smp::String8 description,
                  ::Smp::ISimulator *simulator, ::Smp::Uuid uuid,
                  const std::type_info &type, _factory_instantiator_t &&callback)
     : _name(::Xsmp::Helper::checkName(name, simulator)),
-      _description(description ? description : ""), _simulator(simulator),
-      _uuid(uuid), _callback{std::move(callback)},
-      _typeName(Xsmp::Helper::demangle(type.name())) {}
+      _description(description), _simulator(simulator), _uuid(uuid),
+      _callback{std::move(callback)},
+      _typeName(Xsmp::Helper::demangle(type.name()).c_str()) {}
 
-::Smp::String8 Factory::GetName() const { return _name.c_str(); }
-::Smp::String8 Factory::GetDescription() const { return _description.c_str(); }
+::Smp::String8 Factory::GetName() const { return _name; }
+::Smp::String8 Factory::GetDescription() const { return _description; }
 ::Smp::IObject *Factory::GetParent() const { return _simulator; }
 ::Smp::Uuid Factory::GetUuid() const { return _uuid; }
 
@@ -49,7 +49,7 @@ Factory::Factory(::Smp::String8 name, ::Smp::String8 description,
   return instance.release();
 }
 void Factory::DeleteInstance(::Smp::IComponent *instance) { delete instance; }
-::Smp::String8 Factory::GetTypeName() const { return _typeName.c_str(); }
+::Smp::String8 Factory::GetTypeName() const { return _typeName; }
 
 ::Smp::IFactory *Factory::Create(::Smp::String8 name,
                                  ::Smp::String8 description,

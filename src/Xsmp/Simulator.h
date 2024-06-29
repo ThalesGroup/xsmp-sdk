@@ -28,8 +28,8 @@
 #include <Xsmp/FactoryCollection.h>
 #include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Publication/TypeRegistry.h>
+#include <Xsmp/cstring.h>
 #include <list>
-#include <string>
 #include <utility>
 #include <vector>
 
@@ -375,8 +375,8 @@ private:
   [[nodiscard]] ::Xsmp::Publication::Publication *
   CreatePublication(::Smp::IComponent *component);
 
-  std::string _name;
-  std::string _description;
+  ::Xsmp::cstring _name;
+  ::Xsmp::cstring _description;
 
   std::vector<std::pair<std::string, void *>> _libraries{};
 

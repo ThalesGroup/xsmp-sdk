@@ -37,6 +37,7 @@
 #include <Smp/Services/ILogger.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
+#include <Xsmp/cstring.h>
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
@@ -503,7 +504,7 @@ bool AreEquivalent(const ::Smp::IField *first, const ::Smp::IField *second) {
 }
 
 /// Check that an Object name is valid
-std::string checkName(::Smp::String8 name, ::Smp::IObject const *parent) {
+::Xsmp::cstring checkName(::Smp::String8 name, ::Smp::IObject const *parent) {
 
   // the name cannot be null
   if (!name) {

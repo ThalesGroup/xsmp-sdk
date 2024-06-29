@@ -17,8 +17,8 @@
 
 #include <Smp/IStorageWriter.h>
 #include <Smp/PrimitiveTypes.h>
+#include <Xsmp/cstring.h>
 #include <fstream>
-#include <string>
 
 namespace Smp {
 class IObject;
@@ -59,8 +59,8 @@ public:
   ::Smp::String8 GetStateVectorFilePath() const override;
 
 private:
-  std::string _path;
-  std::string _filename;
+  ::Xsmp::cstring _path;
+  ::Xsmp::cstring _filename;
   const ::Smp::IObject *_object;
   std::ofstream _os;
 };

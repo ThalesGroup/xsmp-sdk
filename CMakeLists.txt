@@ -245,6 +245,7 @@ add_library(Cdk SHARED
     src/Xsmp/Component.cpp
     src/Xsmp/Composite.cpp
     src/Xsmp/Container.cpp
+    src/Xsmp/cstring.cpp
     src/Xsmp/DateTime.cpp
     src/Xsmp/Duration.cpp
     src/Xsmp/EntryPoint.cpp

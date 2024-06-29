@@ -52,7 +52,7 @@ namespace Xsmp {
 
 Simulator::Simulator(::Smp::String8 name, ::Smp::String8 description)
     : _name(::Xsmp::Helper::checkName(name, nullptr)),
-      _description(description ? description : ""),
+      _description(description),
 
       // initialize Services Container
       _services{SMP_SimulatorServices, "Services collection of the simulator",
@@ -149,11 +149,9 @@ Simulator::~Simulator() {
     _libraries.pop_back();
   }
 }
-::Smp::String8 Simulator::GetName() const { return _name.c_str(); }
+::Smp::String8 Simulator::GetName() const { return _name; }
 
-::Smp::String8 Simulator::GetDescription() const {
-  return _description.c_str();
-}
+::Smp::String8 Simulator::GetDescription() const { return _description; }
 
 ::Smp::IObject *Simulator::GetParent() const { return nullptr; }
 

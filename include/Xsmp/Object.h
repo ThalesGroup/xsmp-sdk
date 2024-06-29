@@ -17,6 +17,7 @@
 
 #include <Smp/IObject.h>
 #include <Smp/PrimitiveTypes.h>
+#include <Xsmp/cstring.h>
 #include <string>
 
 namespace Xsmp {
@@ -33,8 +34,8 @@ public:
   ::Smp::IObject *GetParent() const final;
 
 private:
-  std::string _name;
-  std::string _description;
+  cstring _name;
+  cstring _description;
   ::Smp::IObject *_parent;
 };
 

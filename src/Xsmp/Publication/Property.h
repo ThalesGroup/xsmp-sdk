@@ -19,7 +19,7 @@
 #include <Smp/IProperty.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/ViewKind.h>
-#include <string>
+#include <Xsmp/cstring.h>
 
 namespace Smp {
 class AnySimple;
@@ -100,8 +100,8 @@ private:
   /// @param view the new Property view
   void Update(::Smp::String8 description, ::Smp::Publication::IType *type,
               ::Smp::AccessKind accessKind, ::Smp::ViewKind view) noexcept;
-  std::string _name;
-  std::string _description;
+  ::Xsmp::cstring _name;
+  ::Xsmp::cstring _description;
   ::Smp::IObject *_parent;
   ::Smp::Publication::IType *_type;
   ::Smp::AccessKind _accessKind;
