@@ -17,7 +17,6 @@
 #include <Xsmp/EventSink.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
-#include <string>
 #include <utility>
 
 namespace Xsmp {
@@ -33,12 +32,12 @@ AbstractEventSink::AbstractEventSink(::Smp::String8 name,
 AbstractEventSink::AbstractEventSink(::Smp::String8 name,
                                      ::Smp::String8 description,
                                      ::Smp::IObject *parent)
-    : _name(::Xsmp::Helper::checkName(name, parent)),
-      _description(description ? description : ""), _parent(parent) {}
-::Smp::String8 AbstractEventSink::GetName() const { return _name.c_str(); }
+    : _name(::Xsmp::Helper::checkName(name, parent)), _description(description),
+      _parent(parent) {}
+::Smp::String8 AbstractEventSink::GetName() const { return _name; }
 
 ::Smp::String8 AbstractEventSink::GetDescription() const {
-  return _description.c_str();
+  return _description;
 }
 
 ::Smp::IObject *AbstractEventSink::GetParent() const { return _parent; }

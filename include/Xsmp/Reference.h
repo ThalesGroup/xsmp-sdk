@@ -19,6 +19,7 @@
 #include <Smp/IReference.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Exception.h>
+#include <Xsmp/cstring.h>
 #include <algorithm>
 #include <cstddef>
 #include <stdexcept>
@@ -81,8 +82,8 @@ private:
   private:
     AbstractReference &_parent;
   };
-  std::string _name;
-  std::string _description;
+  ::Xsmp::cstring _name;
+  ::Xsmp::cstring _description;
   ::Smp::IObject *_parent;
   Collection _collection;
   ::Smp::Int64 _lower;

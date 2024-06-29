@@ -22,8 +22,8 @@
 #include <Smp/Publication/ParameterDirectionKind.h>
 #include <Smp/ViewKind.h>
 #include <Xsmp/Collection.h>
+#include <Xsmp/cstring.h>
 #include <memory>
-#include <string>
 
 namespace Smp::Publication {
 class IType;
@@ -172,14 +172,14 @@ private:
     ::Smp::Publication::ParameterDirectionKind GetDirection() const override;
 
   private:
-    std::string _name;
-    std::string _description;
+    ::Xsmp::cstring _name;
+    ::Xsmp::cstring _description;
     ::Smp::IObject *_parent;
     ::Smp::Publication::IType *_type;
     ::Smp::Publication::ParameterDirectionKind _direction;
   };
-  std::string _name;
-  std::string _description;
+  ::Xsmp::cstring _name;
+  ::Xsmp::cstring _description;
   ::Smp::IObject *_parent;
   std::unique_ptr<::Smp::IParameter> _returnParameter{};
   ::Xsmp::ContainingCollection<::Smp::IParameter> _parameters;

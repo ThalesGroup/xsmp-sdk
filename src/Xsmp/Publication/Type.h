@@ -21,8 +21,8 @@
 #include <Smp/Publication/IEnumerationType.h>
 #include <Smp/Uuid.h>
 #include <Smp/ViewKind.h>
+#include <Xsmp/cstring.h>
 #include <map>
-#include <string>
 #include <vector>
 
 namespace Smp {
@@ -56,8 +56,8 @@ public:
   ::Xsmp::Publication::TypeRegistry *GetTypeRegistry() const noexcept;
 
 private:
-  std::string _name;
-  std::string _description;
+  ::Xsmp::cstring _name;
+  ::Xsmp::cstring _description;
   ::Xsmp::Publication::TypeRegistry *_parent;
   ::Smp::Uuid _uuid;
 };
@@ -114,8 +114,8 @@ public:
                   ::Smp::Int32 value) override;
 
   struct Literal {
-    std::string name;
-    std::string description;
+    ::Xsmp::cstring name;
+    ::Xsmp::cstring description;
   };
   const std::map<::Smp::Int32, Literal> &GetLiterals() const noexcept;
 
@@ -138,7 +138,7 @@ public:
   ::Smp::Bool IsMaxInclusive() const;
 
 private:
-  std::string _unit;
+  ::Xsmp::cstring _unit;
   ::Smp::Float64 _minimum;
   ::Smp::Float64 _maximum;
   ::Smp::Bool _minInclusive;
@@ -160,7 +160,7 @@ public:
 private:
   ::Smp::Int64 _minimum;
   ::Smp::Int64 _maximum;
-  std::string _unit;
+  ::Xsmp::cstring _unit;
 };
 
 class PrimitiveType final : public SimpleType {
@@ -203,8 +203,8 @@ public:
                 ::Smp::Bool output = false) final;
 
   struct Field {
-    std::string name;
-    std::string description;
+    ::Xsmp::cstring name;
+    ::Xsmp::cstring description;
     ::Smp::Uuid uuid;
     ::Smp::Int64 offset;
     ::Smp::ViewKind view;

@@ -19,6 +19,7 @@
 #include <Smp/IField.h>
 #include <Smp/IObject.h>
 #include <Smp/PrimitiveTypes.h>
+#include <Xsmp/cstring.h>
 #include <array>
 #include <cstddef>
 #include <limits>
@@ -90,9 +91,9 @@ template <typename T>
                                  const ::Smp::IField *second);
 
 /// Check that an Object name is valid
-/// return the object name as std::string
+/// return the object name as Xsmp::cstring
 /// @throw Smp::InvalidObjectName if the name is invalid
-std::string checkName(::Smp::String8 name, ::Smp::IObject const *parent);
+::Xsmp::cstring checkName(::Smp::String8 name, ::Smp::IObject const *parent);
 
 /// helper to check if a type is an smp string of the form
 /// struct MyStr {::Smp::Char8 internalString[42];};

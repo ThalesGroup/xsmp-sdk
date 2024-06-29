@@ -15,8 +15,6 @@
 #include <Smp/Exception.h>
 #include <Smp/Uuid.h>
 #include <gtest/gtest.h>
-#include <sstream>
-#include <string>
 
 constexpr const char *uuid1_str = "123e4567-e89b-12d3-a456-426614174005";
 constexpr const char *uuid2_str = "123e4567-e89b-12d3-a456-426614174006";
@@ -108,10 +106,10 @@ TEST(UuidTest, operators) {
 
 TEST(UuidTest, hash) {
 
-  Uuid uuid1{uuid1_str};
-  Uuid uuid1b{uuid1_str};
-  Uuid uuid2{uuid2_str};
-  Uuid uuid3{uuid3_str};
+  const Uuid uuid1{uuid1_str};
+  const Uuid uuid1b{uuid1_str};
+  const Uuid uuid2{uuid2_str};
+  const Uuid uuid3{uuid3_str};
   std::hash<Uuid> hash;
   EXPECT_EQ(hash(uuid1), hash(uuid1b));
   EXPECT_NE(hash(uuid1), hash(uuid2));

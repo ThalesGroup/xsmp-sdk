@@ -30,7 +30,6 @@
 #include <cstddef>
 #include <cstring>
 #include <memory>
-#include <string>
 #include <string_view>
 
 namespace Xsmp::Publication {
@@ -39,13 +38,12 @@ Operation::Parameter::Parameter(
     ::Smp::String8 name, ::Smp::String8 description, ::Smp::IObject *parent,
     ::Smp::Publication::IType *type,
     ::Smp::Publication::ParameterDirectionKind direction)
-    : _name(::Xsmp::Helper::checkName(name, parent)),
-      _description(description ? description : ""), _parent(parent),
-      _type(type), _direction(direction) {}
-::Smp::String8 Operation::Parameter::GetName() const { return _name.c_str(); }
+    : _name(::Xsmp::Helper::checkName(name, parent)), _description(description),
+      _parent(parent), _type(type), _direction(direction) {}
+::Smp::String8 Operation::Parameter::GetName() const { return _name; }
 
 ::Smp::String8 Operation::Parameter::GetDescription() const {
-  return _description.c_str();
+  return _description;
 }
 
 ::Smp::IObject *Operation::Parameter::GetParent() const { return _parent; }
@@ -61,15 +59,12 @@ Operation::Parameter::GetDirection() const {
 Operation::Operation(::Smp::String8 name, ::Smp::String8 description,
                      ::Smp::IObject *parent, ::Smp::ViewKind view,
                      ::Smp::Publication::ITypeRegistry *typeRegistry)
-    : _name(::Xsmp::Helper::checkName(name, parent)),
-      _description(description ? description : ""), _parent(parent),
-      _parameters{"Parameters", "", parent}, _typeRegistry{typeRegistry},
-      _view(view) {}
-::Smp::String8 Operation::GetName() const { return _name.c_str(); }
+    : _name(::Xsmp::Helper::checkName(name, parent)), _description(description),
+      _parent(parent), _parameters{"Parameters", "", parent},
+      _typeRegistry{typeRegistry}, _view(view) {}
+::Smp::String8 Operation::GetName() const { return _name; }
 
-::Smp::String8 Operation::GetDescription() const {
-  return _description.c_str();
-}
+::Smp::String8 Operation::GetDescription() const { return _description; }
 
 ::Smp::IObject *Operation::GetParent() const { return _parent; }
 void Operation::PublishParameter(

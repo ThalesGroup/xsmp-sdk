@@ -58,10 +58,9 @@ Field::Field(::Smp::String8 name, ::Smp::String8 description,
              ::Smp::IObject *parent, void *address,
              const ::Smp::Publication::IType *type, ::Smp::ViewKind view,
              ::Smp::Bool state, ::Smp::Bool input, ::Smp::Bool output)
-    : _name(::Xsmp::Helper::checkName(name, parent)),
-      _description(description ? description : ""), _parent(parent),
-      _address(address), _type(type), _view(view), _state(state), _input(input),
-      _output(output) {
+    : _name(::Xsmp::Helper::checkName(name, parent)), _description(description),
+      _parent(parent), _address(address), _type(type), _view(view),
+      _state(state), _input(input), _output(output) {
   // type must be defined
   if (!type) {
     ::Xsmp::Exception::throwInvalidFieldType(this, type);
@@ -69,13 +68,12 @@ Field::Field(::Smp::String8 name, ::Smp::String8 description,
 }
 Field::Field(::Smp::String8 name, ::Smp::String8 description,
              ::Smp::IObject *parent, ::Smp::ViewKind view, ::Smp::Bool state)
-    : _name(::Xsmp::Helper::checkName(name, parent)),
-      _description(description ? description : ""), _parent(parent),
-      _address(nullptr), _type(nullptr), _view(view), _state(state),
-      _input(false), _output(false) {}
+    : _name(::Xsmp::Helper::checkName(name, parent)), _description(description),
+      _parent(parent), _address(nullptr), _type(nullptr), _view(view),
+      _state(state), _input(false), _output(false) {}
 
-::Smp::String8 Field::GetName() const { return _name.c_str(); }
-::Smp::String8 Field::GetDescription() const { return _description.c_str(); }
+::Smp::String8 Field::GetName() const { return _name; }
+::Smp::String8 Field::GetDescription() const { return _description; }
 ::Smp::IObject *Field::GetParent() const { return _parent; }
 ::Smp::ViewKind Field::GetView() const { return _view; }
 ::Smp::Bool Field::IsState() const { return _state; }
@@ -796,7 +794,7 @@ StructureField::StructureField(::Smp::String8 name, ::Smp::String8 description,
       _fields{"Fields", "", this} {
   for (const auto &field : type->GetFields()) {
     if (auto const *fieldType = type->GetTypeRegistry()->GetType(field.uuid)) {
-      _fields.Add(Create(field.name.c_str(), field.description.c_str(), this,
+      _fields.Add(Create(field.name, field.description, this,
                          static_cast<char *>(address) + field.offset, fieldType,
                          field.view, field.state, field.input || input,
                          field.output || output));

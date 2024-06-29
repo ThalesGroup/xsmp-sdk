@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/ComponentStateKind.h>
 #include <Smp/IComponent.h>
 #include <Smp/IComposite.h>
 #include <Smp/IContainer.h>
@@ -72,13 +73,12 @@ AbstractContainer::AbstractContainer(::Smp::String8 name,
                                      ::Smp::String8 description,
                                      ::Smp::IObject *parent, ::Smp::Int64 lower,
                                      ::Smp::Int64 upper)
-    : _name(::Xsmp::Helper::checkName(name, parent)),
-      _description(description ? description : ""), _parent(parent),
-      _collection(*this), _lower(lower), _upper(upper) {}
-::Smp::String8 AbstractContainer::GetName() const { return _name.c_str(); }
+    : _name(::Xsmp::Helper::checkName(name, parent)), _description(description),
+      _parent(parent), _collection(*this), _lower(lower), _upper(upper) {}
+::Smp::String8 AbstractContainer::GetName() const { return _name; }
 
 ::Smp::String8 AbstractContainer::GetDescription() const {
-  return _description.c_str();
+  return _description;
 }
 
 ::Smp::IObject *AbstractContainer::GetParent() const { return _parent; }

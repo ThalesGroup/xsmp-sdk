@@ -37,11 +37,11 @@
 #include <Xsmp/Collection.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
+#include <Xsmp/cstring.h>
 #include <array>
 #include <cstddef>
 #include <iterator>
 #include <set>
-#include <string>
 #include <type_traits>
 #include <utility>
 
@@ -182,7 +182,7 @@ protected:
 private:
   void RemoveLinks(const ::Smp::IComponent *target);
   std::set<::Smp::ISimpleField *> _connectedFields{};
-  friend class DataflowField;
+  friend class ::Xsmp::detail::DataflowField;
 };
 
 class SimpleArrayConnectableField : public virtual ::Smp::ISimpleArrayField {
@@ -192,27 +192,7 @@ protected:
 private:
   void RemoveLinks(const ::Smp::IComponent *target);
   std::set<::Smp::ISimpleArrayField *> _connectedFields{};
-  friend class DataflowField;
-};
-
-class AbstractStructureField : public virtual ::Smp::IStructureField {
-public:
-  AbstractStructureField();
-  void Restore(::Smp::IStorageReader *reader) override;
-  void Store(::Smp::IStorageWriter *writer) override;
-  const ::Smp::FieldCollection *GetFields() const final;
-  ::Smp::IField *GetField(::Smp::String8 name) const final;
-
-protected:
-  // AbstractDataflowField requires access to GetFields()
-  friend class DataflowField;
-  ::Xsmp::Collection<::Smp::IField> *GetFields();
-
-  friend class AbstractField;
-  inline void AddField(::Smp::IField &field) { _fields.Add(&field); }
-
-private:
-  ::Xsmp::Collection<::Smp::IField> _fields;
+  friend class ::Xsmp::detail::DataflowField;
 };
 
 class AbstractField : public virtual ::Smp::IField {
@@ -230,10 +210,30 @@ protected:
                 ::Smp::IObject *parent, ::Smp::ViewKind view);
 
 private:
-  std::string _name;
-  std::string _description;
+  ::Xsmp::cstring _name;
+  ::Xsmp::cstring _description;
   ::Smp::IObject *_parent;
   ::Smp::ViewKind _view;
+};
+
+class AbstractStructureField : public virtual ::Smp::IStructureField {
+public:
+  AbstractStructureField();
+  void Restore(::Smp::IStorageReader *reader) override;
+  void Store(::Smp::IStorageWriter *writer) override;
+  const ::Smp::FieldCollection *GetFields() const final;
+  ::Smp::IField *GetField(::Smp::String8 name) const final;
+
+protected:
+  // AbstractDataflowField requires access to GetFields()
+  friend class ::Xsmp::detail::DataflowField;
+  ::Xsmp::Collection<::Smp::IField> *GetFields();
+
+  friend class ::Xsmp::detail::AbstractField;
+  inline void AddField(::Smp::IField &field) { _fields.Add(&field); }
+
+private:
+  ::Xsmp::Collection<::Smp::IField> _fields;
 };
 
 template <typename T, typename... Annotations>

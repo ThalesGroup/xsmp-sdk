@@ -21,12 +21,12 @@ namespace Xsmp {
 
 Object::Object(::Smp::String8 name, ::Smp::String8 description,
                ::Smp::IObject *parent)
-    : _name(::Xsmp::Helper::checkName(name, parent)),
-      _description(description ? description : ""), _parent(parent) {}
+    : _name(::Xsmp::Helper::checkName(name, parent)), _description(description),
+      _parent(parent) {}
 
-::Smp::String8 Object::GetName() const { return _name.c_str(); }
+::Smp::String8 Object::GetName() const { return _name; }
 
-::Smp::String8 Object::GetDescription() const { return _description.c_str(); }
+::Smp::String8 Object::GetDescription() const { return _description; }
 
 ::Smp::IObject *Object::GetParent() const { return _parent; }
 
