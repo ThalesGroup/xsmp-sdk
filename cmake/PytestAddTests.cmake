@@ -61,12 +61,22 @@ function(pytest_discover_tests_impl)
         string(REPLACE "\n" ";" _output_list "${_output_list}")
 
         set(test_pattern "([^:]+)(::([^:]+))?::([^:]+)")
+        set(test_error_pattern "^ERROR ([^:]+)")
 
         foreach (test_case ${_output_list})
             string(REGEX MATCHALL ${test_pattern} _test_case "${test_case}")
 
             # Ignore lines not identified as a test.
             if (NOT _test_case)
+                string(REGEX MATCHALL ${test_error_pattern} _test_case "${test_case}")
+                if (_test_case)
+                    set(test_name "${CMAKE_MATCH_1}")
+                    string(APPEND _content 
+                        "add_test(${test_name} ${_PYTHON_EXECUTABLE} -m pytest --rootdir=${_WORKING_DIRECTORY} ${test_name})\n"
+                        "set_tests_properties(\"${test_name}\" PROPERTIES ENVIRONMENT \"${_LIB_ENV_PATH}=${_LIBRARY_PATH}\")\n"
+                        "set_tests_properties(\"${test_name}\" PROPERTIES ENVIRONMENT \"PYTHONPATH=${_PYTHON_PATH}\")\n"
+                    )
+                endif(_test_case)
                 continue()
             endif()
 
