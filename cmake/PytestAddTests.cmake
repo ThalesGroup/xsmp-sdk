@@ -72,10 +72,15 @@ function(pytest_discover_tests_impl)
                 if (_test_case)
                     set(test_name "${CMAKE_MATCH_1}")
                     string(APPEND _content 
-                        "add_test(${test_name} ${_PYTHON_EXECUTABLE} -m pytest --rootdir=${_WORKING_DIRECTORY} ${test_name})\n"
+                        "add_test(\"${test_name}\" ${_PYTHON_EXECUTABLE} -m pytest --rootdir=${_WORKING_DIRECTORY} ${test_name})\n"
                         "set_tests_properties(\"${test_name}\" PROPERTIES ENVIRONMENT \"${_LIB_ENV_PATH}=${_LIBRARY_PATH}\")\n"
                         "set_tests_properties(\"${test_name}\" PROPERTIES ENVIRONMENT \"PYTHONPATH=${_PYTHON_PATH}\")\n"
                     )
+                    foreach(env ${_ENVIRONMENT})
+                        string(APPEND _content
+                            "set_tests_properties(\"${test_name}\" APPEND PROPERTIES ENVIRONMENT ${env})\n"
+                        )
+                    endforeach()
                 endif(_test_case)
                 continue()
             endif()
