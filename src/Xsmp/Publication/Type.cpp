@@ -29,9 +29,9 @@ Type::Type(::Smp::String8 name, ::Smp::String8 description,
            ::Xsmp::Publication::TypeRegistry *typeRegistry, ::Smp::Uuid uuid)
     : _name(::Xsmp::Helper::checkName(name, typeRegistry)),
       _description(description), _parent(typeRegistry), _uuid(uuid) {}
-::Smp::String8 Type::GetName() const { return _name; }
+::Smp::String8 Type::GetName() const { return _name.c_str(); }
 
-::Smp::String8 Type::GetDescription() const { return _description; }
+::Smp::String8 Type::GetDescription() const { return _description.c_str(); }
 
 ::Smp::IObject *Type::GetParent() const { return _parent; }
 ::Smp::PrimitiveTypeKind Type::GetPrimitiveTypeKind() const {
@@ -109,7 +109,7 @@ void EnumerationType::AddLiteral(::Smp::String8 name,
                                  ::Smp::Int32 value) {
 
   if (auto it = _literals.find(value); it != _literals.end()) {
-    ::Xsmp::Exception::throwDuplicateLiteral(this, it->second.name, value);
+    ::Xsmp::Exception::throwDuplicateLiteral(this, it->second.name.c_str(), value);
   }
   _literals.try_emplace(value, Literal{name, description});
 }
@@ -133,7 +133,7 @@ FloatType::FloatType(::Smp::String8 name, ::Smp::String8 description,
 
 ::Smp::Float64 FloatType::getMaximum() const { return _maximum; }
 
-::Smp::String8 FloatType::getUnit() const { return _unit; }
+::Smp::String8 FloatType::getUnit() const { return _unit.c_str(); }
 
 ::Smp::Bool FloatType::IsMinInclusive() const { return _minInclusive; }
 
@@ -151,7 +151,7 @@ IntegerType::IntegerType(::Smp::String8 name, ::Smp::String8 description,
 
 ::Smp::Int64 IntegerType::getMaximum() const { return _maximum; }
 
-::Smp::String8 IntegerType::getUnit() const { return _unit; }
+::Smp::String8 IntegerType::getUnit() const { return _unit.c_str(); }
 
 PrimitiveType::PrimitiveType(::Smp::String8 name, ::Smp::String8 description,
                              ::Xsmp::Publication::TypeRegistry *parent,

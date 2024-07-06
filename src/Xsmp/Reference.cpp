@@ -66,10 +66,10 @@ AbstractReference::AbstractReference(::Smp::String8 name,
                                      ::Smp::Int64 upper)
     : _name(::Xsmp::Helper::checkName(name, parent)), _description(description),
       _parent(parent), _collection(*this), _lower(lower), _upper(upper) {}
-::Smp::String8 AbstractReference::GetName() const { return _name; }
+::Smp::String8 AbstractReference::GetName() const { return _name.c_str(); }
 
 ::Smp::String8 AbstractReference::GetDescription() const {
-  return _description;
+  return _description.c_str();
 }
 
 ::Smp::IObject *AbstractReference::GetParent() const { return _parent; }

@@ -96,16 +96,19 @@ public:
       : _sender(sender), _name(name), _description(description),
         _message(
             Xsmp::Exception::detail::FormatString(std::forward<Args>(args)...)),
-        _whatStr(std::string(_name) + "(" + std::string(_description) +
-                 "): " + std::string(_message)) {}
+        _whatStr(std::string(_name.c_str()) + "(" +
+                 std::string(_description.c_str()) +
+                 "): " + std::string(_message.c_str())) {}
   ~Exception() noexcept override = default;
-  Exception(const Exception &) = delete;
-  Exception &operator=(const Exception &) = delete;
+  Exception(const Exception &) = default;
+  Exception &operator=(const Exception &) = default;
 
-  const ::Smp::Char8 *what() const noexcept final { return _whatStr; }
-  ::Smp::String8 GetName() const noexcept final { return _name; }
-  ::Smp::String8 GetDescription() const noexcept final { return _description; }
-  ::Smp::String8 GetMessage() const noexcept final { return _message; }
+  const ::Smp::Char8 *what() const noexcept final { return _whatStr.c_str(); }
+  ::Smp::String8 GetName() const noexcept final { return _name.c_str(); }
+  ::Smp::String8 GetDescription() const noexcept final {
+    return _description.c_str();
+  }
+  ::Smp::String8 GetMessage() const noexcept final { return _message.c_str(); }
   const ::Smp::IObject *GetSender() const noexcept final { return _sender; }
 
 protected:
@@ -137,8 +140,8 @@ public:
         _source(source), _target(target) {}
 
   ~FieldAlreadyConnected() noexcept override = default;
-  FieldAlreadyConnected(const FieldAlreadyConnected &) = delete;
-  FieldAlreadyConnected &operator=(const FieldAlreadyConnected &) = delete;
+  FieldAlreadyConnected(const FieldAlreadyConnected &) = default;
+  FieldAlreadyConnected &operator=(const FieldAlreadyConnected &) = default;
 
   const ::Smp::IDataflowField *GetSource() const noexcept override {
     return _source;
@@ -165,8 +168,8 @@ public:
         _source(source), _target(target) {}
 
   ~InvalidTarget() noexcept override = default;
-  InvalidTarget(const InvalidTarget &) = delete;
-  InvalidTarget &operator=(const InvalidTarget &) = delete;
+  InvalidTarget(const InvalidTarget &) = default;
+  InvalidTarget &operator=(const InvalidTarget &) = default;
 
   const ::Smp::IDataflowField *GetSource() const noexcept override {
     return _source;
@@ -187,8 +190,8 @@ public:
                   "its data to the storage writer given to the Store() method",
                   msg) {}
   ~CannotStore() noexcept override = default;
-  CannotStore(const CannotStore &) = delete;
-  CannotStore &operator=(const CannotStore &) = delete;
+  CannotStore(const CannotStore &) = default;
+  CannotStore &operator=(const CannotStore &) = default;
 };
 
 class CannotRestore final : public Exception, public ::Smp::CannotRestore {
@@ -199,8 +202,8 @@ public:
                   "reader passed to the Restore() method contains invalid data",
                   msg) {}
   ~CannotRestore() noexcept override = default;
-  CannotRestore(const CannotRestore &) = delete;
-  CannotRestore &operator=(const CannotRestore &) = delete;
+  CannotRestore(const CannotRestore &) = default;
+  CannotRestore &operator=(const CannotRestore &) = default;
 };
 
 class InvalidObjectName final : public Exception,
@@ -215,10 +218,12 @@ public:
 
         _name(nullCheck(name)) {}
   ~InvalidObjectName() noexcept override = default;
-  InvalidObjectName(const InvalidObjectName &) = delete;
-  InvalidObjectName &operator=(const InvalidObjectName &) = delete;
+  InvalidObjectName(const InvalidObjectName &) = default;
+  InvalidObjectName &operator=(const InvalidObjectName &) = default;
 
-  ::Smp::String8 GetInvalidName() const noexcept override { return _name; }
+  ::Smp::String8 GetInvalidName() const noexcept override {
+    return _name.c_str();
+  }
 
 private:
   ::Xsmp::cstring _name;
@@ -235,8 +240,8 @@ public:
 
         _containerSize(sender->GetCount()) {}
   ~ContainerFull() noexcept override = default;
-  ContainerFull(const ContainerFull &) = delete;
-  ContainerFull &operator=(const ContainerFull &) = delete;
+  ContainerFull(const ContainerFull &) = default;
+  ContainerFull &operator=(const ContainerFull &) = default;
 
   ::Smp::String8 GetContainerName() const noexcept override {
     return GetSender()->GetName();
@@ -266,11 +271,11 @@ public:
         _duplicateName(nullCheck(duplicateName)) {}
 
   ~DuplicateName() noexcept override = default;
-  DuplicateName(const DuplicateName &) = delete;
-  DuplicateName &operator=(const DuplicateName &) = delete;
+  DuplicateName(const DuplicateName &) = default;
+  DuplicateName &operator=(const DuplicateName &) = default;
 
   ::Smp::String8 GetDuplicateName() const noexcept override {
-    return _duplicateName;
+    return _duplicateName.c_str();
   }
 
 private:
@@ -289,8 +294,8 @@ public:
 
         _component(component) {}
   ~NotContained() noexcept override = default;
-  NotContained(const NotContained &) = delete;
-  NotContained &operator=(const NotContained &) = delete;
+  NotContained(const NotContained &) = default;
+  NotContained &operator=(const NotContained &) = default;
 
   ::Smp::String8 GetContainerName() const noexcept override {
     return GetSender()->GetName();
@@ -319,8 +324,8 @@ public:
 
         _component(component), _lowerLimit(container->GetLower()) {}
   ~CannotDelete() noexcept override = default;
-  CannotDelete(const CannotDelete &) = delete;
-  CannotDelete &operator=(const CannotDelete &) = delete;
+  CannotDelete(const CannotDelete &) = default;
+  CannotDelete &operator=(const CannotDelete &) = default;
 
   ::Smp::String8 GetContainerName() const noexcept override {
     return GetSender()->GetName();
@@ -352,8 +357,8 @@ public:
 
         _invalidState(invalidState), _expectedState(expectedState) {}
   ~InvalidComponentState() noexcept override = default;
-  InvalidComponentState(const InvalidComponentState &) = delete;
-  InvalidComponentState &operator=(const InvalidComponentState &) = delete;
+  InvalidComponentState(const InvalidComponentState &) = default;
+  InvalidComponentState &operator=(const InvalidComponentState &) = default;
 
   ::Smp::ComponentStateKind GetInvalidState() const noexcept override {
     return _invalidState;
@@ -383,8 +388,8 @@ public:
         _invalidObject(invalidObject) {}
 
   ~InvalidObjectType() noexcept override = default;
-  InvalidObjectType(const InvalidObjectType &) = delete;
-  InvalidObjectType &operator=(const InvalidObjectType &) = delete;
+  InvalidObjectType(const InvalidObjectType &) = default;
+  InvalidObjectType &operator=(const InvalidObjectType &) = default;
 
   ::Smp::IObject *GetInvalidObject() const noexcept override {
     return _invalidObject;
@@ -409,8 +414,8 @@ public:
         _component(component) {}
 
   ~NotReferenced() noexcept override = default;
-  NotReferenced(const NotReferenced &) = delete;
-  NotReferenced &operator=(const NotReferenced &) = delete;
+  NotReferenced(const NotReferenced &) = default;
+  NotReferenced &operator=(const NotReferenced &) = default;
 
   ::Smp::String8 GetReferenceName() const noexcept override {
     return GetSender()->GetName();
@@ -437,8 +442,8 @@ public:
         _referenceSize(referenceSize) {}
 
   ~ReferenceFull() noexcept override = default;
-  ReferenceFull(const ReferenceFull &) = delete;
-  ReferenceFull &operator=(const ReferenceFull &) = delete;
+  ReferenceFull(const ReferenceFull &) = default;
+  ReferenceFull &operator=(const ReferenceFull &) = default;
 
   ::Smp::String8 GetReferenceName() const noexcept override {
     return GetSender()->GetName();
@@ -472,8 +477,8 @@ public:
         _component(component), _lowerLimit(lowerLimit) {}
 
   ~CannotRemove() noexcept override = default;
-  CannotRemove(const CannotRemove &) = delete;
-  CannotRemove &operator=(const CannotRemove &) = delete;
+  CannotRemove(const CannotRemove &) = default;
+  CannotRemove &operator=(const CannotRemove &) = default;
 
   ::Smp::String8 GetReferenceName() const noexcept override {
     return GetSender()->GetName();
@@ -506,8 +511,8 @@ public:
         _eventSource(eventSource), _eventSink(eventSink) {}
 
   ~InvalidEventSink() noexcept override = default;
-  InvalidEventSink(const InvalidEventSink &) = delete;
-  InvalidEventSink &operator=(const InvalidEventSink &) = delete;
+  InvalidEventSink(const InvalidEventSink &) = default;
+  InvalidEventSink &operator=(const InvalidEventSink &) = default;
 
   const ::Smp::IEventSource *GetEventSource() const noexcept override {
     return _eventSource;
@@ -539,9 +544,9 @@ public:
         _eventSource(eventSource), _eventSink(eventSink) {}
 
   ~EventSinkAlreadySubscribed() noexcept override = default;
-  EventSinkAlreadySubscribed(const EventSinkAlreadySubscribed &) = delete;
+  EventSinkAlreadySubscribed(const EventSinkAlreadySubscribed &) = default;
   EventSinkAlreadySubscribed &
-  operator=(const EventSinkAlreadySubscribed &) = delete;
+  operator=(const EventSinkAlreadySubscribed &) = default;
 
   const ::Smp::IEventSource *GetEventSource() const noexcept override {
     return _eventSource;
@@ -571,8 +576,8 @@ public:
         _eventSource(eventSource), _eventSink(eventSink) {}
 
   ~EventSinkNotSubscribed() noexcept override = default;
-  EventSinkNotSubscribed(const EventSinkNotSubscribed &) = delete;
-  EventSinkNotSubscribed &operator=(const EventSinkNotSubscribed &) = delete;
+  EventSinkNotSubscribed(const EventSinkNotSubscribed &) = default;
+  EventSinkNotSubscribed &operator=(const EventSinkNotSubscribed &) = default;
 
   const ::Smp::IEventSource *GetEventSource() const noexcept override {
     return _eventSource;
@@ -604,11 +609,11 @@ public:
         _operationName(nullCheck(operationName)) {}
 
   ~InvalidOperationName() noexcept override = default;
-  InvalidOperationName(const InvalidOperationName &) = delete;
-  InvalidOperationName &operator=(const InvalidOperationName &) = delete;
+  InvalidOperationName(const InvalidOperationName &) = default;
+  InvalidOperationName &operator=(const InvalidOperationName &) = default;
 
   ::Smp::String8 GetOperationName() const noexcept override {
-    return _operationName;
+    return _operationName.c_str();
   }
 
 private:
@@ -631,8 +636,8 @@ public:
             static_cast<::Smp::Int32>(sender->GetParameters()->size())),
         _requestedNbParameters(requestedNbParameters) {}
   ~InvalidParameterCount() noexcept override = default;
-  InvalidParameterCount(const InvalidParameterCount &) = delete;
-  InvalidParameterCount &operator=(const InvalidParameterCount &) = delete;
+  InvalidParameterCount(const InvalidParameterCount &) = default;
+  InvalidParameterCount &operator=(const InvalidParameterCount &) = default;
 
   ::Smp::String8 GetOperationName() const noexcept override {
     return GetSender()->GetName();
@@ -669,15 +674,15 @@ public:
         _operationName(operationName), _parameterName(parameterName),
         _invalidType(invalidType), _expectedType(expectedType) {}
   ~InvalidParameterType() noexcept override = default;
-  InvalidParameterType(const InvalidParameterType &) = delete;
-  InvalidParameterType &operator=(const InvalidParameterType &) = delete;
+  InvalidParameterType(const InvalidParameterType &) = default;
+  InvalidParameterType &operator=(const InvalidParameterType &) = default;
 
   ::Smp::String8 GetOperationName() const noexcept override {
-    return _operationName;
+    return _operationName.c_str();
   }
 
   ::Smp::String8 GetParameterName() const noexcept override {
-    return _parameterName;
+    return _parameterName.c_str();
   }
 
   ::Smp::PrimitiveTypeKind GetInvalidType() const noexcept override {
@@ -709,8 +714,8 @@ public:
 
         _arraySize(arraySize), _invalidIndex(invalidIndex) {}
   ~InvalidArrayIndex() noexcept override = default;
-  InvalidArrayIndex(const InvalidArrayIndex &) = delete;
-  InvalidArrayIndex &operator=(const InvalidArrayIndex &) = delete;
+  InvalidArrayIndex(const InvalidArrayIndex &) = default;
+  InvalidArrayIndex &operator=(const InvalidArrayIndex &) = default;
 
   ::Smp::Int64 GetInvalidIndex() const noexcept override {
     return _invalidIndex;
@@ -737,8 +742,8 @@ public:
 
         _invalidFieldValue(invalidFieldValue) {}
   ~InvalidFieldValue() noexcept override = default;
-  InvalidFieldValue(const InvalidFieldValue &) = delete;
-  InvalidFieldValue &operator=(const InvalidFieldValue &) = delete;
+  InvalidFieldValue(const InvalidFieldValue &) = default;
+  InvalidFieldValue &operator=(const InvalidFieldValue &) = default;
 
   ::Smp::AnySimple GetInvalidFieldValue() const noexcept override {
     return _invalidFieldValue;
@@ -763,8 +768,8 @@ public:
 
         _index(index), _invalidValue(invalidValue) {}
   ~InvalidArrayValue() noexcept override = default;
-  InvalidArrayValue(const InvalidArrayValue &) = delete;
-  InvalidArrayValue &operator=(const InvalidArrayValue &) = delete;
+  InvalidArrayValue(const InvalidArrayValue &) = default;
+  InvalidArrayValue &operator=(const InvalidArrayValue &) = default;
 
   ::Smp::Int64 GetInvalidValueIndex() const noexcept override { return _index; }
   ::Smp::AnySimple GetInvalidValue() const noexcept override {
@@ -791,8 +796,8 @@ public:
         _arraySize(static_cast<::Smp::Int64>(sender->GetSize())),
         _invalidSize(invalidSize) {}
   ~InvalidArraySize() noexcept override = default;
-  InvalidArraySize(const InvalidArraySize &) = delete;
-  InvalidArraySize &operator=(const InvalidArraySize &) = delete;
+  InvalidArraySize(const InvalidArraySize &) = default;
+  InvalidArraySize &operator=(const InvalidArraySize &) = default;
 
   ::Smp::Int64 GetArraySize() const noexcept override { return _arraySize; }
   ::Smp::Int64 GetInvalidSize() const noexcept override { return _invalidSize; }
@@ -813,8 +818,8 @@ public:
             "event manager when an empty event name has been provided",
             "The Event Name '", nullCheck(eventName), "' is invalid.") {}
   ~InvalidEventName() noexcept override = default;
-  InvalidEventName(const InvalidEventName &) = delete;
-  InvalidEventName &operator=(const InvalidEventName &) = delete;
+  InvalidEventName(const InvalidEventName &) = default;
+  InvalidEventName &operator=(const InvalidEventName &) = default;
 };
 
 class InvalidEventId final : public Exception,
@@ -834,8 +839,8 @@ public:
 
         _eventId(eventId) {}
   ~InvalidEventId() noexcept override = default;
-  InvalidEventId(const InvalidEventId &) = delete;
-  InvalidEventId &operator=(const InvalidEventId &) = delete;
+  InvalidEventId(const InvalidEventId &) = default;
+  InvalidEventId &operator=(const InvalidEventId &) = default;
 
   ::Smp::Services::EventId GetInvalidEventId() const noexcept override {
     return _eventId;
@@ -857,8 +862,8 @@ public:
                   "The cycle time '", cycleTime, "' is not a positive value.") {
   }
   ~InvalidCycleTime() noexcept override = default;
-  InvalidCycleTime(const InvalidCycleTime &) = delete;
-  InvalidCycleTime &operator=(const InvalidCycleTime &) = delete;
+  InvalidCycleTime(const InvalidCycleTime &) = default;
+  InvalidCycleTime &operator=(const InvalidCycleTime &) = default;
 };
 
 class InvalidEventTime final : public Exception,
@@ -873,8 +878,8 @@ public:
                   "The event time '", eventTime,
                   "' is before the current time '", currentTime, "'.") {}
   ~InvalidEventTime() noexcept override = default;
-  InvalidEventTime(const InvalidEventTime &) = delete;
-  InvalidEventTime &operator=(const InvalidEventTime &) = delete;
+  InvalidEventTime(const InvalidEventTime &) = default;
+  InvalidEventTime &operator=(const InvalidEventTime &) = default;
 };
 class EntryPointNotSubscribed final
     : public Exception,
@@ -892,14 +897,16 @@ public:
 
         _entryPoint(entryPoint), _eventName(eventName) {}
   ~EntryPointNotSubscribed() noexcept override = default;
-  EntryPointNotSubscribed(const EntryPointNotSubscribed &) = delete;
-  EntryPointNotSubscribed &operator=(const EntryPointNotSubscribed &) = delete;
+  EntryPointNotSubscribed(const EntryPointNotSubscribed &) = default;
+  EntryPointNotSubscribed &operator=(const EntryPointNotSubscribed &) = default;
 
   const ::Smp::IEntryPoint *GetEntryPoint() const noexcept override {
     return _entryPoint;
   }
 
-  ::Smp::String8 GetEventName() const noexcept override { return _eventName; }
+  ::Smp::String8 GetEventName() const noexcept override {
+    return _eventName.c_str();
+  }
 
 private:
   const ::Smp::IEntryPoint *_entryPoint;
@@ -922,15 +929,17 @@ public:
 
         _entryPoint(entryPoint), _eventName(eventName) {}
   ~EntryPointAlreadySubscribed() noexcept override = default;
-  EntryPointAlreadySubscribed(const EntryPointAlreadySubscribed &) = delete;
+  EntryPointAlreadySubscribed(const EntryPointAlreadySubscribed &) = default;
   EntryPointAlreadySubscribed &
-  operator=(const EntryPointAlreadySubscribed &) = delete;
+  operator=(const EntryPointAlreadySubscribed &) = default;
 
   const ::Smp::IEntryPoint *GetEntryPoint() const noexcept override {
     return _entryPoint;
   }
 
-  ::Smp::String8 GetEventName() const noexcept override { return _eventName; }
+  ::Smp::String8 GetEventName() const noexcept override {
+    return _eventName.c_str();
+  }
 
 private:
   const ::Smp::IEntryPoint *_entryPoint;
@@ -949,10 +958,12 @@ public:
 
         _fieldName(nullCheck(name)) {}
   ~InvalidFieldName() noexcept override = default;
-  InvalidFieldName(const InvalidFieldName &) = delete;
-  InvalidFieldName &operator=(const InvalidFieldName &) = delete;
+  InvalidFieldName(const InvalidFieldName &) = default;
+  InvalidFieldName &operator=(const InvalidFieldName &) = default;
 
-  ::Smp::String8 GetFieldName() const noexcept override { return _fieldName; }
+  ::Smp::String8 GetFieldName() const noexcept override {
+    return _fieldName.c_str();
+  }
 
 private:
   ::Xsmp::cstring _fieldName;
@@ -969,8 +980,8 @@ public:
 
         _uuid(uuid) {}
   ~TypeNotRegistered() noexcept override = default;
-  TypeNotRegistered(const TypeNotRegistered &) = delete;
-  TypeNotRegistered &operator=(const TypeNotRegistered &) = delete;
+  TypeNotRegistered(const TypeNotRegistered &) = default;
+  TypeNotRegistered &operator=(const TypeNotRegistered &) = default;
 
   ::Smp::Uuid GetUuid() const noexcept override { return _uuid; }
 
@@ -995,8 +1006,8 @@ public:
 
         _parameterIndex(parameterIndex), _parameterCount(parameterCount) {}
   ~InvalidParameterIndex() noexcept override = default;
-  InvalidParameterIndex(const InvalidParameterIndex &) = delete;
-  InvalidParameterIndex &operator=(const InvalidParameterIndex &) = delete;
+  InvalidParameterIndex(const InvalidParameterIndex &) = default;
+  InvalidParameterIndex &operator=(const InvalidParameterIndex &) = default;
 
   ::Smp::String8 GetOperationName() const noexcept override {
     return GetSender()->GetName();
@@ -1022,8 +1033,8 @@ public:
                   "The Operation '", sender, "' does not have a return value") {
   }
   ~VoidOperation() noexcept override = default;
-  VoidOperation(const VoidOperation &) = delete;
-  VoidOperation &operator=(const VoidOperation &) = delete;
+  VoidOperation(const VoidOperation &) = default;
+  VoidOperation &operator=(const VoidOperation &) = default;
 
   ::Smp::String8 GetOperationName() const noexcept override {
     return GetSender()->GetName();
@@ -1043,8 +1054,8 @@ public:
 
         _expectedType(expectedType), _invalidType(invalidType) {}
   ~InvalidAnyType() noexcept override = default;
-  InvalidAnyType(const InvalidAnyType &) = delete;
-  InvalidAnyType &operator=(const InvalidAnyType &) = delete;
+  InvalidAnyType(const InvalidAnyType &) = default;
+  InvalidAnyType &operator=(const InvalidAnyType &) = default;
 
   ::Smp::PrimitiveTypeKind GetInvalidType() const noexcept override {
     return _invalidType;
@@ -1071,8 +1082,8 @@ public:
                   sender, "'."),
         _value(value) {}
   ~InvalidReturnValue() noexcept override = default;
-  InvalidReturnValue(const InvalidReturnValue &) = delete;
-  InvalidReturnValue &operator=(const InvalidReturnValue &) = delete;
+  InvalidReturnValue(const InvalidReturnValue &) = default;
+  InvalidReturnValue &operator=(const InvalidReturnValue &) = default;
 
   ::Smp::String8 GetOperationName() const noexcept override {
     return GetSender()->GetName();
@@ -1098,11 +1109,11 @@ public:
 
         _parameterName(parameterName), _value(value) {}
   ~InvalidParameterValue() noexcept override = default;
-  InvalidParameterValue(const InvalidParameterValue &) = delete;
-  InvalidParameterValue &operator=(const InvalidParameterValue &) = delete;
+  InvalidParameterValue(const InvalidParameterValue &) = default;
+  InvalidParameterValue &operator=(const InvalidParameterValue &) = default;
 
   ::Smp::String8 GetParameterName() const noexcept override {
-    return _parameterName;
+    return _parameterName.c_str();
   }
   ::Smp::AnySimple GetValue() const noexcept override { return _value; }
 
@@ -1130,8 +1141,8 @@ public:
                   "The type '", type ? type->GetName() : "nullptr",
                   "' is invalid for field '", sender, "'.") {}
   ~InvalidFieldType() noexcept override = default;
-  InvalidFieldType(const InvalidFieldType &) = delete;
-  InvalidFieldType &operator=(const InvalidFieldType &) = delete;
+  InvalidFieldType(const InvalidFieldType &) = default;
+  InvalidFieldType &operator=(const InvalidFieldType &) = default;
 };
 
 class DuplicateUuid final : public Exception, public ::Smp::DuplicateUuid {
@@ -1148,14 +1159,16 @@ public:
 
         _oldFactory(oldFactory), _newName(nullCheck(newName)) {}
   ~DuplicateUuid() noexcept override = default;
-  DuplicateUuid(const DuplicateUuid &) = delete;
-  DuplicateUuid &operator=(const DuplicateUuid &) = delete;
+  DuplicateUuid(const DuplicateUuid &) = default;
+  DuplicateUuid &operator=(const DuplicateUuid &) = default;
 
   ::Smp::String8 GetOldName() const noexcept override {
     return _oldFactory->GetName();
   }
 
-  ::Smp::String8 GetNewName() const noexcept override { return _newName; }
+  ::Smp::String8 GetNewName() const noexcept override {
+    return _newName.c_str();
+  }
 
 private:
   const ::Smp::IFactory *_oldFactory;
@@ -1171,11 +1184,11 @@ public:
 
         _libraryName(nullCheck(libraryName)) {}
   ~LibraryNotFound() noexcept override = default;
-  LibraryNotFound(const LibraryNotFound &) = delete;
-  LibraryNotFound &operator=(const LibraryNotFound &) = delete;
+  LibraryNotFound(const LibraryNotFound &) = default;
+  LibraryNotFound &operator=(const LibraryNotFound &) = default;
 
   ::Smp::String8 GetLibraryName() const noexcept override {
-    return _libraryName;
+    return _libraryName.c_str();
   }
 
 private:
@@ -1190,11 +1203,11 @@ public:
                   "Cannot load an undefined symbol from a library", msg),
         _libraryName(nullCheck(libraryName)) {}
   ~InvalidLibrary() noexcept override = default;
-  InvalidLibrary(const InvalidLibrary &) = delete;
-  InvalidLibrary &operator=(const InvalidLibrary &) = delete;
+  InvalidLibrary(const InvalidLibrary &) = default;
+  InvalidLibrary &operator=(const InvalidLibrary &) = default;
 
   ::Smp::String8 GetLibraryName() const noexcept override {
-    return _libraryName;
+    return _libraryName.c_str();
   }
 
 private:
@@ -1217,8 +1230,8 @@ public:
 
         _current(current), _provided(provided), _max(max) {}
   ~InvalidSimulationTime() noexcept override = default;
-  InvalidSimulationTime(const InvalidSimulationTime &) = delete;
-  InvalidSimulationTime &operator=(const InvalidSimulationTime &) = delete;
+  InvalidSimulationTime(const InvalidSimulationTime &) = default;
+  InvalidSimulationTime &operator=(const InvalidSimulationTime &) = default;
 
   ::Smp::Duration GetCurrentTime() const noexcept override { return _current; }
 
@@ -1248,10 +1261,12 @@ public:
 
         _typeName(nullCheck(typeName)), _type(type) {}
   ~TypeAlreadyRegistered() noexcept override = default;
-  TypeAlreadyRegistered(const TypeAlreadyRegistered &) = delete;
-  TypeAlreadyRegistered &operator=(const TypeAlreadyRegistered &) = delete;
+  TypeAlreadyRegistered(const TypeAlreadyRegistered &) = default;
+  TypeAlreadyRegistered &operator=(const TypeAlreadyRegistered &) = default;
 
-  ::Smp::String8 GetTypeName() const noexcept override { return _typeName; }
+  ::Smp::String8 GetTypeName() const noexcept override {
+    return _typeName.c_str();
+  }
 
   const ::Smp::Publication::IType *GetType() const noexcept override {
     return _type;
@@ -1275,11 +1290,11 @@ public:
 
         _literalName(nullCheck(literalName)), _literalValue(literalValue) {}
   ~DuplicateLiteral() noexcept override = default;
-  DuplicateLiteral(const DuplicateLiteral &) = delete;
-  DuplicateLiteral &operator=(const DuplicateLiteral &) = delete;
+  DuplicateLiteral(const DuplicateLiteral &) = default;
+  DuplicateLiteral &operator=(const DuplicateLiteral &) = default;
 
   ::Smp::String8 GetLiteralName() const noexcept override {
-    return _literalName;
+    return _literalName.c_str();
   }
 
   /// Get the value of the literal that has been used before.
@@ -1308,10 +1323,12 @@ public:
 
         _typeName(nullCheck(typeName)), _type(type) {}
   ~InvalidPrimitiveType() noexcept override = default;
-  InvalidPrimitiveType(const InvalidPrimitiveType &) = delete;
-  InvalidPrimitiveType &operator=(const InvalidPrimitiveType &) = delete;
+  InvalidPrimitiveType(const InvalidPrimitiveType &) = default;
+  InvalidPrimitiveType &operator=(const InvalidPrimitiveType &) = default;
 
-  ::Smp::String8 GetTypeName() const noexcept override { return _typeName; }
+  ::Smp::String8 GetTypeName() const noexcept override {
+    return _typeName.c_str();
+  }
 
   ::Smp::PrimitiveTypeKind GetType() const noexcept override { return _type; }
 
@@ -1332,8 +1349,8 @@ public:
                   state, "' state."),
         _state(state) {}
   ~InvalidSimulatorState() noexcept override = default;
-  InvalidSimulatorState(const InvalidSimulatorState &) = delete;
-  InvalidSimulatorState &operator=(const InvalidSimulatorState &) = delete;
+  InvalidSimulatorState(const InvalidSimulatorState &) = default;
+  InvalidSimulatorState &operator=(const InvalidSimulatorState &) = default;
 
   ::Smp::SimulatorStateKind GetInvalidState() const noexcept override {
     return _state;

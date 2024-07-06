@@ -149,9 +149,9 @@ Simulator::~Simulator() {
     _libraries.pop_back();
   }
 }
-::Smp::String8 Simulator::GetName() const { return _name; }
+::Smp::String8 Simulator::GetName() const { return _name.c_str(); }
 
-::Smp::String8 Simulator::GetDescription() const { return _description; }
+::Smp::String8 Simulator::GetDescription() const { return _description.c_str(); }
 
 ::Smp::IObject *Simulator::GetParent() const { return nullptr; }
 

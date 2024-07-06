@@ -138,9 +138,9 @@ Property::Property(::Smp::String8 name, ::Smp::String8 description,
                    ::Smp::AccessKind accessKind, ::Smp::ViewKind view)
     : _name(::Xsmp::Helper::checkName(name, parent)), _description(description),
       _parent(parent), _type(type), _accessKind(accessKind), _view(view) {}
-::Smp::String8 Property::GetName() const { return _name; }
+::Smp::String8 Property::GetName() const { return _name.c_str(); }
 
-::Smp::String8 Property::GetDescription() const { return _description; }
+::Smp::String8 Property::GetDescription() const { return _description.c_str(); }
 
 ::Smp::IObject *Property::GetParent() const { return _parent; }
 ::Smp::Publication::IType *Property::GetType() const { return _type; }

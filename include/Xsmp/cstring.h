@@ -16,27 +16,31 @@
 #define XSMP_CSTRING_H_
 
 #include <cstddef>
-#include <memory>
 #include <string_view>
 
 namespace Xsmp {
 
-/// A simple holder for C String (const char*) with zero memory overhead
-/// The typical implementation of std::string is 32 bytes
+/// A lightweight holder for C String (const char*) with zero memory overhead (8
+/// bytes).
+/// With a typical implementation of std::string (32 bytes), it saves 24 bytes.
 /// The input string is duplicated on creation and deleted when the wrapper is
 /// deleted
 struct cstring {
   cstring(const char *value, std::size_t size);
   cstring(const char *value);
   explicit cstring(std::string_view value);
-  cstring(cstring &&) = default;
-  cstring(const cstring &) = delete;
-  cstring &operator=(cstring &&) = default;
-  cstring &operator=(const cstring &) = delete;
-  operator const char *() const noexcept;
+  cstring(cstring &&) noexcept;
+  cstring &operator=(cstring &&) noexcept;
+  cstring(const cstring &);
+  cstring &operator=(const cstring &);
+  cstring &operator=(const char *value);
+  ~cstring();
+
+  inline const char *c_str() const noexcept { return _value; }
 
 private:
-  std::unique_ptr<char[]> _value;
+  void assign(const char *value, std::size_t size);
+  char *_value;
 };
 
 } // namespace Xsmp

@@ -34,10 +34,10 @@ AbstractEventSink::AbstractEventSink(::Smp::String8 name,
                                      ::Smp::IObject *parent)
     : _name(::Xsmp::Helper::checkName(name, parent)), _description(description),
       _parent(parent) {}
-::Smp::String8 AbstractEventSink::GetName() const { return _name; }
+::Smp::String8 AbstractEventSink::GetName() const { return _name.c_str(); }
 
 ::Smp::String8 AbstractEventSink::GetDescription() const {
-  return _description;
+  return _description.c_str();
 }
 
 ::Smp::IObject *AbstractEventSink::GetParent() const { return _parent; }

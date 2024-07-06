@@ -64,9 +64,9 @@ void StorageReader::Restore(void *address, ::Smp::UInt64 size) {
 }
 
 ::Smp::String8 StorageReader::GetStateVectorFileName() const {
-  return _filename;
+  return _filename.c_str();
 }
 
-::Smp::String8 StorageReader::GetStateVectorFilePath() const { return _path; }
+::Smp::String8 StorageReader::GetStateVectorFilePath() const { return _path.c_str(); }
 
 } // namespace Xsmp

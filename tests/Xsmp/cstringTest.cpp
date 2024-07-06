@@ -12,22 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <Smp/IObject.h>
-#include <Smp/PrimitiveTypes.h>
-#include <Xsmp/Helper.h>
-#include <Xsmp/Object.h>
+#include <Xsmp/cstring.h>
+#include <gtest/gtest.h>
+#include <string>
 
+using namespace std::literals;
 namespace Xsmp {
 
-Object::Object(::Smp::String8 name, ::Smp::String8 description,
-               ::Smp::IObject *parent)
-    : _name(::Xsmp::Helper::checkName(name, parent)), _description(description),
-      _parent(parent) {}
+TEST(cstringTest, Constructor) {
 
-::Smp::String8 Object::GetName() const { return _name.c_str(); }
+  cstring s = "aaa";
+  EXPECT_STREQ("aaa", s.c_str());
 
-::Smp::String8 Object::GetDescription() const { return _description.c_str(); }
+  auto s2 = std::move(s);
 
-::Smp::IObject *Object::GetParent() const { return _parent; }
+  EXPECT_EQ(nullptr, s.c_str());
+  EXPECT_STREQ("aaa", s2.c_str());
+  auto s3{s2};
+
+  EXPECT_STREQ("aaa", s2.c_str());
+  EXPECT_STREQ("aaa", s3.c_str());
+  s2 = "bbb";
+
+  EXPECT_STREQ("bbb", s2.c_str());
+  EXPECT_STREQ("aaa", s3.c_str());
+
+  s3 = s2;
+  EXPECT_STREQ("bbb", s2.c_str());
+  EXPECT_STREQ("bbb", s3.c_str());
+}
 
 } // namespace Xsmp

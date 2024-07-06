@@ -43,9 +43,11 @@ AbstractField::AbstractField(::Smp::String8 name, ::Smp::String8 description,
     structure->AddField(*this);
   }
 }
-::Smp::String8 AbstractField::GetName() const { return _name; }
+::Smp::String8 AbstractField::GetName() const { return _name.c_str(); }
 
-::Smp::String8 AbstractField::GetDescription() const { return _description; }
+::Smp::String8 AbstractField::GetDescription() const {
+  return _description.c_str();
+}
 
 ::Smp::IObject *AbstractField::GetParent() const { return _parent; }
 Smp::ViewKind AbstractField::GetView() const { return _view; }

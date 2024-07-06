@@ -40,10 +40,10 @@ Operation::Parameter::Parameter(
     ::Smp::Publication::ParameterDirectionKind direction)
     : _name(::Xsmp::Helper::checkName(name, parent)), _description(description),
       _parent(parent), _type(type), _direction(direction) {}
-::Smp::String8 Operation::Parameter::GetName() const { return _name; }
+::Smp::String8 Operation::Parameter::GetName() const { return _name.c_str(); }
 
 ::Smp::String8 Operation::Parameter::GetDescription() const {
-  return _description;
+  return _description.c_str();
 }
 
 ::Smp::IObject *Operation::Parameter::GetParent() const { return _parent; }
@@ -62,9 +62,9 @@ Operation::Operation(::Smp::String8 name, ::Smp::String8 description,
     : _name(::Xsmp::Helper::checkName(name, parent)), _description(description),
       _parent(parent), _parameters{"Parameters", "", parent},
       _typeRegistry{typeRegistry}, _view(view) {}
-::Smp::String8 Operation::GetName() const { return _name; }
+::Smp::String8 Operation::GetName() const { return _name.c_str(); }
 
-::Smp::String8 Operation::GetDescription() const { return _description; }
+::Smp::String8 Operation::GetDescription() const { return _description.c_str(); }
 
 ::Smp::IObject *Operation::GetParent() const { return _parent; }
 void Operation::PublishParameter(

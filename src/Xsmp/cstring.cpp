@@ -17,14 +17,39 @@
 
 namespace Xsmp {
 
-cstring::cstring(const char *value, std::size_t size)
-    : _value{std::make_unique<char[]>(size + 1)} {
-  std::memcpy(_value.get(), value, size);
-  _value.get()[size] = '\0';
+cstring::cstring(const char *value, std::size_t size) { assign(value, size); }
+cstring::cstring(const char *value) { assign(value, std::strlen(value)); }
+cstring::cstring(std::string_view value) { assign(value.data(), value.size()); }
+cstring::cstring(const cstring &other) {
+  const auto *str = other.c_str();
+  assign(str, strlen(str));
 }
-cstring::cstring(const char *value) : cstring(value, std::strlen(value)) {}
-cstring::cstring(std::string_view value)
-    : cstring(value.data(), value.size()) {}
+cstring &cstring::operator=(const cstring &other) {
+  delete[] _value;
+  const auto *str = other.c_str();
+  assign(str, strlen(str));
+  return *this;
+}
 
-cstring::operator const char *() const noexcept { return _value.get(); }
+cstring &cstring::operator=(const char *value) {
+  delete[] _value;
+  assign(value, strlen(value));
+  return *this;
+}
+void cstring::assign(const char *value, std::size_t size) {
+  _value = new char[size + 1];
+  std::char_traits<char>::copy(_value, value, size);
+  _value[size] = '\0';
+}
+cstring::~cstring() { delete[] _value; }
+
+cstring::cstring(cstring &&other) noexcept : _value{other._value} {
+  other._value = nullptr;
+}
+cstring &cstring::operator=(cstring &&other) noexcept {
+  delete[] _value;
+  _value = other._value;
+  other._value = nullptr;
+  return *this;
+}
 } // namespace Xsmp

@@ -110,7 +110,7 @@ void Request::init(const std::string &name,
   else if (const auto *structure = dynamic_cast<const StructureType *>(type)) {
     for (const auto &field : structure->GetFields()) {
       if (auto const *fieldType = typeRegistry->GetType(field.uuid)) {
-        init(name + "." + std::string(field.name), fieldType, typeRegistry);
+        init(name + "." + std::string(field.name.c_str()), fieldType, typeRegistry);
       } else {
         ::Xsmp::Exception::throwTypeNotRegistered(_operation, field.uuid);
       }

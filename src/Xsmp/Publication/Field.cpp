@@ -72,8 +72,8 @@ Field::Field(::Smp::String8 name, ::Smp::String8 description,
       _parent(parent), _address(nullptr), _type(nullptr), _view(view),
       _state(state), _input(false), _output(false) {}
 
-::Smp::String8 Field::GetName() const { return _name; }
-::Smp::String8 Field::GetDescription() const { return _description; }
+::Smp::String8 Field::GetName() const { return _name.c_str(); }
+::Smp::String8 Field::GetDescription() const { return _description.c_str(); }
 ::Smp::IObject *Field::GetParent() const { return _parent; }
 ::Smp::ViewKind Field::GetView() const { return _view; }
 ::Smp::Bool Field::IsState() const { return _state; }
@@ -794,7 +794,7 @@ StructureField::StructureField(::Smp::String8 name, ::Smp::String8 description,
       _fields{"Fields", "", this} {
   for (const auto &field : type->GetFields()) {
     if (auto const *fieldType = type->GetTypeRegistry()->GetType(field.uuid)) {
-      _fields.Add(Create(field.name, field.description, this,
+      _fields.Add(Create(field.name.c_str(), field.description.c_str(), this,
                          static_cast<char *>(address) + field.offset, fieldType,
                          field.view, field.state, field.input || input,
                          field.output || output));

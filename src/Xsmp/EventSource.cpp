@@ -36,10 +36,10 @@ AbstractEventSource::AbstractEventSource(::Smp::String8 name,
                                          ::Smp::PrimitiveTypeKind eventArgType)
     : _name(::Xsmp::Helper::checkName(name, parent)), _description(description),
       _parent(parent), _eventArgType{eventArgType} {}
-::Smp::String8 AbstractEventSource::GetName() const { return _name; }
+::Smp::String8 AbstractEventSource::GetName() const { return _name.c_str(); }
 
 ::Smp::String8 AbstractEventSource::GetDescription() const {
-  return _description;
+  return _description.c_str();
 }
 
 ::Smp::IObject *AbstractEventSource::GetParent() const { return _parent; }
