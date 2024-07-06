@@ -26,9 +26,9 @@
 #include <Smp/ViewKind.h>
 #include <Xsmp/Collection.h>
 #include <Xsmp/Publication/Publication.h>
+#include <Xsmp/cstring.h>
 #include <memory>
 #include <set>
-#include <Xsmp/cstring.h>
 #include <vector>
 
 namespace Smp {
@@ -260,19 +260,14 @@ public:
               ::Smp::IObject *parent, void *address,
               const ::Smp::Publication::IType *type, ::Smp::ViewKind view,
               ::Smp::Bool state, ::Smp::Bool input, ::Smp::Bool output);
-
   void Restore(::Smp::IStorageReader *reader) final;
-
   void Store(::Smp::IStorageWriter *writer) final;
-
   ::Smp::PrimitiveTypeKind GetPrimitiveTypeKind() const final;
-
   ::Smp::AnySimple GetValue() const final;
-
   void SetValue(::Smp::AnySimple value) final;
 
 private:
-  ::Smp::Int64 GetSize() const;
+  ::Smp::UInt64 GetSize() const;
 };
 
 class SimpleDataflowField final : public SimpleField, public DataflowField {

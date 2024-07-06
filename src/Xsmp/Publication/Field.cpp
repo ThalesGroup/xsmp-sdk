@@ -637,17 +637,17 @@ SimpleField::SimpleField(::Smp::String8 name, ::Smp::String8 description,
 }
 void SimpleField::Restore(::Smp::IStorageReader *reader) {
   if (IsState()) {
-    reader->Restore(GetAddress(), static_cast<::Smp::UInt64>(GetSize()));
+    reader->Restore(GetAddress(), GetSize());
   }
 }
 
 void SimpleField::Store(::Smp::IStorageWriter *writer) {
   if (IsState()) {
-    writer->Store(GetAddress(), static_cast<::Smp::UInt64>(GetSize()));
+    writer->Store(GetAddress(), GetSize());
   }
 }
 
-::Smp::Int64 SimpleField::GetSize() const {
+::Smp::UInt64 SimpleField::GetSize() const {
   auto kind = GetPrimitiveTypeKind();
   switch (kind) {
   case ::Smp::PrimitiveTypeKind::PTK_Bool:
