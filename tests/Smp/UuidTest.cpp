@@ -52,10 +52,10 @@ TEST(UuidTest, constructor) {
 
 TEST(UuidTest, operators) {
 
-  Uuid uuid1{uuid1_str};
-  Uuid uuid1b{uuid1_str};
-  Uuid uuid2{uuid2_str};
-  Uuid uuid3{uuid3_str};
+  const Uuid uuid1{uuid1_str};
+  const Uuid uuid1b{uuid1_str};
+  const Uuid uuid2{uuid2_str};
+  const Uuid uuid3{uuid3_str};
 
   EXPECT_TRUE(uuid1 == uuid1);
   EXPECT_TRUE(uuid1 == uuid1b);
@@ -110,7 +110,7 @@ TEST(UuidTest, hash) {
   const Uuid uuid1b{uuid1_str};
   const Uuid uuid2{uuid2_str};
   const Uuid uuid3{uuid3_str};
-  std::hash<Uuid> hash;
+  const std::hash<Uuid> hash;
   EXPECT_EQ(hash(uuid1), hash(uuid1b));
   EXPECT_NE(hash(uuid1), hash(uuid2));
   EXPECT_NE(hash(uuid1), hash(uuid3));

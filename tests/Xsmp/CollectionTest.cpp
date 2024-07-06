@@ -18,7 +18,6 @@
 #include <Xsmp/Collection.h>
 #include <cstddef>
 #include <gtest/gtest.h>
-#include <type_traits>
 
 namespace Xsmp {
 

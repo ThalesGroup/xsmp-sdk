@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include <Smp/CannotRemove.h>
-#include <Smp/CollectionIterator.h>
 #include <Smp/InvalidObjectType.h>
 #include <Smp/NotReferenced.h>
 #include <Smp/ReferenceFull.h>
@@ -22,7 +21,6 @@
 #include <Xsmp/Reference.h>
 #include <cstddef>
 #include <gtest/gtest.h>
-#include <type_traits>
 
 namespace Xsmp {
 

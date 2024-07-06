@@ -15,11 +15,11 @@
 #include <Smp/ComponentStateKind.h>
 #include <Smp/InvalidComponentState.h>
 #include <Smp/InvalidOperationName.h>
+#include <Smp/ViewKind.h>
 #include <Xsmp/Component.h>
 #include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Publication/TypeRegistry.h>
 #include <gtest/gtest.h>
-#include <type_traits>
 
 namespace Xsmp {
 

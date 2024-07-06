@@ -26,7 +26,7 @@ project(xsmp-sdk
 
 message(STATUS "xsmp-sdk v${xsmp-sdk_VERSION} ${xsmp-sdk_VERSION_TYPE}")
 
-
+#set(CMAKE_CXX_CLANG_TIDY clang-tidy)
 
 if( CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR )
     set(XSMP_MASTER_PROJECT ON)

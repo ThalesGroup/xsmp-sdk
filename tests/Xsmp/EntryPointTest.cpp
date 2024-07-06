@@ -33,7 +33,7 @@ TEST(EntryPointTest, auto_register) {
 
   int i = 0;
   auto cb = [&i]() { i++; };
-  EntryPoint ep{"ep", "desc", &c, cb};
+  const EntryPoint ep{"ep", "desc", &c, cb};
 
   EXPECT_EQ(1, c.GetEntryPoints()->size());
   EXPECT_EQ(&ep, c.GetEntryPoint("ep"));

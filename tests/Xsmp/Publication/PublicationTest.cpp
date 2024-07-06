@@ -43,16 +43,14 @@
 #include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Publication/TypeRegistry.h>
 #include <gtest/gtest.h>
-#include <type_traits>
 
-namespace Xsmp {
-namespace Publication {
+namespace Xsmp::Publication {
 TEST(PublicationTest, init) {
   TypeRegistry registry;
 
   Component component{"component"};
 
-  Publication publication{&component, &registry};
+  const Publication publication{&component, &registry};
 
   EXPECT_EQ(publication.GetTypeRegistry(), &registry);
   EXPECT_TRUE(publication.GetOperations());
@@ -72,7 +70,7 @@ TEST(PublicationTest, PublishField) {
       registry.AddEnumerationType("Enum", "", EnumUuid, sizeof(Smp::Int32));
   EnumType->AddLiteral("L1", "", 0);
   EnumType->AddLiteral("L2", "", 1);
-  Smp::Int32 Enum;
+  Smp::Int32 Enum = 0;
   publication.PublishField("stateEnumField", "Enum description", &Enum,
                            EnumUuid, Smp::ViewKind::VK_All, true, false, false);
   auto *stateEnumField =
@@ -101,15 +99,14 @@ TEST(PublicationTest, PublishString8Field) {
   TypeRegistry registry;
   Component component{"component"};
   Publication publication{&component, &registry};
-  Smp::String8 string8;
+  Smp::String8 string8 = "";
   EXPECT_THROW(publication.PublishField("string8", "string8 description",
                                         &string8, ::Smp::Uuids::Uuid_String8,
                                         Smp::ViewKind::VK_All, true, false,
                                         false),
                Smp::InvalidFieldType);
-  Smp::String8 voidField;
   EXPECT_THROW(publication.PublishField("voidField", "voidField description",
-                                        &voidField, ::Smp::Uuids::Uuid_Void,
+                                        &string8, ::Smp::Uuids::Uuid_Void,
                                         Smp::ViewKind::VK_All, true, false,
                                         false),
                Smp::InvalidFieldType);
@@ -142,7 +139,7 @@ void TestPublishSimpleField(Smp::PrimitiveTypeKind kind, Smp::ViewKind view,
   stateField->SetValue({kind, check_Value});
   EXPECT_EQ(state, check_Value);
   state = default_value;
-  Smp::AnySimple expected{kind, default_value};
+  const Smp::AnySimple expected{kind, default_value};
   EXPECT_EQ(stateField->GetValue(), expected);
 
   publication.PublishField("transient", "description", &state, view, false,
@@ -189,9 +186,9 @@ TEST(PublicationTest, PublishSimpleField) {
                                      Smp::ViewKind::VK_None, '\0', 'a');
 
   TestPublishSimpleField<Smp::Float32>(Smp::PrimitiveTypeKind::PTK_Float32,
-                                       Smp::ViewKind::VK_None, 0.f, 100.f);
+                                       Smp::ViewKind::VK_None, 0.F, 100.F);
   TestPublishSimpleField<Smp::Float64>(Smp::PrimitiveTypeKind::PTK_Float64,
-                                       Smp::ViewKind::VK_None, 0.f, 100.f);
+                                       Smp::ViewKind::VK_None, 0., 100.);
 
   TestPublishSimpleField<Smp::Int8>(Smp::PrimitiveTypeKind::PTK_Int8,
                                     Smp::ViewKind::VK_None, 0, 100);
@@ -261,7 +258,7 @@ void TestPublishSimpleArray(Smp::PrimitiveTypeKind kind, Smp::ViewKind view,
   EXPECT_EQ(state[1], check_Value);
 
   state[0] = default_value;
-  Smp::AnySimple expected{kind, default_value};
+  const Smp::AnySimple expected{kind, default_value};
   EXPECT_EQ(stateField->GetValue(0), expected);
 
   state[1] = default_value;
@@ -312,7 +309,7 @@ void TestPublishSimpleArray(Smp::PrimitiveTypeKind kind, Smp::ViewKind view,
   auto *dataflowField = dynamic_cast<Smp::IDataflowField *>(outputField);
 
   ASSERT_TRUE(dataflowField);
-  Xsmp::Array<T, 2> before = input;
+  const Xsmp::Array<T, 2> before = input;
   dataflowField->Connect(inputField);
   EXPECT_EQ(input, before);
   dataflowField->Push();
@@ -331,9 +328,9 @@ TEST(PublicationTest, PublishSimpleArray) {
                                      Smp::ViewKind::VK_None, '\0', 'a');
 
   TestPublishSimpleArray<Smp::Float32>(Smp::PrimitiveTypeKind::PTK_Float32,
-                                       Smp::ViewKind::VK_None, 0.f, 100.f);
+                                       Smp::ViewKind::VK_None, 0.F, 100.F);
   TestPublishSimpleArray<Smp::Float64>(Smp::PrimitiveTypeKind::PTK_Float64,
-                                       Smp::ViewKind::VK_None, 0.f, 100.f);
+                                       Smp::ViewKind::VK_None, 0., 100.);
 
   TestPublishSimpleArray<Smp::Int8>(Smp::PrimitiveTypeKind::PTK_Int8,
                                     Smp::ViewKind::VK_None, 0, 100);
@@ -400,7 +397,7 @@ TEST(PublicationTest, PublishArray) {
   EXPECT_EQ(arrayField->GetSize(), 0);
   EXPECT_THROW(arrayField->GetItem(0), Smp::InvalidArrayIndex);
 
-  bool item;
+  bool item = false;
   publishedField->PublishField("item", "item desc", &item,
                                Smp::ViewKind::VK_Debug, true, false, false);
 
@@ -428,7 +425,7 @@ TEST(PublicationTest, PublishStructure) {
   ASSERT_TRUE(structureField->GetFields());
   EXPECT_EQ(structureField->GetFields()->size(), 0);
 
-  bool item;
+  bool item = false;
   structureField->PublishField("item", "item desc", &item,
                                Smp::ViewKind::VK_Debug, true, false, false);
 
@@ -586,5 +583,4 @@ TEST(PublicationTest, Request) {
   publication.DeleteRequest(request);
 }
 
-} // namespace Publication
-} // namespace Xsmp
+} // namespace Xsmp::Publication

@@ -14,7 +14,7 @@
 
 #include <Xsmp/cstring.h>
 #include <gtest/gtest.h>
-#include <string>
+#include <utility>
 
 using namespace std::literals;
 namespace Xsmp {

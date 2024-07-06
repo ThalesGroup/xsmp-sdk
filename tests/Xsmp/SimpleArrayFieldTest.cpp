@@ -13,16 +13,20 @@
 // limitations under the License.
 
 #include <Smp/AnySimple.h>
+#include <Smp/IArrayField.h>
+#include <Smp/IForcibleField.h>
+#include <Smp/IStructureField.h>
+#include <Smp/InvalidArrayIndex.h>
+#include <Smp/InvalidFieldValue.h>
 #include <Smp/PrimitiveTypes.h>
-#include <Smp/Publication/IArrayType.h>
+#include <Smp/Publication/IEnumerationType.h>
 #include <Smp/Uuid.h>
-#include <Smp/ViewKind.h>
 #include <Xsmp/Array.h>
 #include <Xsmp/Field.h>
-#include <Xsmp/Publication/Type.h>
-#include <Xsmp/Simulator.h>
+#include <Xsmp/Publication/TypeRegistry.h>
 #include <Xsmp/String.h>
 #include <gtest/gtest.h>
+#include <type_traits>
 
 namespace Xsmp {
 
@@ -151,19 +155,19 @@ TEST(SimpleArrayFieldTest, Int8Type) {
   EXPECT_EQ(input[0], 42);
 
   Smp::Int8 i = 0;
-  for (auto elem : output)
+  for (auto elem : output) {
     elem = i++;
-
+  }
   i = 0;
-  for (const auto &elem : input)
+  for (const auto &elem : input) {
     EXPECT_EQ(elem, i++);
-
+  }
   i = 10;
-  for (auto it = output.begin(); it != output.end(); ++it)
+  for (auto it = output.begin(); it != output.end(); ++it) {
     *it = i++;
-
+  }
   i = 10;
-  for (auto it = input.begin(); it != input.end(); ++it) {
+  for (auto *it = input.begin(); it != input.end(); ++it) {
     EXPECT_EQ(*it, i++);
   }
   /*
@@ -180,7 +184,7 @@ TEST(SimpleArrayFieldTest, Int8Type) {
 TEST(SimpleArrayFieldTest, EnumType) {
   Xsmp::Publication::TypeRegistry typeRegistry;
   using Type = Array<Enum, 4>::simple;
-  Smp::Uuid enumUuid{0, 1, 2, 3, 4};
+  const Smp::Uuid enumUuid{0, 1, 2, 3, 4};
   auto *enumType =
       typeRegistry.AddEnumerationType("Enum", "", enumUuid, sizeof(Enum));
   enumType->AddLiteral("L1", "", static_cast<Smp::Int32>(Enum::L1));
@@ -224,7 +228,7 @@ TEST(SimpleArrayFieldTest, EnumType) {
 TEST(SimpleArrayFieldTest, StringType) {
   Xsmp::Publication::TypeRegistry typeRegistry;
   using Type = Array<String20, 4>::simple;
-  Smp::Uuid stringUuid{0, 1, 2, 3, 4};
+  const Smp::Uuid stringUuid{0, 1, 2, 3, 4};
   typeRegistry.AddStringType("String20", "", stringUuid, 20);
 
   typeRegistry.AddArrayType("String20SimpleArray", "", Smp::Uuid{}, stringUuid,

@@ -13,8 +13,11 @@
 // limitations under the License.
 
 #include <Xsmp/String.h>
-#include <gtest/gtest.h>
+#include <iterator>
 #include <string>
+#include <string_view>
+
+#include "gtest/gtest.h"
 
 using namespace std::literals;
 namespace Xsmp {
@@ -34,7 +37,7 @@ TEST(StringTest, Constructor) {
   const char charArray[] = "array";
   EXPECT_EQ("array", String10{charArray});
 
-  String16 other{"otherString"};
+  const String16 other{"otherString"};
   EXPECT_EQ("otherStrin", String10{other});
 }
 
@@ -69,18 +72,21 @@ TEST(StringTest, Create) {
   EXPECT_EQ(str.at(9), '9');
 
   int i = 0;
-  for (auto it = str.begin(); it != str.end(); ++it)
+  for (const auto *it = str.begin(); it != str.end(); ++it) {
     EXPECT_EQ(*it, std::to_string(i++).front());
-
+  }
   i = 0;
-  for (auto it = str.cbegin(); it != str.cend(); ++it)
+  for (const auto *it = str.cbegin(); it != str.cend(); ++it) {
     EXPECT_EQ(*it, std::to_string(i++).front());
+  }
   i = 9;
-  for (auto it = str.rbegin(); it != str.rend(); ++it)
+  for (auto it = str.rbegin(); it != str.rend(); ++it) {
     EXPECT_EQ(*it, std::to_string(i--).front());
+  }
   i = 9;
-  for (auto it = str.crbegin(); it != str.crend(); ++it)
+  for (auto it = str.crbegin(); it != str.crend(); ++it) {
     EXPECT_EQ(*it, std::to_string(i--).front());
+  }
 
   str = "0123456789!!!!!!!!";
   EXPECT_EQ(str.size(), 10);
@@ -90,19 +96,22 @@ TEST(StringTest, Create) {
   EXPECT_STREQ(str.c_str(), "0123");
 
   i = 0;
-  for (auto it = str.begin(); it != str.end(); ++it)
+  for (const auto *it = str.begin(); it != str.end(); ++it) {
     EXPECT_EQ(*it, std::to_string(i++).front());
+  }
 
   i = 0;
-  for (auto it = str.cbegin(); it != str.cend(); ++it)
+  for (const auto *it = str.cbegin(); it != str.cend(); ++it) {
     EXPECT_EQ(*it, std::to_string(i++).front());
+  }
   i = 3;
-  for (auto it = str.rbegin(); it != str.rend(); ++it)
+  for (auto it = str.rbegin(); it != str.rend(); ++it) {
     EXPECT_EQ(*it, std::to_string(i--).front());
+  }
   i = 3;
-  for (auto it = str.crbegin(); it != str.crend(); ++it)
+  for (auto it = str.crbegin(); it != str.crend(); ++it) {
     EXPECT_EQ(*it, std::to_string(i--).front());
-
+  }
   str.append("45");
   EXPECT_STREQ(str.c_str(), "012345");
   str.append("6789!!!!!!");
@@ -172,7 +181,7 @@ TEST(StringTest, pop_back) {
 
 TEST(StringTest, operatorPlus) {
 
-  String10 string = "1";
+  const String10 string = "1";
 
   EXPECT_EQ("12", string + "2");
   EXPECT_EQ("21", "2" + string);
@@ -183,7 +192,7 @@ TEST(StringTest, operatorPlus) {
   EXPECT_EQ("14", string + "4"sv);
   EXPECT_EQ("41", "4"sv + string);
 
-  String16 string2 = "5";
+  const String16 string2 = "5";
   EXPECT_EQ("15", string + string2);
   EXPECT_EQ("51", string2 + string);
 
@@ -224,8 +233,8 @@ TEST(StringTest, operatorEqual) {
 
 TEST(StringTest, operatorEquality) {
 
-  String10 string = "1";
-  String16 string2 = "2";
+  const String10 string = "1";
+  const String16 string2 = "2";
 
   EXPECT_TRUE(string == "1");
   EXPECT_TRUE(string == "1"s);

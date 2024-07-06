@@ -13,27 +13,33 @@
 // limitations under the License.
 
 #include <Xsmp/cstring.h>
-#include <cstring>
+#include <cstddef>
+#include <string>
+#include <string_view>
 
 namespace Xsmp {
 
 cstring::cstring(const char *value, std::size_t size) { assign(value, size); }
-cstring::cstring(const char *value) { assign(value, std::strlen(value)); }
+cstring::cstring(const char *value) {
+  assign(value, std::char_traits<char>::length(value));
+}
 cstring::cstring(std::string_view value) { assign(value.data(), value.size()); }
 cstring::cstring(const cstring &other) {
   const auto *str = other.c_str();
-  assign(str, strlen(str));
+  assign(str, std::char_traits<char>::length(str));
 }
 cstring &cstring::operator=(const cstring &other) {
-  delete[] _value;
-  const auto *str = other.c_str();
-  assign(str, strlen(str));
+  if (this != &other) {
+    delete[] _value;
+    const auto *str = other.c_str();
+    assign(str, std::char_traits<char>::length(str));
+  }
   return *this;
 }
 
 cstring &cstring::operator=(const char *value) {
   delete[] _value;
-  assign(value, strlen(value));
+  assign(value, std::char_traits<char>::length(value));
   return *this;
 }
 void cstring::assign(const char *value, std::size_t size) {

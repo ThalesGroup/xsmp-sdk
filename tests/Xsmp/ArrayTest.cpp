@@ -25,7 +25,7 @@ using Matrix3_3Bool = Array<Array3Bool, 3>;
 
 TEST(ArrayTest, Constructor) {
 
-  EmptyArrayBool emptyAr{};
+  const EmptyArrayBool emptyAr{};
   EXPECT_EQ(emptyAr.size(), 0);
   EXPECT_TRUE(emptyAr.empty());
 

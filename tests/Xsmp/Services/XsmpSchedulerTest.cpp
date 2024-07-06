@@ -13,7 +13,11 @@
 // limitations under the License.
 
 #include <Smp/PrimitiveTypes.h>
+#include <Smp/Services/EventId.h>
 #include <Smp/Services/ITimeKeeper.h>
+#include <Smp/Services/InvalidCycleTime.h>
+#include <Smp/Services/InvalidEventId.h>
+#include <Smp/Services/InvalidEventTime.h>
 #include <Smp/SimulatorStateKind.h>
 #include <Xsmp/Duration.h>
 #include <Xsmp/EntryPoint.h>
@@ -75,7 +79,7 @@ TEST(XsmpSchedulerTest, run) {
   EXPECT_THROW(sim.GetScheduler()->AddSimulationTimeEvent(&ep1, 0_ms, 0, 1),
                ::Smp::Services::InvalidCycleTime);
 
-  std::vector<int> expected = {4, 1, 1, 2, 4, 2, 4, 3, 3};
+  const std::vector<int> expected = {4, 1, 1, 2, 4, 2, 4, 3, 3};
   EXPECT_EQ(results, expected);
 }
 
@@ -84,7 +88,7 @@ INSTANTIATE_TEST_SUITE_P(XsmpSchedulerTest, SpeedTestFixture,
                          ::testing::Values(0.01, 0.25, 0.5, 1, 4, 10, 100));
 
 TEST_P(SpeedTestFixture, SpeedTest) {
-  double speed = GetParam();
+  const double speed = GetParam();
   Simulator sim;
   sim.LoadLibrary("xsmp_services");
   sim.Connect();
@@ -152,7 +156,7 @@ TEST(XsmpSchedulerTest, zulu_events) {
   // check that in standby state zulu events are executed
   std::this_thread::sleep_for(std::chrono::milliseconds{400});
   sim.Exit();
-  std::vector<int> expected = {1, 2, 3, 1, 2, 3};
+  const std::vector<int> expected = {1, 2, 3, 1, 2, 3};
   EXPECT_EQ(results, expected);
 }
 

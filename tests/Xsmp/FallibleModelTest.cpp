@@ -12,16 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <Smp/ComponentStateKind.h>
-#include <Smp/InvalidComponentState.h>
-#include <Smp/InvalidOperationName.h>
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Uuid.h>
+#include <Smp/ViewKind.h>
 #include <Xsmp/FallibleModel.h>
 #include <Xsmp/Field.h>
 #include <Xsmp/Model.h>
-#include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Simulator.h>
 #include <gtest/gtest.h>
-#include <type_traits>
 
 namespace Xsmp {
 

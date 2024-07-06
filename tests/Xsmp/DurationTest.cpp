@@ -13,11 +13,11 @@
 // limitations under the License.
 
 #include <Xsmp/Duration.h>
-#include <gtest/gtest.h>
-
 #include <chrono>
-
 #include <sstream>
+#include <string>
+
+#include "gtest/gtest.h"
 
 namespace Xsmp {
 /*
@@ -52,28 +52,28 @@ namespace Xsmp {
 
 TEST(DurationTest, constructor) {
 
-  Duration defaultConstructor;
+  const Duration defaultConstructor;
   EXPECT_EQ(defaultConstructor, 0);
   EXPECT_EQ(defaultConstructor, std::chrono::seconds(0));
 
-  Duration fromSmpDuration{1000};
+  const Duration fromSmpDuration{1000};
   EXPECT_EQ(fromSmpDuration, 1000);
   EXPECT_EQ(fromSmpDuration, std::chrono::microseconds(1));
 
-  Duration fromStdChrono{std::chrono::milliseconds(1)};
+  const Duration fromStdChrono{std::chrono::milliseconds(1)};
   EXPECT_EQ(fromStdChrono, 1000000);
 
-  Duration fromString{std::string("00:00:01.000000000")};
+  const Duration fromString{std::string("00:00:01.000000000")};
   EXPECT_EQ(fromString, 1000000000);
   EXPECT_EQ(fromString, std::chrono::seconds(1));
 
-  Duration fromConstCharPointer{"00:00:01.000000000"};
+  const Duration fromConstCharPointer{"00:00:01.000000000"};
   EXPECT_EQ(fromConstCharPointer, 1000000000);
   EXPECT_EQ(fromConstCharPointer, std::chrono::seconds(1));
 
   std::stringstream ss;
   ss << "00:00:01.000000000";
-  Duration fromStream{ss};
+  const Duration fromStream{ss};
   EXPECT_EQ(fromStream, 1000000000);
   EXPECT_EQ(fromStream, std::chrono::seconds(1));
 }
@@ -123,7 +123,7 @@ TEST(DurationTest, literals) {
 
 TEST(DurationTest, format) {
 
-  Duration fromConstCharPointer{"00:01:00.000000000"};
+  const Duration fromConstCharPointer{"00:01:00.000000000"};
   EXPECT_EQ(fromConstCharPointer.format(), "00:01:00.000000000");
   EXPECT_EQ(fromConstCharPointer.format("%R"), "00:01");
   EXPECT_EQ(fromConstCharPointer.format(std::string("%R")), "00:01");
@@ -149,7 +149,7 @@ TEST(DurationTest, stream) {
 #define EXPECT_STREAM_OPERATOR_FORMAT_EQ(literal, value, format)               \
   do {                                                                         \
     std::stringstream ss;                                                      \
-    (literal).to_stream(ss, (format));                                             \
+    (literal).to_stream(ss, (format));                                         \
     EXPECT_EQ(ss.str(), (value));                                              \
   } while (false)
 

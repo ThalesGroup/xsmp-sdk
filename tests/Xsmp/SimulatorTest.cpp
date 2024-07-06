@@ -12,13 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/IModel.h>
+#include <Smp/InvalidLibrary.h>
+#include <Smp/LibraryNotFound.h>
+#include <Smp/SimulatorStateKind.h>
+#include <Smp/Uuid.h>
 #include <Xsmp/Simulator.h>
+#include <Xsmp/Tests/ModelWithArrayFieldsGen.h>
+#include <Xsmp/Tests/ModelWithSimpleArrayFieldsGen.h>
+#include <Xsmp/Tests/ModelWithSimpleFieldsGen.h>
 #include <gtest/gtest.h>
+#include <type_traits>
 
-#include <Xsmp/LibraryHelper.h>
-#include <Xsmp/Tests/ModelWithArrayFields.h>
-#include <Xsmp/Tests/ModelWithSimpleArrayFields.h>
-#include <Xsmp/Tests/ModelWithSimpleFields.h>
 namespace Xsmp {
 
 TEST(SimulatorTest, init) {

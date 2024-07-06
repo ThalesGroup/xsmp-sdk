@@ -45,13 +45,16 @@ TEST(XsmpLoggerTest, QueryLogMessageKind) {
 
   constexpr ::Smp::UInt32 max = 50;
   // create max number of message kind
-  for (::Smp::UInt32 i = ::Smp::Services::ILogger::LMK_Debug + 1; i < max; ++i)
+  for (::Smp::UInt32 i = ::Smp::Services::ILogger::LMK_Debug + 1; i < max;
+       ++i) {
     sim.GetLogger()->QueryLogMessageKind(std::to_string(i).c_str());
-
+  }
   // retrieve all msg kinds
-  for (::Smp::UInt32 i = ::Smp::Services::ILogger::LMK_Debug + 1; i < max; ++i)
+  for (::Smp::UInt32 i = ::Smp::Services::ILogger::LMK_Debug + 1; i < max;
+       ++i) {
     EXPECT_EQ(sim.GetLogger()->QueryLogMessageKind(std::to_string(i).c_str()),
               i);
+  }
 }
 
 } // namespace Xsmp::Services

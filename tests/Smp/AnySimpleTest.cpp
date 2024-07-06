@@ -18,9 +18,8 @@
 #include <Smp/utility.h>
 #include <Xsmp/Helper.h>
 #include <limits>
-#include <vector>
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
 namespace Smp {
 
@@ -348,8 +347,8 @@ TEST(AnySimpleTest, String8) {
 
 TEST(AnySimpleTest, Float32) {
 
-  EXPECT_NO_THROW((AnySimple{PrimitiveTypeKind::PTK_Float32, 3.14159f}));
-  EXPECT_NO_THROW((AnySimple{PrimitiveTypeKind::PTK_Float64, 3.14159f}));
+  EXPECT_NO_THROW((AnySimple{PrimitiveTypeKind::PTK_Float32, 3.14159F}));
+  EXPECT_NO_THROW((AnySimple{PrimitiveTypeKind::PTK_Float64, 3.14159F}));
 
   EXPECT_NO_THROW(
       (AnySimple{PrimitiveTypeKind::PTK_Float32, static_cast<::Smp::Int8>(0)}));
@@ -380,33 +379,33 @@ TEST(AnySimpleTest, Float32) {
                           std::numeric_limits<::Smp::UInt64>::max()}),
                ::Smp::InvalidAnyType);
 
-  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_Int8, 3.14159f}),
+  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_Int8, 3.14159F}),
                ::Smp::InvalidAnyType);
-  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_Int16, 3.14159f}),
+  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_Int16, 3.14159F}),
                ::Smp::InvalidAnyType);
-  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_Int32, 3.14159f}),
+  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_Int32, 3.14159F}),
                ::Smp::InvalidAnyType);
-  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_Int64, 3.14159f}),
+  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_Int64, 3.14159F}),
                ::Smp::InvalidAnyType);
-  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_UInt8, 3.14159f}),
+  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_UInt8, 3.14159F}),
                ::Smp::InvalidAnyType);
-  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_UInt16, 3.14159f}),
+  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_UInt16, 3.14159F}),
                ::Smp::InvalidAnyType);
-  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_UInt32, 3.14159f}),
+  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_UInt32, 3.14159F}),
                ::Smp::InvalidAnyType);
-  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_UInt64, 3.14159f}),
+  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_UInt64, 3.14159F}),
                ::Smp::InvalidAnyType);
-  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_Bool, 3.14159f}),
+  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_Bool, 3.14159F}),
                ::Smp::InvalidAnyType);
-  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_None, 3.14159f}),
+  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_None, 3.14159F}),
                ::Smp::InvalidAnyType);
-  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_DateTime, 3.14159f}),
+  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_DateTime, 3.14159F}),
                ::Smp::InvalidAnyType);
-  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_Duration, 3.14159f}),
+  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_Duration, 3.14159F}),
                ::Smp::InvalidAnyType);
-  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_Char8, 3.14159f}),
+  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_Char8, 3.14159F}),
                ::Smp::InvalidAnyType);
-  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_String8, 3.14159f}),
+  EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_String8, 3.14159F}),
                ::Smp::InvalidAnyType);
 
   EXPECT_THROW(static_cast<::Smp::Float32>(AnySimple{}), ::Smp::InvalidAnyType);
@@ -493,7 +492,7 @@ TEST(AnySimpleTest, Float64) {
   EXPECT_NO_THROW(
       static_cast<::Smp::Float64>(AnySimple{PrimitiveTypeKind::PTK_UInt32, 0}));
   EXPECT_NO_THROW(static_cast<::Smp::Float64>(
-      AnySimple{PrimitiveTypeKind::PTK_Float32, 0.f}));
+      AnySimple{PrimitiveTypeKind::PTK_Float32, 0.F}));
 }
 
 TEST(AnySimpleTest, AssignmentOperator) {

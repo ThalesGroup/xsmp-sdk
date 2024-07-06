@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/PrimitiveTypes.h>
 #include <Xsmp/DateTime.h>
 #include <Xsmp/Duration.h>
-#include <gtest/gtest.h>
+#include <chrono>
+#include <string>
+
+#include "gtest/gtest.h"
 
 namespace Xsmp {
 /*
@@ -52,33 +56,33 @@ namespace Xsmp {
 
 TEST(DateTimeTest, constructors) {
 
-  DateTime defaultDateTime;
+  const DateTime defaultDateTime;
   EXPECT_EQ(defaultDateTime, 0);
 
-  DateTime dateTimeFromSmp(Smp::DateTime{10});
+  const DateTime dateTimeFromSmp(Smp::DateTime{10});
   EXPECT_EQ(dateTimeFromSmp, 10);
 
-  DateTime dateTimeFromDuration(std::chrono::nanoseconds{100});
+  const DateTime dateTimeFromDuration(std::chrono::nanoseconds{100});
   EXPECT_EQ(dateTimeFromDuration, 100);
 
   EXPECT_EQ(DateTime{"2000-01-01 12:00:00"}, 0);
 
-  DateTime dateTimeFromCharPtrWithFormat("2000-01-01 12", "%Y-%m-%d %H");
+  const DateTime dateTimeFromCharPtrWithFormat("2000-01-01 12", "%Y-%m-%d %H");
   EXPECT_EQ(dateTimeFromCharPtrWithFormat, 0);
 
-  DateTime dateTimeFromStringWithFormat(std::string("2000-01-01 12"),
-                                        "%Y-%m-%d %H");
+  const DateTime dateTimeFromStringWithFormat(std::string("2000-01-01 12"),
+                                              "%Y-%m-%d %H");
   EXPECT_EQ(dateTimeFromStringWithFormat, 0);
 
   std::stringstream ss;
   ss << "2000-01-01 12:00:00";
-  DateTime fromStream{ss};
+  const DateTime fromStream{ss};
   EXPECT_EQ(fromStream, 0);
 }
 
 TEST(DateTimeTest, format) {
 
-  DateTime date{"2023-08-09 16:00:35"};
+  const DateTime date{"2023-08-09 16:00:35"};
   EXPECT_EQ(date.format(), "2023-08-09 16:00:35.000000000");
   EXPECT_EQ(date.format("%x"), "08/09/23");
   EXPECT_EQ(date.format(std::string("%x")), "08/09/23");
@@ -135,7 +139,7 @@ TEST(DateTimeTest, stream) {
 #define EXPECT_STREAM_OPERATOR_EQ(date, value)                                 \
   do {                                                                         \
     std::stringstream ss;                                                      \
-    (date).to_stream(ss);                                                        \
+    (date).to_stream(ss);                                                      \
     EXPECT_EQ(date, (value));                                                  \
   } while (false)
 

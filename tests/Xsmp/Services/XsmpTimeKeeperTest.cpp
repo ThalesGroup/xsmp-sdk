@@ -22,7 +22,6 @@
 #include <Xsmp/EntryPointPublisher.h>
 #include <Xsmp/Simulator.h>
 #include <gtest/gtest.h>
-#include <type_traits>
 
 namespace Xsmp::Services {
 namespace {
@@ -50,9 +49,7 @@ TEST(XsmpTimeKeeperTest, simulationTime) {
 
   TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
 
-  ::Xsmp::EntryPoint ep1{"ep1", "", &entryPoints, [&]() {
-
-                         }};
+  ::Xsmp::EntryPoint ep1{"ep1", "", &entryPoints, []() {}};
 
   sim.GetEventManager()->Emit(
       ::Smp::Services::IEventManager::SMP_PreSimTimeChangeId);

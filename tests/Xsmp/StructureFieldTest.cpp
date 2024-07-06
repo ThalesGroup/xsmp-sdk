@@ -150,7 +150,7 @@ TEST(StructureFieldTest, Instanciate) {
       false /// is an output field
   );
 
-  Field<StructTest> field{&typeRegistry, ::Smp::Uuid{}, "name"};
+  const Field<StructTest> field{&typeRegistry, ::Smp::Uuid{}, "name"};
 
   EXPECT_TRUE(field.IsState());
   EXPECT_FALSE(field.IsOutput());

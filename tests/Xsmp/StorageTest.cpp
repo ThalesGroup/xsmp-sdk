@@ -31,13 +31,13 @@ namespace Xsmp {
 TEST(StorageTest, Writer) {
 
   auto dir = testing::TempDir();
-  const auto * filename = "Writer.bin";
+  const auto *filename = "Writer.bin";
 
-  StorageWriter writer(dir.c_str(), filename);
+  const StorageWriter writer(dir.c_str(), filename);
   EXPECT_STREQ(writer.GetStateVectorFilePath(), dir.c_str());
   EXPECT_STREQ(writer.GetStateVectorFileName(), filename);
 
-  StorageReader reader(dir.c_str(), filename);
+  const StorageReader reader(dir.c_str(), filename);
   EXPECT_STREQ(reader.GetStateVectorFilePath(), dir.c_str());
   EXPECT_STREQ(reader.GetStateVectorFileName(), filename);
 
@@ -46,16 +46,16 @@ TEST(StorageTest, Writer) {
 TEST(StorageTest, Reader) {
 
   auto dir = testing::TempDir();
-  const auto * filename = "Reader.bin";
+  const auto *filename = "Reader.bin";
 
-  EXPECT_THROW(StorageReader reader(dir.c_str(), filename),
+  EXPECT_THROW(const StorageReader reader(dir.c_str(), filename),
                ::Smp::CannotRestore);
 }
 
 TEST(StorageTest, StoreRestore) {
 
   auto dir = fs::path(testing::TempDir()).append("StorageTest").string();
-  const auto * filename = "StoreRestore.bin";
+  const auto *filename = "StoreRestore.bin";
 
   double value1 = 42.;
   double value2 = 43.;

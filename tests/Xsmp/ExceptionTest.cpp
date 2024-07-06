@@ -25,7 +25,6 @@
 #include <Smp/EventSinkNotSubscribed.h>
 #include <Smp/Exception.h>
 #include <Smp/FieldAlreadyConnected.h>
-#include <Smp/IFactory.h>
 #include <Smp/InvalidAnyType.h>
 #include <Smp/InvalidArrayIndex.h>
 #include <Smp/InvalidArraySize.h>
@@ -51,7 +50,6 @@
 #include <Smp/NotReferenced.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Publication/DuplicateLiteral.h>
-#include <Smp/Publication/IEnumerationType.h>
 #include <Smp/Publication/InvalidPrimitiveType.h>
 #include <Smp/Publication/TypeAlreadyRegistered.h>
 #include <Smp/Publication/TypeNotRegistered.h>
@@ -619,7 +617,7 @@ TEST(ExceptionTest, InvalidArrayIndex) {
 
   Xsmp::Publication::TypeRegistry registry;
 
- const auto *type = dynamic_cast<Xsmp::Publication::ArrayType *>(
+  const auto *type = dynamic_cast<Xsmp::Publication::ArrayType *>(
       registry.AddArrayType("type", "", Smp::Uuid{}, Smp::Uuids::Uuid_Bool,
                             sizeof(bool), 10, false));
 
@@ -668,7 +666,7 @@ TEST(ExceptionTest, InvalidArrayIndex) {
 
 TEST(ExceptionTest, InvalidFieldValue) {
 
-  Object sender{"name"};
+  const Object sender{"name"};
   Xsmp::Publication::TypeRegistry typeRegistry;
   Field<bool> field{&typeRegistry, Smp::Uuids::Uuid_Bool, "field"};
 
@@ -695,7 +693,7 @@ TEST(ExceptionTest, InvalidArrayValue) {
 
   Xsmp::Publication::TypeRegistry registry;
 
- const auto *type = dynamic_cast<Xsmp::Publication::ArrayType *>(
+  const auto *type = dynamic_cast<Xsmp::Publication::ArrayType *>(
       registry.AddArrayType("Test", "", Smp::Uuid{}, Smp::Uuids::Uuid_Bool,
                             sizeof(bool), 10, false));
 
@@ -938,7 +936,7 @@ TEST(ExceptionTest, InvalidFieldNameNull) {
 
 TEST(ExceptionTest, TypeNotRegistered) {
   Object sender{"name"};
-  Smp::Uuid uuid{0, 1, 2, 3, 4};
+  const Smp::Uuid uuid{0, 1, 2, 3, 4};
   try {
     throwTypeNotRegistered(&sender, uuid);
     FAIL();
@@ -1031,7 +1029,7 @@ TEST(ExceptionTest, InvalidAnyType) {
 TEST(ExceptionTest, InvalidReturnValue) {
 
   Xsmp::Publication::Operation parent{"op"};
-  Smp::AnySimple invalidValue{Smp::PrimitiveTypeKind::PTK_Bool, true};
+  const Smp::AnySimple invalidValue{Smp::PrimitiveTypeKind::PTK_Bool, true};
   try {
     throwInvalidReturnValue(&parent, invalidValue);
     FAIL();
@@ -1055,7 +1053,7 @@ TEST(ExceptionTest, InvalidReturnValue) {
 TEST(ExceptionTest, InvalidParameterValue) {
 
   Xsmp::Publication::Operation parent{"op"};
-  Smp::AnySimple invalidValue{Smp::PrimitiveTypeKind::PTK_Bool, true};
+  const Smp::AnySimple invalidValue{Smp::PrimitiveTypeKind::PTK_Bool, true};
   try {
     throwInvalidParameterValue(&parent, "param", invalidValue);
     FAIL();
@@ -1086,7 +1084,9 @@ TEST(ExceptionTest, InvalidFieldType) {
     EXPECT_STREQ(e.GetDescription(),
                  "Cannot publish a field with invalid type");
     EXPECT_EQ(e.GetSender(), &parent);
-    EXPECT_STREQ(e.GetMessage(), "The primitive type kind 'String8' is invalid for field '<null>.op'.");
+    EXPECT_STREQ(
+        e.GetMessage(),
+        "The primitive type kind 'String8' is invalid for field '<null>.op'.");
   } catch (...) {
     FAIL();
   }
@@ -1098,20 +1098,24 @@ TEST(ExceptionTest, InvalidFieldType) {
     EXPECT_STREQ(e.GetDescription(),
                  "Cannot publish a field with invalid type");
     EXPECT_EQ(e.GetSender(), &parent);
-    EXPECT_STREQ(e.GetMessage(), "The type UUID '00000000-0000-0000-0000-000000000000' is invalid for field '<null>.op'.");
+    EXPECT_STREQ(e.GetMessage(),
+                 "The type UUID '00000000-0000-0000-0000-000000000000' is "
+                 "invalid for field '<null>.op'.");
   } catch (...) {
     FAIL();
   }
-  Xsmp::Publication::TypeRegistry registry;
+  const Xsmp::Publication::TypeRegistry registry;
   try {
-    throwInvalidFieldType(&parent, registry.GetType(::Smp::PrimitiveTypeKind::PTK_String8));
+    throwInvalidFieldType(
+        &parent, registry.GetType(::Smp::PrimitiveTypeKind::PTK_String8));
     FAIL();
   } catch (const Smp::InvalidFieldType &e) {
     EXPECT_STREQ(e.GetName(), "InvalidFieldType");
     EXPECT_STREQ(e.GetDescription(),
                  "Cannot publish a field with invalid type");
     EXPECT_EQ(e.GetSender(), &parent);
-    EXPECT_STREQ(e.GetMessage(), "The type 'String8' is invalid for field '<null>.op'.");
+    EXPECT_STREQ(e.GetMessage(),
+                 "The type 'String8' is invalid for field '<null>.op'.");
   } catch (...) {
     FAIL();
   }

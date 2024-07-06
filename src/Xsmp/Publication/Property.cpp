@@ -24,6 +24,7 @@
 #include <Xsmp/Helper.h>
 #include <Xsmp/Publication/Property.h>
 #include <Xsmp/Publication/Request.h>
+#include <Xsmp/cstring.h>
 #include <string>
 #include <utility>
 
@@ -74,8 +75,8 @@ public:
 
 private:
   const ::Smp::IProperty *_property;
-  std::string _name;
-  ::Smp::AnySimple _returnValue{};
+  ::Xsmp::cstring _name;
+  ::Smp::AnySimple _returnValue;
 };
 
 class Property::Setter final : public ::Smp::IRequest {
@@ -129,8 +130,8 @@ public:
 
 private:
   const ::Smp::IProperty *_property;
-  std::string _name;
-  ::Smp::AnySimple _value{};
+  ::Xsmp::cstring _name;
+  ::Smp::AnySimple _value;
 };
 
 Property::Property(::Smp::String8 name, ::Smp::String8 description,
@@ -174,12 +175,12 @@ void Property::SetValue(::Smp::AnySimple value) {
   invoker->Invoke(&request);
 }
 
-::Smp::IRequest *Property::CreateGetRequest() const noexcept {
+::Smp::IRequest *Property::CreateGetRequest() const {
   return _accessKind == ::Smp::AccessKind::AK_WriteOnly ? nullptr
                                                         : new Getter(this);
 }
 
-::Smp::IRequest *Property::CreateSetRequest() const noexcept {
+::Smp::IRequest *Property::CreateSetRequest() const {
   return _accessKind == ::Smp::AccessKind::AK_ReadOnly ? nullptr
                                                        : new Setter(this);
 }

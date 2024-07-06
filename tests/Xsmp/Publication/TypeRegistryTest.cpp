@@ -19,7 +19,6 @@
 #include <Smp/Uuid.h>
 #include <Xsmp/Publication/TypeRegistry.h>
 #include <gtest/gtest.h>
-#include <type_traits>
 
 namespace Xsmp::Publication {
 TEST(TypeRegistryTest, PrimitiveTypes) {

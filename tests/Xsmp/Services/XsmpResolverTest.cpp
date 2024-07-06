@@ -12,21 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <Smp/Services/EntryPointAlreadySubscribed.h>
-#include <Smp/Services/EntryPointNotSubscribed.h>
-#include <Smp/Services/EventId.h>
-#include <Smp/Services/IEventManager.h>
-#include <Smp/Services/InvalidEventId.h>
-#include <Smp/Services/InvalidEventName.h>
-#include <Xsmp/Component.h>
-#include <Xsmp/EntryPoint.h>
-#include <Xsmp/EntryPointPublisher.h>
+#include <Smp/Services/IResolver.h>
 #include <Xsmp/Simulator.h>
 #include <gtest/gtest.h>
-#include <initializer_list>
-#include <map>
-#include <string>
-#include <vector>
 
 namespace Xsmp::Services {
 TEST(XsmpResolverTest, ResolveAbsolute) {

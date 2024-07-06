@@ -22,9 +22,9 @@
 #include <Xsmp/Exception.h>
 #include <Xsmp/Publication/Request.h>
 #include <Xsmp/Publication/Type.h>
+#include <Xsmp/cstring.h>
 #include <algorithm>
 #include <cstddef>
-#include <cstring>
 #include <map>
 #include <string>
 #include <utility>
@@ -60,7 +60,7 @@ bool Request::isValid(const ::Smp::IObject *sender,
   // string types
   else if (const auto *stringType = dynamic_cast<const StringType *>(type)) {
     const auto *stringValue = static_cast<::Smp::String8>(value);
-    if (stringValue && std::strlen(stringValue) >
+    if (stringValue && std::char_traits<char>::length(stringValue) >
                            static_cast<std::size_t>(stringType->GetLength())) {
       return false;
     }
@@ -110,7 +110,8 @@ void Request::init(const std::string &name,
   else if (const auto *structure = dynamic_cast<const StructureType *>(type)) {
     for (const auto &field : structure->GetFields()) {
       if (auto const *fieldType = typeRegistry->GetType(field.uuid)) {
-        init(name + "." + std::string(field.name.c_str()), fieldType, typeRegistry);
+        init(name + "." + std::string(field.name.c_str()), fieldType,
+             typeRegistry);
       } else {
         ::Xsmp::Exception::throwTypeNotRegistered(_operation, field.uuid);
       }

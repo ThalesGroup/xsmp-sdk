@@ -14,7 +14,6 @@
 
 #include <Smp/CollectionIterator.h>
 #include <Smp/DuplicateUuid.h>
-#include <Smp/IFactory.h>
 #include <Smp/Uuid.h>
 #include <Xsmp/Composite.h>
 #include <Xsmp/Factory.h>
@@ -22,7 +21,6 @@
 #include <Xsmp/Model.h>
 #include <cstddef>
 #include <gtest/gtest.h>
-#include <type_traits>
 
 namespace Xsmp {
 

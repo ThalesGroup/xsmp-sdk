@@ -12,14 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/AnySimple.h>
+#include <Smp/ComponentStateKind.h>
+#include <Smp/IRequest.h>
+#include <Smp/InvalidAnyType.h>
+#include <Smp/InvalidParameterIndex.h>
+#include <Smp/InvalidReturnValue.h>
+#include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/IPublishOperation.h>
+#include <Smp/Publication/ParameterDirectionKind.h>
+#include <Smp/Uuid.h>
 #include <Smp/ViewKind.h>
+#include <Smp/VoidOperation.h>
 #include <Xsmp/Component.h>
 #include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Publication/TypeRegistry.h>
 #include <gtest/gtest.h>
 
-namespace Xsmp {
-namespace Publication {
+namespace Xsmp::Publication {
 
 TEST(RequestTest, VoidOperation) {
 
@@ -69,7 +79,7 @@ TEST(RequestTest, EnumOperation) {
   EXPECT_STREQ(request->GetOperationName(), "operation");
   EXPECT_EQ(request->GetParameterCount(), 0);
   EXPECT_EQ(request->GetReturnValue(), Smp::AnySimple{});
-  Smp::AnySimple value = {
+  const Smp::AnySimple value = {
       Smp::PrimitiveTypeKind::PTK_Int32,
       static_cast<Smp::Int32>(Smp::ComponentStateKind::CSK_Created)};
   request->SetReturnValue(value);
@@ -77,7 +87,7 @@ TEST(RequestTest, EnumOperation) {
 
   EXPECT_THROW(request->SetReturnValue({}), Smp::InvalidAnyType);
 
-  Smp::AnySimple invalidValue = {Smp::PrimitiveTypeKind::PTK_Int32, 42};
+  const Smp::AnySimple invalidValue = {Smp::PrimitiveTypeKind::PTK_Int32, 42};
   EXPECT_THROW(request->SetReturnValue(invalidValue), Smp::InvalidReturnValue);
   publication.DeleteRequest(request);
 }
@@ -92,7 +102,7 @@ TEST(RequestTest, StringOperation) {
 
   auto *op =
       publication.PublishOperation("operation", "", Smp::ViewKind::VK_None);
-  Smp::Uuid typeUuid{0, 1, 2, 3, 4};
+  const Smp::Uuid typeUuid{0, 1, 2, 3, 4};
   registry.AddStringType("String", "", typeUuid, 4);
   op->PublishParameter("returnValue", "", typeUuid,
                        Smp::Publication::ParameterDirectionKind::PDK_Return);
@@ -103,13 +113,14 @@ TEST(RequestTest, StringOperation) {
   EXPECT_STREQ(request->GetOperationName(), "operation");
   EXPECT_EQ(request->GetParameterCount(), 0);
   EXPECT_EQ(request->GetReturnValue(), Smp::AnySimple{});
-  Smp::AnySimple value = {Smp::PrimitiveTypeKind::PTK_String8, "1234"};
+  const Smp::AnySimple value = {Smp::PrimitiveTypeKind::PTK_String8, "1234"};
   request->SetReturnValue(value);
   EXPECT_EQ(request->GetReturnValue(), value);
 
   EXPECT_THROW(request->SetReturnValue({}), Smp::InvalidAnyType);
 
-  Smp::AnySimple invalidValue = {Smp::PrimitiveTypeKind::PTK_String8, "12345"};
+  const Smp::AnySimple invalidValue = {Smp::PrimitiveTypeKind::PTK_String8,
+                                       "12345"};
   EXPECT_THROW(request->SetReturnValue(invalidValue), Smp::InvalidReturnValue);
   publication.DeleteRequest(request);
 }
@@ -124,7 +135,7 @@ TEST(RequestTest, IntOperation) {
 
   auto *op =
       publication.PublishOperation("operation", "", Smp::ViewKind::VK_None);
-  Smp::Uuid typeUuid{0, 1, 2, 3, 4};
+  const Smp::Uuid typeUuid{0, 1, 2, 3, 4};
   registry.AddIntegerType("Integer", "", typeUuid, 0, 10, "",
                           Smp::PrimitiveTypeKind::PTK_Int32);
   op->PublishParameter("returnValue", "", typeUuid,
@@ -136,7 +147,7 @@ TEST(RequestTest, IntOperation) {
   EXPECT_STREQ(request->GetOperationName(), "operation");
   EXPECT_EQ(request->GetParameterCount(), 0);
   EXPECT_EQ(request->GetReturnValue(), Smp::AnySimple{});
-  Smp::AnySimple value = {Smp::PrimitiveTypeKind::PTK_Int32, 0};
+  const Smp::AnySimple value = {Smp::PrimitiveTypeKind::PTK_Int32, 0};
   request->SetReturnValue(value);
   EXPECT_EQ(request->GetReturnValue(), value);
 
@@ -160,7 +171,7 @@ TEST(RequestTest, FloatOperation) {
 
   auto *op =
       publication.PublishOperation("operation", "", Smp::ViewKind::VK_None);
-  Smp::Uuid typeUuid{0, 1, 2, 3, 4};
+  const Smp::Uuid typeUuid{0, 1, 2, 3, 4};
   registry.AddFloatType("Float", "", typeUuid, 0, 10, true, true, "",
                         Smp::PrimitiveTypeKind::PTK_Float64);
   op->PublishParameter("returnValue", "", typeUuid,
@@ -172,7 +183,7 @@ TEST(RequestTest, FloatOperation) {
   EXPECT_STREQ(request->GetOperationName(), "operation");
   EXPECT_EQ(request->GetParameterCount(), 0);
   EXPECT_EQ(request->GetReturnValue(), Smp::AnySimple{});
-  Smp::AnySimple value = {Smp::PrimitiveTypeKind::PTK_Float64, 0.};
+  const Smp::AnySimple value = {Smp::PrimitiveTypeKind::PTK_Float64, 0.};
   request->SetReturnValue(value);
   EXPECT_EQ(request->GetReturnValue(), value);
 
@@ -205,7 +216,7 @@ TEST(RequestTest, FloatExclusiveOperation) {
 
   auto *op =
       publication.PublishOperation("operation", "", Smp::ViewKind::VK_None);
-  Smp::Uuid typeUuid{0, 1, 2, 3, 4};
+  const Smp::Uuid typeUuid{0, 1, 2, 3, 4};
   registry.AddFloatType("Float", "", typeUuid, 0, 10, false, false, "",
                         Smp::PrimitiveTypeKind::PTK_Float64);
   op->PublishParameter("returnValue", "", typeUuid,
@@ -217,7 +228,7 @@ TEST(RequestTest, FloatExclusiveOperation) {
   EXPECT_STREQ(request->GetOperationName(), "operation");
   EXPECT_EQ(request->GetParameterCount(), 0);
   EXPECT_EQ(request->GetReturnValue(), Smp::AnySimple{});
-  Smp::AnySimple value = {Smp::PrimitiveTypeKind::PTK_Float64, 1.};
+  const Smp::AnySimple value = {Smp::PrimitiveTypeKind::PTK_Float64, 1.};
   request->SetReturnValue(value);
   EXPECT_EQ(request->GetReturnValue(), value);
 
@@ -250,7 +261,7 @@ TEST(RequestTest, OperationWithParameters) {
 
   auto *op =
       publication.PublishOperation("operation", "", Smp::ViewKind::VK_None);
-  Smp::Uuid typeUuid{0, 1, 2, 3, 4};
+  const Smp::Uuid typeUuid{0, 1, 2, 3, 4};
   registry.AddFloatType("Float", "", typeUuid, 0, 10, false, false, "",
                         Smp::PrimitiveTypeKind::PTK_Float64);
   op->PublishParameter("p1", "", typeUuid,
@@ -270,5 +281,4 @@ TEST(RequestTest, OperationWithParameters) {
   publication.DeleteRequest(request);
 }
 
-} // namespace Publication
-} // namespace Xsmp
+} // namespace Xsmp::Publication

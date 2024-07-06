@@ -13,16 +13,18 @@
 // limitations under the License.
 
 #include <Smp/AnySimple.h>
+#include <Smp/ISimpleArrayField.h>
+#include <Smp/IStructureField.h>
+#include <Smp/InvalidArrayIndex.h>
 #include <Smp/PrimitiveTypes.h>
-#include <Smp/Publication/IArrayType.h>
+#include <Smp/Publication/IEnumerationType.h>
 #include <Smp/Uuid.h>
-#include <Smp/ViewKind.h>
 #include <Xsmp/Array.h>
 #include <Xsmp/Field.h>
-#include <Xsmp/Publication/Type.h>
-#include <Xsmp/Simulator.h>
+#include <Xsmp/Publication/TypeRegistry.h>
 #include <Xsmp/String.h>
 #include <gtest/gtest.h>
+#include <type_traits>
 
 namespace Xsmp {
 
@@ -208,7 +210,7 @@ TEST(ArrayFieldTest, Int8Type) {
 TEST(ArrayFieldTest, EnumType) {
   Xsmp::Publication::TypeRegistry typeRegistry;
   using Type = Array<Enum, 4>;
-  Smp::Uuid enumUuid{0, 1, 2, 3, 4};
+  const Smp::Uuid enumUuid{0, 1, 2, 3, 4};
   auto *enumType =
       typeRegistry.AddEnumerationType("Enum", "", enumUuid, sizeof(Enum));
   enumType->AddLiteral("L1", "", static_cast<Smp::Int32>(Enum::L1));
@@ -252,7 +254,7 @@ TEST(ArrayFieldTest, EnumType) {
 TEST(ArrayFieldTest, StringType) {
   Xsmp::Publication::TypeRegistry typeRegistry;
   using Type = Array<String20, 4>;
-  Smp::Uuid stringUuid{0, 1, 2, 3, 4};
+  const Smp::Uuid stringUuid{0, 1, 2, 3, 4};
   typeRegistry.AddStringType("String20", "", stringUuid, 20);
 
   typeRegistry.AddArrayType("String20Array", "", Smp::Uuid{}, stringUuid,
@@ -296,7 +298,7 @@ TEST(ArrayFieldTest, Failure) {
   typeRegistry.AddArrayType("BoolArray", "", Smp::Uuid{}, Smp::Uuids::Uuid_Bool,
                             sizeof(Smp::Bool), 4, true);
 
-  Field<Type>::failure field{&typeRegistry, Smp::Uuid{}, "name"};
+  const Field<Type>::failure field{&typeRegistry, Smp::Uuid{}, "name"};
 
   EXPECT_TRUE(field.IsState());
   EXPECT_FALSE(field.IsOutput());

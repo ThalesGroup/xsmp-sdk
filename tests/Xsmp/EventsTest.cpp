@@ -25,7 +25,6 @@
 #include <Xsmp/EventSource.h>
 #include <Xsmp/Simulator.h>
 #include <gtest/gtest.h>
-#include <type_traits>
 
 namespace Xsmp {
 
@@ -48,14 +47,14 @@ TEST(EventsTest, auto_register) {
   TestEventProvider event_sources{"collection"};
 
   EXPECT_EQ(0, event_sources.GetEventSources()->size());
-  EventSource eso{"eso", "", &event_sources};
+  const EventSource eso{"eso", "", &event_sources};
   EXPECT_EQ(1, event_sources.GetEventSources()->size());
   EXPECT_EQ(&eso, event_sources.GetEventSource("eso"));
   EXPECT_EQ(&eso, event_sources.GetEventSources()->at("eso"));
 
   TestEventConsumer event_sinks{"collection", "", &sender};
   EXPECT_EQ(0, event_sinks.GetEventSinks()->size());
-  EventSink esi{"esi", "desc", &event_sinks, [&](::Smp::IObject *) {}};
+  const EventSink esi{"esi", "desc", &event_sinks, [&](::Smp::IObject *) {}};
 
   EXPECT_EQ(1, event_sinks.GetEventSinks()->size());
   EXPECT_EQ(&esi, event_sinks.GetEventSink("esi"));

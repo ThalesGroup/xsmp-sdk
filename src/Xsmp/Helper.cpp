@@ -26,23 +26,20 @@
 #include <Smp/IEventProvider.h>
 #include <Smp/IFailure.h>
 #include <Smp/IFallibleModel.h>
-#include <Smp/IField.h>
-#include <Smp/IObject.h>
 #include <Smp/IReference.h>
 #include <Smp/ISimpleArrayField.h>
 #include <Smp/ISimpleField.h>
 #include <Smp/ISimulator.h>
 #include <Smp/IStructureField.h>
 #include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/IType.h>
 #include <Smp/Services/ILogger.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
 #include <Xsmp/cstring.h>
 #include <algorithm>
 #include <cctype>
-#include <cstddef>
 #include <cstdlib>
-#include <cstring>
 #include <exception>
 #include <memory>
 #include <string>
@@ -451,7 +448,8 @@ void CopyString(::Smp::Char8 *destination, std::size_t size,
                 const ::Smp::AnySimple &value) {
   const auto *str = static_cast<::Smp::String8>(value);
   if (str) {
-    const std::size_t length = std::min(size, std::strlen(str));
+    const std::size_t length =
+        std::min(size, std::char_traits<char>::length(str));
     std::char_traits<char>::copy(destination, str, length);
     destination[length] = '\0';
   } else {

@@ -22,7 +22,6 @@
 #include <Xsmp/Model.h>
 #include <cstddef>
 #include <gtest/gtest.h>
-#include <type_traits>
 
 namespace Xsmp {
 namespace {

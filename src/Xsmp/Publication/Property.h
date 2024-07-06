@@ -80,14 +80,14 @@ public:
   /// The request object may be null if the property is write only.
   /// @return  Request object for property getter, or null if the property
   ///          is write only.
-  ::Smp::IRequest *CreateGetRequest() const noexcept;
+  ::Smp::IRequest *CreateGetRequest() const;
 
   /// Return a request object for the property setter that describes the
   /// parameter.
   /// The request object may be null if the property is read only.
   /// @return  Request object for property setter, or null if the property
   ///          is read only.
-  ::Smp::IRequest *CreateSetRequest() const noexcept;
+  ::Smp::IRequest *CreateSetRequest() const;
 
 private:
   /// provide access to Update method to Publication class

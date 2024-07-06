@@ -18,8 +18,8 @@
 #include <Smp/utility.h>
 #include <Xsmp/Exception.h>
 #include <cmath>
-#include <cstring>
 #include <limits>
+#include <string>
 
 namespace Smp {
 
@@ -56,7 +56,8 @@ AnySimple &AnySimple::operator=(const ::Smp::AnySimple &other) {
 
     if (other.type == PrimitiveTypeKind::PTK_String8) {
       if (other.value.string8Value) {
-        auto size = std::strlen(other.value.string8Value) + 1;
+        auto size =
+            std::char_traits<char>::length(other.value.string8Value) + 1;
         auto *dest = new ::Smp::Char8[size];
         this->value.string8Value = dest;
         std::char_traits<char>::copy(dest, other.value.string8Value, size);
@@ -139,7 +140,7 @@ void AnySimple::SetValue(::Smp::PrimitiveTypeKind kind,
 
   if (kind == PrimitiveTypeKind::PTK_String8) {
     if (newValue) {
-      auto size = std::strlen(newValue) + 1;
+      auto size = std::char_traits<char>::length(newValue) + 1;
       auto *dest = new ::Smp::Char8[size];
       this->value.string8Value = dest;
       std::char_traits<char>::copy(dest, newValue, size);
@@ -1078,9 +1079,18 @@ bool ::Smp::AnySimple::operator==(const ::Smp::AnySimple & other) const {
       return value.char8Value == static_cast<::Smp::Char8>(other);
     case PrimitiveTypeKind::PTK_String8:
       const auto *string8 = static_cast<::Smp::String8>(other);
-      return (value.string8Value == string8) ||
-             (value.string8Value && string8 &&
-              (std::strcmp(value.string8Value, string8) == 0));
+      if (value.string8Value == string8) {
+        return true;
+      }
+      if (value.string8Value && string8) {
+        auto l1 = std::char_traits<char>::length(value.string8Value);
+        auto l2 = std::char_traits<char>::length(string8);
+        if (l1 == l2) {
+          return std::char_traits<char>::compare(value.string8Value, string8,
+                                                 l1) == 0;
+        }
+      }
+      return false;
     }
   } catch (::Smp::InvalidAnyType &) {
     return false;

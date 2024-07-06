@@ -352,14 +352,14 @@ public:
 
 protected:
   virtual void DoAppend(const LogEntry &entry) = 0;
-  inline void Append(std::ostream &stream, const LogEntry &entry) const {
+  void Append(std::ostream &stream, const LogEntry &entry) const {
     _layout->Append(stream, entry);
   }
 
 private:
-  std::unique_ptr<Layout> _layout{};
-  std::unordered_set<std::string> _levels{};
-  std::optional<std::regex> _pathRegex{};
+  std::unique_ptr<Layout> _layout;
+  std::unordered_set<std::string> _levels;
+  std::optional<std::regex> _pathRegex;
 };
 
 class ConsoleAppender final : public Appender {
@@ -451,7 +451,7 @@ private:
     const std::scoped_lock lck(_mutex);
     running = false;
   }
-  inline void Push(const ::Smp::IObject *sender, ::Smp::String8 msg,
+  void Push(const ::Smp::IObject *sender, ::Smp::String8 msg,
                    const std::string &kind, ::Smp::DateTime zuluTime,
                    ::Smp::Duration simulationTime, ::Smp::DateTime epochTime,
                    ::Smp::Duration missionTime) {
@@ -542,13 +542,13 @@ private:
           << path << "=FileAppender' to create a File appender." << '\n';
     }
   }
-  std::mutex _mutex{};
-  std::condition_variable _cv{};
-  std::queue<LogEntry> _logs{};
-  std::vector<std::unique_ptr<Appender>> _appenders{};
+  std::mutex _mutex;
+  std::condition_variable _cv;
+  std::queue<LogEntry> _logs;
+  std::vector<std::unique_ptr<Appender>> _appenders;
 
   bool running{true};
-  std::thread workingThread{};
+  std::thread workingThread;
 };
 
 XsmpLogger::XsmpLogger(::Smp::String8 name, ::Smp::String8 description,

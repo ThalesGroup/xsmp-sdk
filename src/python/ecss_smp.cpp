@@ -363,7 +363,7 @@ public:
     // calls more Python. If we don't, the Python API will exit with an
     // exception, and pybind11 will throw error_already_set from the C++
     // destructor which is forbidden and triggers std::terminate().
-    py::error_scope scope;
+    const py::error_scope scope;
     if (v_h.holder_constructed()) {
       v_h.holder<holder_type>().~holder_type();
       v_h.set_holder_constructed(false);

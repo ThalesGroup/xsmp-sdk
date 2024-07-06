@@ -185,7 +185,7 @@ TEST(SimpleFieldTest, Int8Type) {
   EXPECT_EQ(field, 0);
   field += static_cast<::Smp::Int8>(-1);
   EXPECT_EQ(field, -1);
-  ::Smp::Int8 raw = field;
+  const ::Smp::Int8 raw = field;
   EXPECT_EQ(raw, -1);
   field.SetValue({::Smp::PrimitiveTypeKind::PTK_Int8, 1});
   EXPECT_EQ(field, 1);
@@ -347,7 +347,7 @@ TEST(SimpleFieldTest, StringType) {
   field += "text";
   EXPECT_STREQ(field->c_str(), "text");
 
-  ::Smp::AnySimple v = {::Smp::PrimitiveTypeKind::PTK_String8, "text2"};
+  const ::Smp::AnySimple v = {::Smp::PrimitiveTypeKind::PTK_String8, "text2"};
   field.SetValue(v);
   EXPECT_STREQ(field->c_str(), "text2");
   EXPECT_STREQ(static_cast<::Smp::String8>(field.GetValue()), "text2");

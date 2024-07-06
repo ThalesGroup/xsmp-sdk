@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <Smp/InvalidObjectName.h>
 #include <Xsmp/Object.h>
 #include <gtest/gtest.h>
 
@@ -26,7 +25,7 @@ TEST(ObjectTest, Getters) {
   EXPECT_STREQ("desc", parent.GetDescription());
   EXPECT_EQ(nullptr, parent.GetParent());
 
-  Object child{"child", "child desc", &parent};
+  const Object child{"child", "child desc", &parent};
   EXPECT_STREQ("child", child.GetName());
   EXPECT_STREQ("child desc", child.GetDescription());
   EXPECT_EQ(&parent, child.GetParent());

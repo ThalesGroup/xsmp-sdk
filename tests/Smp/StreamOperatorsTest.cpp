@@ -198,7 +198,7 @@ TEST(StreamOperatorsTest, AnySimple) {
   any.SetValue(PrimitiveTypeKind::PTK_UInt64, 0);
   EXPECT_STREAM_OPERATOR_EQ(any, "0u64");
 
-  any.SetValue(PrimitiveTypeKind::PTK_Float32, 0.f);
+  any.SetValue(PrimitiveTypeKind::PTK_Float32, 0.F);
   EXPECT_STREAM_OPERATOR_EQ(any, "0f32");
 
   any.SetValue(PrimitiveTypeKind::PTK_Float64, 0.);
