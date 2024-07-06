@@ -59,7 +59,7 @@ AnySimple &AnySimple::operator=(const ::Smp::AnySimple &other) {
         auto size = std::strlen(other.value.string8Value) + 1;
         auto *dest = new ::Smp::Char8[size];
         this->value.string8Value = dest;
-        std::memcpy(static_cast<void *>(dest), other.value.string8Value, size);
+        std::char_traits<char>::copy(dest, other.value.string8Value, size);
       } else {
         value.string8Value = nullptr;
       }
@@ -142,7 +142,7 @@ void AnySimple::SetValue(::Smp::PrimitiveTypeKind kind,
       auto size = std::strlen(newValue) + 1;
       auto *dest = new ::Smp::Char8[size];
       this->value.string8Value = dest;
-      std::memcpy(static_cast<void *>(dest), newValue, size);
+      std::char_traits<char>::copy(dest, newValue, size);
     } else {
       this->value.string8Value = nullptr;
     }

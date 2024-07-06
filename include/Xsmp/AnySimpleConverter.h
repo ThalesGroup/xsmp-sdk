@@ -51,7 +51,7 @@ struct AnySimpleConverter<T, std::enable_if_t<Helper::is_smp_string_v<T>>> {
   [[nodiscard]] static inline T convert(const ::Smp::AnySimple &value) {
     T new_value;
     ::Xsmp::Helper::CopyString(&new_value.internalString[0],
-                               sizeof(new_value.internalString), value);
+                               sizeof(new_value.internalString) - 1, value);
     return new_value;
   }
   [[nodiscard]] static inline ::Smp::AnySimple
@@ -65,7 +65,7 @@ template <typename T>
 struct AnySimpleConverter<T, std::enable_if_t<Helper::is_char_array_v<T>>> {
   [[nodiscard]] static inline T convert(const ::Smp::AnySimple &value) {
     T new_value;
-    ::Xsmp::Helper::CopyString(&new_value[0], sizeof(new_value), value);
+    ::Xsmp::Helper::CopyString(&new_value[0], sizeof(new_value) - 1, value);
     return new_value;
   }
   [[nodiscard]] static inline ::Smp::AnySimple

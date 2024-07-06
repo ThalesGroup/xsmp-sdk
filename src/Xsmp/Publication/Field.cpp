@@ -590,11 +590,12 @@ void SimpleArrayField::SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) {
     *static_cast<::Smp::Float64 *>(address) = value;
     break;
   case ::Smp::PrimitiveTypeKind::PTK_String8: {
-    auto *dest = static_cast<char *>(address);
-    const auto *type =
-        dynamic_cast<const ::Xsmp::Publication::ArrayType *>(GetType());
-    auto size = type->GetItemSize();
-    ::Xsmp::Helper::CopyString(dest, size, value);
+    ::Xsmp::Helper::CopyString(
+        static_cast<char *>(address),
+        static_cast<std::size_t>(
+            dynamic_cast<const ::Xsmp::Publication::StringType *>(_itemType)
+                ->GetLength()),
+        value);
     break;
   }
   default:
@@ -773,10 +774,9 @@ void SimpleField::SetValue(::Smp::AnySimple value) {
   case ::Smp::PrimitiveTypeKind::PTK_String8:
     ::Xsmp::Helper::CopyString(
         static_cast<char *>(GetAddress()),
-        static_cast<::Smp::UInt64>(
+        static_cast<std::size_t>(
             dynamic_cast<const ::Xsmp::Publication::StringType *>(GetType())
-                ->GetLength() +
-            1),
+                ->GetLength()),
         value);
     break;
   default:

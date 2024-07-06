@@ -451,9 +451,9 @@ void CopyString(::Smp::Char8 *destination, std::size_t size,
                 const ::Smp::AnySimple &value) {
   const auto *str = static_cast<::Smp::String8>(value);
   if (str) {
-    const std::size_t length = std::min(size, std::strlen(str) + 1);
-    std::memcpy(destination, str, length);
-    destination[size - 1] = '\0';
+    const std::size_t length = std::min(size, std::strlen(str));
+    std::char_traits<char>::copy(destination, str, length);
+    destination[length] = '\0';
   } else {
     destination[0] = '\0';
   }
