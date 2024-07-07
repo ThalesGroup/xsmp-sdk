@@ -162,6 +162,7 @@ TEST(ArrayFieldTest, BoolType) {
   output.Connect(&input);
 
   EXPECT_EQ(input[0], false);
+  EXPECT_TRUE(input == output);
   output[0] = true;
 
   EXPECT_EQ(input[0], true);

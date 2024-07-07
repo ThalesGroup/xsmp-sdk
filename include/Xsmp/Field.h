@@ -38,7 +38,6 @@
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
 #include <Xsmp/cstring.h>
-#include <array>
 #include <cstddef>
 #include <iterator>
 #include <set>
@@ -635,10 +634,10 @@ public:
 
 private:
   template <std::size_t... I>
-  std::array<value_type, _size>
+  ::Xsmp::Array<value_type, _size>
   create_array_impl(::Smp::Publication::ITypeRegistry *typeRegistry,
                     const T &value, std::index_sequence<I...>) {
-    return std::array<value_type, _size>{
+    return ::Xsmp::Array<value_type, _size>{
         {value_type(typeRegistry, GetType()->GetItemType()->GetUuid(),
                     ("[" + std::to_string(I) + "]").c_str(), "", this,
                     GetView(), value[I])...}};
@@ -646,7 +645,7 @@ private:
 
   const ::Smp::Publication::IArrayType *_type;
 
-  std::array<value_type, _size> internalArray;
+  ::Xsmp::Array<value_type, _size> internalArray;
 };
 
 template <typename T, typename... Annotations>
