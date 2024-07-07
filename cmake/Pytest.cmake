@@ -49,8 +49,6 @@ function(pytest_discover_tests)
         endif()
     endif()
     
-    #add xsmp-sdk python folder to python path
-    list(INSERT pythonpath 0 "${xsmp-sdk_SOURCE_DIR}/python")
     
     if(GENERATOR_IS_MULTI_CONFIG)
         list(INSERT libpath 0 "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/$<CONFIG>")
@@ -72,19 +70,15 @@ function(pytest_discover_tests)
     list(JOIN pythonpath "][" pythonpath)
 
     if (NOT _WORKING_DIRECTORY)
-        set(_WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python)
+        set(_WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     endif()
 
-    # Override option by environment variable if available.
-    if (DEFINED ENV{BUNDLE_PYTHON_TESTS})
-        set(_BUNDLE_TESTS $ENV{BUNDLE_PYTHON_TESTS})
-    endif()
-
-    if (NOT _NAME)
-        set(_NAME "py")
+    if (_NAME)
+        set(ctest_file_base "${CMAKE_CURRENT_BINARY_DIR}/${_NAME}")
+    else()
+        set(ctest_file_base "${CMAKE_CURRENT_BINARY_DIR}/py")
     endif()
     
-    set(ctest_file_base "${CMAKE_CURRENT_BINARY_DIR}/${_NAME}")
     set(ctest_include_file "${ctest_file_base}_include.cmake")
   
 
@@ -98,16 +92,17 @@ function(pytest_discover_tests)
       "include(\"${_PYTEST_DISCOVER_TESTS_SCRIPT}\")"                    "\n"
       "pytest_discover_tests_impl("                                      "\n"
       "    PYTHON_EXECUTABLE"     " [==[" "${Python_EXECUTABLE}"  "]==]" "\n"
-      "    TEST_GROUP_NAME"       " [==[" "${_NAME}"               "]==]" "\n"
+      "    TEST_PROJECT_NAME"     " [==[" "${PROJECT_NAME}"       "]==]" "\n"
+      "    TEST_GROUP_NAME"       " [==[" "${_NAME}"              "]==]" "\n"
       "    BUNDLE_TESTS"          " [==[" "${_BUNDLE_TESTS}"      "]==]" "\n"
       "    LIB_ENV_PATH"          " [==[" "${LIB_ENV_PATH}"       "]==]" "\n"
       "    LIBRARY_PATH"          " [==[" "${libpath}"            "]==]" "\n"
       "    PYTHON_PATH"           " [==[" "${pythonpath}"         "]==]" "\n"
       "    WORKING_DIRECTORY"     " [==[" "${_WORKING_DIRECTORY}" "]==]" "\n"
       "    ENVIRONMENT"           " [==[" "${_ENVIRONMENT}"       "]==]" "\n"
-      "    CTEST_FILE"            " [==[" "${ctest_tests_file}"    "]==]" "\n"
+      "    CTEST_FILE"            " [==[" "${ctest_tests_file}"   "]==]" "\n"
       ")"                                                                "\n"
-      "include(\"${ctest_tests_file}\")"                                  "\n"
+      "include(\"${ctest_tests_file}\")"                                 "\n"
 
     )
 

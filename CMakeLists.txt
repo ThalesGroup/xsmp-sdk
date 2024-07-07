@@ -42,6 +42,11 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.27.0")
     cmake_policy(SET CMP0144 NEW)
 endif()
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+include(PathUtils)
+
+
 # Initialize some default paths
 include(GNUInstallDirs)
 
@@ -60,8 +65,6 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(ecss_smp date_src)
-
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 option(XSMP_BUILD_TESTS           "whether or not tests should be built"            ${XSMP_MASTER_PROJECT})
 option(XSMP_BUILD_PYTHON_BINDINGS "whether or not Python bindings should be built"  ON)
@@ -92,6 +95,9 @@ if(APPLE)
 elseif(UNIX)
     list(APPEND CMAKE_INSTALL_RPATH "$ORIGIN")
 endif()
+
+#update Python Path
+PythonPathPrepend("${CMAKE_CURRENT_SOURCE_DIR}/python")
 
 
 if(XSMP_ENABLE_CODECOVERAGE)
