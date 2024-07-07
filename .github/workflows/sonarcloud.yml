@@ -35,18 +35,14 @@ jobs:
          uses: SonarSource/sonarcloud-github-c-cpp@v3
       -  name: Configure cmake
          run: |
-            #extract project version
+            #configure and extract project version
             echo "PROJECT_VERSION=$(cmake -B build -DCMAKE_BUILD_TYPE=Debug -DXSMP_ENABLE_CODECOVERAGE=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -S ${{github.workspace}} | grep -oP 'xsmp-sdk v\K[^ ]+')" >> $GITHUB_ENV
       -  name: Build
          run: |
             cmake --build build --config Debug -j 2
       -  name: Run tests
-         uses: nick-fields/retry@v3
-         with:
-            max_attempts: 3
-            retry_on: error
-            timeout_minutes: 1
-            command: cd build && ctest -C ${{env.BUILD_TYPE}} --output-on-failure
+         run: |
+            cd build && ctest -C Debug --output-on-failure
       -  name: Collect coverage into one XML report
          run: |
             gcovr --sonarqube coverage.xml

@@ -433,6 +433,8 @@ py::object convert(const ::Smp::AnySimple &value) {
   case ::Smp::PrimitiveTypeKind::PTK_Int32:
     return py::cast(value.operator ::Smp::Int32());
   case ::Smp::PrimitiveTypeKind::PTK_Int64:
+  case ::Smp::PrimitiveTypeKind::PTK_DateTime:
+  case ::Smp::PrimitiveTypeKind::PTK_Duration:
     return py::cast(value.operator ::Smp::Int64());
   case ::Smp::PrimitiveTypeKind::PTK_UInt8:
     return py::cast(value.operator ::Smp::UInt8());
@@ -442,10 +444,6 @@ py::object convert(const ::Smp::AnySimple &value) {
     return py::cast(value.operator ::Smp::UInt32());
   case ::Smp::PrimitiveTypeKind::PTK_UInt64:
     return py::cast(value.operator ::Smp::UInt64());
-  case ::Smp::PrimitiveTypeKind::PTK_DateTime:
-    return py::cast(value.operator ::Smp::DateTime());
-  case ::Smp::PrimitiveTypeKind::PTK_Duration:
-    return py::cast(value.operator ::Smp::Duration());
   case ::Smp::PrimitiveTypeKind::PTK_Float32:
     return py::cast(value.operator ::Smp::Float32());
   case ::Smp::PrimitiveTypeKind::PTK_Float64:

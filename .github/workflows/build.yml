@@ -47,12 +47,8 @@ jobs:
          run: |
             cmake --build build --config Release -j 2
       -  name: Run tests
-         uses: nick-fields/retry@v3
-         with:
-            max_attempts: 3
-            retry_on: error
-            timeout_minutes: 1
-            command: cd build && ctest -C Release --output-on-failure
+         run: |
+            cd build && ctest -C Release --output-on-failure
    gcc:
       name: '${{matrix.os}} :: GCC ${{matrix.gcc}}'
       runs-on: ${{matrix.os}}
@@ -83,12 +79,8 @@ jobs:
          run: |
             cmake --build build --config Release -j 2
       -  name: Run tests
-         uses: nick-fields/retry@v3
-         with:
-            max_attempts: 3
-            retry_on: error
-            timeout_minutes: 1
-            command: cd build && ctest -C Release --output-on-failure
+         run: |
+            cd build && ctest -C Release --output-on-failure
    clang:
       name: '${{matrix.os}} :: Clang ${{matrix.clang}}'
       runs-on: ${{matrix.os}}
@@ -125,12 +117,8 @@ jobs:
          run: |
             cmake --build build --config Release -j 2
       -  name: Run tests
-         uses: nick-fields/retry@v3
-         with:
-            max_attempts: 3
-            retry_on: error
-            timeout_minutes: 1
-            command: cd build && ctest -C Release --output-on-failure
+         run: |
+            cd build && ctest -C Release --output-on-failure
    windows:
       name: '${{matrix.os}}'
       runs-on: ${{matrix.os}}
@@ -157,12 +145,8 @@ jobs:
          run: |
             cmake --build build --config Release -j 2
       -  name: Run tests
-         uses: nick-fields/retry@v3
-         with:
-            max_attempts: 3
-            retry_on: error
-            timeout_minutes: 1
-            command: cd build ; ctest -C Release --output-on-failure -E "XsmpSchedulerTest"
+         run: |
+            cd build && ctest -C Release --output-on-failure -E "XsmpSchedulerTest"
    python:
       name: '${{matrix.os}} :: Python ${{matrix.python-version}}'
       runs-on: ${{matrix.os}}
@@ -179,18 +163,16 @@ jobs:
             - '3.10'
             - '3.11'
             - '3.12'
+            - '3.13'
       steps:
       -  uses: actions/checkout@v4
       -  uses: actions/setup-python@v5
          with:
             python-version: ${{matrix.python-version}}
+            allow-prereleases: true
       -  name: Install Python bindings using pip
          run: |
             python -m pip install .[test] -v
       -  name: Run Python tests
-         uses: nick-fields/retry@v3
-         with:
-            max_attempts: 3
-            retry_on: error
-            timeout_minutes: 1
-            command: python -m pytest python -v
+         run: |
+            python -m pytest python -v

@@ -73,7 +73,7 @@ XsmpScheduler::XsmpScheduler(::Smp::String8 name, ::Smp::String8 description,
     : XsmpSchedulerGen::XsmpSchedulerGen(name, description, parent, simulator) {
 
   // post an event to Hold the simulation at the maximal duration
-  constexpr ::Smp::Services::EventId holdId = -2;
+  static constexpr ::Smp::Services::EventId holdId = -2;
   _events.try_emplace(holdId,
                       Event{&HoldEvent, MaxDuration, MaxDuration, 0, 0,
                             ::Smp::Services::TimeKind::TK_SimulationTime});

@@ -637,13 +637,21 @@ SimpleField::SimpleField(::Smp::String8 name, ::Smp::String8 description,
 }
 void SimpleField::Restore(::Smp::IStorageReader *reader) {
   if (IsState()) {
-    reader->Restore(GetAddress(), GetSize());
+    try {
+      reader->Restore(GetAddress(), GetSize());
+    } catch (const Smp::Exception &e) {
+      ::Xsmp::Exception::throwCannotRestore(this, e.GetMessage());
+    }
   }
 }
 
 void SimpleField::Store(::Smp::IStorageWriter *writer) {
   if (IsState()) {
-    writer->Store(GetAddress(), GetSize());
+    try {
+      writer->Store(GetAddress(), GetSize());
+    } catch (const Smp::Exception &e) {
+      ::Xsmp::Exception::throwCannotStore(this, e.GetMessage());
+    }
   }
 }
 
@@ -677,9 +685,12 @@ void SimpleField::Store(::Smp::IStorageWriter *writer) {
   case ::Smp::PrimitiveTypeKind::PTK_Float64:
     return sizeof(::Smp::Float64);
   case ::Smp::PrimitiveTypeKind::PTK_String8:
-    return dynamic_cast<const ::Xsmp::Publication::StringType *>(GetType())
-               ->GetLength() +
-           1;
+    if (const auto *stringType =
+            dynamic_cast<const ::Xsmp::Publication::StringType *>(GetType())) {
+      return stringType->GetLength() + 1;
+    } else {
+      ::Xsmp::Exception::throwInvalidFieldType(this, GetType());
+    }
   default:
     ::Xsmp::Exception::throwInvalidPrimitiveType(this, "void", kind);
   }
