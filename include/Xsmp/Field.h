@@ -66,7 +66,7 @@ template <typename Annotation, typename... Annotations>
 static constexpr bool any_of =
     std::disjunction_v<std::is_same<Annotation, Annotations>...>;
 
-/// Annotation indicating that a Field is transient
+/// Annotation indicating that a Field is transient (not a state)
 struct transient {};
 
 /// Annotation indicating that a Field is an input
@@ -82,6 +82,7 @@ struct forcible {};
 struct failure {};
 
 /// Annotation indicating that a Field is connectable
+/// Indicate that a SimpleField or SimpleArrayField can be connected
 struct connectable {};
 
 } // namespace Annotation
@@ -181,7 +182,7 @@ protected:
 
 private:
   void RemoveLinks(const ::Smp::IComponent *target);
-  std::set<::Smp::ISimpleField *> _connectedFields{};
+  std::set<::Smp::ISimpleField *> _connectedFields;
   friend class ::Xsmp::detail::DataflowField;
 };
 
@@ -191,7 +192,7 @@ protected:
 
 private:
   void RemoveLinks(const ::Smp::IComponent *target);
-  std::set<::Smp::ISimpleArrayField *> _connectedFields{};
+  std::set<::Smp::ISimpleArrayField *> _connectedFields;
   friend class ::Xsmp::detail::DataflowField;
 };
 
@@ -444,114 +445,6 @@ private:
   const ::Smp::Publication::IType *_type;
   T _value;
 };
-
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool
-operator==(Other lhs, const SimpleField<T, Annotations...> &rhs) noexcept {
-  return lhs == *rhs;
-}
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool operator==(const SimpleField<T, Annotations...> &lhs,
-                                     Other rhs) noexcept {
-  return *lhs == rhs;
-}
-template <typename T, typename... Annotations, typename T2,
-          typename... Annotations2>
-[[nodiscard]] inline bool
-operator==(const SimpleField<T, Annotations...> &lhs,
-           const SimpleField<T2, Annotations2...> &rhs) noexcept {
-  return *lhs == *rhs;
-}
-
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool
-operator!=(Other lhs, const SimpleField<T, Annotations...> &rhs) noexcept {
-  return lhs != *rhs;
-}
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool operator!=(const SimpleField<T, Annotations...> &lhs,
-                                     Other rhs) noexcept {
-  return *lhs != rhs;
-}
-template <typename T, typename... Annotations, typename T2,
-          typename... Annotations2>
-[[nodiscard]] inline bool
-operator!=(const SimpleField<T, Annotations...> &lhs,
-           const SimpleField<T2, Annotations2...> &rhs) noexcept {
-  return *lhs != *rhs;
-}
-
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool
-operator<(Other lhs, const SimpleField<T, Annotations...> &rhs) noexcept {
-  return lhs < *rhs;
-}
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool operator<(const SimpleField<T, Annotations...> &lhs,
-                                    Other rhs) noexcept {
-  return *lhs < rhs;
-}
-template <typename T, typename... Annotations, typename T2,
-          typename... Annotations2>
-[[nodiscard]] inline bool
-operator<(const SimpleField<T, Annotations...> &lhs,
-          const SimpleField<T2, Annotations2...> &rhs) noexcept {
-  return *lhs < *rhs;
-}
-
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool
-operator>(Other lhs, const SimpleField<T, Annotations...> &rhs) noexcept {
-  return lhs > *rhs;
-}
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool operator>(const SimpleField<T, Annotations...> &lhs,
-                                    Other rhs) noexcept {
-  return *lhs > rhs;
-}
-template <typename T, typename... Annotations, typename T2,
-          typename... Annotations2>
-[[nodiscard]] inline bool
-operator>(const SimpleField<T, Annotations...> &lhs,
-          const SimpleField<T2, Annotations2...> &rhs) noexcept {
-  return *lhs > *rhs;
-}
-
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool
-operator<=(Other lhs, const SimpleField<T, Annotations...> &rhs) noexcept {
-  return lhs <= *rhs;
-}
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool operator<=(const SimpleField<T, Annotations...> &lhs,
-                                     Other rhs) noexcept {
-  return *lhs <= rhs;
-}
-template <typename T, typename... Annotations, typename T2,
-          typename... Annotations2>
-[[nodiscard]] inline bool
-operator<=(const SimpleField<T, Annotations...> &lhs,
-           const SimpleField<T2, Annotations2...> &rhs) noexcept {
-  return *lhs <= *rhs;
-}
-
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool
-operator>=(Other lhs, const SimpleField<T, Annotations...> &rhs) noexcept {
-  return lhs >= *rhs;
-}
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool operator>=(const SimpleField<T, Annotations...> &lhs,
-                                     Other rhs) noexcept {
-  return *lhs >= rhs;
-}
-template <typename T, typename... Annotations, typename T2,
-          typename... Annotations2>
-[[nodiscard]] inline bool
-operator>=(const SimpleField<T, Annotations...> &lhs,
-           const SimpleField<T2, Annotations2...> &rhs) noexcept {
-  return *lhs >= *rhs;
-}
 
 template <typename T, typename... Annotations>
 class ArrayField final : public ::Xsmp::detail::Field<T, Annotations...>,
@@ -940,11 +833,13 @@ public:
     protected_iterator(SimpleArrayField *parent, value_type *value,
                        std::size_t index)
         : _parent{parent}, _value{value}, _index{index} {}
-    inline bool operator==(const protected_iterator &other) {
-      return _value == other._value;
+    friend inline bool operator==(const protected_iterator &lhs,
+                                  const protected_iterator &rhs) {
+      return lhs._value == rhs._value;
     }
-    inline bool operator!=(const protected_iterator &other) {
-      return _value != other._value;
+    friend inline bool operator!=(const protected_iterator &lhs,
+                                  const protected_iterator &rhs) {
+      return lhs._value != rhs._value;
     }
     reference operator*() const noexcept {
       return reference{_parent, *_value, _index};
@@ -978,16 +873,20 @@ public:
       _index += index;
       return *this;
     }
-    protected_iterator operator+(difference_type index) const noexcept {
-      return protected_iterator(_parent, _value + index, _index + index);
+    friend protected_iterator operator+(const protected_iterator &lhs,
+                                        difference_type index) noexcept {
+      return protected_iterator(lhs._parent, lhs._value + index,
+                                lhs._index + index);
     }
     protected_iterator &operator-=(difference_type index) noexcept {
       _value -= index;
       _index -= index;
       return *this;
     }
-    protected_iterator operator-(difference_type index) const noexcept {
-      return protected_iterator(_parent, _value - index, _index - index);
+    friend protected_iterator operator-(const protected_iterator &lhs,
+                                        difference_type index) noexcept {
+      return protected_iterator(lhs._parent, lhs._value - index,
+                                lhs._index - index);
     }
     const value_type *base() const noexcept { return _value; }
 
@@ -1144,97 +1043,6 @@ private:
   const ::Smp::Publication::IArrayType *_type;
   T _value;
 };
-
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool operator==(
-    Other lhs,
-    const typename SimpleArrayField<T, Annotations...>::protected_reference
-        &rhs) noexcept {
-  return lhs == *rhs;
-}
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool operator==(
-    const typename SimpleArrayField<T, Annotations...>::protected_reference
-        &lhs,
-    Other rhs) noexcept {
-  return *lhs == rhs;
-}
-
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool operator!=(
-    Other lhs,
-    const typename SimpleArrayField<T, Annotations...>::protected_reference
-        &rhs) noexcept {
-  return lhs != *rhs;
-}
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool operator!=(
-    const typename SimpleArrayField<T, Annotations...>::protected_reference
-        &lhs,
-    Other rhs) noexcept {
-  return *lhs != rhs;
-}
-
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool operator<(
-    Other lhs,
-    const typename SimpleArrayField<T, Annotations...>::protected_reference
-        &rhs) noexcept {
-  return lhs < *rhs;
-}
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool operator<(
-    const typename SimpleArrayField<T, Annotations...>::protected_reference
-        &lhs,
-    Other rhs) noexcept {
-  return *lhs < rhs;
-}
-
-template <typename T, std::size_t Nm, typename... Annotations, typename Other>
-[[nodiscard]] inline bool operator>(
-    Other lhs,
-    const typename SimpleArrayField<T, Annotations...>::protected_reference
-        &rhs) noexcept {
-  return lhs > *rhs;
-}
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool operator>(
-    const typename SimpleArrayField<T, Annotations...>::protected_reference
-        &lhs,
-    Other rhs) noexcept {
-  return *lhs > rhs;
-}
-
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool operator<=(
-    Other lhs,
-    const typename SimpleArrayField<T, Annotations...>::protected_reference
-        &rhs) noexcept {
-  return lhs <= *rhs;
-}
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool operator<=(
-    const typename SimpleArrayField<T, Annotations...>::protected_reference
-        &lhs,
-    Other rhs) noexcept {
-  return *lhs <= rhs;
-}
-
-template <typename T, std::size_t Nm, typename... Annotations, typename Other>
-[[nodiscard]] inline bool operator>=(
-    Other lhs,
-    const typename SimpleArrayField<T, Annotations...>::protected_reference
-        &rhs) noexcept {
-  return lhs >= *rhs;
-}
-template <typename T, typename... Annotations, typename Other>
-[[nodiscard]] inline bool operator>=(
-    const typename SimpleArrayField<T, Annotations...>::protected_reference
-        &lhs,
-    Other rhs) noexcept {
-  return *lhs >= rhs;
-}
-
 template <typename T, typename... Annotations>
 class StructureField : public ::Xsmp::detail::Field<T, Annotations...>,
                        public ::Xsmp::detail::AbstractStructureField {

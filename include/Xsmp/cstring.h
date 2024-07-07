@@ -25,7 +25,7 @@ namespace Xsmp {
 /// With a typical implementation of std::string (32 bytes), it saves 24 bytes.
 /// The input string is duplicated on creation and deleted when the wrapper is
 /// deleted
-struct cstring {
+struct cstring final {
   cstring(const char *value, std::size_t size);
   cstring(const char *value);
   explicit cstring(std::string_view value);

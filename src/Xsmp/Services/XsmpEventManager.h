@@ -110,16 +110,16 @@ public:
 
 private:
   friend class ::Xsmp::Component::Helper;
-  std::mutex _eventsMutex{};
-  std::unordered_map<std::string, ::Smp::Services::EventId> _events{};
+  std::mutex _eventsMutex;
+  std::unordered_map<std::string, ::Smp::Services::EventId> _events;
 
-  mutable std::mutex _idsMutex{};
-  std::unordered_map<::Smp::Services::EventId, const std::string &> _ids{};
+  mutable std::mutex _idsMutex;
+  std::unordered_map<::Smp::Services::EventId, const std::string &> _ids;
 
-  std::mutex _subscriptionsMutex{};
+  std::mutex _subscriptionsMutex;
   std::unordered_map<::Smp::Services::EventId,
                      std::vector<const ::Smp::IEntryPoint *>>
-      _subscriptions{};
+      _subscriptions;
 
   const std::string &GetEventName(::Smp::Services::EventId event) const;
 };

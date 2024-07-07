@@ -131,11 +131,14 @@ TEST(SimpleArrayFieldTest, Int8Type) {
 
   EXPECT_FALSE(field[0]);
   field[0] = 42;
-  EXPECT_TRUE(field[0]);
+  EXPECT_EQ(field[0], 42);
+  Type v{42, 0, 0, 0};
+  EXPECT_EQ(field, v);
 
   field.SetValue(0, {::Smp::PrimitiveTypeKind::PTK_Int8, 10});
   EXPECT_EQ(field[0], 10);
   EXPECT_EQ(static_cast<::Smp::Int8>(field.GetValue(0)), 10);
+  EXPECT_NE(field, v);
 
   Field<Type>::input input{&typeRegistry, Smp::Uuid{}, "input"};
   EXPECT_TRUE(input.IsState());
@@ -151,6 +154,8 @@ TEST(SimpleArrayFieldTest, Int8Type) {
 
   EXPECT_EQ(input[0], 0);
   output[0] = 42;
+
+  EXPECT_EQ(input, output);
 
   EXPECT_EQ(input[0], 42);
 

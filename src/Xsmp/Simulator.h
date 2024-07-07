@@ -378,16 +378,16 @@ private:
   ::Xsmp::cstring _name;
   ::Xsmp::cstring _description;
 
-  std::vector<std::pair<std::string, void *>> _libraries{};
+  std::vector<std::pair<std::string, void *>> _libraries;
 
   ::Smp::Services::EventId _lastGlobalEventId = -1;
 
   Container<::Smp::IService> _services;
   Container<::Smp::IModel> _models;
 
-  std::vector<::Smp::IEntryPoint *> _initEntryPoints{};
+  std::vector<::Smp::IEntryPoint *> _initEntryPoints;
 
-  std::list<::Xsmp::Publication::Publication> _publications{};
+  std::list<::Xsmp::Publication::Publication> _publications;
 
   FactoryCollection _factories;
 

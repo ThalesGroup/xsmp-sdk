@@ -132,10 +132,10 @@ public:
 private:
   ::Smp::IOperation *_operation;
 
-  ::Smp::AnySimple _returnValue{};
-  std::map<std::string, ::Smp::Int32, std::less<>> _indexes{};
+  ::Smp::AnySimple _returnValue;
+  std::map<std::string, ::Smp::Int32, std::less<>> _indexes;
   std::vector<std::pair<::Smp::AnySimple, const ::Smp::Publication::IType *>>
-      _values{};
+      _values;
 
   void init(const std::string &name, const ::Smp::Publication::IType *type,
             ::Smp::Publication::ITypeRegistry *typeRegistry);

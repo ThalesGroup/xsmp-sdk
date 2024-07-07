@@ -129,11 +129,11 @@ public:
 
 private:
   friend class ::Xsmp::Component::Helper;
-  mutable std::mutex _mutex{};
-  ::Smp::Duration _simulationTime{0};
-  ::Smp::DateTime _missionStartTime{0};
-  ::Smp::DateTime _epochStart{0};
-  std::atomic_bool _simTimeChanging{false};
+  mutable std::mutex _mutex;
+  ::Smp::Duration _simulationTime{};
+  ::Smp::DateTime _missionStartTime{};
+  ::Smp::DateTime _epochStart{};
+  std::atomic_bool _simTimeChanging{};
   void DoConnect(const ::Smp::ISimulator *simulator) const;
 };
 } // namespace Xsmp::Services

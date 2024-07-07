@@ -60,7 +60,7 @@ private:
   ::Xsmp::cstring _name;
   ::Xsmp::cstring _description;
   ::Smp::IObject *_parent;
-  std::set<::Smp::IEventSink *> _event_sinks{};
+  std::set<::Smp::IEventSink *> _event_sinks;
   ::Smp::PrimitiveTypeKind _eventArgType;
   // Extensions for ILinkingComponent
   /// Asks an Event Source to remove all its links to the given target

@@ -378,7 +378,7 @@ public:
     Append(std::cout, entry);
   }
 };
-std::mutex ConsoleAppender::_mutex{};
+std::mutex ConsoleAppender::_mutex;
 
 class FileAppender final : public Appender {
 
@@ -452,9 +452,9 @@ private:
     running = false;
   }
   void Push(const ::Smp::IObject *sender, ::Smp::String8 msg,
-                   const std::string &kind, ::Smp::DateTime zuluTime,
-                   ::Smp::Duration simulationTime, ::Smp::DateTime epochTime,
-                   ::Smp::Duration missionTime) {
+            const std::string &kind, ::Smp::DateTime zuluTime,
+            ::Smp::Duration simulationTime, ::Smp::DateTime epochTime,
+            ::Smp::Duration missionTime) {
     const std::scoped_lock lck(_mutex);
     _logs.push({::Xsmp::Helper::GetPath(sender), msg, kind,
                 Xsmp::DateTime{zuluTime}, Xsmp::Duration{simulationTime},
@@ -554,9 +554,6 @@ private:
 XsmpLogger::XsmpLogger(::Smp::String8 name, ::Smp::String8 description,
                        ::Smp::IComposite *parent, ::Smp::ISimulator *simulator)
     : XsmpLoggerGen::XsmpLoggerGen(name, description, parent, simulator),
-      // init pre-defined kinds: keep ordered
-      _logMessageKinds{LMK_InformationName, LMK_EventName, LMK_WarningName,
-                       LMK_ErrorName, LMK_DebugName},
       _processor{std::make_unique<LoggerProcessor>()} {}
 
 ::Smp::Services::LogMessageKind

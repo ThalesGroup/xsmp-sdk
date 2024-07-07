@@ -52,9 +52,9 @@ public:
 
 private:
   ::Smp::IObject *_parent;
-  std::unordered_map<::Smp::Uuid, std::unique_ptr<::Smp::IFactory>> _uuid_map{};
-  std::unordered_map<std::string, ::Smp::IFactory *> _factory_map{};
-  std::vector<::Smp::IFactory *> _factories{};
+  std::unordered_map<::Smp::Uuid, std::unique_ptr<::Smp::IFactory>> _uuid_map;
+  std::unordered_map<std::string, ::Smp::IFactory *> _factory_map;
+  std::vector<::Smp::IFactory *> _factories;
 };
 
 } // namespace Xsmp

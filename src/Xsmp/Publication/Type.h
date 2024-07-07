@@ -120,7 +120,7 @@ public:
   const std::map<::Smp::Int32, Literal> &GetLiterals() const noexcept;
 
 private:
-  std::map<::Smp::Int32, Literal> _literals{};
+  std::map<::Smp::Int32, Literal> _literals;
 };
 
 class FloatType final : public SimpleType {
@@ -216,7 +216,7 @@ public:
   const std::vector<Field> &GetFields() const;
 
 private:
-  std::vector<Field> _fields{};
+  std::vector<Field> _fields;
 };
 
 class ClassType final : public StructureType,

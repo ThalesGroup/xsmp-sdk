@@ -265,7 +265,7 @@ public:
   const_reference back() const { return _vector.back(); }
 
 private:
-  holder _vector{};
+  holder _vector;
 };
 
 } // namespace Xsmp

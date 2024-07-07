@@ -187,7 +187,7 @@ public:
 private:
   ::Smp::IObject *_parent;
   std::unordered_map<::Smp::Uuid, std::unique_ptr<::Smp::Publication::IType>>
-      _types{};
+      _types;
 
   /// Add a type to the registry.
   /// @param   args type parameters.

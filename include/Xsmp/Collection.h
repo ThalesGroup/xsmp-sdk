@@ -89,8 +89,8 @@ public:
   }
 
 private:
-  std::vector<T *> _vector{};
-  std::unordered_map<std::string_view, T *> _map{};
+  std::vector<T *> _vector;
+  std::unordered_map<std::string_view, T *> _map;
 };
 } // namespace detail
 
@@ -173,8 +173,8 @@ public:
   }
 
 private:
-  std::vector<T *> _vector{};
-  std::unordered_map<std::string_view, std::unique_ptr<T>> _map{};
+  std::vector<T *> _vector;
+  std::unordered_map<std::string_view, std::unique_ptr<T>> _map;
 };
 
 template <typename T>

@@ -391,37 +391,37 @@ private:
                std::less<std::make_unsigned_t<::Smp::Services::EventId>>>;
 
   // scheduling table for zulu time events
-  mutable std::mutex _zuluEventsTableMutex{};
-  std::map<::Smp::Duration, EventList> _zulu_events_table{};
+  mutable std::mutex _zuluEventsTableMutex;
+  std::map<::Smp::Duration, EventList> _zulu_events_table;
 
   // Mapping between an EventId and internal data
   mutable std::mutex
-      _eventsMutex{}; // protection for _events, _immediate_events,
+      _eventsMutex; // protection for _events, _immediate_events,
                       // _events_table and _lastEventId
   // scheduling table for simu/epoch/mission time events
-  std::map<::Smp::Duration, EventList> _events_table{};
+  std::map<::Smp::Duration, EventList> _events_table;
 
   // immediate events  table
-  EventList _immediate_events{};
-  std::map<::Smp::Services::EventId, Event> _events{};
-  ::Smp::Services::EventId _lastEventId = -1;
+  EventList _immediate_events;
+  std::map<::Smp::Services::EventId, Event> _events;
+  ::Smp::Services::EventId _lastEventId{-1};
 
   // The current EventId that is being executed
   ::Smp::Services::EventId _currentEventId{-1};
-  std::condition_variable _zuluCv{};
+  std::condition_variable _zuluCv;
 
-  std::condition_variable _holdCv{};
-  std::mutex _holdMutex{};
+  std::condition_variable _holdCv;
+  std::mutex _holdMutex;
 
   enum class Status { Running, Hold };
   std::atomic<double> _targetSpeed{100.};
-  std::atomic<Status> _simulationStatus{};
-  bool _terminate{false};
+  std::atomic<Status> _simulationStatus;
+  bool _terminate{};
 
-  std::mutex _execMutex{};
+  std::mutex _execMutex;
 
   // thread that process zulu events
-  std::thread _zuluThread{};
+  std::thread _zuluThread;
 
   class MovingAverage {
   public:
@@ -431,15 +431,15 @@ private:
 
   private:
     double sum{};
-    static constexpr unsigned int sampleCount = 20;
-    std::array<double, sampleCount> samples{};
+    static constexpr unsigned int sampleCount{20};
+    std::array<double, sampleCount> samples;
     unsigned int index{};
     unsigned int size{};
-    std::mutex _mutex{};
+    std::mutex _mutex;
   };
 
-  MovingAverage _load{};
-  MovingAverage _speed{};
+  MovingAverage _load;
+  MovingAverage _speed;
 
   /// Run the scheduler
   void InternalZuluRun();

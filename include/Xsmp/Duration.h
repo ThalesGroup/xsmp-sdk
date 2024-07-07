@@ -158,38 +158,81 @@ struct Duration final {
     return lhs._value ==
            std::chrono::duration_cast<std::chrono::nanoseconds>(rhs).count();
   }
-  template <typename T> constexpr bool operator!=(const T &_i) const noexcept {
-    return !((*this) == _i);
+  template <typename T>
+  friend constexpr bool operator!=(const Duration &lhs, const T &rhs) noexcept {
+    return !(lhs == rhs);
   }
-  template <typename T> constexpr bool operator<(const T &rhs) const {
-    return _value < rhs;
-  }
-  template <typename Rep, typename Period>
-  constexpr bool
-  operator<(const std::chrono::duration<Rep, Period> &_i) const noexcept {
-    return _value <
-           std::chrono::duration_cast<std::chrono::nanoseconds>(_i).count();
+  template <typename T>
+  friend constexpr bool operator<(const Duration &lhs, const T &rhs) noexcept {
+    return lhs._value < rhs;
   }
   template <typename Rep, typename Period>
-  constexpr bool
-  operator>(const std::chrono::duration<Rep, Period> &_i) const noexcept {
-    return _value >
-           std::chrono::duration_cast<std::chrono::nanoseconds>(_i).count();
+  friend constexpr bool
+  operator<(const Duration &lhs,
+            const std::chrono::duration<Rep, Period> &rhs) noexcept {
+    return lhs._value <
+           std::chrono::duration_cast<std::chrono::nanoseconds>(rhs).count();
   }
   template <typename Rep, typename Period>
-  constexpr bool
-  operator<=(const std::chrono::duration<Rep, Period> &_i) const noexcept {
-    return _value <=
-           std::chrono::duration_cast<std::chrono::nanoseconds>(_i).count();
+  friend constexpr bool
+  operator>(const Duration &lhs,
+            const std::chrono::duration<Rep, Period> &rhs) noexcept {
+    return lhs._value >
+           std::chrono::duration_cast<std::chrono::nanoseconds>(rhs).count();
   }
-  template <typename T> constexpr bool operator>(const T &rhs) const noexcept {
-    return rhs < *this;
+  template <typename Rep, typename Period>
+  friend constexpr bool
+  operator<=(const Duration &lhs,
+             const std::chrono::duration<Rep, Period> &rhs) noexcept {
+    return lhs._value <=
+           std::chrono::duration_cast<std::chrono::nanoseconds>(rhs).count();
   }
-  template <typename T> constexpr bool operator<=(const T &rhs) const noexcept {
-    return !(*this > rhs);
+  template <typename T>
+  friend constexpr bool operator>(const Duration &lhs, const T &rhs) noexcept {
+    return rhs < lhs;
   }
-  template <typename T> constexpr bool operator>=(const T &rhs) const noexcept {
-    return !(*this < rhs);
+  template <typename T>
+  friend constexpr bool operator<=(const Duration &lhs, const T &rhs) noexcept {
+    return !(lhs > rhs);
+  }
+  template <typename T>
+  friend constexpr bool operator>=(const Duration &lhs, const T &rhs) noexcept {
+    return !(lhs < rhs);
+  }
+
+  // comparison operator for std::chrono::duration
+  template <typename Rep, typename Period>
+  friend constexpr bool operator==(const std::chrono::duration<Rep, Period> &_i,
+                                   const Duration &d) noexcept {
+    return d == _i;
+  }
+  template <typename Rep, typename Period>
+  friend constexpr bool operator!=(const std::chrono::duration<Rep, Period> &_i,
+                                   const Duration &d) noexcept {
+    return d != _i;
+  }
+
+  template <typename Rep, typename Period>
+  friend constexpr bool operator<(const std::chrono::duration<Rep, Period> &_i,
+                                  const Duration &d) noexcept {
+    return d > _i;
+  }
+  template <typename Rep, typename Period>
+  friend constexpr bool operator>(const std::chrono::duration<Rep, Period> &rhs,
+                                  const Duration &d) noexcept {
+    return d < rhs;
+  }
+  template <typename Rep, typename Period>
+  friend constexpr bool
+  operator<=(const std::chrono::duration<Rep, Period> &rhs,
+             const Duration &d) noexcept {
+    return d >= rhs;
+  }
+  template <typename Rep, typename Period>
+  friend constexpr bool
+  operator>=(const std::chrono::duration<Rep, Period> &rhs,
+             const Duration &d) noexcept {
+    return d <= rhs;
   }
 
   /// operator for nano seconds (identity)
@@ -230,50 +273,12 @@ struct Duration final {
     return Duration{value * days(7)};
   }
 
-private:
-  ::Smp::Duration _value;
-
   friend std::ostream &operator<<(std::ostream &outputStream,
                                   const Duration &duration);
+
+private:
+  ::Smp::Duration _value;
 };
-
-static_assert(sizeof(::Smp::Duration) == sizeof(::Xsmp::Duration),
-              "Size of ::Xsmp::Duration shall be identical to ::Smp::Duration");
-static_assert(std::is_standard_layout_v<::Xsmp::Duration>,
-              "::Xsmp::Duration shall be a standard layout class");
-
-// comparison operator for std::chrono::duration
-template <typename Rep, typename Period>
-constexpr bool operator==(const std::chrono::duration<Rep, Period> &_i,
-                          const Duration &d) noexcept {
-  return d == _i;
-}
-template <typename Rep, typename Period>
-constexpr bool operator!=(const std::chrono::duration<Rep, Period> &_i,
-                          const Duration &d) noexcept {
-  return d != _i;
-}
-
-template <typename Rep, typename Period>
-constexpr bool operator<(const std::chrono::duration<Rep, Period> &_i,
-                         const Duration &d) noexcept {
-  return d > _i;
-}
-template <typename Rep, typename Period>
-constexpr bool operator>(const std::chrono::duration<Rep, Period> &rhs,
-                         const Duration &d) noexcept {
-  return d < rhs;
-}
-template <typename Rep, typename Period>
-constexpr bool operator<=(const std::chrono::duration<Rep, Period> &rhs,
-                          const Duration &d) noexcept {
-  return d >= rhs;
-}
-template <typename Rep, typename Period>
-constexpr bool operator>=(const std::chrono::duration<Rep, Period> &rhs,
-                          const Duration &d) noexcept {
-  return d <= rhs;
-}
 
 /// Provides ::Xsmp::Duration literals for _ns/_us/_ms/_s/_mn/_h/_d
 /// e.g: 5_mn + 10_s + 3_ms

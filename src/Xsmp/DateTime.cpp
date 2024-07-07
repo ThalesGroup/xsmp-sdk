@@ -22,6 +22,11 @@
 
 namespace Xsmp {
 
+static_assert(sizeof(::Smp::DateTime) == sizeof(::Xsmp::DateTime),
+              "Size of ::Xsmp::DateTime shall be identical to ::Smp::DateTime");
+static_assert(std::is_standard_layout_v<::Xsmp::DateTime>,
+              "::Xsmp::DateTime shall be a standard layout class");
+
 DateTime DateTime::now() { return DateTime{std::chrono::system_clock::now()}; }
 
 namespace {

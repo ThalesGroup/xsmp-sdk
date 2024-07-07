@@ -128,6 +128,9 @@ TEST(SimpleFieldTest, BoolType) {
   field = field || false;
 
   EXPECT_EQ(field, false);
+  EXPECT_EQ(false, field);
+  EXPECT_NE(field, true);
+  EXPECT_NE(true, field);
   field = true;
   EXPECT_EQ(field, true);
   field.SetValue({::Smp::PrimitiveTypeKind::PTK_Bool, false});
@@ -183,6 +186,18 @@ TEST(SimpleFieldTest, Int8Type) {
   field = field + 0;
 
   EXPECT_EQ(field, 0);
+  EXPECT_EQ(0, field);
+  EXPECT_NE(field, 1);
+  EXPECT_NE(1, field);
+  EXPECT_GT(field, -1);
+  EXPECT_GT(1, field);
+  EXPECT_LT(field, 1);
+  EXPECT_LT(-1, field);
+  EXPECT_GE(field, -1);
+  EXPECT_GE(1, field);
+  EXPECT_LE(field, 1);
+  EXPECT_LE(-1, field);
+
   field += static_cast<::Smp::Int8>(-1);
   EXPECT_EQ(field, -1);
   const ::Smp::Int8 raw = field;
@@ -209,6 +224,9 @@ TEST(SimpleFieldTest, Int8Type) {
   output = 42;
 
   EXPECT_EQ(input, 42);
+  EXPECT_EQ(input, output);
+  EXPECT_EQ(output, output);
+  EXPECT_EQ(output, input);
 
   EXPECT_EQ(input | 0, 42);
   EXPECT_EQ(input & 42, 42);
@@ -332,6 +350,7 @@ TEST(SimpleFieldTest, EnumType) {
   EXPECT_EQ(input, Enum::L2);
 }
 using String20 = ::Xsmp::String<20>;
+
 TEST(SimpleFieldTest, StringType) {
 
   Xsmp::Publication::TypeRegistry typeRegistry;
@@ -367,6 +386,7 @@ TEST(SimpleFieldTest, StringType) {
   output.Connect(&input);
 
   EXPECT_EQ(input, "");
+  EXPECT_EQ("", input);
   output = "test";
 
   EXPECT_EQ(input, "test");

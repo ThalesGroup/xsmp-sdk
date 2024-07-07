@@ -368,6 +368,105 @@ template <std::size_t Nm> struct String {
     std::swap(internalString, rhs.internalString);
   }
 
+  template <std::size_t Nm2>
+  [[nodiscard]] friend constexpr bool
+  operator==(const String &_lhs, const String<Nm2> &_rhs) noexcept {
+    return _lhs.compare(_rhs) == 0;
+  }
+  [[nodiscard]] friend constexpr bool operator==(std::string_view _lhs,
+                                                 const String &_rhs) noexcept {
+    return _lhs.compare(_rhs.c_str()) == 0;
+  }
+  [[nodiscard]] friend constexpr bool
+  operator==(const String &_lhs, std::string_view _rhs) noexcept {
+    return _lhs.compare(_rhs) == 0;
+  }
+
+  template <std::size_t Nm2>
+  [[nodiscard]] friend constexpr bool
+  operator!=(const String &_lhs, const String<Nm2> &_rhs) noexcept {
+    return !(_lhs == _rhs);
+  }
+  [[nodiscard]] friend constexpr bool operator!=(std::string_view _lhs,
+                                                 const String &_rhs) noexcept {
+    return !(_lhs == _rhs);
+  }
+  [[nodiscard]] friend constexpr bool
+  operator!=(const String &_lhs, std::string_view _rhs) noexcept {
+    return !(_lhs == _rhs);
+  }
+
+  template <std::size_t Nm2>
+  [[nodiscard]] friend constexpr bool
+  operator<(const String &_lhs, const String<Nm2> &_rhs) noexcept {
+    return _lhs.compare(_rhs) < 0;
+  }
+
+  [[nodiscard]] friend constexpr bool operator<(std::string_view _lhs,
+                                                const String &_rhs) noexcept {
+    return _lhs.compare(_rhs.c_str()) < 0;
+  }
+
+  [[nodiscard]] friend constexpr bool
+  operator<(const String &_lhs, std::string_view _rhs) noexcept {
+    return _lhs.compare(_rhs) < 0;
+  }
+
+  template <std::size_t Nm2>
+  [[nodiscard]] friend constexpr bool
+  operator>(const String &_lhs, const String<Nm2> &_rhs) noexcept {
+    return _lhs.compare(_rhs) > 0;
+  }
+
+  [[nodiscard]] friend constexpr bool operator>(std::string_view _lhs,
+                                                const String &_rhs) noexcept {
+    return _lhs.compare(_rhs.c_str()) > 0;
+  }
+
+  [[nodiscard]] friend constexpr bool
+  operator>(const String &_lhs, std::string_view _rhs) noexcept {
+    return _lhs.compare(_rhs) > 0;
+  }
+
+  template <std::size_t Nm2>
+  [[nodiscard]] friend constexpr bool
+  operator<=(const String &_lhs, const String<Nm2> &_rhs) noexcept {
+    return _lhs.compare(_rhs) <= 0;
+  }
+  [[nodiscard]] friend constexpr bool operator<=(std::string_view _lhs,
+                                                 const String &_rhs) noexcept {
+    return _lhs.compare(_rhs.c_str()) <= 0;
+  }
+  [[nodiscard]] friend constexpr bool
+  operator<=(const String &_lhs, std::string_view _rhs) noexcept {
+    return _lhs.compare(_rhs) <= 0;
+  }
+
+  [[nodiscard]] friend constexpr bool operator<=(const char *_lhs,
+                                                 const String &_rhs) noexcept {
+    return _rhs.compare(_lhs) >= 0;
+  }
+
+  [[nodiscard]] friend constexpr bool operator<=(const String &_lhs,
+                                                 const char *_rhs) noexcept {
+    return _lhs.compare(_rhs) <= 0;
+  }
+
+  template <std::size_t Nm2>
+  [[nodiscard]] friend constexpr bool
+  operator>=(const String &_lhs, const String<Nm2> &_rhs) noexcept {
+    return _lhs.compare(_rhs) >= 0;
+  }
+
+  [[nodiscard]] friend constexpr bool operator>=(std::string_view _lhs,
+                                                 const String &_rhs) noexcept {
+    return _lhs.compare(_rhs.c_str()) >= 0;
+  }
+  [[nodiscard]] friend constexpr bool
+  operator>=(const String &_lhs, std::string_view _rhs) noexcept {
+    return _lhs.compare(_rhs) >= 0;
+  }
+
 private:
   constexpr int compare(const char *str, std::size_t size, const char *ostr,
                         std::size_t osize) const {
@@ -428,113 +527,6 @@ template <std::size_t Nm>
 template <std::size_t Nm>
 [[nodiscard]] std::string operator+(const String<Nm> &_lhs, char _rhs) {
   return std::string(_lhs.c_str()) + _rhs;
-}
-
-template <std::size_t Nm, std::size_t Nm2>
-[[nodiscard]] constexpr bool operator==(const String<Nm> &_lhs,
-                                        const String<Nm2> &_rhs) noexcept {
-  return _lhs.compare(_rhs) == 0;
-}
-template <std::size_t Nm>
-[[nodiscard]] constexpr bool operator==(std::string_view _lhs,
-                                        const String<Nm> &_rhs) noexcept {
-  return _lhs.compare(_rhs.c_str()) == 0;
-}
-template <std::size_t Nm>
-[[nodiscard]] constexpr bool operator==(const String<Nm> &_lhs,
-                                        std::string_view _rhs) noexcept {
-  return _lhs.compare(_rhs) == 0;
-}
-
-template <std::size_t Nm, std::size_t Nm2>
-[[nodiscard]] constexpr bool operator!=(const String<Nm> &_lhs,
-                                        const String<Nm2> &_rhs) noexcept {
-  return !(_lhs == _rhs);
-}
-template <std::size_t Nm>
-[[nodiscard]] constexpr bool operator!=(std::string_view _lhs,
-                                        const String<Nm> &_rhs) noexcept {
-  return !(_lhs == _rhs);
-}
-template <std::size_t Nm>
-[[nodiscard]] constexpr bool operator!=(const String<Nm> &_lhs,
-                                        std::string_view _rhs) noexcept {
-  return !(_lhs == _rhs);
-}
-
-template <std::size_t Nm, std::size_t Nm2>
-[[nodiscard]] constexpr bool operator<(const String<Nm> &_lhs,
-                                       const String<Nm2> &_rhs) noexcept {
-  return _lhs.compare(_rhs) < 0;
-}
-template <std::size_t Nm>
-[[nodiscard]] constexpr bool operator<(std::string_view _lhs,
-                                       const String<Nm> &_rhs) noexcept {
-  return _lhs.compare(_rhs.c_str()) < 0;
-}
-template <std::size_t Nm>
-[[nodiscard]] constexpr bool operator<(const String<Nm> &_lhs,
-                                       std::string_view _rhs) noexcept {
-  return _lhs.compare(_rhs) < 0;
-}
-
-template <std::size_t Nm, std::size_t Nm2>
-[[nodiscard]] constexpr bool operator>(const String<Nm> &_lhs,
-                                       const String<Nm2> &_rhs) noexcept {
-  return _lhs.compare(_rhs) > 0;
-}
-template <std::size_t Nm>
-[[nodiscard]] constexpr bool operator>(std::string_view _lhs,
-                                       const String<Nm> &_rhs) noexcept {
-  return _lhs.compare(_rhs.c_str()) > 0;
-}
-template <std::size_t Nm>
-[[nodiscard]] constexpr bool operator>(const String<Nm> &_lhs,
-                                       std::string_view _rhs) noexcept {
-  return _lhs.compare(_rhs) > 0;
-}
-
-template <std::size_t Nm, std::size_t Nm2>
-[[nodiscard]] constexpr bool operator<=(const String<Nm> &_lhs,
-                                        const String<Nm2> &_rhs) noexcept {
-  return _lhs.compare(_rhs) <= 0;
-}
-template <std::size_t Nm>
-[[nodiscard]] constexpr bool operator<=(std::string_view _lhs,
-                                        const String<Nm> &_rhs) noexcept {
-  return _lhs.compare(_rhs.c_str()) <= 0;
-}
-template <std::size_t Nm>
-[[nodiscard]] constexpr bool operator<=(const String<Nm> &_lhs,
-                                        std::string_view _rhs) noexcept {
-  return _lhs.compare(_rhs) <= 0;
-}
-
-template <std::size_t Nm>
-[[nodiscard]] constexpr bool operator<=(const char *_lhs,
-                                        const String<Nm> &_rhs) noexcept {
-  return _rhs.compare(_lhs) >= 0;
-}
-template <std::size_t Nm>
-[[nodiscard]] constexpr bool operator<=(const String<Nm> &_lhs,
-                                        const char *_rhs) noexcept {
-  return _lhs.compare(_rhs) <= 0;
-}
-
-template <std::size_t Nm, std::size_t Nm2>
-[[nodiscard]] constexpr bool operator>=(const String<Nm> &_lhs,
-                                        const String<Nm2> &_rhs) noexcept {
-  return _lhs.compare(_rhs) >= 0;
-}
-template <std::size_t Nm>
-[[nodiscard]] constexpr bool operator>=(std::string_view _lhs,
-                                        const String<Nm> &_rhs) noexcept {
-  return _lhs.compare(_rhs.c_str()) >= 0;
-}
-template <std::size_t Nm>
-[[nodiscard]] constexpr bool operator>=(const String<Nm> &_lhs,
-                                        std::string_view _rhs) noexcept {
-  return _lhs.compare(_rhs) >= 0;
 }
 
 } // namespace Xsmp

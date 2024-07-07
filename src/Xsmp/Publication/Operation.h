@@ -181,7 +181,7 @@ private:
   ::Xsmp::cstring _name;
   ::Xsmp::cstring _description;
   ::Smp::IObject *_parent;
-  std::unique_ptr<::Smp::IParameter> _returnParameter{};
+  std::unique_ptr<::Smp::IParameter> _returnParameter;
   ::Xsmp::ContainingCollection<::Smp::IParameter> _parameters;
   ::Smp::Publication::ITypeRegistry *_typeRegistry;
 

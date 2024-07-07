@@ -180,28 +180,6 @@ struct DateTime final {
         std::chrono::duration_cast<FromDuration>(
             std::chrono::nanoseconds(_value + _epochToMjd)));
   }
-  // a platform independent time_point in nanoseconds
-  using time_point = std::chrono::time_point<std::chrono::system_clock,
-                                             std::chrono::nanoseconds>;
-
-private:
-  /// ::Smp::DateTime is expressed in nanoseconds, relative to the reference
-  /// time of 01.01.2000, 12:00, Modified Julian Date (MJD) 2000+0.5; epoch time
-  /// is 01.01.1970, 00:00 there are 946728000 seconds between epoch time and
-  /// MJD2000 +0.5
-  static constexpr ::Smp::Duration _epochToMjd = 946728000LL * 1000000000LL;
-
-  ::Smp::DateTime _value;
-
-  template <class Clock, class FromDuration>
-  constexpr ::Smp::DateTime
-  convert(const std::chrono::time_point<Clock, FromDuration> &timePoint)
-      const noexcept {
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(
-               timePoint.time_since_epoch())
-               .count() -
-           _epochToMjd;
-  }
 
   constexpr friend DateTime
   operator+(const DateTime &dateTime,
@@ -245,12 +223,30 @@ private:
 
   friend std::ostream &operator<<(std::ostream &outputStream,
                                   const DateTime &dateTime);
-};
 
-static_assert(sizeof(::Smp::DateTime) == sizeof(::Xsmp::DateTime),
-              "Size of ::Xsmp::DateTime shall be identical to ::Smp::DateTime");
-static_assert(std::is_standard_layout_v<::Xsmp::DateTime>,
-              "::Xsmp::DateTime shall be a standard layout class");
+  // a platform independent time_point in nanoseconds
+  using time_point = std::chrono::time_point<std::chrono::system_clock,
+                                             std::chrono::nanoseconds>;
+
+private:
+  /// ::Smp::DateTime is expressed in nanoseconds, relative to the reference
+  /// time of 01.01.2000, 12:00, Modified Julian Date (MJD) 2000+0.5; epoch time
+  /// is 01.01.1970, 00:00 there are 946728000 seconds between epoch time and
+  /// MJD2000 +0.5
+  static constexpr ::Smp::Duration _epochToMjd = 946728000LL * 1000000000LL;
+
+  ::Smp::DateTime _value;
+
+  template <class Clock, class FromDuration>
+  constexpr ::Smp::DateTime
+  convert(const std::chrono::time_point<Clock, FromDuration> &timePoint)
+      const noexcept {
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(
+               timePoint.time_since_epoch())
+               .count() -
+           _epochToMjd;
+  }
+};
 
 } // namespace Xsmp
 

@@ -285,7 +285,7 @@ protected:
   }
 
 private:
-  std::vector<T *> _vector{};
+  std::vector<T *> _vector;
 };
 
 } // namespace Xsmp

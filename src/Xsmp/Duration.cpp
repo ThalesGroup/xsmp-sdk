@@ -22,6 +22,10 @@
 #include <string_view>
 
 namespace Xsmp {
+static_assert(sizeof(::Smp::Duration) == sizeof(::Xsmp::Duration),
+              "Size of ::Xsmp::Duration shall be identical to ::Smp::Duration");
+static_assert(std::is_standard_layout_v<::Xsmp::Duration>,
+              "::Xsmp::Duration shall be a standard layout class");
 
 namespace {
 ::Smp::Duration from(std::istream &inputStream, const char *fmt) {

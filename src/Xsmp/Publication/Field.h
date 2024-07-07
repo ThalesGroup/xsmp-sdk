@@ -108,7 +108,7 @@ public:
 
 private:
   void Push(::Smp::IField *source, ::Smp::IField *target);
-  std::set<::Smp::IField *> _targets{};
+  std::set<::Smp::IField *> _targets;
 };
 
 class AnonymousArrayField final : public Field,
@@ -201,7 +201,7 @@ public:
   ::Smp::IField *GetItem(::Smp::UInt64 index) const final;
 
 private:
-  std::vector<std::unique_ptr<::Smp::IField>> _fields{};
+  std::vector<std::unique_ptr<::Smp::IField>> _fields;
 };
 
 class ArrayDataflowField final : public ArrayField, public DataflowField {
