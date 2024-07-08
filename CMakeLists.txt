@@ -320,7 +320,7 @@ if(XSMP_BUILD_PYTHON_BINDINGS)
     if(SKBUILD STREQUAL "2")
         install(TARGETS Python DESTINATION .)
     else()
-        install(TARGETS Python DESTINATION ${CMAKE_INSTALL_PREFIX}${Python_SITELIB}/)
+        install(TARGETS Python DESTINATION ${Python_SITELIB}/)
     endif()
 endif(XSMP_BUILD_PYTHON_BINDINGS)
 
@@ -623,12 +623,12 @@ if(XSMP_ENABLE_INSTALL)
     include(CMakePackageConfigHelpers)
     include(GNUInstallDirs)
     install(DIRECTORY "${CMAKE_SOURCE_DIR}/cmake"
-            DESTINATION "lib/"
+            DESTINATION "${CMAKE_INSTALL_LIBDIR}"
             FILES_MATCHING
             PATTERN "*.cmake"
     )
     install(DIRECTORY "include/" "${ecss_smp_SOURCE_DIR}/Smp"
-            DESTINATION "include"
+            DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
             FILES_MATCHING
             PATTERN "*.h"
     )
@@ -640,7 +640,7 @@ if(XSMP_ENABLE_INSTALL)
                           "python/xsmp_resolver"
                           "python/xsmp_scheduler"
                           "python/xsmp_time_keeper"
-                DESTINATION "${CMAKE_INSTALL_PREFIX}${Python_SITELIB}/"
+                DESTINATION "${Python_SITELIB}"
                 FILES_MATCHING
                 PATTERN "*.py"
         )

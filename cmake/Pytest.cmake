@@ -14,7 +14,7 @@ function(pytest_discover_tests)
     )
 
     # Set library/python path depending on the platform.
-    if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
+    if(CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
         set(LIB_ENV_PATH PATH)
         string(REPLACE "\\" "/" libpath "$ENV{${LIB_ENV_PATH}}")
         string(REPLACE "\\" "/" pythonpath "$ENV{PYTHONPATH}")
@@ -30,9 +30,9 @@ function(pytest_discover_tests)
 
 
     # Prepend input path to environment variables
-    if (_LIBRARY_PATH_PREPEND)
+    if(_LIBRARY_PATH_PREPEND)
         list(REVERSE _LIBRARY_PATH_PREPEND)
-        foreach (_path ${_LIBRARY_PATH_PREPEND})
+        foreach(_path ${_LIBRARY_PATH_PREPEND})
             list(INSERT libpath 0 "${_path}")
         endforeach()
     endif()
@@ -40,16 +40,7 @@ function(pytest_discover_tests)
     get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL
         PROPERTY GENERATOR_IS_MULTI_CONFIG
     )
-    
-    # update PATH and PYTHONPATH in case the user use a custom CMAKE_INSTALL_PREFIX
-    if(NOT CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-        list(INSERT libpath 0 "${CMAKE_INSTALL_PREFIX}/lib")
-        if (NOT CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
-            list(INSERT pythonpath 0 "${CMAKE_INSTALL_PREFIX}${Python_SITELIB}")
-        endif()
-    endif()
-    
-    
+
     if(GENERATOR_IS_MULTI_CONFIG)
         list(INSERT libpath 0 "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/$<CONFIG>")
         list(INSERT pythonpath 0 "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/$<CONFIG>")
@@ -58,9 +49,9 @@ function(pytest_discover_tests)
         list(INSERT pythonpath 0 "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
     endif()
 
-    if (_PYTHON_PATH_PREPEND)
+    if(_PYTHON_PATH_PREPEND)
         list(REVERSE _PYTHON_PATH_PREPEND)
-        foreach (_path ${_PYTHON_PATH_PREPEND})
+        foreach(_path ${_PYTHON_PATH_PREPEND})
             list(INSERT pythonpath 0 "${_path}")
         endforeach()
     endif()
@@ -69,11 +60,11 @@ function(pytest_discover_tests)
     list(JOIN libpath "][" libpath)
     list(JOIN pythonpath "][" pythonpath)
 
-    if (NOT _WORKING_DIRECTORY)
+    if(NOT DEFINED _WORKING_DIRECTORY)
         set(_WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     endif()
 
-    if (_NAME)
+    if(_NAME)
         set(ctest_file_base "${CMAKE_CURRENT_BINARY_DIR}/${_NAME}")
     else()
         set(ctest_file_base "${CMAKE_CURRENT_BINARY_DIR}/py")

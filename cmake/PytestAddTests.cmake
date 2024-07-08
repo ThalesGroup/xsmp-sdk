@@ -14,7 +14,7 @@ function(pytest_discover_tests_impl)
     set(_content "")
     
     # Use platform specific path separator (";" on windows else ":") and convert path to native platform (replace "/" by "\" on Windows)
-    if (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
+    if(CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
         string(REPLACE "][" "\\\\;" _LIBRARY_PATH "${_LIBRARY_PATH}")
         string(REPLACE "][" "\\\\;" _PYTHON_PATH "${_PYTHON_PATH}")
         string(REPLACE "/" "\\\\" _LIBRARY_PATH "${_LIBRARY_PATH}")
@@ -25,18 +25,18 @@ function(pytest_discover_tests_impl)
     endif()
 
     # Override option by environment variable if available.
-    if (DEFINED ENV{BUNDLE_PYTHON_TESTS})
+    if(DEFINED ENV{BUNDLE_PYTHON_TESTS})
         set(_BUNDLE_TESTS $ENV{BUNDLE_PYTHON_TESTS})
-        if (NOT _TEST_GROUP_NAME)
+        if(NOT _TEST_GROUP_NAME)
             set(_TEST_GROUP_NAME "py:${_TEST_PROJECT_NAME}")
         endif()
     else()
-        if (NOT _TEST_GROUP_NAME)
+        if(NOT _TEST_GROUP_NAME)
             set(_TEST_GROUP_NAME "py")
         endif()
     endif()
 
-    if (_BUNDLE_TESTS)
+    if(_BUNDLE_TESTS)
         string(APPEND _content
             "add_test(\"${_TEST_GROUP_NAME}\" ${_PYTHON_EXECUTABLE} -m pytest\)\n"
             "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES WORKING_DIRECTORY \"${_WORKING_DIRECTORY}\")\n"
@@ -75,13 +75,13 @@ function(pytest_discover_tests_impl)
         set(test_pattern "([^:]+)(::([^:]+))?::([^:]+)")
         set(test_error_pattern "^ERROR ([^:]+)")
 
-        foreach (test_case ${_output_list})
+        foreach(test_case ${_output_list})
             string(REGEX MATCHALL ${test_pattern} _test_case "${test_case}")
 
             # Ignore lines not identified as a test.
-            if (NOT _test_case)
+            if(NOT _test_case)
                 string(REGEX MATCHALL ${test_error_pattern} _test_case "${test_case}")
-                if (_test_case)
+                if(_test_case)
                     set(test_name "${_WORKING_DIRECTORY}/${CMAKE_MATCH_1}")
                     string(APPEND _content 
                         "add_test(\"${test_name}\" ${_PYTHON_EXECUTABLE} -m pytest \"${test_name}\")\n"
@@ -104,7 +104,7 @@ function(pytest_discover_tests_impl)
 
             string(REGEX REPLACE "^test_?" "" _func "${_func}")
 
-            if (_class)
+            if(_class)
                 #string(REGEX REPLACE "^Test|Test$" "" _class "${_class}")
                 set(test_name "${_class}.${_func}")
             else()
