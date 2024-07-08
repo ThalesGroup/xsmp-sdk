@@ -39,7 +39,6 @@ struct cstring final {
   inline const char *c_str() const noexcept { return _value; }
 
 private:
-  void assign(const char *value, std::size_t size);
   char *_value;
 };
 

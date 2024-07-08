@@ -18,35 +18,43 @@
 #include <string_view>
 
 namespace Xsmp {
+namespace {
+char *copy(const char *value, std::size_t size) {
+  auto copy = new char[size + 1];
+  std::char_traits<char>::copy(copy, value, size);
+  copy[size] = '\0';
+  return copy;
+}
+char *copy(const char *value) {
+  return copy(value, std::char_traits<char>::length(value));
+}
+} // namespace
 
-cstring::cstring(const char *value, std::size_t size) { assign(value, size); }
-cstring::cstring(const char *value) {
-  assign(value, std::char_traits<char>::length(value));
-}
-cstring::cstring(std::string_view value) { assign(value.data(), value.size()); }
-cstring::cstring(const cstring &other) {
-  const auto *str = other.c_str();
-  assign(str, std::char_traits<char>::length(str));
-}
+cstring::cstring(const char *value, std::size_t size)
+    : _value{copy(value, size)} {}
+
+cstring::cstring(const char *value)
+    : cstring(value, std::char_traits<char>::length(value)) {}
+
+cstring::cstring(std::string_view value)
+    : _value{copy(value.data(), value.size())} {}
+
+cstring::cstring(const cstring &other) : cstring(other.c_str()) {}
+
 cstring &cstring::operator=(const cstring &other) {
   if (this != &other) {
     delete[] _value;
-    const auto *str = other.c_str();
-    assign(str, std::char_traits<char>::length(str));
+    _value = copy(other.c_str());
   }
   return *this;
 }
 
 cstring &cstring::operator=(const char *value) {
   delete[] _value;
-  assign(value, std::char_traits<char>::length(value));
+  _value = copy(value);
   return *this;
 }
-void cstring::assign(const char *value, std::size_t size) {
-  _value = new char[size + 1];
-  std::char_traits<char>::copy(_value, value, size);
-  _value[size] = '\0';
-}
+
 cstring::~cstring() { delete[] _value; }
 
 cstring::cstring(cstring &&other) noexcept : _value{other._value} {

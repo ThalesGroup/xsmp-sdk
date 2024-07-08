@@ -61,7 +61,7 @@ FetchContent_Declare(
 FetchContent_Declare(
     date_src
     GIT_REPOSITORY https://github.com/HowardHinnant/date.git
-    GIT_TAG        v3.0.1
+    GIT_TAG        1ead6715dec030d340a316c927c877a3c4e5a00c
 )
 
 FetchContent_MakeAvailable(ecss_smp date_src)
@@ -244,7 +244,6 @@ target_link_libraries(LibraryHelper INTERFACE ${CMAKE_DL_LIBS})
 
 add_library(Cdk SHARED 
     src/Smp/AnySimple.cpp
-    src/Smp/DummySymbols.cpp
     src/Smp/StreamOperators.cpp
     src/Smp/Uuid.cpp
     src/Xsmp/Aggregate.cpp

@@ -687,7 +687,7 @@ void SimpleField::Store(::Smp::IStorageWriter *writer) {
   case ::Smp::PrimitiveTypeKind::PTK_String8:
     if (const auto *stringType =
             dynamic_cast<const ::Xsmp::Publication::StringType *>(GetType())) {
-      return stringType->GetLength() + 1;
+      return static_cast<::Smp::UInt64>(stringType->GetLength()) + 1U;
     } else {
       ::Xsmp::Exception::throwInvalidFieldType(this, GetType());
     }

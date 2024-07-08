@@ -285,40 +285,40 @@ private:
 inline namespace literals {
 
 /// operator for nano seconds (identity)
-constexpr Duration operator"" _ns(unsigned long long int value) {
+constexpr Duration operator""_ns(unsigned long long int value) {
   return Duration{static_cast<::Smp::Duration>(value)};
 }
 /// operator for micro seconds (1000 nano seconds)
-constexpr Duration operator"" _us(unsigned long long int value) {
+constexpr Duration operator""_us(unsigned long long int value) {
   return Duration{static_cast<::Smp::Duration>(value) * 1000_ns};
 }
 
 /// operator for mili seconds (1000 micro seconds)
-constexpr Duration operator"" _ms(unsigned long long int value) {
+constexpr Duration operator""_ms(unsigned long long int value) {
   return Duration{static_cast<::Smp::Duration>(value) * 1000_us};
 }
 
 /// operator for seconds (1000 mili seconds)
-constexpr Duration operator"" _s(unsigned long long int value) {
+constexpr Duration operator""_s(unsigned long long int value) {
   return Duration{static_cast<::Smp::Duration>(value) * 1000_ms};
 }
 
 /// operator for micro minutes (60 seconds)
-constexpr Duration operator"" _mn(unsigned long long int value) {
+constexpr Duration operator""_mn(unsigned long long int value) {
   return Duration{static_cast<::Smp::Duration>(value) * 60_s};
 }
 
 /// operator for hours (60 minutes)
-constexpr Duration operator"" _h(unsigned long long int value) {
+constexpr Duration operator""_h(unsigned long long int value) {
   return Duration{static_cast<::Smp::Duration>(value) * 60_mn};
 }
 /// operator for days (24 hours)
-constexpr Duration operator"" _d(unsigned long long int value) {
+constexpr Duration operator""_d(unsigned long long int value) {
   return Duration{static_cast<::Smp::Duration>(value) * 24_h};
 }
 
 /// operator for weeks (7 days)
-constexpr Duration operator"" _w(unsigned long long int value) {
+constexpr Duration operator""_w(unsigned long long int value) {
   return Duration{static_cast<::Smp::Duration>(value) * 7_d};
 }
 

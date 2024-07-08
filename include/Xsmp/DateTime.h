@@ -54,7 +54,7 @@ struct DateTime final {
   ///
   /// @tparam Rep the duration rep
   /// @tparam Period the duration period
-  /// @param d the duration relative to MJD2000 +0.5
+  /// @param dateTime the duration relative to MJD2000 +0.5
   template <class Rep, class Period>
   constexpr explicit DateTime(
       const std::chrono::duration<Rep, Period> &dateTime)
@@ -69,7 +69,7 @@ struct DateTime final {
 
   /// A DateTime initialized from a stream and an optional format
   ///
-  /// @param is the input stream
+  /// @param inputStream the input stream
   /// @param fmt the date format
   /// @see https://en.cppreference.com/w/cpp/chrono/duration/formatter
   explicit DateTime(std::istream &inputStream, const char *fmt = "%F %T");
@@ -85,14 +85,14 @@ struct DateTime final {
   std::string format(const std::string &fmt) const;
 
   /// Output the current DateTime to the stream
-  /// @param os the stream
+  /// @param outputStream the stream
   /// @param fmt the date format
   /// @return the stream
   std::ostream &to_stream(std::ostream &outputStream,
                           const char *fmt = "%F %T") const;
 
   /// Output the current DateTime to the stream
-  /// @param os the stream
+  /// @param outputStream the stream
   /// @param fmt the date format
   /// @return the stream
   std::ostream &to_stream(std::ostream &outputStream,
@@ -109,7 +109,7 @@ struct DateTime final {
   ///
   /// @tparam Rep the duration rep
   /// @tparam Period the duration period
-  /// @param d the duration relative to MJD2000 +0.5
+  /// @param dateTime the duration relative to MJD2000 +0.5
   template <class Rep, class Period>
   constexpr DateTime &
   operator=(const std::chrono::duration<Rep, Period> &dateTime) {
