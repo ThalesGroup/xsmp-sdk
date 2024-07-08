@@ -97,7 +97,7 @@ elseif(UNIX)
 endif()
 
 #update Python Path
-PythonPathPrepend("${CMAKE_CURRENT_SOURCE_DIR}/python")
+python_path_prepend("${CMAKE_CURRENT_SOURCE_DIR}/python")
 
 
 if(XSMP_ENABLE_CODECOVERAGE)
