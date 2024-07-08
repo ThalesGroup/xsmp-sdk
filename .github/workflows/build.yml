@@ -146,7 +146,7 @@ jobs:
             cmake --build build --config Release -j 2
       -  name: Run tests
          run: |
-            cd build && ctest -C Release --output-on-failure -E "XsmpSchedulerTest"
+            cd build && ctest -C Release --output-on-failure -E "XsmpScheduler"
    python:
       name: '${{matrix.os}} :: Python ${{matrix.python-version}}'
       runs-on: ${{matrix.os}}
