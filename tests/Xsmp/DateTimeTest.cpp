@@ -22,7 +22,7 @@
 
 namespace Xsmp {
 /*
- TEST(DateTimeTest, constexprFunctions) {
+ TEST(DateTime, constexprFunctions) {
 
  constexpr DateTime d1;
  static_assert(d1==0,"");
@@ -54,7 +54,7 @@ namespace Xsmp {
  static_assert(d7==84,"");
  }*/
 
-TEST(DateTimeTest, constructors) {
+TEST(DateTime, constructors) {
 
   const DateTime defaultDateTime;
   EXPECT_EQ(defaultDateTime, 0);
@@ -80,7 +80,7 @@ TEST(DateTimeTest, constructors) {
   EXPECT_EQ(fromStream, 0);
 }
 
-TEST(DateTimeTest, format) {
+TEST(DateTime, format) {
 
   const DateTime date{"2023-08-09 16:00:35"};
   EXPECT_EQ(date.format(), "2023-08-09 16:00:35.000000000");
@@ -88,7 +88,7 @@ TEST(DateTimeTest, format) {
   EXPECT_EQ(date.format(std::string("%x")), "08/09/23");
 }
 
-TEST(DateTimeTest, operators) {
+TEST(DateTime, operators) {
 
   DateTime date{"2023-08-09 16:00:35"};
 
@@ -135,7 +135,7 @@ TEST(DateTimeTest, operators) {
   EXPECT_EQ(date.format(), "2023-08-09 15:10:30.000000000");
 }
 
-TEST(DateTimeTest, stream) {
+TEST(DateTime, stream) {
 #define EXPECT_STREAM_OPERATOR_EQ(date, value)                                 \
   do {                                                                         \
     std::stringstream ss;                                                      \

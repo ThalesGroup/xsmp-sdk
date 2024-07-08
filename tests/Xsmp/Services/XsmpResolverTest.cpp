@@ -17,7 +17,7 @@
 #include <gtest/gtest.h>
 
 namespace Xsmp::Services {
-TEST(XsmpResolverTest, ResolveAbsolute) {
+TEST(XsmpResolver, ResolveAbsolute) {
 
   Simulator sim;
   sim.LoadLibrary("xsmp_services");
@@ -30,7 +30,7 @@ TEST(XsmpResolverTest, ResolveAbsolute) {
   EXPECT_FALSE(sim.GetResolver()->ResolveAbsolute(""));
   EXPECT_FALSE(sim.GetResolver()->ResolveAbsolute("."));
 }
-TEST(XsmpResolverTest, ResolveRelative) {
+TEST(XsmpResolver, ResolveRelative) {
 
   Simulator sim;
   sim.LoadLibrary("xsmp_services");

@@ -50,7 +50,7 @@ namespace Xsmp {
  constexpr Duration d8 = d1 + d2;
  static_assert(d8-d2-d1==0);*/
 
-TEST(DurationTest, constructor) {
+TEST(Duration, constructor) {
 
   const Duration defaultConstructor;
   EXPECT_EQ(defaultConstructor, 0);
@@ -78,7 +78,7 @@ TEST(DurationTest, constructor) {
   EXPECT_EQ(fromStream, std::chrono::seconds(1));
 }
 
-TEST(DurationTest, operators) {
+TEST(Duration, operators) {
 
   EXPECT_GE(std::chrono::seconds(1), Duration{std::chrono::seconds(1)});
   EXPECT_GE(std::chrono::seconds(1), Duration{std::chrono::seconds(0)});
@@ -109,7 +109,7 @@ TEST(DurationTest, operators) {
   EXPECT_EQ(Duration{std::chrono::seconds(1)}, std::chrono::seconds(1));
 }
 
-TEST(DurationTest, literals) {
+TEST(Duration, literals) {
 
   EXPECT_EQ(1_w, Duration::weeks(1));
   EXPECT_EQ(1_d, Duration::days(1));
@@ -121,7 +121,7 @@ TEST(DurationTest, literals) {
   EXPECT_EQ(1_ns, Duration::nanoseconds(1));
 }
 
-TEST(DurationTest, format) {
+TEST(Duration, format) {
 
   const Duration fromConstCharPointer{"00:01:00.000000000"};
   EXPECT_EQ(fromConstCharPointer.format(), "00:01:00.000000000");
@@ -129,7 +129,7 @@ TEST(DurationTest, format) {
   EXPECT_EQ(fromConstCharPointer.format(std::string("%R")), "00:01");
 }
 
-TEST(DurationTest, stream) {
+TEST(Duration, stream) {
 #define EXPECT_STREAM_OPERATOR_EQ(literal, value)                              \
   do {                                                                         \
     std::stringstream ss;                                                      \

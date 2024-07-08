@@ -116,7 +116,7 @@ static_assert(
     !std::is_base_of_v<Smp::IStructureField, field::output::forcible>);
 static_assert(!std::is_base_of_v<Smp::IFailure, field::output::forcible>);
 
-TEST(SimpleFieldTest, BoolType) {
+TEST(SimpleField, BoolType) {
   Xsmp::Publication::TypeRegistry typeRegistry;
   Field<bool> field{&typeRegistry, Smp::Uuids::Uuid_Bool, "name"};
 
@@ -173,7 +173,7 @@ TEST(SimpleFieldTest, BoolType) {
   EXPECT_TRUE(toRestore.IsForced());
 }
 
-TEST(SimpleFieldTest, Int8Type) {
+TEST(SimpleField, Int8Type) {
 
   Xsmp::Publication::TypeRegistry typeRegistry;
   Field<::Smp::Int8> field{&typeRegistry, Smp::Uuids::Uuid_Int8, "name"};
@@ -313,7 +313,7 @@ TEST(SimpleFieldTest, Int8Type) {
 }
 
 enum class Enum { L1, L2, L3 };
-TEST(SimpleFieldTest, EnumType) {
+TEST(SimpleField, EnumType) {
   Xsmp::Publication::TypeRegistry typeRegistry;
   Field<Enum> field{&typeRegistry, Smp::Uuids::Uuid_Int32, "name"};
 
@@ -351,7 +351,7 @@ TEST(SimpleFieldTest, EnumType) {
 }
 using String20 = ::Xsmp::String<20>;
 
-TEST(SimpleFieldTest, StringType) {
+TEST(SimpleField, StringType) {
 
   Xsmp::Publication::TypeRegistry typeRegistry;
   Field<String20> field{&typeRegistry, Smp::Uuids::Uuid_String8, "name"};
@@ -395,7 +395,7 @@ TEST(SimpleFieldTest, StringType) {
   EXPECT_NE(input, "test2");
 }
 
-TEST(SimpleFieldTest, Failure) {
+TEST(SimpleField, Failure) {
   Xsmp::Publication::TypeRegistry typeRegistry;
   Field<bool>::failure field{&typeRegistry, Smp::Uuids::Uuid_Bool, "name"};
 
@@ -412,7 +412,7 @@ TEST(SimpleFieldTest, Failure) {
   EXPECT_EQ(field.IsFailed(), false);
 }
 
-TEST(SimpleFieldTest, Forcible) {
+TEST(SimpleField, Forcible) {
   Xsmp::Publication::TypeRegistry typeRegistry;
   Field<bool>::forcible field{&typeRegistry, Smp::Uuids::Uuid_Bool, "name"};
 

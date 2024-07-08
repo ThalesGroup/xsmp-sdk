@@ -35,7 +35,7 @@ namespace Smp {
   } while (false)
 
 namespace Publication {
-TEST(StreamOperatorsTest, ParameterDirectionKind) {
+TEST(StreamOperators, ParameterDirectionKind) {
   EXPECT_STREAM_OPERATOR_EQ(ParameterDirectionKind::PDK_In, "In");
   EXPECT_STREAM_OPERATOR_EQ(ParameterDirectionKind::PDK_Out, "Out");
   EXPECT_STREAM_OPERATOR_EQ(ParameterDirectionKind::PDK_InOut, "InOut");
@@ -47,7 +47,7 @@ TEST(StreamOperatorsTest, ParameterDirectionKind) {
 } // namespace Publication
 namespace Services {
 
-TEST(StreamOperatorsTest, TimeKind) {
+TEST(StreamOperators, TimeKind) {
   EXPECT_STREAM_OPERATOR_EQ(TimeKind::TK_SimulationTime, "SimulationTime");
   EXPECT_STREAM_OPERATOR_EQ(TimeKind::TK_MissionTime, "MissionTime");
   EXPECT_STREAM_OPERATOR_EQ(TimeKind::TK_EpochTime, "EpochTime");
@@ -58,7 +58,7 @@ TEST(StreamOperatorsTest, TimeKind) {
 
 } // namespace Services
 
-TEST(StreamOperatorsTest, ComponentStateKind) {
+TEST(StreamOperators, ComponentStateKind) {
   EXPECT_STREAM_OPERATOR_EQ(ComponentStateKind::CSK_Created, "Created");
   EXPECT_STREAM_OPERATOR_EQ(ComponentStateKind::CSK_Publishing, "Publishing");
   EXPECT_STREAM_OPERATOR_EQ(ComponentStateKind::CSK_Configured, "Configured");
@@ -69,7 +69,7 @@ TEST(StreamOperatorsTest, ComponentStateKind) {
                             "Unknown ::Smp::ComponentStateKind(42)");
 }
 
-TEST(StreamOperatorsTest, SimulatorStateKind) {
+TEST(StreamOperators, SimulatorStateKind) {
   EXPECT_STREAM_OPERATOR_EQ(SimulatorStateKind::SSK_Building, "Building");
   EXPECT_STREAM_OPERATOR_EQ(SimulatorStateKind::SSK_Connecting, "Connecting");
   EXPECT_STREAM_OPERATOR_EQ(SimulatorStateKind::SSK_Initialising,
@@ -86,7 +86,7 @@ TEST(StreamOperatorsTest, SimulatorStateKind) {
                             "Unknown ::Smp::SimulatorStateKind(42)");
 }
 
-TEST(StreamOperatorsTest, ViewKind) {
+TEST(StreamOperators, ViewKind) {
   EXPECT_STREAM_OPERATOR_EQ(ViewKind::VK_None, "None");
   EXPECT_STREAM_OPERATOR_EQ(ViewKind::VK_Debug, "Debug");
   EXPECT_STREAM_OPERATOR_EQ(ViewKind::VK_Expert, "Expert");
@@ -95,7 +95,7 @@ TEST(StreamOperatorsTest, ViewKind) {
                             "Unknown ::Smp::ViewKind(42)");
 }
 
-TEST(StreamOperatorsTest, AccessKind) {
+TEST(StreamOperators, AccessKind) {
   EXPECT_STREAM_OPERATOR_EQ(AccessKind::AK_ReadOnly, "ReadOnly");
   EXPECT_STREAM_OPERATOR_EQ(AccessKind::AK_ReadWrite, "ReadWrite");
   EXPECT_STREAM_OPERATOR_EQ(AccessKind::AK_WriteOnly, "WriteOnly");
@@ -103,7 +103,7 @@ TEST(StreamOperatorsTest, AccessKind) {
                             "Unknown ::Smp::AccessKind(42)");
 }
 
-TEST(StreamOperatorsTest, PrimitiveTypeKind) {
+TEST(StreamOperators, PrimitiveTypeKind) {
   EXPECT_STREAM_OPERATOR_EQ(PrimitiveTypeKind::PTK_None, "None");
   EXPECT_STREAM_OPERATOR_EQ(PrimitiveTypeKind::PTK_Char8, "Char8");
   EXPECT_STREAM_OPERATOR_EQ(PrimitiveTypeKind::PTK_Bool, "Bool");
@@ -124,12 +124,12 @@ TEST(StreamOperatorsTest, PrimitiveTypeKind) {
                             "Unknown ::Smp::PrimitiveTypeKind(42)");
 }
 
-TEST(StreamOperatorsTest, Uuid) {
+TEST(StreamOperators, Uuid) {
   EXPECT_STREAM_OPERATOR_EQ(Uuid("123E4567-e89B-12d3-a456-426614174005"),
                             "123e4567-e89b-12d3-a456-426614174005");
 }
 
-TEST(StreamOperatorsTest, AnySimple) {
+TEST(StreamOperators, AnySimple) {
   AnySimple any{};
   EXPECT_STREAM_OPERATOR_EQ(any, "None");
 

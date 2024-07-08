@@ -45,7 +45,7 @@ public:
 };
 
 } // namespace
-TEST(ContainerTest, auto_register) {
+TEST(Container, auto_register) {
 
   TestComposite composite{"composite"};
 
@@ -107,7 +107,7 @@ TEST(ContainerTest, auto_register) {
   EXPECT_EQ(nullptr, ctn.GetComponent("i1"));
 }
 
-TEST(ContainerTest, bounds) {
+TEST(Container, bounds) {
 
   TestComposite composite{"composite", "", nullptr};
 

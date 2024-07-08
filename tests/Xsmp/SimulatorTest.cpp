@@ -26,7 +26,7 @@
 
 namespace Xsmp {
 
-TEST(SimulatorTest, init) {
+TEST(Simulator, init) {
 
   Simulator sim;
 
@@ -108,7 +108,7 @@ TEST(SimulatorTest, init) {
   sim.Configure();
   sim.Connect();
 }
-TEST(SimulatorTest, State) {
+TEST(Simulator, State) {
   Simulator sim;
 
   sim.LoadLibrary("xsmp_services");
@@ -125,7 +125,7 @@ TEST(SimulatorTest, State) {
   sim.Initialise();
 }
 
-TEST(SimulatorTest, LoadLibrary) {
+TEST(Simulator, LoadLibrary) {
   Simulator sim;
   sim.LoadLibrary("xsmp_services");
   EXPECT_THROW(sim.LoadLibrary("invalid_library"), Smp::LibraryNotFound);

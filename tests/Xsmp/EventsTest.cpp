@@ -41,7 +41,7 @@ public:
 };
 } // namespace
 
-TEST(EventsTest, auto_register) {
+TEST(Events, auto_register) {
 
   Simulator sender;
   TestEventProvider event_sources{"collection"};
@@ -61,7 +61,7 @@ TEST(EventsTest, auto_register) {
   EXPECT_EQ(&esi, event_sinks.GetEventSinks()->at("esi"));
 }
 
-TEST(EventsTest, void_emit) {
+TEST(Events, void_emit) {
 
   Simulator sender;
   TestEventProvider event_sources{"collection", "", &sender};
@@ -90,7 +90,7 @@ TEST(EventsTest, void_emit) {
   EXPECT_EQ(nullptr, esiSender);
 }
 
-TEST(EventsTest, bool_emit) {
+TEST(Events, bool_emit) {
 
   Simulator sender;
   TestEventProvider event_sources{"collection", "", &sender};
@@ -123,7 +123,7 @@ TEST(EventsTest, bool_emit) {
   EXPECT_EQ(false, esi_bool);
 }
 
-TEST(EventsTest, exceptions) {
+TEST(Events, exceptions) {
 
   Simulator sender;
   TestEventProvider event_sources{"collection", "", &sender};

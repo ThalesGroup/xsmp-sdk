@@ -27,7 +27,7 @@ public:
 };
 } // namespace
 
-TEST(EntryPointTest, auto_register) {
+TEST(EntryPoint, auto_register) {
 
   TestEntryPointPublisher c{"collection", "", nullptr};
 

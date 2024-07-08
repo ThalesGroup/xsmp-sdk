@@ -41,7 +41,7 @@ namespace Xsmp::Persist {
 
 enum class E1 { L1, L2, L3 };
 
-TEST(PersistTest, SimpleType) {
+TEST(Persist, SimpleType) {
   Object sender{"sender", "", nullptr};
 
   Storage storage;
@@ -63,7 +63,7 @@ TEST(PersistTest, SimpleType) {
   EXPECT_EQ(e, e_r);
 }
 
-TEST(PersistTest, CannotRestore) {
+TEST(Persist, CannotRestore) {
 
   Object sender{"sender", "", nullptr};
 
@@ -83,7 +83,7 @@ TEST(PersistTest, CannotRestore) {
                ::Smp::CannotRestore);
 }
 
-TEST(PersistTest, Atomic) {
+TEST(Persist, Atomic) {
 
   Object sender{"sender", "", nullptr};
   Storage storage;
@@ -104,7 +104,7 @@ TEST(PersistTest, Atomic) {
   EXPECT_EQ(f, f_r);
   EXPECT_EQ(e, e_r);
 }
-TEST(PersistTest, String) {
+TEST(Persist, String) {
 
   Object sender{"sender", "", nullptr};
   Storage storage;
@@ -124,7 +124,7 @@ TEST(PersistTest, String) {
   EXPECT_EQ(s2, s2_r);
   EXPECT_EQ(s3, s3_r);
 }
-TEST(PersistTest, Vector) {
+TEST(Persist, Vector) {
 
   Object sender{"sender", "", nullptr};
   Storage storage;
@@ -142,7 +142,7 @@ TEST(PersistTest, Vector) {
   EXPECT_EQ(v2, v2_r);
 }
 
-TEST(PersistTest, Map) {
+TEST(Persist, Map) {
 
   Object sender{"sender", "", nullptr};
   Storage storage;
@@ -161,7 +161,7 @@ TEST(PersistTest, Map) {
   EXPECT_EQ(v2, v2_r);
 }
 
-TEST(PersistTest, UnorderedMap) {
+TEST(Persist, UnorderedMap) {
 
   Object sender{"sender", "", nullptr};
   Storage storage;
@@ -181,7 +181,7 @@ TEST(PersistTest, UnorderedMap) {
   EXPECT_EQ(v2, v2_r);
 }
 
-TEST(PersistTest, Set) {
+TEST(Persist, Set) {
 
   Object sender{"sender", "", nullptr};
   Storage storage;
@@ -199,7 +199,7 @@ TEST(PersistTest, Set) {
   EXPECT_EQ(v2, v2_r);
 }
 
-TEST(PersistTest, UnorderedSet) {
+TEST(Persist, UnorderedSet) {
 
   Object sender{"sender", "", nullptr};
   Storage storage;
@@ -217,7 +217,7 @@ TEST(PersistTest, UnorderedSet) {
   EXPECT_EQ(v2, v2_r);
 }
 
-TEST(PersistTest, Pair) {
+TEST(Persist, Pair) {
 
   Object sender{"sender", "", nullptr};
   Storage storage;
@@ -235,7 +235,7 @@ TEST(PersistTest, Pair) {
   EXPECT_EQ(v2, v2_r);
 }
 
-TEST(PersistTest, Array) {
+TEST(Persist, Array) {
 
   Object sender{"sender", "", nullptr};
   Storage storage;
@@ -253,7 +253,7 @@ TEST(PersistTest, Array) {
   EXPECT_EQ(v2, v2_r);
 }
 
-TEST(PersistTest, RawArray) {
+TEST(Persist, RawArray) {
 
   Object sender{"sender", "", nullptr};
   Storage storage;

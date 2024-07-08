@@ -23,9 +23,9 @@
 
 namespace Xsmp {
 
-class FallibleModeltest : public Model, public FallibleModel {
+class FallibleModelTest : public Model, public FallibleModel {
 public:
-  FallibleModeltest(::Smp::String8 name, ::Smp::String8 description,
+  FallibleModelTest(::Smp::String8 name, ::Smp::String8 description,
                     ::Smp::IComposite *parent, ::Smp::ISimulator *simulator)
       : Model(name, description, parent, simulator),
 
@@ -47,10 +47,10 @@ public:
   Xsmp::Field<bool>::failure failure2;
 };
 
-TEST(FallibleModelTest, IsFailed) {
+TEST(FallibleModel, IsFailed) {
 
   Simulator sim;
-  FallibleModeltest m{"m", "", &sim, &sim};
+  FallibleModelTest m{"m", "", &sim, &sim};
 
   EXPECT_EQ(&m.failure, m.GetFailure("failure"));
   EXPECT_EQ(&m.failure, m.GetFailures()->at("failure"));

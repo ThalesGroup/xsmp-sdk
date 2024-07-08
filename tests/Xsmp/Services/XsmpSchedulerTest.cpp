@@ -37,7 +37,7 @@ public:
   using Xsmp::Component::Component;
 };
 } // namespace
-TEST(XsmpSchedulerTest, run) {
+TEST(XsmpScheduler, run) {
 
   Simulator sim;
   sim.LoadLibrary("xsmp_services");
@@ -83,11 +83,11 @@ TEST(XsmpSchedulerTest, run) {
   EXPECT_EQ(results, expected);
 }
 
-class SpeedTestFixture : public ::testing::TestWithParam<double> {};
-INSTANTIATE_TEST_SUITE_P(XsmpSchedulerTest, SpeedTestFixture,
+class SpeedFixture : public ::testing::TestWithParam<double> {};
+INSTANTIATE_TEST_SUITE_P(XsmpScheduler, SpeedFixture,
                          ::testing::Values(0.01, 0.25, 0.5, 1, 4, 10, 100));
 
-TEST_P(SpeedTestFixture, SpeedTest) {
+TEST_P(SpeedFixture, Speed) {
   const double speed = GetParam();
   Simulator sim;
   sim.LoadLibrary("xsmp_services");
@@ -104,7 +104,7 @@ TEST_P(SpeedTestFixture, SpeedTest) {
               static_cast<double>(5_ms));
 }
 
-TEST(XsmpSchedulerTest, zulu_events) {
+TEST(XsmpScheduler, zulu_events) {
 
   Simulator sim;
   sim.LoadLibrary("xsmp_services");
@@ -160,7 +160,7 @@ TEST(XsmpSchedulerTest, zulu_events) {
   EXPECT_EQ(results, expected);
 }
 
-TEST(XsmpSchedulerTest, EventTime) {
+TEST(XsmpScheduler, EventTime) {
 
   Simulator sim;
   sim.LoadLibrary("xsmp_services");
@@ -195,7 +195,7 @@ TEST(XsmpSchedulerTest, EventTime) {
                ::Smp::Services::InvalidEventId);
 }
 
-TEST(XsmpSchedulerTest, EventCycleAndRepeatTime) {
+TEST(XsmpScheduler, EventCycleAndRepeatTime) {
 
   Simulator sim;
   sim.LoadLibrary("xsmp_services");
@@ -243,7 +243,7 @@ TEST(XsmpSchedulerTest, EventCycleAndRepeatTime) {
                ::Smp::Services::InvalidEventId);
 }
 
-TEST(XsmpSchedulerTest, RemoveEvent) {
+TEST(XsmpScheduler, RemoveEvent) {
 
   Simulator sim;
   sim.LoadLibrary("xsmp_services");

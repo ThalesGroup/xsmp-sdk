@@ -110,7 +110,7 @@ static_assert(!std::is_base_of_v<Smp::ISimpleArrayField, field::failure>);
 static_assert(std::is_base_of_v<Smp::IStructureField, field::failure>);
 static_assert(std::is_base_of_v<Smp::IFailure, field::failure>);
 
-TEST(StructureFieldTest, Instanciate) {
+TEST(StructureField, Instanciate) {
   Xsmp::Publication::TypeRegistry typeRegistry;
 
   auto *pStructure = typeRegistry.AddStructureType("StructTest" /// Name

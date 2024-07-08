@@ -19,7 +19,7 @@
 #include <string>
 
 namespace Xsmp::Services {
-TEST(XsmpLoggerTest, QueryLogMessageKind) {
+TEST(XsmpLogger, QueryLogMessageKind) {
 
   Simulator sim;
   sim.LoadLibrary("xsmp_services");

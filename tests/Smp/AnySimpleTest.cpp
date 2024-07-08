@@ -112,9 +112,9 @@ using primitive_types =
     testing::Types<::Smp::Int8, ::Smp::Int16, ::Smp::Int32, ::Smp::Int64,
                    ::Smp::UInt8, ::Smp::UInt16, ::Smp::UInt32, ::Smp::UInt64>;
 
-INSTANTIATE_TYPED_TEST_SUITE_P(AnySimpleTest, Integral, primitive_types);
+INSTANTIATE_TYPED_TEST_SUITE_P(AnySimple, Integral, primitive_types);
 
-TEST(AnySimpleTest, Bool) {
+TEST(AnySimple, Bool) {
 
   EXPECT_NO_THROW((AnySimple{PrimitiveTypeKind::PTK_Bool, false}));
 
@@ -173,7 +173,7 @@ TEST(AnySimpleTest, Bool) {
                ::Smp::InvalidAnyType);
 }
 
-TEST(AnySimpleTest, Char8) {
+TEST(AnySimple, Char8) {
 
   EXPECT_NO_THROW((AnySimple{PrimitiveTypeKind::PTK_Char8, 'a'}));
   EXPECT_EQ(
@@ -261,7 +261,7 @@ TEST(AnySimpleTest, Char8) {
                ::Smp::InvalidAnyType);
 }
 
-TEST(AnySimpleTest, String8) {
+TEST(AnySimple, String8) {
 
   EXPECT_NO_THROW((AnySimple{PrimitiveTypeKind::PTK_String8, "test"}));
   EXPECT_NO_THROW((
@@ -345,7 +345,7 @@ TEST(AnySimpleTest, String8) {
       ::Smp::InvalidAnyType);
 }
 
-TEST(AnySimpleTest, Float32) {
+TEST(AnySimple, Float32) {
 
   EXPECT_NO_THROW((AnySimple{PrimitiveTypeKind::PTK_Float32, 3.14159F}));
   EXPECT_NO_THROW((AnySimple{PrimitiveTypeKind::PTK_Float64, 3.14159F}));
@@ -420,7 +420,7 @@ TEST(AnySimpleTest, Float32) {
       static_cast<::Smp::Float32>(AnySimple{PrimitiveTypeKind::PTK_UInt16, 0}));
 }
 
-TEST(AnySimpleTest, Float64) {
+TEST(AnySimple, Float64) {
   EXPECT_NO_THROW((AnySimple{PrimitiveTypeKind::PTK_Float64, 3.14159265359}));
   EXPECT_NO_THROW((AnySimple{PrimitiveTypeKind::PTK_Float32, 2.0}));
   EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_Float32, 3.14159265359}),
@@ -495,7 +495,7 @@ TEST(AnySimpleTest, Float64) {
       AnySimple{PrimitiveTypeKind::PTK_Float32, 0.F}));
 }
 
-TEST(AnySimpleTest, AssignmentOperator) {
+TEST(AnySimple, AssignmentOperator) {
   // with String8
   AnySimple first{PrimitiveTypeKind::PTK_String8, "test"};
   auto second = first;

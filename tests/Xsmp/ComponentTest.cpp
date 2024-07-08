@@ -23,7 +23,7 @@
 
 namespace Xsmp {
 
-TEST(ComponentTest, Component) {
+TEST(Component, CheckGetters) {
 
   Component component{"component", "desc"};
 

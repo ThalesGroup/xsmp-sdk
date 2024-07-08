@@ -21,7 +21,7 @@ constexpr const char *uuid2_str = "123e4567-e89b-12d3-a456-426614174006";
 constexpr const char *uuid3_str = "123e4567-e89c-12d3-a456-426614174005";
 namespace Smp {
 
-TEST(UuidTest, constructor) {
+TEST(Uuid, constructor) {
 
   Uuid uuid1{uuid1_str};
 
@@ -50,7 +50,7 @@ TEST(UuidTest, constructor) {
   EXPECT_THROW(Uuid{"123e4567-e89b-12d3-a456-42661417400"}, ::Smp::Exception);
 }
 
-TEST(UuidTest, operators) {
+TEST(Uuid, operators) {
 
   const Uuid uuid1{uuid1_str};
   const Uuid uuid1b{uuid1_str};
@@ -104,7 +104,7 @@ TEST(UuidTest, operators) {
   EXPECT_TRUE(u1 != u2);
 }
 
-TEST(UuidTest, hash) {
+TEST(Uuid, hash) {
 
   const Uuid uuid1{uuid1_str};
   const Uuid uuid1b{uuid1_str};

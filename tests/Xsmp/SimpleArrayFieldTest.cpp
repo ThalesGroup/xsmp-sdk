@@ -60,7 +60,7 @@ static_assert(!std::is_base_of_v<Smp::IFailure, field::output>);
 
 enum class Enum { L1, L2, L3 };
 using String20 = ::Xsmp::String<20>;
-TEST(SimpleArrayFieldTest, BoolType) {
+TEST(SimpleArrayField, BoolType) {
 
   Xsmp::Publication::TypeRegistry typeRegistry;
   using Type = Array<Smp::Bool, 4>::simple;
@@ -117,7 +117,7 @@ TEST(SimpleArrayFieldTest, BoolType) {
                Smp::InvalidFieldValue);
 }
 
-TEST(SimpleArrayFieldTest, Int8Type) {
+TEST(SimpleArrayField, Int8Type) {
   Xsmp::Publication::TypeRegistry typeRegistry;
   using Type = Array<Smp::Int8, 4>::simple;
   typeRegistry.AddArrayType("Int8SimpleArray", "", Smp::Uuid{},
@@ -186,7 +186,7 @@ TEST(SimpleArrayFieldTest, Int8Type) {
    */
 }
 
-TEST(SimpleArrayFieldTest, EnumType) {
+TEST(SimpleArrayField, EnumType) {
   Xsmp::Publication::TypeRegistry typeRegistry;
   using Type = Array<Enum, 4>::simple;
   const Smp::Uuid enumUuid{0, 1, 2, 3, 4};
@@ -230,7 +230,7 @@ TEST(SimpleArrayFieldTest, EnumType) {
   EXPECT_EQ(input[0], Enum::L2);
 }
 
-TEST(SimpleArrayFieldTest, StringType) {
+TEST(SimpleArrayField, StringType) {
   Xsmp::Publication::TypeRegistry typeRegistry;
   using Type = Array<String20, 4>::simple;
   const Smp::Uuid stringUuid{0, 1, 2, 3, 4};

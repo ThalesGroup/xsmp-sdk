@@ -32,7 +32,7 @@ public:
 };
 } // namespace
 
-TEST(XsmpTimeKeeperTest, simulationTime) {
+TEST(XsmpTimeKeeper, simulationTime) {
 
   Simulator sim;
   sim.LoadLibrary("xsmp_services");
@@ -74,7 +74,7 @@ TEST(XsmpTimeKeeperTest, simulationTime) {
   EXPECT_EQ(sim.GetTimeKeeper()->GetSimulationTime(), 3_s);
 }
 
-TEST(XsmpTimeKeeperTest, epochTime) {
+TEST(XsmpTimeKeeper, epochTime) {
 
   Simulator sim;
   sim.LoadLibrary("xsmp_services");
@@ -89,7 +89,7 @@ TEST(XsmpTimeKeeperTest, epochTime) {
   EXPECT_EQ(sim.GetTimeKeeper()->GetEpochTime(), 2_s);
 }
 
-TEST(XsmpTimeKeeperTest, missionTime) {
+TEST(XsmpTimeKeeper, missionTime) {
 
   Simulator sim;
   sim.LoadLibrary("xsmp_services");
@@ -105,7 +105,7 @@ TEST(XsmpTimeKeeperTest, missionTime) {
   EXPECT_EQ(sim.GetTimeKeeper()->GetMissionTime(), 0_s);
 }
 
-TEST(XsmpTimeKeeperTest, zuluTime) {
+TEST(XsmpTimeKeeper, zuluTime) {
 
   Simulator sim;
   sim.LoadLibrary("xsmp_services");

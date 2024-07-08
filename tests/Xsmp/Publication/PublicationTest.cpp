@@ -45,7 +45,7 @@
 #include <gtest/gtest.h>
 
 namespace Xsmp::Publication {
-TEST(PublicationTest, init) {
+TEST(Publication, init) {
   TypeRegistry registry;
 
   Component component{"component"};
@@ -57,7 +57,7 @@ TEST(PublicationTest, init) {
   EXPECT_TRUE(publication.GetProperties());
   EXPECT_TRUE(publication.GetFields());
 }
-TEST(PublicationTest, PublishField) {
+TEST(Publication, PublishField) {
 
   TypeRegistry registry;
 
@@ -95,7 +95,7 @@ TEST(PublicationTest, PublishField) {
       Smp::InvalidFieldValue);
 }
 
-TEST(PublicationTest, PublishString8Field) {
+TEST(Publication, PublishString8Field) {
   TypeRegistry registry;
   Component component{"component"};
   Publication publication{&component, &registry};
@@ -178,7 +178,7 @@ void TestPublishSimpleField(Smp::PrimitiveTypeKind kind, Smp::ViewKind view,
   EXPECT_THROW(dataflowField->Connect(stateField), Smp::InvalidTarget);
 }
 
-TEST(PublicationTest, PublishSimpleField) {
+TEST(Publication, PublishSimpleField) {
 
   TestPublishSimpleField<Smp::Bool>(Smp::PrimitiveTypeKind::PTK_Bool,
                                     Smp::ViewKind::VK_Debug, false, true);
@@ -320,7 +320,7 @@ void TestPublishSimpleArray(Smp::PrimitiveTypeKind kind, Smp::ViewKind view,
   EXPECT_THROW(dataflowField->Connect(stateField), Smp::InvalidTarget);
 }
 
-TEST(PublicationTest, PublishSimpleArray) {
+TEST(Publication, PublishSimpleArray) {
 
   TestPublishSimpleArray<Smp::Bool>(Smp::PrimitiveTypeKind::PTK_Bool,
                                     Smp::ViewKind::VK_Debug, false, true);
@@ -373,7 +373,7 @@ TEST(PublicationTest, PublishSimpleArray) {
       Smp::InvalidFieldType);
 }
 
-TEST(PublicationTest, PublishArray) {
+TEST(Publication, PublishArray) {
 
   TypeRegistry registry;
 
@@ -410,7 +410,7 @@ TEST(PublicationTest, PublishArray) {
   EXPECT_EQ(itemField->GetParent(), &component);
 }
 
-TEST(PublicationTest, PublishStructure) {
+TEST(Publication, PublishStructure) {
 
   TypeRegistry registry;
 
@@ -439,7 +439,7 @@ TEST(PublicationTest, PublishStructure) {
             dynamic_cast<Smp::IObject *>(structureField));
 }
 
-TEST(PublicationTest, PublishOperation) {
+TEST(Publication, PublishOperation) {
 
   TypeRegistry registry;
 
@@ -525,7 +525,7 @@ TEST(PublicationTest, PublishOperation) {
       Smp::Publication::TypeNotRegistered);
 }
 
-TEST(PublicationTest, PublishProperty) {
+TEST(Publication, PublishProperty) {
 
   TypeRegistry registry;
 
@@ -564,7 +564,7 @@ TEST(PublicationTest, PublishProperty) {
   EXPECT_THROW(property->SetValue({}), Smp::Exception);
 }
 
-TEST(PublicationTest, Request) {
+TEST(Publication, Request) {
 
   TypeRegistry registry;
 

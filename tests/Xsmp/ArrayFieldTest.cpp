@@ -129,7 +129,7 @@ static_assert(!std::is_base_of_v<Smp::IFailure, field::failure::value_type>);
 enum class Enum { L1, L2, L3 };
 using String20 = ::Xsmp::String<20>;
 
-TEST(ArrayFieldTest, BoolType) {
+TEST(ArrayField, BoolType) {
   Xsmp::Publication::TypeRegistry typeRegistry;
   using Type = Array<Smp::Bool, 4>;
   typeRegistry.AddArrayType("BoolArray", "", Smp::Uuid{}, Smp::Uuids::Uuid_Bool,
@@ -170,7 +170,7 @@ TEST(ArrayFieldTest, BoolType) {
   EXPECT_THROW(output.GetItem(42), Smp::InvalidArrayIndex);
 }
 
-TEST(ArrayFieldTest, Int8Type) {
+TEST(ArrayField, Int8Type) {
   Xsmp::Publication::TypeRegistry typeRegistry;
   using Type = Array<Smp::Int8, 4>;
   typeRegistry.AddArrayType("Int8Array", "", Smp::Uuid{}, Smp::Uuids::Uuid_Int8,
@@ -208,7 +208,7 @@ TEST(ArrayFieldTest, Int8Type) {
   EXPECT_EQ(input[0], 42);
 }
 
-TEST(ArrayFieldTest, EnumType) {
+TEST(ArrayField, EnumType) {
   Xsmp::Publication::TypeRegistry typeRegistry;
   using Type = Array<Enum, 4>;
   const Smp::Uuid enumUuid{0, 1, 2, 3, 4};
@@ -252,7 +252,7 @@ TEST(ArrayFieldTest, EnumType) {
   EXPECT_EQ(input[0], Enum::L2);
 }
 
-TEST(ArrayFieldTest, StringType) {
+TEST(ArrayField, StringType) {
   Xsmp::Publication::TypeRegistry typeRegistry;
   using Type = Array<String20, 4>;
   const Smp::Uuid stringUuid{0, 1, 2, 3, 4};
@@ -293,7 +293,7 @@ TEST(ArrayFieldTest, StringType) {
   EXPECT_EQ(input[0], "test");
 }
 
-TEST(ArrayFieldTest, Failure) {
+TEST(ArrayField, Failure) {
   Xsmp::Publication::TypeRegistry typeRegistry;
   using Type = Array<Smp::Bool, 4>;
   typeRegistry.AddArrayType("BoolArray", "", Smp::Uuid{}, Smp::Uuids::Uuid_Bool,

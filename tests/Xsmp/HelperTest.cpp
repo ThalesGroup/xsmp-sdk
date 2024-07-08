@@ -18,7 +18,7 @@
 
 namespace Xsmp {
 
-TEST(HelperTest, checkName) {
+TEST(Helper, checkName) {
 
   EXPECT_THROW(::Xsmp::Helper::checkName(nullptr, nullptr),
                ::Smp::InvalidObjectName);

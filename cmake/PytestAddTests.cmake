@@ -105,7 +105,7 @@ function(pytest_discover_tests_impl)
             string(REGEX REPLACE "^test_?" "" _func "${_func}")
 
             if(_class)
-                #string(REGEX REPLACE "^Test|Test$" "" _class "${_class}")
+                string(REGEX REPLACE "^Test|Test$" "" _class "${_class}")
                 set(test_name "${_class}.${_func}")
             else()
                 set(test_name "${_func}")

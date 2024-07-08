@@ -35,7 +35,7 @@ public:
   ~InterfaceObj() noexcept override = default;
 };
 
-TEST(CollectionTest, simple) {
+TEST(Collection, simple) {
 
   Collection<Interface> c{"collection", "", nullptr};
 
@@ -85,7 +85,7 @@ TEST(CollectionTest, simple) {
   EXPECT_EQ(0, c.size());
 }
 
-TEST(CollectionTest, delegate) {
+TEST(Collection, delegate) {
   Object parent{"p", "", nullptr};
   Collection<Interface> c{"collection", "desc", &parent};
 

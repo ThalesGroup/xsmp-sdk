@@ -25,7 +25,7 @@ namespace Xsmp {
 using String10 = String<10>;
 using String16 = String<16>;
 
-TEST(StringTest, Constructor) {
+TEST(String, Constructor) {
 
   EXPECT_EQ("", String10{});
 
@@ -41,7 +41,7 @@ TEST(StringTest, Constructor) {
   EXPECT_EQ("otherStrin", String10{other});
 }
 
-TEST(StringTest, Create) {
+TEST(String, Create) {
   // using type = std::string;
   using type = String10;
 
@@ -137,7 +137,7 @@ TEST(StringTest, Create) {
   EXPECT_STREQ(str.c_str(), "01234567");
 }
 
-TEST(StringTest, operatorPlusEqual) {
+TEST(String, operatorPlusEqual) {
   String10 string;
 
   string += "1";
@@ -156,7 +156,7 @@ TEST(StringTest, operatorPlusEqual) {
   EXPECT_EQ("12345", string);
 }
 
-TEST(StringTest, push_back) {
+TEST(String, push_back) {
   String10 string = "012345678";
 
   string.push_back('9');
@@ -166,7 +166,7 @@ TEST(StringTest, push_back) {
   EXPECT_EQ("0123456789", string);
 }
 
-TEST(StringTest, pop_back) {
+TEST(String, pop_back) {
   String10 string = "01";
 
   string.pop_back();
@@ -179,7 +179,7 @@ TEST(StringTest, pop_back) {
   EXPECT_EQ("", string);
 }
 
-TEST(StringTest, operatorPlus) {
+TEST(String, operatorPlus) {
 
   const String10 string = "1";
 
@@ -200,7 +200,7 @@ TEST(StringTest, operatorPlus) {
   EXPECT_EQ("61", '6' + string);
 }
 
-TEST(StringTest, operatorEqual) {
+TEST(String, operatorEqual) {
 
   String10 string10;
   String16 string16;
@@ -231,7 +231,7 @@ TEST(StringTest, operatorEqual) {
   EXPECT_EQ("0123456789", string10);
 }
 
-TEST(StringTest, operatorEquality) {
+TEST(String, operatorEquality) {
 
   const String10 string = "1";
   const String16 string2 = "2";

@@ -28,7 +28,7 @@ namespace fs = std::filesystem;
 #endif
 namespace Xsmp {
 
-TEST(StorageTest, Writer) {
+TEST(Storage, Writer) {
 
   auto dir = testing::TempDir();
   const auto *filename = "Writer.bin";
@@ -43,7 +43,7 @@ TEST(StorageTest, Writer) {
 
   std::remove((fs::path(dir) / filename).string().c_str());
 }
-TEST(StorageTest, Reader) {
+TEST(Storage, Reader) {
 
   auto dir = testing::TempDir();
   const auto *filename = "Reader.bin";
@@ -52,9 +52,9 @@ TEST(StorageTest, Reader) {
                ::Smp::CannotRestore);
 }
 
-TEST(StorageTest, StoreRestore) {
+TEST(Storage, StoreRestore) {
 
-  auto dir = fs::path(testing::TempDir()).append("StorageTest").string();
+  auto dir = fs::path(testing::TempDir()).append("Storage").string();
   const auto *filename = "StoreRestore.bin";
 
   double value1 = 42.;

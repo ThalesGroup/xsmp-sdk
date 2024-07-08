@@ -23,7 +23,7 @@ using EmptyArrayBool = Array<::Smp::Bool, 0>;
 using Array3Bool = Array<::Smp::Bool, 3>;
 using Matrix3_3Bool = Array<Array3Bool, 3>;
 
-TEST(ArrayTest, Constructor) {
+TEST(Array, Constructor) {
 
   const EmptyArrayBool emptyAr{};
   EXPECT_EQ(emptyAr.size(), 0);
@@ -85,7 +85,7 @@ TEST(ArrayTest, Constructor) {
   EXPECT_EQ(mx3[2][2], false);
 }
 
-TEST(ArrayTest, OperatorEqual) {
+TEST(Array, OperatorEqual) {
   Array3Bool ar = {};
 
   EXPECT_EQ(ar[0], false);

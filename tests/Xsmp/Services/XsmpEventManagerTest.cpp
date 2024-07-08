@@ -36,7 +36,7 @@ public:
   using Xsmp::Component::Component;
 };
 } // namespace
-TEST(XsmpEventManagerTest, QueryEventId) {
+TEST(XsmpEventManager, QueryEventId) {
 
   Simulator sim;
   sim.LoadLibrary("xsmp_services");
@@ -120,7 +120,7 @@ TEST(XsmpEventManagerTest, QueryEventId) {
       IEventManager::SMP_PostSimTimeChangeId);
 }
 
-TEST(XsmpEventManagerTest, ep) {
+TEST(XsmpEventManager, ep) {
 
   Simulator sim;
   sim.LoadLibrary("xsmp_services");

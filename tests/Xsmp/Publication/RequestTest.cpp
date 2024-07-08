@@ -31,7 +31,7 @@
 
 namespace Xsmp::Publication {
 
-TEST(RequestTest, VoidOperation) {
+TEST(Request, VoidOperation) {
 
   TypeRegistry registry;
 
@@ -59,7 +59,7 @@ TEST(RequestTest, VoidOperation) {
   publication.DeleteRequest(request);
 }
 
-TEST(RequestTest, EnumOperation) {
+TEST(Request, EnumOperation) {
 
   TypeRegistry registry;
 
@@ -92,7 +92,7 @@ TEST(RequestTest, EnumOperation) {
   publication.DeleteRequest(request);
 }
 
-TEST(RequestTest, StringOperation) {
+TEST(Request, StringOperation) {
 
   TypeRegistry registry;
 
@@ -125,7 +125,7 @@ TEST(RequestTest, StringOperation) {
   publication.DeleteRequest(request);
 }
 
-TEST(RequestTest, IntOperation) {
+TEST(Request, IntOperation) {
 
   TypeRegistry registry;
 
@@ -161,7 +161,7 @@ TEST(RequestTest, IntOperation) {
   publication.DeleteRequest(request);
 }
 
-TEST(RequestTest, FloatOperation) {
+TEST(Request, FloatOperation) {
 
   TypeRegistry registry;
 
@@ -206,7 +206,7 @@ TEST(RequestTest, FloatOperation) {
   publication.DeleteRequest(request);
 }
 
-TEST(RequestTest, FloatExclusiveOperation) {
+TEST(Request, FloatExclusiveOperation) {
 
   TypeRegistry registry;
 
@@ -251,7 +251,7 @@ TEST(RequestTest, FloatExclusiveOperation) {
   publication.DeleteRequest(request);
 }
 
-TEST(RequestTest, OperationWithParameters) {
+TEST(Request, OperationWithParameters) {
 
   TypeRegistry registry;
 

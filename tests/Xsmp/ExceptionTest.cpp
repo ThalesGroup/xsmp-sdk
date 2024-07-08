@@ -84,7 +84,7 @@
 
 namespace Xsmp::Exception {
 
-TEST(ExceptionTest, Exception) {
+TEST(Exception, Exception) {
 
   Object sender{"name"};
   try {
@@ -101,7 +101,7 @@ TEST(ExceptionTest, Exception) {
   }
 }
 
-TEST(ExceptionTest, FieldAlreadyConnected) {
+TEST(Exception, FieldAlreadyConnected) {
 
   Object sender{"name"};
 
@@ -127,7 +127,7 @@ TEST(ExceptionTest, FieldAlreadyConnected) {
   }
 }
 
-TEST(ExceptionTest, InvalidTarget) {
+TEST(Exception, InvalidTarget) {
 
   Object sender{"name"};
   Xsmp::Publication::TypeRegistry typeRegistry;
@@ -151,7 +151,7 @@ TEST(ExceptionTest, InvalidTarget) {
   }
 }
 
-TEST(ExceptionTest, CannotStore) {
+TEST(Exception, CannotStore) {
 
   Object sender{"name"};
 
@@ -170,7 +170,7 @@ TEST(ExceptionTest, CannotStore) {
   }
 }
 
-TEST(ExceptionTest, CannotRestore) {
+TEST(Exception, CannotRestore) {
 
   Object sender{"name"};
 
@@ -189,7 +189,7 @@ TEST(ExceptionTest, CannotRestore) {
   }
 }
 
-TEST(ExceptionTest, InvalidObjectName) {
+TEST(Exception, InvalidObjectName) {
 
   Object sender{"name"};
 
@@ -210,7 +210,7 @@ TEST(ExceptionTest, InvalidObjectName) {
   }
 }
 
-TEST(ExceptionTest, InvalidObjectNameNull) {
+TEST(Exception, InvalidObjectNameNull) {
 
   Object sender{"name"};
 
@@ -231,7 +231,7 @@ TEST(ExceptionTest, InvalidObjectNameNull) {
   }
 }
 
-TEST(ExceptionTest, ContainerFull) {
+TEST(Exception, ContainerFull) {
 
   Object parent{"parent"};
 
@@ -256,7 +256,7 @@ TEST(ExceptionTest, ContainerFull) {
   }
 }
 
-TEST(ExceptionTest, DuplicateName) {
+TEST(Exception, DuplicateName) {
 
   Object sender{"name"};
 
@@ -281,7 +281,7 @@ TEST(ExceptionTest, DuplicateName) {
   }
 }
 
-TEST(ExceptionTest, NotContained) {
+TEST(Exception, NotContained) {
 
   Object parent{"parent"};
 
@@ -306,7 +306,7 @@ TEST(ExceptionTest, NotContained) {
   }
 }
 
-TEST(ExceptionTest, CannotDelete) {
+TEST(Exception, CannotDelete) {
 
   Object parent{"parent"};
 
@@ -335,7 +335,7 @@ TEST(ExceptionTest, CannotDelete) {
   }
 }
 
-TEST(ExceptionTest, InvalidComponentState) {
+TEST(Exception, InvalidComponentState) {
 
   Xsmp::Model cmp{"cmp"};
   try {
@@ -358,7 +358,7 @@ TEST(ExceptionTest, InvalidComponentState) {
   }
 }
 
-TEST(ExceptionTest, InvalidObjectType) {
+TEST(Exception, InvalidObjectType) {
   Object sender{"parent"};
   Xsmp::Model cmp{"cmp"};
   try {
@@ -377,7 +377,7 @@ TEST(ExceptionTest, InvalidObjectType) {
   }
 }
 
-TEST(ExceptionTest, NotReferenced) {
+TEST(Exception, NotReferenced) {
 
   Object parent{"parent"};
 
@@ -403,7 +403,7 @@ TEST(ExceptionTest, NotReferenced) {
   }
 }
 
-TEST(ExceptionTest, ReferenceFull) {
+TEST(Exception, ReferenceFull) {
 
   Object parent{"parent"};
 
@@ -429,7 +429,7 @@ TEST(ExceptionTest, ReferenceFull) {
   }
 }
 
-TEST(ExceptionTest, CannotRemove) {
+TEST(Exception, CannotRemove) {
 
   Object parent{"parent"};
 
@@ -458,13 +458,13 @@ TEST(ExceptionTest, CannotRemove) {
   }
 }
 
-TEST(ExceptionTest, InvalidEventSink) {
+TEST(Exception, InvalidEventSink) {
 
   Object parent{"parent"};
 
   EventSource<void> eso{"eso1", "", &parent};
 
-  EventSink<void> esi{"esi1", "desc", &parent, [&](::Smp::IObject *) {}};
+  EventSink<void> esi{"esi1", "desc", &parent, [](::Smp::IObject *) {}};
 
   try {
     throwInvalidEventSink(&parent, &eso, &esi);
@@ -486,7 +486,7 @@ TEST(ExceptionTest, InvalidEventSink) {
   }
 }
 
-TEST(ExceptionTest, EventSinkAlreadySubscribed) {
+TEST(Exception, EventSinkAlreadySubscribed) {
   Object parent{"parent"};
   EventSource<void> eso{"eso1", "", &parent};
   EventSink<void> esi{"esi1", "desc", &parent, [&](::Smp::IObject *obj) {}};
@@ -510,7 +510,7 @@ TEST(ExceptionTest, EventSinkAlreadySubscribed) {
   }
 }
 
-TEST(ExceptionTest, EventSinkNotSubscribed) {
+TEST(Exception, EventSinkNotSubscribed) {
 
   Object parent{"parent"};
   EventSource<void> eso{"eso1", "", &parent};
@@ -537,7 +537,7 @@ TEST(ExceptionTest, EventSinkNotSubscribed) {
   }
 }
 
-TEST(ExceptionTest, InvalidOperationName) {
+TEST(Exception, InvalidOperationName) {
 
   Object parent{"parent"};
 
@@ -561,7 +561,7 @@ TEST(ExceptionTest, InvalidOperationName) {
   }
 }
 
-TEST(ExceptionTest, InvalidParameterCount) {
+TEST(Exception, InvalidParameterCount) {
 
   Xsmp::Publication::Operation parent{"op"};
 
@@ -585,7 +585,7 @@ TEST(ExceptionTest, InvalidParameterCount) {
   }
 }
 
-TEST(ExceptionTest, InvalidParameterType) {
+TEST(Exception, InvalidParameterType) {
 
   Xsmp::Object sender{"sender"};
 
@@ -613,7 +613,7 @@ TEST(ExceptionTest, InvalidParameterType) {
   }
 }
 
-TEST(ExceptionTest, InvalidArrayIndex) {
+TEST(Exception, InvalidArrayIndex) {
 
   Xsmp::Publication::TypeRegistry registry;
 
@@ -664,7 +664,7 @@ TEST(ExceptionTest, InvalidArrayIndex) {
   }
 }
 
-TEST(ExceptionTest, InvalidFieldValue) {
+TEST(Exception, InvalidFieldValue) {
 
   const Object sender{"name"};
   Xsmp::Publication::TypeRegistry typeRegistry;
@@ -689,7 +689,7 @@ TEST(ExceptionTest, InvalidFieldValue) {
   }
 }
 
-TEST(ExceptionTest, InvalidArrayValue) {
+TEST(Exception, InvalidArrayValue) {
 
   Xsmp::Publication::TypeRegistry registry;
 
@@ -722,7 +722,7 @@ TEST(ExceptionTest, InvalidArrayValue) {
   }
 }
 
-TEST(ExceptionTest, InvalidArraySize) {
+TEST(Exception, InvalidArraySize) {
 
   Xsmp::Publication::TypeRegistry registry;
 
@@ -754,7 +754,7 @@ TEST(ExceptionTest, InvalidArraySize) {
   }
 }
 
-TEST(ExceptionTest, InvalidEventName) {
+TEST(Exception, InvalidEventName) {
 
   Object sender{"name"};
   try {
@@ -785,7 +785,7 @@ TEST(ExceptionTest, InvalidEventName) {
   }
 }
 
-TEST(ExceptionTest, InvalidEventId) {
+TEST(Exception, InvalidEventId) {
 
   Object sender{"name"};
   try {
@@ -810,7 +810,7 @@ TEST(ExceptionTest, InvalidEventId) {
   }
 }
 
-TEST(ExceptionTest, InvalidCycleTime) {
+TEST(Exception, InvalidCycleTime) {
 
   Object sender{"name"};
   try {
@@ -832,7 +832,7 @@ TEST(ExceptionTest, InvalidCycleTime) {
   }
 }
 
-TEST(ExceptionTest, InvalidEventTime) {
+TEST(Exception, InvalidEventTime) {
 
   Object sender{"name"};
   try {
@@ -853,7 +853,7 @@ TEST(ExceptionTest, InvalidEventTime) {
   }
 }
 
-TEST(ExceptionTest, EntryPointNotSubscribed) {
+TEST(Exception, EntryPointNotSubscribed) {
   Object sender{"name"};
   EntryPoint ep{"ep", "", &sender, [] {}};
   try {
@@ -873,7 +873,7 @@ TEST(ExceptionTest, EntryPointNotSubscribed) {
   }
 }
 
-TEST(ExceptionTest, EntryPointAlreadySubscribed) {
+TEST(Exception, EntryPointAlreadySubscribed) {
   Object sender{"name"};
   EntryPoint ep{"ep", "", &sender, [] {}};
   try {
@@ -894,7 +894,7 @@ TEST(ExceptionTest, EntryPointAlreadySubscribed) {
   }
 }
 
-TEST(ExceptionTest, InvalidFieldName) {
+TEST(Exception, InvalidFieldName) {
   Object sender{"name"};
 
   try {
@@ -914,7 +914,7 @@ TEST(ExceptionTest, InvalidFieldName) {
   }
 }
 
-TEST(ExceptionTest, InvalidFieldNameNull) {
+TEST(Exception, InvalidFieldNameNull) {
   Object sender{"name"};
 
   try {
@@ -934,7 +934,7 @@ TEST(ExceptionTest, InvalidFieldNameNull) {
   }
 }
 
-TEST(ExceptionTest, TypeNotRegistered) {
+TEST(Exception, TypeNotRegistered) {
   Object sender{"name"};
   const Smp::Uuid uuid{0, 1, 2, 3, 4};
   try {
@@ -954,7 +954,7 @@ TEST(ExceptionTest, TypeNotRegistered) {
   }
 }
 
-TEST(ExceptionTest, InvalidParameterIndex) {
+TEST(Exception, InvalidParameterIndex) {
 
   Xsmp::Publication::Operation parent{"op"};
 
@@ -981,7 +981,7 @@ TEST(ExceptionTest, InvalidParameterIndex) {
   }
 }
 
-TEST(ExceptionTest, VoidOperation) {
+TEST(Exception, VoidOperation) {
 
   Xsmp::Publication::Operation parent{"op"};
 
@@ -1003,7 +1003,7 @@ TEST(ExceptionTest, VoidOperation) {
   }
 }
 
-TEST(ExceptionTest, InvalidAnyType) {
+TEST(Exception, InvalidAnyType) {
 
   Xsmp::Object parent{"op"};
 
@@ -1026,7 +1026,7 @@ TEST(ExceptionTest, InvalidAnyType) {
   }
 }
 
-TEST(ExceptionTest, InvalidReturnValue) {
+TEST(Exception, InvalidReturnValue) {
 
   Xsmp::Publication::Operation parent{"op"};
   const Smp::AnySimple invalidValue{Smp::PrimitiveTypeKind::PTK_Bool, true};
@@ -1050,7 +1050,7 @@ TEST(ExceptionTest, InvalidReturnValue) {
   }
 }
 
-TEST(ExceptionTest, InvalidParameterValue) {
+TEST(Exception, InvalidParameterValue) {
 
   Xsmp::Publication::Operation parent{"op"};
   const Smp::AnySimple invalidValue{Smp::PrimitiveTypeKind::PTK_Bool, true};
@@ -1073,7 +1073,7 @@ TEST(ExceptionTest, InvalidParameterValue) {
   }
 }
 
-TEST(ExceptionTest, InvalidFieldType) {
+TEST(Exception, InvalidFieldType) {
 
   Xsmp::Object parent{"op"};
   try {
@@ -1129,7 +1129,7 @@ public:
 };
 constexpr ::Smp::Uuid M1::uuid;
 
-TEST(ExceptionTest, DuplicateUuid) {
+TEST(Exception, DuplicateUuid) {
   Xsmp::Object parent{"parent"};
   auto factory = std::unique_ptr<Smp::IFactory>(
       ::Xsmp::Factory::Create<M1>("M1", "M1 model", nullptr, M1::uuid));
@@ -1154,7 +1154,7 @@ TEST(ExceptionTest, DuplicateUuid) {
   }
 }
 
-TEST(ExceptionTest, LibraryNotFound) {
+TEST(Exception, LibraryNotFound) {
   Xsmp::Object parent{"parent"};
 
   try {
@@ -1172,7 +1172,7 @@ TEST(ExceptionTest, LibraryNotFound) {
   }
 }
 
-TEST(ExceptionTest, InvalidLibrary) {
+TEST(Exception, InvalidLibrary) {
   Xsmp::Object parent{"parent"};
 
   try {
@@ -1190,7 +1190,7 @@ TEST(ExceptionTest, InvalidLibrary) {
   }
 }
 
-TEST(ExceptionTest, InvalidSimulationTime) {
+TEST(Exception, InvalidSimulationTime) {
   Xsmp::Object parent{"parent"};
 
   try {
@@ -1214,7 +1214,7 @@ TEST(ExceptionTest, InvalidSimulationTime) {
   }
 }
 
-TEST(ExceptionTest, TypeAlreadyRegistered) {
+TEST(Exception, TypeAlreadyRegistered) {
   Xsmp::Object parent{"parent"};
 
   Xsmp::Publication::TypeRegistry registry;
@@ -1240,7 +1240,7 @@ TEST(ExceptionTest, TypeAlreadyRegistered) {
   }
 }
 
-TEST(ExceptionTest, InvalidPrimitiveType) {
+TEST(Exception, InvalidPrimitiveType) {
   Xsmp::Object parent{"parent"};
 
   try {
@@ -1263,7 +1263,7 @@ TEST(ExceptionTest, InvalidPrimitiveType) {
   }
 }
 
-TEST(ExceptionTest, InvalidSimulatorState) {
+TEST(Exception, InvalidSimulatorState) {
   Xsmp::Object parent{"parent"};
 
   try {
@@ -1284,7 +1284,7 @@ TEST(ExceptionTest, InvalidSimulatorState) {
   }
 }
 
-TEST(ExceptionTest, DuplicateLiteral) {
+TEST(Exception, DuplicateLiteral) {
   Xsmp::Object parent{"parent"};
 
   try {

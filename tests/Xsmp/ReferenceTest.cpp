@@ -46,7 +46,7 @@ public:
 
 } // namespace
 
-TEST(ReferenceTest, auto_register) {
+TEST(Reference, auto_register) {
 
   TestAggregate c{"collection"};
 

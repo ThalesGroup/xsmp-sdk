@@ -19,7 +19,7 @@
 using namespace std::literals;
 namespace Xsmp {
 
-TEST(cstringTest, Constructor) {
+TEST(cstring, Constructor) {
 
   cstring s = "aaa";
   EXPECT_STREQ("aaa", s.c_str());

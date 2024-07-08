@@ -45,13 +45,14 @@ public:
 };
 constexpr ::Smp::Uuid M2::uuid;
 
-TEST(FactoryTest, Create) {
+TEST(Factory, Create) {
 
-  auto *factory{::Xsmp::Factory::Create<M1>("M1",       // name
-                                            "M1 model", // description
-                                            nullptr,    // simulator
-                                            M1::uuid    // UUID
-                                            )};
+  std::unique_ptr<::Smp::IFactory> factory{
+      ::Xsmp::Factory::Create<M1>("M1",       // name
+                                  "M1 model", // description
+                                  nullptr,    // simulator
+                                  M1::uuid    // UUID
+                                  )};
 
   EXPECT_STREQ(factory->GetName(), "M1");
   EXPECT_STREQ(factory->GetDescription(), "M1 model");
@@ -71,17 +72,16 @@ TEST(FactoryTest, Create) {
   EXPECT_EQ(instance->GetParent(), &composite);
 
   factory->DeleteInstance(instance);
-
-  delete factory;
 }
 
-TEST(FactoryTest, WrongUuid) {
+TEST(Factory, WrongUuid) {
 
-  auto *factory{::Xsmp::Factory::Create<M1>("M1",       // name
-                                            "M1 model", // description
-                                            nullptr,    // simulator
-                                            M2::uuid    // UUID
-                                            )};
+  std::unique_ptr<::Smp::IFactory> factory{
+      ::Xsmp::Factory::Create<M1>("M1",       // name
+                                  "M1 model", // description
+                                  nullptr,    // simulator
+                                  M2::uuid    // UUID
+                                  )};
 
   EXPECT_STREQ(factory->GetName(), "M1");
   EXPECT_STREQ(factory->GetDescription(), "M1 model");
@@ -91,11 +91,9 @@ TEST(FactoryTest, WrongUuid) {
 
   EXPECT_THROW(factory->CreateInstance("instance", "description", nullptr),
                Smp::Exception);
-
-  delete factory;
 }
 
-TEST(FactoryCollectionTest, FactoryCollection) {
+TEST(Factory, Collection) {
 
   Xsmp::FactoryCollection collection{nullptr};
   auto *m1 = ::Xsmp::Factory::Create<M1>("M1", "M1 model", nullptr, M1::uuid);

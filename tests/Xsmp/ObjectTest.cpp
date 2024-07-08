@@ -17,7 +17,7 @@
 
 namespace Xsmp {
 
-TEST(ObjectTest, Getters) {
+TEST(Object, Getters) {
 
   Object parent{"parent", "desc"};
 
