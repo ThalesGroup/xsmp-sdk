@@ -24,16 +24,12 @@ function(pytest_discover_tests_impl)
     # Override option by environment variable if available.
     if(DEFINED ENV{BUNDLE_PYTHON_TESTS})
         set(_BUNDLE_TESTS $ENV{BUNDLE_PYTHON_TESTS})
-        if(NOT _TEST_GROUP_NAME)
-            set(_TEST_GROUP_NAME "py:${_TEST_PROJECT_NAME}")
-        endif()
-    else()
-        if(NOT _TEST_GROUP_NAME)
-            set(_TEST_GROUP_NAME "py")
-        endif()
     endif()
 
     if(_BUNDLE_TESTS)
+        if(NOT _TEST_GROUP_NAME)
+            set(_TEST_GROUP_NAME "pytest ${_WORKING_DIRECTORY}")
+        endif()
         string(APPEND _content
             "add_test(\"${_TEST_GROUP_NAME}\" ${_PYTHON_EXECUTABLE} -m pytest)\n"
             "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES WORKING_DIRECTORY [==[${_WORKING_DIRECTORY}]==])\n"
@@ -55,9 +51,9 @@ function(pytest_discover_tests_impl)
         set(ENV{${_LIB_ENV_PATH}} "${_LIBRARY_PATH}")
         set(ENV{PYTHONPATH} "${_PYTHON_PATH}")
         execute_process(
-            COMMAND ${_PYTHON_EXECUTABLE} -m pytest --collect-only -q --rootdir=${_WORKING_DIRECTORY}
-            OUTPUT_VARIABLE _output_list
-            ERROR_VARIABLE _output_list
+            COMMAND ${_PYTHON_EXECUTABLE} -m pytest --collect-only -q
+            OUTPUT_VARIABLE _output
+            ERROR_VARIABLE _output
             OUTPUT_STRIP_TRAILING_WHITESPACE
             WORKING_DIRECTORY ${_WORKING_DIRECTORY}
         )
@@ -66,20 +62,20 @@ function(pytest_discover_tests_impl)
         set(ENV{PYTHONPATH} "${old_python_path}")
 
         # Parse output
-        string(REPLACE [[;]] [[\;]] _output_list "${_output_list}")
-        string(REPLACE "\n" ";" _output_list "${_output_list}")
+        string(REPLACE [[;]] [[\;]] _output "${_output}")
+        string(REPLACE "\n" ";" _output "${_output}")
 
         set(test_pattern "([^:]+)(::([^:]+))?::([^:]+)")
         set(test_error_pattern "^ERROR ([^:]+)")
 
-        foreach(test_case ${_output_list})
+        foreach(test_case ${_output})
             string(REGEX MATCHALL ${test_pattern} _test_case "${test_case}")
 
             # Ignore lines not identified as a test.
             if(NOT _test_case)
                 string(REGEX MATCHALL ${test_error_pattern} _test_case "${test_case}")
                 if(_test_case)
-                    set(test_name "${_WORKING_DIRECTORY}/${CMAKE_MATCH_1}")
+                    set(test_name "pytest ${_WORKING_DIRECTORY}/${CMAKE_MATCH_1}")
                     string(APPEND _content 
                         "add_test(\"${test_name}\" ${_PYTHON_EXECUTABLE} -m pytest \"${test_name}\")\n"
                         "set_tests_properties(\"${test_name}\" PROPERTIES WORKING_DIRECTORY [==[${_WORKING_DIRECTORY}]==])\n"
@@ -109,8 +105,9 @@ function(pytest_discover_tests_impl)
             endif()
 
 
-
-            set(test_name "${_TEST_GROUP_NAME}:${test_name}")
+            if(_TEST_GROUP_NAME)
+                set(test_name "${_TEST_GROUP_NAME}:${test_name}")
+            endif()
             set(test_case "${_WORKING_DIRECTORY}/${test_case}")
 
             string(APPEND _content
@@ -130,15 +127,15 @@ function(pytest_discover_tests_impl)
 
         if(NOT _content)
             string(APPEND _content
-                "add_test(\"${_TEST_GROUP_NAME}\" ${_PYTHON_EXECUTABLE} -m pytest)\n"
-                "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES WORKING_DIRECTORY [==[${_WORKING_DIRECTORY}]==])\n"
-                "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES ENVIRONMENT [==[${_LIB_ENV_PATH}=${_LIBRARY_PATH}]==])\n"
-                "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES ENVIRONMENT [==[PYTHONPATH=${_PYTHON_PATH}]==])\n"
+                "add_test(\"${_WORKING_DIRECTORY}\" ${_PYTHON_EXECUTABLE} -m pytest)\n"
+                "set_tests_properties(\"${_WORKING_DIRECTORY}\" PROPERTIES WORKING_DIRECTORY [==[${_WORKING_DIRECTORY}]==])\n"
+                "set_tests_properties(\"${_WORKING_DIRECTORY}\" PROPERTIES ENVIRONMENT [==[${_LIB_ENV_PATH}=${_LIBRARY_PATH}]==])\n"
+                "set_tests_properties(\"${_WORKING_DIRECTORY}\" PROPERTIES ENVIRONMENT [==[PYTHONPATH=${_PYTHON_PATH}]==])\n"
             )
     
             foreach(env ${_ENVIRONMENT})
                 string(APPEND _content
-                    "set_tests_properties(\"${_TEST_GROUP_NAME}\" APPEND PROPERTIES ENVIRONMENT [==[${env}]==])\n"
+                    "set_tests_properties(\"${_WORKING_DIRECTORY}\" APPEND PROPERTIES ENVIRONMENT [==[${env}]==])\n"
                 )
             endforeach()
         endif()

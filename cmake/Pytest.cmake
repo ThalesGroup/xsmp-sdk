@@ -65,9 +65,9 @@ function(pytest_discover_tests)
     endif()
 
     if(_NAME)
-        set(ctest_file_base "${CMAKE_CURRENT_BINARY_DIR}/${_NAME}")
+        set(ctest_file_base "${CMAKE_CURRENT_BINARY_DIR}/pytest_${_NAME}")
     else()
-        set(ctest_file_base "${CMAKE_CURRENT_BINARY_DIR}/py")
+        set(ctest_file_base "${CMAKE_CURRENT_BINARY_DIR}/pytest")
     endif()
     
     set(ctest_include_file "${ctest_file_base}_include.cmake")
@@ -116,4 +116,4 @@ set(_PYTEST_DISCOVER_TESTS_SCRIPT
   ${CMAKE_CURRENT_LIST_DIR}/PytestAddTests.cmake
 )
 
-    
+
