@@ -16,18 +16,15 @@ function(pytest_discover_tests)
     # Set library/python path depending on the platform.
     if(CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
         set(LIB_ENV_PATH PATH)
-        string(REPLACE "\\" "/" libpath "$ENV{${LIB_ENV_PATH}}")
-        string(REPLACE "\\" "/" pythonpath "$ENV{PYTHONPATH}")
+    elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL Darwin)
+        set(LIB_ENV_PATH DYLD_LIBRARY_PATH)
     else()
-        if(CMAKE_HOST_SYSTEM_NAME STREQUAL Darwin)
-            set(LIB_ENV_PATH DYLD_LIBRARY_PATH)
-        else()
-            set(LIB_ENV_PATH LD_LIBRARY_PATH)
-        endif()
-        string(REPLACE ":" ";" libpath "$ENV{${LIB_ENV_PATH}}")
-        string(REPLACE ":" ";" pythonpath "$ENV{PYTHONPATH}")
+        set(LIB_ENV_PATH LD_LIBRARY_PATH)
     endif()
 
+
+    file(TO_CMAKE_PATH "$ENV{${LIB_ENV_PATH}}" libpath)
+    file(TO_CMAKE_PATH "$ENV{PYTHONPATH}" pythonpath)
 
     # Prepend input path to environment variables
     if(_LIBRARY_PATH_PREPEND)
@@ -56,7 +53,10 @@ function(pytest_discover_tests)
         endforeach()
     endif()
 
-    # Convert list into string.
+
+    file(TO_NATIVE_PATH "${libpath}" libpath)
+    file(TO_NATIVE_PATH "${pythonpath}" pythonpath)
+
     list(JOIN libpath "][" libpath)
     list(JOIN pythonpath "][" pythonpath)
 

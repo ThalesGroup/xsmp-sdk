@@ -13,17 +13,14 @@ function(pytest_discover_tests_impl)
 
     set(_content "")
     
-    # Use platform specific path separator (";" on windows else ":") and convert path to native platform (replace "/" by "\" on Windows)
     if(CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
-        string(REPLACE "][" "\\\\;" _LIBRARY_PATH "${_LIBRARY_PATH}")
-        string(REPLACE "][" "\\\\;" _PYTHON_PATH "${_PYTHON_PATH}")
-        string(REPLACE "/" "\\\\" _LIBRARY_PATH "${_LIBRARY_PATH}")
-        string(REPLACE "/" "\\\\" _PYTHON_PATH "${_PYTHON_PATH}")
+        string(REPLACE "][" [[\\;]] _LIBRARY_PATH "${_LIBRARY_PATH}")
+        string(REPLACE "][" [[\\;]] _PYTHON_PATH "${_PYTHON_PATH}")
     else()
-        string(REPLACE "][" ":" _LIBRARY_PATH "${_LIBRARY_PATH}")
-        string(REPLACE "][" ":" _PYTHON_PATH "${_PYTHON_PATH}")
+        string(REPLACE "][" [[:]] _LIBRARY_PATH "${_LIBRARY_PATH}")
+        string(REPLACE "][" [[:]] _PYTHON_PATH "${_PYTHON_PATH}")
     endif()
-
+    
     # Override option by environment variable if available.
     if(DEFINED ENV{BUNDLE_PYTHON_TESTS})
         set(_BUNDLE_TESTS $ENV{BUNDLE_PYTHON_TESTS})
@@ -38,15 +35,15 @@ function(pytest_discover_tests_impl)
 
     if(_BUNDLE_TESTS)
         string(APPEND _content
-            "add_test(\"${_TEST_GROUP_NAME}\" ${_PYTHON_EXECUTABLE} -m pytest\)\n"
-            "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES WORKING_DIRECTORY \"${_WORKING_DIRECTORY}\")\n"
-            "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES ENVIRONMENT \"${_LIB_ENV_PATH}=${_LIBRARY_PATH}\")\n"
-            "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES ENVIRONMENT \"PYTHONPATH=${_PYTHON_PATH}\")\n"
+            "add_test(\"${_TEST_GROUP_NAME}\" ${_PYTHON_EXECUTABLE} -m pytest)\n"
+            "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES WORKING_DIRECTORY [==[${_WORKING_DIRECTORY}]==])\n"
+            "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES ENVIRONMENT [==[${_LIB_ENV_PATH}=${_LIBRARY_PATH}]==])\n"
+            "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES ENVIRONMENT [==[PYTHONPATH=${_PYTHON_PATH}]==])\n"
         )
 
         foreach(env ${_ENVIRONMENT})
             string(APPEND _content
-                "set_tests_properties(\"${_TEST_GROUP_NAME}\" APPEND PROPERTIES ENVIRONMENT ${env})\n"
+                "set_tests_properties(\"${_TEST_GROUP_NAME}\" APPEND PROPERTIES ENVIRONMENT [==[${env}]==])\n"
             )
         endforeach()
 
@@ -85,13 +82,13 @@ function(pytest_discover_tests_impl)
                     set(test_name "${_WORKING_DIRECTORY}/${CMAKE_MATCH_1}")
                     string(APPEND _content 
                         "add_test(\"${test_name}\" ${_PYTHON_EXECUTABLE} -m pytest \"${test_name}\")\n"
-                        "set_tests_properties(\"${test_name}\" PROPERTIES WORKING_DIRECTORY \"${_WORKING_DIRECTORY}\")\n"
-                        "set_tests_properties(\"${test_name}\" PROPERTIES ENVIRONMENT \"${_LIB_ENV_PATH}=${_LIBRARY_PATH}\")\n"
-                        "set_tests_properties(\"${test_name}\" PROPERTIES ENVIRONMENT \"PYTHONPATH=${_PYTHON_PATH}\")\n"
+                        "set_tests_properties(\"${test_name}\" PROPERTIES WORKING_DIRECTORY [==[${_WORKING_DIRECTORY}]==])\n"
+                        "set_tests_properties(\"${test_name}\" PROPERTIES ENVIRONMENT [==[${_LIB_ENV_PATH}=${_LIBRARY_PATH}]==])\n"
+                        "set_tests_properties(\"${test_name}\" PROPERTIES ENVIRONMENT [==[PYTHONPATH=${_PYTHON_PATH}]==])\n"
                     )
                     foreach(env ${_ENVIRONMENT})
                         string(APPEND _content
-                            "set_tests_properties(\"${test_name}\" APPEND PROPERTIES ENVIRONMENT ${env})\n"
+                            "set_tests_properties(\"${test_name}\" APPEND PROPERTIES ENVIRONMENT [==[${env}]==])\n"
                         )
                     endforeach()
                 endif(_test_case)
@@ -118,14 +115,14 @@ function(pytest_discover_tests_impl)
 
             string(APPEND _content
                 "add_test(\"${test_name}\" ${_PYTHON_EXECUTABLE} -m pytest \"${test_case}\")\n"
-                "set_tests_properties(\"${test_name}\" PROPERTIES WORKING_DIRECTORY \"${_WORKING_DIRECTORY}\")\n"
-                "set_tests_properties(\"${test_name}\" PROPERTIES ENVIRONMENT \"${_LIB_ENV_PATH}=${_LIBRARY_PATH}\")\n"
-                "set_tests_properties(\"${test_name}\" PROPERTIES ENVIRONMENT \"PYTHONPATH=${_PYTHON_PATH}\")\n"
+                "set_tests_properties(\"${test_name}\" PROPERTIES WORKING_DIRECTORY [==[${_WORKING_DIRECTORY}]==])\n"
+                "set_tests_properties(\"${test_name}\" PROPERTIES ENVIRONMENT [==[${_LIB_ENV_PATH}=${_LIBRARY_PATH}]==])\n"
+                "set_tests_properties(\"${test_name}\" PROPERTIES ENVIRONMENT [==[PYTHONPATH=${_PYTHON_PATH}]==])\n"
             )
 
             foreach(env ${_ENVIRONMENT})
                 string(APPEND _content
-                    "set_tests_properties(\"${test_name}\" APPEND PROPERTIES ENVIRONMENT ${env})\n"
+                    "set_tests_properties(\"${test_name}\" APPEND PROPERTIES ENVIRONMENT [==[${env}]==])\n"
                 )
             endforeach()
 
@@ -133,14 +130,15 @@ function(pytest_discover_tests_impl)
 
         if(NOT _content)
             string(APPEND _content
-                "add_test(\"${_TEST_GROUP_NAME}\" ${_PYTHON_EXECUTABLE} -m pytest \"${_WORKING_DIRECTORY}\"\)\n"
-                "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES ENVIRONMENT \"${_LIB_ENV_PATH}=${_LIBRARY_PATH}\")\n"
-                "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES ENVIRONMENT \"PYTHONPATH=${_PYTHON_PATH}\")\n"
+                "add_test(\"${_TEST_GROUP_NAME}\" ${_PYTHON_EXECUTABLE} -m pytest)\n"
+                "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES WORKING_DIRECTORY [==[${_WORKING_DIRECTORY}]==])\n"
+                "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES ENVIRONMENT [==[${_LIB_ENV_PATH}=${_LIBRARY_PATH}]==])\n"
+                "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES ENVIRONMENT [==[PYTHONPATH=${_PYTHON_PATH}]==])\n"
             )
     
             foreach(env ${_ENVIRONMENT})
                 string(APPEND _content
-                    "set_tests_properties(\"${_TEST_GROUP_NAME}\" APPEND PROPERTIES ENVIRONMENT ${env})\n"
+                    "set_tests_properties(\"${_TEST_GROUP_NAME}\" APPEND PROPERTIES ENVIRONMENT [==[${env}]==])\n"
                 )
             endforeach()
         endif()

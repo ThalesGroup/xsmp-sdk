@@ -21,6 +21,10 @@ if(NOT PARENT_PROJECT_NAME)
     list(APPEND CMAKE_MODULE_PATH "${xsmp-sdk_SOURCE_DIR}/cmake")
 endif()
 
+# add python directory to PYTHONPATH
+include(PathUtils)
+python_path_prepend("python")
+
 file(GLOB_RECURSE SRC CONFIGURE_DEPENDS src/*.cpp src-gen/*.cpp)
 
 add_library(xsmp_example_project1 SHARED ${SRC})

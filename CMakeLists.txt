@@ -44,9 +44,6 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-include(PathUtils)
-
-
 # Initialize some default paths
 include(GNUInstallDirs)
 
@@ -96,9 +93,9 @@ elseif(UNIX)
     list(APPEND CMAKE_INSTALL_RPATH "$ORIGIN")
 endif()
 
-#update Python Path
-python_path_prepend("${CMAKE_CURRENT_SOURCE_DIR}/python")
-
+# add python directory to PYTHONPATH
+include(PathUtils)
+python_path_prepend("python")
 
 if(XSMP_ENABLE_CODECOVERAGE)
     if(CMAKE_CXX_COMPILER_ID MATCHES "(Apple)?[Cc]lang" )
@@ -536,10 +533,12 @@ if(XSMP_BUILD_PACKAGE)
     add_custom_target(xsmp_package DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/xsmp-sdk-src.zip)
 endif(XSMP_BUILD_PACKAGE)
 
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    include(CTest)
+endif()
 
+if(XSMP_BUILD_TESTS AND BUILD_TESTING)
 
-
-if(XSMP_BUILD_TESTS)
     FetchContent_Declare(
         googletest
         GIT_REPOSITORY https://github.com/google/googletest.git
@@ -551,7 +550,6 @@ if(XSMP_BUILD_TESTS)
     set(INSTALL_GTEST OFF CACHE BOOL "")
     FetchContent_MakeAvailable(googletest)
 
-    include(GoogleTest)
 
     file(GLOB_RECURSE SRC-TEST-PKG CONFIGURE_DEPENDS src-gen/xsmp_tests.cpp src-gen/xsmp_tests.pkg.cpp src/Xsmp/Tests/*.cpp src-gen/Xsmp/Tests/*.cpp)
 
@@ -567,7 +565,6 @@ if(XSMP_BUILD_TESTS)
     target_link_libraries(TestsPackage PUBLIC Xsmp::Cdk)
     target_compile_options(TestsPackage PRIVATE ${XSMP_COMPILE_OPTIONS})
     install(TARGETS TestsPackage)
-    include(CTest)
 
     file(GLOB_RECURSE SRC-TEST CONFIGURE_DEPENDS tests/*.cpp)
     add_executable (XsmpTests ${SRC-TEST})
@@ -589,10 +586,11 @@ if(XSMP_BUILD_TESTS)
         target_compile_options(XsmpTests PRIVATE -Wno-unused-value)
     endif()
     
+    include(GoogleTest)
     gtest_discover_tests(XsmpTests)
     include(Pytest)
     pytest_discover_tests() 
-endif(XSMP_BUILD_TESTS)
+endif()
 
 if(XSMP_BUILD_EXAMPLES)
     add_subdirectory(examples)
