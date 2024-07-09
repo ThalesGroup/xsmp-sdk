@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "xsmp-sdk"
-version = "1.0.1"
+version = "1.0.3"
 description = "Xsmp Simulator Development Kit."
 readme = "README.md"
 license = {text = "Apache-2.0"}
