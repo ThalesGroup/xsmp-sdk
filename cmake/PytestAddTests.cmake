@@ -6,20 +6,29 @@ function(pytest_discover_tests_impl)
     cmake_parse_arguments(
         ""
         ""
-        "PYTHON_EXECUTABLE;TEST_PROJECT_NAME;TEST_GROUP_NAME;BUNDLE_TESTS;LIB_ENV_PATH;LIBRARY_PATH;PYTHON_PATH;WORKING_DIRECTORY;ENVIRONMENT;CTEST_FILE"
+        "PYTHON_EXECUTABLE;TEST_PROJECT_NAME;TEST_GROUP_NAME;BUNDLE_TESTS;LIBRARY_PATH;PYTHON_PATH;WORKING_DIRECTORY;ENVIRONMENT;CTEST_FILE"
         ""
         ${ARGN}
     )
 
     set(_content "")
-    
+    # Set library/python path depending on the platform.
     if(CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
+        set(LIB_ENV_PATH PATH)
+        file(TO_NATIVE_PATH "${_LIBRARY_PATH}" _LIBRARY_PATH)
+        file(TO_NATIVE_PATH "${_PYTHON_PATH}" _PYTHON_PATH)
         string(REPLACE "][" [[\\;]] _LIBRARY_PATH "${_LIBRARY_PATH}")
         string(REPLACE "][" [[\\;]] _PYTHON_PATH "${_PYTHON_PATH}")
     else()
+        if(CMAKE_HOST_SYSTEM_NAME STREQUAL Darwin)
+            set(LIB_ENV_PATH DYLD_LIBRARY_PATH)
+        else()
+            set(LIB_ENV_PATH LD_LIBRARY_PATH)
+        endif()
         string(REPLACE "][" [[:]] _LIBRARY_PATH "${_LIBRARY_PATH}")
         string(REPLACE "][" [[:]] _PYTHON_PATH "${_PYTHON_PATH}")
     endif()
+
     
     # Override option by environment variable if available.
     if(DEFINED ENV{BUNDLE_PYTHON_TESTS})
@@ -28,12 +37,12 @@ function(pytest_discover_tests_impl)
 
     if(_BUNDLE_TESTS)
         if(NOT _TEST_GROUP_NAME)
-            set(_TEST_GROUP_NAME "pytest ${_WORKING_DIRECTORY}")
+            set(_TEST_GROUP_NAME "${_WORKING_DIRECTORY}")
         endif()
         string(APPEND _content
             "add_test(\"${_TEST_GROUP_NAME}\" ${_PYTHON_EXECUTABLE} -m pytest)\n"
             "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES WORKING_DIRECTORY [==[${_WORKING_DIRECTORY}]==])\n"
-            "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES ENVIRONMENT [==[${_LIB_ENV_PATH}=${_LIBRARY_PATH}]==])\n"
+            "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES ENVIRONMENT [==[${LIB_ENV_PATH}=${_LIBRARY_PATH}]==])\n"
             "set_tests_properties(\"${_TEST_GROUP_NAME}\" PROPERTIES ENVIRONMENT [==[PYTHONPATH=${_PYTHON_PATH}]==])\n"
         )
 
@@ -45,10 +54,10 @@ function(pytest_discover_tests_impl)
 
     else()
         # save paths
-        set(old_lib_env_path "ENV{${_LIB_ENV_PATH}}")
+        set(old_lib_env_path "ENV{${LIB_ENV_PATH}}")
         set(old_python_path "ENV{${PYTHONPATH}}")
         # collect tests
-        set(ENV{${_LIB_ENV_PATH}} "${_LIBRARY_PATH}")
+        set(ENV{${LIB_ENV_PATH}} "${_LIBRARY_PATH}")
         set(ENV{PYTHONPATH} "${_PYTHON_PATH}")
         execute_process(
             COMMAND ${_PYTHON_EXECUTABLE} -m pytest --collect-only -q
@@ -58,7 +67,7 @@ function(pytest_discover_tests_impl)
             WORKING_DIRECTORY ${_WORKING_DIRECTORY}
         )
         #restore paths
-        set(ENV{${_LIB_ENV_PATH}} "${old_lib_env_path}")
+        set(ENV{${LIB_ENV_PATH}} "${old_lib_env_path}")
         set(ENV{PYTHONPATH} "${old_python_path}")
 
         # Parse output
@@ -75,11 +84,11 @@ function(pytest_discover_tests_impl)
             if(NOT _test_case)
                 string(REGEX MATCHALL ${test_error_pattern} _test_case "${test_case}")
                 if(_test_case)
-                    set(test_name "pytest ${_WORKING_DIRECTORY}/${CMAKE_MATCH_1}")
+                    set(test_name "${_WORKING_DIRECTORY}/${CMAKE_MATCH_1}")
                     string(APPEND _content 
                         "add_test(\"${test_name}\" ${_PYTHON_EXECUTABLE} -m pytest \"${test_name}\")\n"
                         "set_tests_properties(\"${test_name}\" PROPERTIES WORKING_DIRECTORY [==[${_WORKING_DIRECTORY}]==])\n"
-                        "set_tests_properties(\"${test_name}\" PROPERTIES ENVIRONMENT [==[${_LIB_ENV_PATH}=${_LIBRARY_PATH}]==])\n"
+                        "set_tests_properties(\"${test_name}\" PROPERTIES ENVIRONMENT [==[${LIB_ENV_PATH}=${_LIBRARY_PATH}]==])\n"
                         "set_tests_properties(\"${test_name}\" PROPERTIES ENVIRONMENT [==[PYTHONPATH=${_PYTHON_PATH}]==])\n"
                     )
                     foreach(env ${_ENVIRONMENT})
@@ -93,7 +102,6 @@ function(pytest_discover_tests_impl)
 
             set(_class ${CMAKE_MATCH_3})
             set(_func ${CMAKE_MATCH_4})
-
 
             string(REGEX REPLACE "^test_?" "" _func "${_func}")
 
@@ -113,10 +121,9 @@ function(pytest_discover_tests_impl)
             string(APPEND _content
                 "add_test(\"${test_name}\" ${_PYTHON_EXECUTABLE} -m pytest \"${test_case}\")\n"
                 "set_tests_properties(\"${test_name}\" PROPERTIES WORKING_DIRECTORY [==[${_WORKING_DIRECTORY}]==])\n"
-                "set_tests_properties(\"${test_name}\" PROPERTIES ENVIRONMENT [==[${_LIB_ENV_PATH}=${_LIBRARY_PATH}]==])\n"
+                "set_tests_properties(\"${test_name}\" PROPERTIES ENVIRONMENT [==[${LIB_ENV_PATH}=${_LIBRARY_PATH}]==])\n"
                 "set_tests_properties(\"${test_name}\" PROPERTIES ENVIRONMENT [==[PYTHONPATH=${_PYTHON_PATH}]==])\n"
             )
-
             foreach(env ${_ENVIRONMENT})
                 string(APPEND _content
                     "set_tests_properties(\"${test_name}\" APPEND PROPERTIES ENVIRONMENT [==[${env}]==])\n"
@@ -129,10 +136,9 @@ function(pytest_discover_tests_impl)
             string(APPEND _content
                 "add_test(\"${_WORKING_DIRECTORY}\" ${_PYTHON_EXECUTABLE} -m pytest)\n"
                 "set_tests_properties(\"${_WORKING_DIRECTORY}\" PROPERTIES WORKING_DIRECTORY [==[${_WORKING_DIRECTORY}]==])\n"
-                "set_tests_properties(\"${_WORKING_DIRECTORY}\" PROPERTIES ENVIRONMENT [==[${_LIB_ENV_PATH}=${_LIBRARY_PATH}]==])\n"
+                "set_tests_properties(\"${_WORKING_DIRECTORY}\" PROPERTIES ENVIRONMENT [==[${LIB_ENV_PATH}=${_LIBRARY_PATH}]==])\n"
                 "set_tests_properties(\"${_WORKING_DIRECTORY}\" PROPERTIES ENVIRONMENT [==[PYTHONPATH=${_PYTHON_PATH}]==])\n"
             )
-    
             foreach(env ${_ENVIRONMENT})
                 string(APPEND _content
                     "set_tests_properties(\"${_WORKING_DIRECTORY}\" APPEND PROPERTIES ENVIRONMENT [==[${env}]==])\n"

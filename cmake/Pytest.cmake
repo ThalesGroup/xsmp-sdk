@@ -53,10 +53,6 @@ function(pytest_discover_tests)
         endforeach()
     endif()
 
-
-    file(TO_NATIVE_PATH "${libpath}" libpath)
-    file(TO_NATIVE_PATH "${pythonpath}" pythonpath)
-
     list(JOIN libpath "][" libpath)
     list(JOIN pythonpath "][" pythonpath)
 
@@ -86,7 +82,6 @@ function(pytest_discover_tests)
       "    TEST_PROJECT_NAME"     " [==[" "${PROJECT_NAME}"       "]==]" "\n"
       "    TEST_GROUP_NAME"       " [==[" "${_NAME}"              "]==]" "\n"
       "    BUNDLE_TESTS"          " [==[" "${_BUNDLE_TESTS}"      "]==]" "\n"
-      "    LIB_ENV_PATH"          " [==[" "${LIB_ENV_PATH}"       "]==]" "\n"
       "    LIBRARY_PATH"          " [==[" "${libpath}"            "]==]" "\n"
       "    PYTHON_PATH"           " [==[" "${pythonpath}"         "]==]" "\n"
       "    WORKING_DIRECTORY"     " [==[" "${_WORKING_DIRECTORY}" "]==]" "\n"
