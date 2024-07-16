@@ -82,7 +82,7 @@ public:
   ::Smp::Bool IsSimpleArray() const;
 
 private:
-  ::Smp::Uuid _itemTypeUuid;
+  const ::Smp::Publication::IType *_itemType;
   ::Smp::UInt64 _itemSize;
   ::Smp::UInt64 _arrayCount;
   ::Smp::Bool _simpleArray;

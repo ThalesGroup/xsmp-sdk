@@ -62,6 +62,9 @@ void AbstractEventSource::Unsubscribe(::Smp::IEventSink *eventSink) {
   }
   _event_sinks.erase(it);
 }
+::Smp::PrimitiveTypeKind AbstractEventSource::GetEventArgType() const {
+  return _eventArgType;
+}
 
 void AbstractEventSource::RemoveLinks(
     const ::Smp::IComponent *target) noexcept {

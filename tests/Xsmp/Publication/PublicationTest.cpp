@@ -104,12 +104,12 @@ TEST(Publication, PublishString8Field) {
                                         &string8, ::Smp::Uuids::Uuid_String8,
                                         Smp::ViewKind::VK_All, true, false,
                                         false),
-               Smp::InvalidFieldType);
+               Smp::Exception);
   EXPECT_THROW(publication.PublishField("voidField", "voidField description",
                                         &string8, ::Smp::Uuids::Uuid_Void,
                                         Smp::ViewKind::VK_All, true, false,
                                         false),
-               Smp::InvalidFieldType);
+               Smp::Exception);
 }
 
 template <typename T>
@@ -169,7 +169,7 @@ void TestPublishSimpleField(Smp::PrimitiveTypeKind kind, Smp::ViewKind view,
   ASSERT_TRUE(dataflowField);
 
   dataflowField->Connect(inputField);
-  EXPECT_EQ(input, default_value);
+  EXPECT_EQ(input, check_Value);
   dataflowField->Push();
   EXPECT_EQ(input, check_Value);
 
@@ -309,9 +309,8 @@ void TestPublishSimpleArray(Smp::PrimitiveTypeKind kind, Smp::ViewKind view,
   auto *dataflowField = dynamic_cast<Smp::IDataflowField *>(outputField);
 
   ASSERT_TRUE(dataflowField);
-  const Xsmp::Array<T, 2> before = input;
   dataflowField->Connect(inputField);
-  EXPECT_EQ(input, before);
+  EXPECT_EQ(input, output);
   dataflowField->Push();
   EXPECT_EQ(input, output);
 
@@ -365,12 +364,12 @@ TEST(Publication, PublishSimpleArray) {
   EXPECT_THROW(
       TestPublishSimpleArray<Smp::UInt64>(Smp::PrimitiveTypeKind::PTK_None,
                                           Smp::ViewKind::VK_None, 0, 100),
-      Smp::InvalidFieldType);
+      Smp::Exception);
 
   EXPECT_THROW(
       TestPublishSimpleArray<Smp::String8>(Smp::PrimitiveTypeKind::PTK_String8,
                                            Smp::ViewKind::VK_None, "", "test"),
-      Smp::InvalidFieldType);
+      Smp::Exception);
 }
 
 TEST(Publication, PublishArray) {

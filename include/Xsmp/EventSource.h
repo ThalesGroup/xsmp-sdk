@@ -47,13 +47,9 @@ public:
   ::Smp::IObject *GetParent() const final;
   void Subscribe(::Smp::IEventSink *eventSink) final;
   void Unsubscribe(::Smp::IEventSink *eventSink) final;
+  virtual ::Smp::PrimitiveTypeKind GetEventArgType() const;
 
 protected:
-  [[nodiscard]] inline ::Smp::PrimitiveTypeKind
-  GetEventArgType() const noexcept {
-    return _eventArgType;
-  }
-
   void DoEmit(::Smp::IObject *sender, const ::Smp::AnySimple &value) const;
 
 private:

@@ -244,20 +244,30 @@ const ::Smp::OperationCollection *Publication::GetOperations() const {
     if (auto *operation = _operations.at(operationName)) {
       return operation->CreateRequest();
     }
-    // check if property getter exist
+    // fallback on property getter if any
     if (std::strncmp(operationName, "get_", 4) == 0) {
-      if (const auto *property = dynamic_cast<const Property *>(
-              _properties.at(operationName + 4))) {
-        return property->CreateGetRequest();
-      }
+      return CreateGetRequest(operationName + 4);
     }
-    // check if property setter exist
+    // fallback on property setter if any
     else if (std::strncmp(operationName, "set_", 4) == 0) {
-      if (const auto *property = dynamic_cast<const Property *>(
-              _properties.at(operationName + 4))) {
-        return property->CreateSetRequest();
-      }
+      return CreateSetRequest(operationName + 4);
     }
+  }
+  return nullptr;
+}
+
+::Smp::IRequest *Publication::CreateGetRequest(::Smp::String8 propertyName) {
+  if (const auto *property =
+          dynamic_cast<const Property *>(_properties.at(propertyName))) {
+    return property->CreateGetRequest();
+  }
+  return nullptr;
+}
+
+::Smp::IRequest *Publication::CreateSetRequest(::Smp::String8 propertyName) {
+  if (const auto *property =
+          dynamic_cast<const Property *>(_properties.at(propertyName))) {
+    return property->CreateSetRequest();
   }
   return nullptr;
 }

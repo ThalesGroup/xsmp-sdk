@@ -1631,4 +1631,11 @@ void throwDuplicateLiteral(const ::Smp::IObject *sender,
                            ::Smp::Int32 literalValue) {
   throw DuplicateLiteral(sender, literalName, literalValue);
 }
+
+void throwIncompatibleType(const ::Smp::IObject *sender,
+                           const ::Smp::Uuid &uuid, std::string_view msg) {
+  throw Exception(sender, "IncompatibleType", "The type is incompatible",
+                  "The type '", uuid, "' is incompatible: ", msg);
+}
+
 } // namespace Xsmp::Exception

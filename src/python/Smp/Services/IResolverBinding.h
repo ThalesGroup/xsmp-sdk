@@ -30,7 +30,7 @@ An absolute path contains the name of either a Model or Service, but not the nam
 This allows keeping names as short as possible, and avoids a dependency on the name of the simulator itself.)")
 
       .def("ResolveRelative", &::Smp::Services::IResolver::ResolveRelative,
-           py::arg("relative_path"), py::arg("sender"),
+           py::arg("relative_path"), py::arg("relative_root"),
            "Resolve reference to an object via relative path.")
 
       .doc() = "This interface gives access to the Resolver Service.";

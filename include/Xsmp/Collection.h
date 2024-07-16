@@ -45,6 +45,9 @@ public:
   }
 
   std::size_t size() const override { return _vector.size(); }
+
+  virtual bool empty() const { return _vector.empty(); };
+
   const_iterator begin() const override {
     return AbstractCollection<T>::const_iterator(*this, 0);
   }
@@ -202,6 +205,10 @@ public:
   std::size_t size() const override {
     return detail::AbstractCollection<T>::size() + _delegate->size();
   }
+  bool empty() const override {
+    return detail::AbstractCollection<T>::empty() && (_delegate->size() == 0);
+  }
+
   const_iterator begin() const override {
     return DelegateCollection<T>::const_iterator(*this, 0);
   }

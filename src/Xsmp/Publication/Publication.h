@@ -479,6 +479,24 @@ public:
   /// @return  Request object for operation.
   ::Smp::IRequest *CreateRequest(::Smp::String8 operationName) final;
 
+  /// Create request object.
+  /// Returns a request object for the given property getter that describes the
+  /// parameters and the return value.
+  /// Request object may be undefined if no property with given name
+  /// could be found.
+  /// @param   propertyName Name of property.
+  /// @return  Request object for property getter.
+  virtual ::Smp::IRequest *CreateGetRequest(::Smp::String8 propertyName);
+
+  /// Create request object.
+  /// Returns a request object for the given property setter that describes the
+  /// parameters and the return value.
+  /// Request object may be undefined if no property with given name
+  /// could be found.
+  /// @param   propertyName Name of property.
+  /// @return  Request object for property setter.
+  virtual ::Smp::IRequest *CreateSetRequest(::Smp::String8 propertyName);
+
   /// Delete request object.
   /// Destroys a request object that has been created with the
   /// CreateRequest() method before.

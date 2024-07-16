@@ -49,7 +49,9 @@ void checkValidFieldType(const ::Smp::IField *field,
   // disallow fields with String8/void type
   if (type->GetUuid() == ::Smp::Uuids::Uuid_String8 ||
       type->GetUuid() == ::Smp::Uuids::Uuid_Void) {
-    ::Xsmp::Exception::throwInvalidFieldType(field, type);
+    ::Xsmp::Exception::throwIncompatibleType(
+        field, type->GetUuid(),
+        "Field does not support String8 and Void type.");
   }
 }
 } // namespace
@@ -146,8 +148,8 @@ void DataflowField::Connect(::Smp::IField *target) {
     ::Xsmp::Exception::throwInvalidTarget(this, this, target);
   }
   _targets.emplace(target);
-
-  // maybe we could push the value  here ?
+  // push the current value
+  Push(this, target);
 }
 
 void DataflowField::Push(::Smp::IField *source, ::Smp::IField *target) {

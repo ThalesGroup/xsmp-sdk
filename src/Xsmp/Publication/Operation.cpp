@@ -64,7 +64,9 @@ Operation::Operation(::Smp::String8 name, ::Smp::String8 description,
       _typeRegistry{typeRegistry}, _view(view) {}
 ::Smp::String8 Operation::GetName() const { return _name.c_str(); }
 
-::Smp::String8 Operation::GetDescription() const { return _description.c_str(); }
+::Smp::String8 Operation::GetDescription() const {
+  return _description.c_str();
+}
 
 ::Smp::IObject *Operation::GetParent() const { return _parent; }
 void Operation::PublishParameter(
@@ -75,17 +77,29 @@ void Operation::PublishParameter(
   if (!type) {
     ::Xsmp::Exception::throwTypeNotRegistered(this, typeUuid);
   }
+
   if (direction == ::Smp::Publication::ParameterDirectionKind::PDK_Return) {
     if (_returnParameter) {
       ::Xsmp::Exception::throwException(
-          this, "ReturnParameterAlreadyPublished",
-          "This Exception is thrown when trying to publish a return parameter.",
+          this, "InvalidParameterDirection",
+          "This Exception is thrown when trying to publish a parameter with an "
+          "invalid direction.",
           "The return parameter \'", _returnParameter->GetName(),
           "` is already published.");
     }
+    // check do duplicate parameter name
+    if (_parameters.at(name)) {
+      ::Xsmp::Exception::throwDuplicateName(this, name, &_parameters);
+    }
+
     _returnParameter =
         std::make_unique<Parameter>(name, description, this, type, direction);
   } else {
+    // check do duplicate parameter name
+    if (_returnParameter &&
+        std::strcmp(_returnParameter->GetName(), name) == 0) {
+      ::Xsmp::Exception::throwDuplicateName(this, name, &_parameters);
+    }
     _parameters.Add<Parameter>(name, description, this, type, direction);
   }
 }

@@ -159,37 +159,6 @@ bool DataflowField::Connect(DataflowField *sender, ::Smp::IField *source,
   return false;
 }
 
-void SimpleConnectableField::internal_push() const {
-  for (auto *field : _connectedFields) {
-    field->SetValue(this->GetValue());
-  }
-}
-
-void SimpleArrayConnectableField::internal_push(::Smp::UInt64 index) const {
-  for (auto *field : _connectedFields) {
-    field->SetValue(index, this->GetValue(index));
-  }
-}
-
-void SimpleConnectableField::RemoveLinks(const ::Smp::IComponent *target) {
-  for (auto it = _connectedFields.begin(); it != _connectedFields.end();) {
-    if (::Xsmp::Helper::GetParentOfType<::Smp::IComponent>(*it) == target) {
-      it = _connectedFields.erase(it);
-    } else {
-      ++it;
-    }
-  }
-}
-void SimpleArrayConnectableField::RemoveLinks(const ::Smp::IComponent *target) {
-  for (auto it = _connectedFields.begin(); it != _connectedFields.end();) {
-    if (::Xsmp::Helper::GetParentOfType<::Smp::IComponent>(*it) == target) {
-      it = _connectedFields.erase(it);
-    } else {
-      ++it;
-    }
-  }
-}
-
 void DataflowField::Connect(::Smp::IField *target) {
 
   if (!this->IsOutput() || !target->IsInput() || target == this ||
@@ -234,6 +203,36 @@ void DataflowField::RemoveLinks(::Smp::IField *field,
   }
 }
 
+void SimpleConnectableField::internal_push() const {
+  for (auto *field : _connectedFields) {
+    field->SetValue(this->GetValue());
+  }
+}
+
+void SimpleConnectableField::RemoveLinks(const ::Smp::IComponent *target) {
+  for (auto it = _connectedFields.begin(); it != _connectedFields.end();) {
+    if (::Xsmp::Helper::GetParentOfType<::Smp::IComponent>(*it) == target) {
+      it = _connectedFields.erase(it);
+    } else {
+      ++it;
+    }
+  }
+}
+void SimpleArrayConnectableField::internal_push(::Smp::UInt64 index) const {
+  for (auto *field : _connectedFields) {
+    field->SetValue(index, this->GetValue(index));
+  }
+}
+
+void SimpleArrayConnectableField::RemoveLinks(const ::Smp::IComponent *target) {
+  for (auto it = _connectedFields.begin(); it != _connectedFields.end();) {
+    if (::Xsmp::Helper::GetParentOfType<::Smp::IComponent>(*it) == target) {
+      it = _connectedFields.erase(it);
+    } else {
+      ++it;
+    }
+  }
+}
 void AbstractForcibleField::Restore(::Smp::IStorageReader *reader) {
   reader->Restore(&_forced, sizeof(_forced));
   // restore of value performed in ForcibleField

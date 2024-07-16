@@ -57,15 +57,26 @@ ArrayType::ArrayType(::Smp::String8 name, ::Smp::String8 description,
                      ::Smp::Int64 itemSize, ::Smp::Int64 arrayCount,
                      ::Smp::Bool simpleArray)
     : Type(name, description, typeRegistry, typeUuid),
-      _itemTypeUuid(itemTypeUuid),
+      _itemType(typeRegistry->GetType(itemTypeUuid)),
       _itemSize(itemSize >= 0 ? static_cast<::Smp::UInt64>(itemSize) : 0),
       _arrayCount(arrayCount >= 0 ? static_cast<::Smp::UInt64>(arrayCount) : 0),
-      _simpleArray(simpleArray) {}
+      _simpleArray(simpleArray) {
+
+  if (!_itemType) {
+    ::Xsmp::Exception::throwTypeNotRegistered(this, itemTypeUuid);
+  }
+  if (itemTypeUuid == ::Smp::Uuids::Uuid_String8 ||
+      itemTypeUuid == ::Smp::Uuids::Uuid_Void) {
+    ::Xsmp::Exception::throwIncompatibleType(
+        this, itemTypeUuid,
+        "ArrayType does not support String8 and Void item type.");
+  }
+}
 
 ::Smp::UInt64 ArrayType::GetSize() const { return _arrayCount; }
 
 const ::Smp::Publication::IType *ArrayType::GetItemType() const {
-  return GetTypeRegistry()->GetType(_itemTypeUuid);
+  return _itemType;
 }
 
 ::Smp::UInt64 ArrayType::GetItemSize() const { return _itemSize; }
@@ -109,7 +120,8 @@ void EnumerationType::AddLiteral(::Smp::String8 name,
                                  ::Smp::Int32 value) {
 
   if (auto it = _literals.find(value); it != _literals.end()) {
-    ::Xsmp::Exception::throwDuplicateLiteral(this, it->second.name.c_str(), value);
+    ::Xsmp::Exception::throwDuplicateLiteral(this, it->second.name.c_str(),
+                                             value);
   }
   _literals.try_emplace(value, Literal{name, description});
 }
@@ -194,8 +206,8 @@ ClassType::ClassType(::Smp::String8 name, ::Smp::String8 description,
     return;
   }
   if (baseClassUuid == typeUuid) {
-    ::Xsmp::Exception::throwException(
-        this, "Invalid base Class",
+    ::Xsmp::Exception::throwIncompatibleType(
+        this, baseClassUuid,
         "The base class must be different from the current class.");
   }
   auto *baseClass = typeRegistry->GetType(baseClassUuid);
@@ -203,9 +215,8 @@ ClassType::ClassType(::Smp::String8 name, ::Smp::String8 description,
     ::Xsmp::Exception::throwTypeNotRegistered(this, baseClassUuid);
   }
   if (!dynamic_cast<::Smp::Publication::IClassType *>(baseClass)) {
-    ::Xsmp::Exception::throwException(
-        this, "Invalid base Class",
-        "A base class must be void or a class type.");
+    ::Xsmp::Exception::throwIncompatibleType(
+        this, baseClassUuid, "A base class must be void or a class type.");
   }
 }
 

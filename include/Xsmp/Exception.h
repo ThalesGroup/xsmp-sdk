@@ -262,6 +262,9 @@ throwTypeAlreadyRegistered(const ::Smp::IObject *sender,
                                         ::Smp::String8 literalName,
                                         ::Smp::Int32 literalValue);
 
+[[noreturn]] void throwIncompatibleType(const ::Smp::IObject *sender,
+                                        const ::Smp::Uuid &uuid,
+                                        std::string_view msg = "");
 } // namespace Xsmp::Exception
 
 #endif // XSMP_EXCEPTION_H_

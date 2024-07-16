@@ -156,7 +156,7 @@ private:
 class DataflowField : public virtual ::Smp::IDataflowField {
 public:
   void Push() final;
-  void Connect(::Smp::IField *) final;
+  void Connect(::Smp::IField *target) final;
 
 private:
   void Push(::Smp::IField *field);
