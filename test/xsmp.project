@@ -1,9 +1,9 @@
 /**
  * XSMP Simulator Development Kit Project
  * 
- * @date 2024-07-15T19:10:04.000+0200
+ * @date 2024-07-15T18:45:37.000+0200
  */
-project "xsmp-sdk"
+project "xsmp-sdk2"
 
 
 // modeling files are located in smdl directory
