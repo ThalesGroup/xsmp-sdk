@@ -39,7 +39,7 @@ struct cstring final {
   inline const char *c_str() const noexcept { return _value; }
 
 private:
-  char *_value;
+  const char *_value;
 };
 
 } // namespace Xsmp

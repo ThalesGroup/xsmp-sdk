@@ -7,10 +7,12 @@ name = "xsmp-sdk"
 version = "1.0.3"
 description = "Xsmp Simulator Development Kit."
 readme = "README.md"
-license = {text = "Apache-2.0"}
-authors=[{name="Yannick DAVELUY", email="yannick.daveluy@thalesaleniaspace.com"}]
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Yannick DAVELUY", email = "yannick.daveluy@thalesaleniaspace.com" },
+]
 requires-python = ">=3.7"
-classifiers=[
+classifiers = [
     "Programming Language :: C++",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.7",
@@ -50,11 +52,9 @@ minversion = "6.0"
 addopts = ["-ra", "--showlocals", "--strict-markers", "--strict-config"]
 xfail_strict = true
 log_cli_level = "INFO"
-filterwarnings = [
-  "error",
-]
+filterwarnings = ["error"]
 testpaths = ["python"]
 
 [tool.cibuildwheel]
 test-extras = "test"
-test-command = "python -m pytest {project}/python -v"
+test-command = "python -m pytest -v"

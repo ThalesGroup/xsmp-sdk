@@ -19,13 +19,13 @@
 
 namespace Xsmp {
 namespace {
-char *copy(const char *value, std::size_t size) {
-  auto copy = new char[size + 1];
+const char *copy(const char *value, std::size_t size) {
+  auto *copy = new char[size + 1];
   std::char_traits<char>::copy(copy, value, size);
   copy[size] = '\0';
   return copy;
 }
-char *copy(const char *value) {
+const char *copy(const char *value) {
   return copy(value, std::char_traits<char>::length(value));
 }
 } // namespace
