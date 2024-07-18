@@ -117,6 +117,8 @@ struct is_simple_array_field<
                          && ::Xsmp::Helper::is_simple_type_v<ItemType>>>
     : std::true_type {};
 
+class FieldHelper;
+
 class AbstractForcibleField : public virtual ::Smp::IForcibleField {
 public:
   void Force(::Smp::AnySimple value) final;
@@ -137,6 +139,10 @@ public:
                                                  value));
   }
 };
+template <typename T, typename... Annotations>
+using ForcibleFieldType = std::conditional_t<
+    ::Xsmp::Annotation::any_of<::Xsmp::Annotation::forcible, Annotations...>,
+    ::Xsmp::detail::ForcibleField<T>, ::Smp::ISimpleField>;
 
 class Failure : public virtual ::Smp::IFailure {
 public:
@@ -152,48 +158,78 @@ protected:
 private:
   bool _failed{};
 };
-
-class DataflowField : public virtual ::Smp::IDataflowField {
+class IDataflowFieldExtension : public virtual ::Smp::IDataflowField {
+public:
+  /// Virtual destructor to release memory.
+  virtual ~IDataflowFieldExtension() noexcept = default;
+  /// Disconnect this field to a target field for direct data flow.
+  /// @param   target Target field to connect to. The field type must be
+  ///          compatible.
+  virtual void Disconnect(::Smp::IField *target) = 0;
+};
+class ArrayDataflowField : public virtual IDataflowFieldExtension,
+                           public virtual ::Smp::IArrayField {
 public:
   void Push() final;
   void Connect(::Smp::IField *target) final;
+  void Disconnect(::Smp::IField *target) final;
 
 private:
-  void Push(::Smp::IField *field);
-  bool Connect(DataflowField *sender, ::Smp::IField *source,
-               ::Smp::IField *target);
-
-  // Extensions for ILinkingComponent
-  /// Asks a Dataflow Field to remove all its links to the given target
-  /// component.
-  /// After this method has been called, the component must not try to
-  /// access the given target component anymore.
-  /// @param   target Target component to which all links shall be removed.
-  void RemoveLinks(const ::Smp::IComponent *target);
-  void RemoveLinks(::Smp::IField *field, const ::Smp::IComponent *target);
-
-  friend ::Xsmp::Component;
+  std::set<::Smp::IArrayField *> _connectedFields;
+  friend class ::Xsmp::detail::FieldHelper;
 };
+
+template <typename... Annotations>
+using ArrayField = std::conditional_t<
+    ::Xsmp::Annotation::any_of<::Xsmp::Annotation::output, Annotations...>,
+    ::Xsmp::detail::ArrayDataflowField, ::Smp::IArrayField>;
 
 class SimpleConnectableField : public virtual ::Smp::ISimpleField {
 protected:
   void internal_push() const;
 
 private:
-  void RemoveLinks(const ::Smp::IComponent *target);
   std::set<::Smp::ISimpleField *> _connectedFields;
-  friend class ::Xsmp::detail::DataflowField;
+  friend class ::Xsmp::detail::FieldHelper;
 };
+class SimpleDataflowField : public virtual SimpleConnectableField,
+                            public virtual IDataflowFieldExtension {
+public:
+  void Push() final;
+  void Connect(::Smp::IField *target) final;
+  void Disconnect(::Smp::IField *target) final;
+};
+template <typename... Annotations>
+using SimpleField = std::conditional_t<
+    ::Xsmp::Annotation::any_of<::Xsmp::Annotation::output, Annotations...>,
+    SimpleDataflowField,
+    std::conditional_t<::Xsmp::Annotation::any_of<
+                           ::Xsmp::Annotation::connectable, Annotations...>,
+                       SimpleConnectableField, ::Smp::IField>>;
 
 class SimpleArrayConnectableField : public virtual ::Smp::ISimpleArrayField {
 protected:
   void internal_push(::Smp::UInt64 index) const;
 
 private:
-  void RemoveLinks(const ::Smp::IComponent *target);
   std::set<::Smp::ISimpleArrayField *> _connectedFields;
-  friend class ::Xsmp::detail::DataflowField;
+  friend class ::Xsmp::detail::FieldHelper;
 };
+
+class SimpleArrayDataflowField : public virtual SimpleArrayConnectableField,
+                                 public virtual IDataflowFieldExtension {
+public:
+  void Push() final;
+  void Connect(::Smp::IField *target) final;
+  void Disconnect(::Smp::IField *target) final;
+};
+template <typename... Annotations>
+using SimpleArrayField = std::conditional_t<
+    ::Xsmp::Annotation::any_of<::Xsmp::Annotation::output, Annotations...>,
+    SimpleArrayDataflowField,
+    std::conditional_t<::Xsmp::Annotation::any_of<
+                           ::Xsmp::Annotation::connectable, Annotations...>,
+                       SimpleArrayConnectableField, ::Smp::ISimpleArrayField>>;
 
 class AbstractField : public virtual ::Smp::IField {
 public:
@@ -208,6 +244,7 @@ public:
 protected:
   AbstractField(::Smp::String8 name, ::Smp::String8 description,
                 ::Smp::IObject *parent, ::Smp::ViewKind view);
+  friend class ::Xsmp::Component;
 
 private:
   ::Xsmp::cstring _name;
@@ -225,8 +262,6 @@ public:
   ::Smp::IField *GetField(::Smp::String8 name) const final;
 
 protected:
-  // AbstractDataflowField requires access to GetFields()
-  friend class ::Xsmp::detail::DataflowField;
   ::Xsmp::Collection<::Smp::IField> *GetFields();
 
   friend class ::Xsmp::detail::AbstractField;
@@ -236,14 +271,25 @@ private:
   ::Xsmp::Collection<::Smp::IField> _fields;
 };
 
+class StructureDataflowField : public ::Xsmp::detail::AbstractStructureField,
+                               public virtual IDataflowFieldExtension {
+public:
+  void Push() final;
+  void Connect(::Smp::IField *target) final;
+  void Disconnect(::Smp::IField *target) final;
+
+private:
+  std::set<::Smp::IStructureField *> _connectedFields;
+  friend class ::Xsmp::detail::FieldHelper;
+};
+template <typename... Annotations>
+using StructureField = std::conditional_t<
+    ::Xsmp::Annotation::any_of<::Xsmp::Annotation::output, Annotations...>,
+    ::Xsmp::detail::StructureDataflowField,
+    ::Xsmp::detail::AbstractStructureField>;
+
 template <typename T, typename... Annotations>
 class Field : public AbstractField,
-
-              public virtual std::conditional_t<
-                  ::Xsmp::Annotation::any_of<::Xsmp::Annotation::output,
-                                             Annotations...>,
-                  DataflowField, ::Smp::IField>,
-
               public virtual std::conditional_t<
                   ::Xsmp::Annotation::any_of<::Xsmp::Annotation::failure,
                                              Annotations...>,
@@ -301,18 +347,8 @@ public:
 template <typename T, typename... Annotations>
 class SimpleField final
     : public ::Xsmp::detail::Field<T, Annotations...>,
-      public virtual std::conditional_t<
-          ::Xsmp::Annotation::any_of<::Xsmp::Annotation::forcible,
-                                     Annotations...>,
-          ::Xsmp::detail::ForcibleField<T>, ::Smp::ISimpleField>,
-      public virtual std::conditional_t<
-          ::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
-                                     Annotations...> ||
-              ::Xsmp::Annotation::any_of<::Xsmp::Annotation::output,
-                                         Annotations...>,
-          ::Xsmp::detail::SimpleConnectableField, ::Smp::IField>
-
-{
+      public virtual ::Xsmp::detail::ForcibleFieldType<T, Annotations...>,
+      public virtual ::Xsmp::detail::SimpleField<Annotations...> {
 
   using base_class = ::Xsmp::detail::Field<T, Annotations...>;
 
@@ -430,7 +466,7 @@ private:
     if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::forcible,
                                              Annotations...>) {
       if (this->IsForced()) {
-        return *this; // or throw an exception ?
+        return *this; // do not change the value
       }
     }
     _value = value;
@@ -446,8 +482,9 @@ private:
 };
 
 template <typename T, typename... Annotations>
-class ArrayField final : public ::Xsmp::detail::Field<T, Annotations...>,
-                         public virtual ::Smp::IArrayField {
+class ArrayField final
+    : public ::Xsmp::detail::Field<T, Annotations...>,
+      public virtual ::Xsmp::detail::ArrayField<Annotations...> {
 
   static constexpr std::size_t _size = ::Xsmp::detail::FieldTypeHelper<T>::size;
 
@@ -640,7 +677,7 @@ private:
     return ::Xsmp::Array<value_type, _size>{
         {value_type(typeRegistry, GetType()->GetItemType()->GetUuid(),
                     ("[" + std::to_string(I) + "]").c_str(), "", this,
-                    GetView(), value[I])...}};
+                    this->GetView(), value[I])...}};
   }
 
   const ::Smp::Publication::IArrayType *_type;
@@ -651,13 +688,7 @@ private:
 template <typename T, typename... Annotations>
 class SimpleArrayField final
     : public ::Xsmp::detail::Field<T, Annotations...>,
-      public virtual std::conditional_t<
-          ::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
-                                     Annotations...> ||
-              ::Xsmp::Annotation::any_of<::Xsmp::Annotation::output,
-                                         Annotations...>,
-          ::Xsmp::detail::SimpleArrayConnectableField,
-          ::Smp::ISimpleArrayField> {
+      public virtual ::Xsmp::detail::SimpleArrayField<Annotations...> {
   static_assert(::Xsmp::Helper::is_simple_type_v<typename T::value_type>,
                 "Only Smp Simple types are supported.");
   static_assert(
@@ -1043,9 +1074,9 @@ private:
   T _value;
 };
 template <typename T, typename... Annotations>
-class StructureField : public ::Xsmp::detail::Field<T, Annotations...>,
-                       public ::Xsmp::detail::AbstractStructureField {
-
+class StructureField
+    : public ::Xsmp::detail::Field<T, Annotations...>,
+      public virtual ::Xsmp::detail::StructureField<Annotations...> {
 public:
   // Constructor
   StructureField(::Smp::Publication::ITypeRegistry *typeRegistry,
@@ -1124,14 +1155,15 @@ template <typename T>
 struct FieldTypeHelper<T, std::enable_if_t<has_field<T>::value>> {
 
   template <typename... Annotations>
-  using field = typename T::template _Field<StructureField<T, Annotations...>>;
+  using field =
+      typename T::template _Field<::Xsmp::StructureField<T, Annotations...>>;
 };
 
 template <typename T>
 struct FieldTypeHelper<T,
                        std::enable_if_t<::Xsmp::Helper::is_simple_type_v<T>>> {
   template <typename... Annotations>
-  using field = SimpleField<T, Annotations...>;
+  using field = ::Xsmp::SimpleField<T, Annotations...>;
 };
 
 template <typename T, std::size_t Nm, typename... TypeAnnotations>
@@ -1140,8 +1172,8 @@ struct FieldTypeHelper<::Xsmp::Array<T, Nm, TypeAnnotations...>,
                        std::enable_if_t<!detail::is_simple_array_field<
                            ::Xsmp::Array<T, Nm, TypeAnnotations...>>::value>> {
   template <typename... Annotations>
-  using field =
-      ArrayField<::Xsmp::Array<T, Nm, TypeAnnotations...>, Annotations...>;
+  using field = ::Xsmp::ArrayField<::Xsmp::Array<T, Nm, TypeAnnotations...>,
+                                   Annotations...>;
   static constexpr std::size_t size = Nm;
 };
 
@@ -1151,8 +1183,9 @@ struct FieldTypeHelper<::Xsmp::Array<T, Nm, TypeAnnotations...>,
                        std::enable_if_t<detail::is_simple_array_field<
                            ::Xsmp::Array<T, Nm, TypeAnnotations...>>::value>> {
   template <typename... Annotations>
-  using field = SimpleArrayField<::Xsmp::Array<T, Nm, TypeAnnotations...>,
-                                 Annotations...>;
+  using field =
+      ::Xsmp::SimpleArrayField<::Xsmp::Array<T, Nm, TypeAnnotations...>,
+                               Annotations...>;
   static constexpr std::size_t size = Nm;
 };
 

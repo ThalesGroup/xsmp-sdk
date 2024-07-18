@@ -39,7 +39,9 @@ Component::Component(::Smp::String8 name, ::Smp::String8 description,
       _parent(parent), _simulator{simulator} {}
 ::Smp::String8 Component::GetName() const { return _name.c_str(); }
 
-::Smp::String8 Component::GetDescription() const { return _description.c_str(); }
+::Smp::String8 Component::GetDescription() const {
+  return _description.c_str();
+}
 
 ::Smp::IObject *Component::GetParent() const { return _parent; }
 
@@ -148,24 +150,7 @@ void Component::RemoveAggregateLinks(const ::Smp::IAggregate *aggregate,
     }
   }
 }
-void Component::RemoveFieldLinks(::Smp::IField *field,
-                                 const ::Smp::IComponent *target) noexcept {
 
-  if (auto *dataflowField = dynamic_cast<detail::DataflowField *>(field)) {
-    dataflowField->RemoveLinks(target);
-  }
-  if (auto const *arrayField = dynamic_cast<::Smp::IArrayField *>(field)) {
-    for (::Smp::UInt64 i = 0; i < arrayField->GetSize(); ++i) {
-      RemoveFieldLinks(arrayField->GetItem(i), target);
-    }
-  }
-  if (auto const *structureField =
-          dynamic_cast<::Smp::IStructureField *>(field)) {
-    for (auto *nestedField : *structureField->GetFields()) {
-      RemoveFieldLinks(nestedField, target);
-    }
-  }
-}
 void Component::RemoveLinks(const ::Smp::IComponent *target) {
 
   // disconnect event sources
@@ -176,12 +161,16 @@ void Component::RemoveLinks(const ::Smp::IComponent *target) {
   if (auto const *aggregate = dynamic_cast<::Smp::IAggregate *>(this)) {
     RemoveAggregateLinks(aggregate, target);
   }
-  // disconnect fields
-  if (auto const *fields = GetFields()) {
-    for (auto *field : *fields) {
-      RemoveFieldLinks(field, target);
-    }
-  }
+  //  // disconnect fields
+  //  if (auto const *fields = GetFields()) {
+  //    for (auto *field : *fields) {
+  //      if (auto *f =
+  //              dynamic_cast<::Xsmp::detail::IDataflowFieldExtension
+  //              *>(field)) {
+  //         f->RemoveLinks(target);
+  //      }
+  //    }
+  //  }
 }
 
 } // namespace Xsmp

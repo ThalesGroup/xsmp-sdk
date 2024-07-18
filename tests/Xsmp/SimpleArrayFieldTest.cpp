@@ -98,6 +98,9 @@ TEST(SimpleArrayField, BoolType) {
   output[0] = true;
 
   EXPECT_EQ(input[0], true);
+  input[0] = false;
+  output.Push();
+  EXPECT_EQ(input[0], true);
 
   output.at(0) = false;
   EXPECT_EQ(input.at(0), false);
@@ -157,6 +160,9 @@ TEST(SimpleArrayField, Int8Type) {
 
   EXPECT_EQ(input, output);
 
+  EXPECT_EQ(input[0], 42);
+  input[0] = 0;
+  output.Push();
   EXPECT_EQ(input[0], 42);
 
   Smp::Int8 i = 0;
@@ -228,6 +234,9 @@ TEST(SimpleArrayField, EnumType) {
   output[0] = Enum::L2;
 
   EXPECT_EQ(input[0], Enum::L2);
+  input[0] = Enum::L1;
+  output.Push();
+  EXPECT_EQ(input[0], Enum::L2);
 }
 
 TEST(SimpleArrayField, StringType) {
@@ -268,6 +277,9 @@ TEST(SimpleArrayField, StringType) {
   EXPECT_EQ(input[0], "");
   output[0] = "test";
 
+  EXPECT_EQ(input[0], "test");
+  input[0] = "";
+  output.Push();
   EXPECT_EQ(input[0], "test");
 }
 

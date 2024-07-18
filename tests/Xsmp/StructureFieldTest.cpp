@@ -184,7 +184,8 @@ TEST(StructureField, Instanciate) {
   output.Connect(&input);
   EXPECT_EQ(output.booleanInput, input.booleanInput);
   EXPECT_EQ(output.char8Input, input.char8Input);
-
+  input.booleanInput = false;
+  input.char8Input = 'a';
   output.Push();
   EXPECT_EQ(output.booleanInput, input.booleanInput);
   EXPECT_EQ(output.char8Input, input.char8Input);

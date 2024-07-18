@@ -155,6 +155,9 @@ TEST(SimpleField, BoolType) {
   output = true;
 
   EXPECT_TRUE(input);
+  input = false;
+  output.Push();
+  EXPECT_EQ(input, true);
 
   Field<bool>::forcible::failure toStore{&typeRegistry, Smp::Uuids::Uuid_Bool,
                                          "name"};
@@ -224,6 +227,10 @@ TEST(SimpleField, Int8Type) {
   output = 42;
 
   EXPECT_EQ(input, 42);
+  input = 0;
+  output.Push();
+  EXPECT_EQ(input, 42);
+
   EXPECT_EQ(input, output);
   EXPECT_EQ(output, output);
   EXPECT_EQ(output, input);
@@ -348,6 +355,9 @@ TEST(SimpleField, EnumType) {
   output = Enum::L2;
 
   EXPECT_EQ(input, Enum::L2);
+  input = Enum::L1;
+  output.Push();
+  EXPECT_EQ(input, Enum::L2);
 }
 using String20 = ::Xsmp::String<20>;
 
@@ -393,6 +403,10 @@ TEST(SimpleField, StringType) {
   EXPECT_EQ(*input, "test");
   EXPECT_STREQ(input->c_str(), "test");
   EXPECT_NE(input, "test2");
+
+  input = "";
+  output.Push();
+  EXPECT_EQ(input, "test");
 }
 
 TEST(SimpleField, Failure) {

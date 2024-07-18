@@ -166,6 +166,9 @@ TEST(ArrayField, BoolType) {
   output[0] = true;
 
   EXPECT_EQ(input[0], true);
+  input[0] = false;
+  output.Push();
+  EXPECT_EQ(input[0], true);
 
   EXPECT_THROW(output.GetItem(42), Smp::InvalidArrayIndex);
 }
@@ -205,6 +208,9 @@ TEST(ArrayField, Int8Type) {
   EXPECT_EQ(input[0], 0);
   output[0] = 42;
 
+  EXPECT_EQ(input[0], 42);
+  input[0] = 0;
+  output.Push();
   EXPECT_EQ(input[0], 42);
 }
 
@@ -250,6 +256,9 @@ TEST(ArrayField, EnumType) {
   output[0] = Enum::L2;
 
   EXPECT_EQ(input[0], Enum::L2);
+  input[0] = Enum::L1;
+  output.Push();
+  EXPECT_EQ(input[0], Enum::L2);
 }
 
 TEST(ArrayField, StringType) {
@@ -290,6 +299,9 @@ TEST(ArrayField, StringType) {
   EXPECT_EQ(input[0], "");
   output[0] = "test";
 
+  EXPECT_EQ(input[0], "test");
+  input[0] = "";
+  output.Push();
   EXPECT_EQ(input[0], "test");
 }
 

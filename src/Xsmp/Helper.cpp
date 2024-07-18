@@ -243,6 +243,11 @@ inline ::Smp::IObject *ResolveComponent(const ::Smp::IObject *object,
   return nullptr;
 }
 
+inline bool AreEquivalent(const ::Smp::ISimpleField *source,
+                          const ::Smp::ISimpleField *target) {
+  return target->GetPrimitiveTypeKind() == source->GetPrimitiveTypeKind();
+}
+
 inline bool AreEquivalent(const ::Smp::ISimpleArrayField *source,
                           const ::Smp::ISimpleArrayField *target) {
   return target->GetSize() == source->GetSize() &&
@@ -464,37 +469,28 @@ bool AreEquivalent(const ::Smp::IField *first, const ::Smp::IField *second) {
           dynamic_cast<const ::Smp::ISimpleField *>(first)) {
     auto const *simpleTarget =
         dynamic_cast<const ::Smp::ISimpleField *>(second);
-    if (simpleTarget && (simpleTarget->GetPrimitiveTypeKind() ==
-                         simpleSource->GetPrimitiveTypeKind())) {
-      return true;
-    }
+    return simpleTarget && AreEquivalent(simpleSource, simpleTarget);
   }
   // check a simple array field
   else if (auto const *simpleArraySource =
                dynamic_cast<const ::Smp::ISimpleArrayField *>(first)) {
     auto const *simpleArrayTarget =
         dynamic_cast<const ::Smp::ISimpleArrayField *>(second);
-    if (simpleArrayTarget &&
-        AreEquivalent(simpleArraySource, simpleArrayTarget)) {
-      return true;
-    }
+    return simpleArrayTarget &&
+           AreEquivalent(simpleArraySource, simpleArrayTarget);
   }
   // check an array field
   else if (auto const *arraySource =
                dynamic_cast<const ::Smp::IArrayField *>(first)) {
     auto const *arrayTarget = dynamic_cast<const ::Smp::IArrayField *>(second);
-    if (arrayTarget && AreEquivalent(arraySource, arrayTarget)) {
-      return true;
-    }
+    return arrayTarget && AreEquivalent(arraySource, arrayTarget);
   }
   // check a structure field
   else if (auto const *structSource =
                dynamic_cast<const ::Smp::IStructureField *>(first)) {
     auto const *structTarget =
         dynamic_cast<const ::Smp::IStructureField *>(second);
-    if (structTarget && AreEquivalent(structSource, structTarget)) {
-      return true;
-    }
+    return structTarget && AreEquivalent(structSource, structTarget);
   } else {
     // ignore
   }
