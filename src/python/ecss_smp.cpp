@@ -101,6 +101,7 @@
 #include <Smp/Services/InvalidSimulationTime.h>
 #include <Smp/VoidOperation.h>
 #include <Xsmp/Helper.h>
+#include <functional>
 #include <memory>
 #include <python/Smp/AccessKindBinding.h>
 #include <python/Smp/ComponentStateKindBinding.h>
@@ -473,6 +474,8 @@ py::object convert(const ::Smp::AnySimple &value) {
     case ::Smp::PrimitiveTypeKind::PTK_Int32:
       return {kind, value.operator ::Smp::Int32()};
     case ::Smp::PrimitiveTypeKind::PTK_Int64:
+    case ::Smp::PrimitiveTypeKind::PTK_DateTime:
+    case ::Smp::PrimitiveTypeKind::PTK_Duration:
       return {kind, value.operator ::Smp::Int64()};
     case ::Smp::PrimitiveTypeKind::PTK_UInt8:
       return {kind, value.operator ::Smp::UInt8()};
@@ -482,10 +485,7 @@ py::object convert(const ::Smp::AnySimple &value) {
       return {kind, value.operator ::Smp::UInt32()};
     case ::Smp::PrimitiveTypeKind::PTK_UInt64:
       return {kind, value.operator ::Smp::UInt64()};
-    case ::Smp::PrimitiveTypeKind::PTK_DateTime:
-      return {kind, value.operator ::Smp::DateTime()};
-    case ::Smp::PrimitiveTypeKind::PTK_Duration:
-      return {kind, value.operator ::Smp::Duration()};
+
     case ::Smp::PrimitiveTypeKind::PTK_Float32:
       return {kind, value.operator ::Smp::Float32()};
     case ::Smp::PrimitiveTypeKind::PTK_Float64:
@@ -510,6 +510,8 @@ py::object convert(const ::Smp::AnySimple &value) {
   case ::Smp::PrimitiveTypeKind::PTK_Int32:
     return {kind, handle.cast<::Smp::Int32>()};
   case ::Smp::PrimitiveTypeKind::PTK_Int64:
+  case ::Smp::PrimitiveTypeKind::PTK_DateTime:
+  case ::Smp::PrimitiveTypeKind::PTK_Duration:
     return {kind, handle.cast<::Smp::Int64>()};
   case ::Smp::PrimitiveTypeKind::PTK_UInt8:
     return {kind, handle.cast<::Smp::UInt8>()};
@@ -519,10 +521,6 @@ py::object convert(const ::Smp::AnySimple &value) {
     return {kind, handle.cast<::Smp::UInt32>()};
   case ::Smp::PrimitiveTypeKind::PTK_UInt64:
     return {kind, handle.cast<::Smp::UInt64>()};
-  case ::Smp::PrimitiveTypeKind::PTK_DateTime:
-    return {kind, handle.cast<::Smp::DateTime>()};
-  case ::Smp::PrimitiveTypeKind::PTK_Duration:
-    return {kind, handle.cast<::Smp::Duration>()};
   case ::Smp::PrimitiveTypeKind::PTK_Float32:
     return {kind, handle.cast<::Smp::Float32>()};
   case ::Smp::PrimitiveTypeKind::PTK_Float64:

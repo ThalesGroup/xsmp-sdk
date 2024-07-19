@@ -38,17 +38,22 @@ class ISimulator;
 template <typename> class ICollection;
 } // namespace Smp
 
-namespace Xsmp::Helper {
+/// XSMP standard types and interfaces.
+namespace Xsmp::
+    /// XSMP helpers.
+    Helper {
 
 /// Execute an EntryPoint.
 /// If an exception is raised by the entry point, the Simulation
 /// is aborted and the exception is logged.
+/// @param simulator The simulator.
+/// @param entryPoint The entry point to execute.
 void SafeExecute(::Smp::ISimulator *simulator,
                  const ::Smp::IEntryPoint *entryPoint);
 
-/// Get the object's path.
-/// @param obj the object
-/// @return the path
+/// Get the path of an object in the Smp::IObject hierarchy.
+/// @param obj A pointer to the object for which to retrieve the path.
+/// @return The path of the object as a std::string.
 [[nodiscard]] std::string GetPath(const ::Smp::IObject *obj);
 
 [[nodiscard]] ::Smp::IObject *
@@ -58,27 +63,57 @@ Resolve(const ::Smp::ICollection<Smp::IField> *fields, ::Smp::String8 path);
 [[nodiscard]] ::Smp::IObject *Resolve(::Smp::IField *parent,
                                       ::Smp::String8 path);
 
+/// Demangles the given C++ type name and returns it as a string.
+/// @param typeName A null-terminated string containing the mangled C++ type
+/// name to be demangled.
+/// @return The demangled C++ type name as a std::string.
 [[nodiscard]] std::string demangle(::Smp::String8 typeName);
 
-[[nodiscard]] std::string TypeName(const ::Smp::IObject *type);
+/// Get the demangled type name of an SMP object.
+/// @param object The object for which to retrieve the type name.
+/// @return The name of the object's type.
+[[nodiscard]] std::string TypeName(const ::Smp::IObject *object);
+
+/// Get the demangled name of a given type T.
+/// @tparam T The type for which to obtain the demangled name.
+/// @return The demangled name of the type T.
 template <typename T> [[nodiscard]] std::string TypeName() {
   return demangle(typeid(T).name());
 }
 
-/// helper function to copy a string from an AnySimple
+/// Copies the string value of an AnySimple object to a destination buffer,
+/// @param destination A pointer to the buffer where the string
+/// will be copied.
+/// @param size The total size of the destination buffer, including the null
+/// terminator.
+/// @param value A const reference to an SMP AnySimple object that holds the
+/// source string to be copied.
 void CopyString(::Smp::Char8 *destination, std::size_t size,
                 const ::Smp::AnySimple &value);
 
+/// Searches for a parent of type T in the hierarchy starting from the given
+/// object
+/// @param object A pointer to an SMP IObject for which to search for its
+/// parent of type T.
+/// @return The parent object of type T if found; otherwise, nullptr.
 template <typename T> [[nodiscard]] T *GetParentOfType(::Smp::IObject *object) {
-  for (auto *e = object; e != nullptr; e = e->GetParent())
+
+  for (auto *e = object; e != nullptr; e = e->GetParent()) {
     if (auto *casted = dynamic_cast<T *>(e)) {
       return casted;
     }
+  }
   return nullptr;
 }
 
+/// Searches for a parent of type T in the hierarchy starting from the given
+/// object
+/// @param object A pointer to an SMP IObject for which to search for its
+/// parent of type T.
+/// @return The parent object of type T if found; otherwise, nullptr.
 template <typename T>
 [[nodiscard]] const T *GetParentOfType(const ::Smp::IObject *object) {
+
   for (const auto *e = object; e != nullptr; e = e->GetParent()) {
     if (const auto *casted = dynamic_cast<const T *>(e)) {
       return casted;
@@ -87,12 +122,23 @@ template <typename T>
   return nullptr;
 }
 
+/// Compares two SMP fields to determine if they are equivalent based on their
+/// types.
+/// @param first The first IField object to be compared for equivalence.
+/// @param second The second IField object to be compared for equivalence.
+/// @return True if the fields are equivalent; otherwise, false.
 [[nodiscard]] bool AreEquivalent(const ::Smp::IField *first,
                                  const ::Smp::IField *second);
 
-/// Check that an Object name is valid
-/// return the object name as Xsmp::cstring
-/// @throw Smp::InvalidObjectName if the name is invalid
+/// Checks and validates an object name based on SMP rules.
+/// @param name The proposed object name as a null-terminated string in
+/// Smp::String8 format.
+/// @param parent A const pointer to the parent Smp::IObject for which this new
+/// object is being named.
+/// @return An Xsmp::cstring containing the validated object name if it is
+/// accepted according to SMP rules.
+/// @throws Smp::InvalidObjectName if the provided name does not comply with
+/// SMP naming conventions, such as an empty string or a reserved keyword.
 ::Xsmp::cstring checkName(::Smp::String8 name, ::Smp::IObject const *parent);
 
 /// helper to check if a type is an smp string of the form

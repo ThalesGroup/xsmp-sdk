@@ -20,17 +20,33 @@
 #include <Xsmp/cstring.h>
 #include <string>
 
+/// XSMP standard types and interfaces.
 namespace Xsmp {
 
+/// @class ServObjectice
+/// XSMP implementation of ::Smp::IObject
 class Object : public virtual ::Smp::IObject {
 public:
+  /// Constructs a new Object .
+  /// @param name The name of the object.
+  /// @param description The description of the object.
+  /// @param parent The parent object in the hierarchy.
   explicit Object(::Smp::String8 name, ::Smp::String8 description = "",
                   ::Smp::IObject *parent = nullptr);
-  Object(const Object &) = delete;
-  Object &operator=(const Object &) = delete;
+
+  /// Virtual destructor to release memory.
   ~Object() noexcept override = default;
+
+  /// Return the name of the object.
+  /// @return  Name of object.
   ::Smp::String8 GetName() const final;
+
+  /// Return the description of the object ("property getter").
+  /// @return  Description of object.
   ::Smp::String8 GetDescription() const final;
+
+  /// Returns the parent object of the object.
+  /// @return  Parent object of object or null if object has no parent.
   ::Smp::IObject *GetParent() const final;
 
 private:

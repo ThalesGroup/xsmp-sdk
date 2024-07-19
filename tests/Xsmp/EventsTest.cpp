@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "Smp/IObject.h"
 #include <Smp/AnySimple.h>
 #include <Smp/EventSinkAlreadySubscribed.h>
 #include <Smp/EventSinkNotSubscribed.h>

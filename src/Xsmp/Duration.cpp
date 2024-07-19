@@ -20,6 +20,7 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <type_traits>
 
 namespace Xsmp {
 static_assert(sizeof(::Smp::Duration) == sizeof(::Xsmp::Duration),

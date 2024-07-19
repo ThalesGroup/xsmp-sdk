@@ -22,6 +22,7 @@
 #include <Xsmp/Component.h>
 #include <type_traits>
 
+/// XSMP standard types and interfaces.
 namespace Xsmp {
 
 class Component::Helper {

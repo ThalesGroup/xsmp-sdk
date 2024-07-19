@@ -26,7 +26,10 @@
 
 namespace Xsmp {
 
-// Smp String type
+/// @class String
+/// A fixed-size string class template with support for various operations
+/// and conversions.
+
 template <std::size_t Nm> struct String {
 
   using value_type = char;
@@ -45,15 +48,18 @@ template <std::size_t Nm> struct String {
   value_type internalString[Nm + 1];
 
   constexpr String() noexcept : internalString{'\0'} {}
+
   constexpr String(const char *str) { assign(str); }
+
   constexpr String(const std::string &str) { assign(str); }
+
   constexpr String(std::string_view str) { assign(str); }
+
   template <std::size_t S> constexpr String(const String<S> &str) {
     assign(str);
   }
 
   constexpr String(const char *str, std::size_t length) { assign(str, length); }
-
   // iterators
   [[nodiscard]] constexpr const_iterator begin() noexcept {
     return internalString;

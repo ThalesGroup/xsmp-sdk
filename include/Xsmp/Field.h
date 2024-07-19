@@ -48,19 +48,36 @@ namespace Smp {
 class IComponent;
 } // namespace Smp
 
+/// XSMP standard types and interfaces.
 namespace Xsmp {
 
 namespace detail {
 
 template <typename, class U = void> struct FieldTypeHelper {};
 } // namespace detail
+
+/// Alias template to simplify the definition of a field based on the template
+/// parameters T and Annotations.
+/// The field can be specialized by appending one or more of:
+/// - ::transient: The field is transient (not persisted). Example:
+/// Field<T>::transient
+/// - ::input: The field is an input. Example: Field<T>::input
+/// - ::output: The field is an output. Example: Field<T>::output
+/// - ::failure: The field is a failure. Example: Field<T>::failure
+/// - ::forcible: The field is forcible. Example: Field<T>::forcible
+/// The transient, input, output, forcible and failure specialization can be
+/// combined (e.g: Field<T>::transient::input).
+/// @tparam T The type of data stored in the field: can be a SimpleType,
+/// ArrayType (simple or not), or StructureType.
+/// @tparam Annotations Zero or more annotations that modify the behavior of the
+/// field (see `Xsmp::Annotation` namespace for available annotations).
 template <typename T, typename... Annotations>
 using Field =
     typename ::Xsmp::detail::FieldTypeHelper<T>::template field<Annotations...>;
 
+/// XSMP annotations.
 namespace Annotation {
 
-/// Helper that check that an Annotation is in a list of Annotations
 template <typename Annotation, typename... Annotations>
 static constexpr bool any_of =
     std::disjunction_v<std::is_same<Annotation, Annotations>...>;
@@ -161,7 +178,7 @@ private:
 class IDataflowFieldExtension : public virtual ::Smp::IDataflowField {
 public:
   /// Virtual destructor to release memory.
-  virtual ~IDataflowFieldExtension() noexcept = default;
+  ~IDataflowFieldExtension() noexcept override = default;
   /// Disconnect this field to a target field for direct data flow.
   /// @param   target Target field to connect to. The field type must be
   ///          compatible.

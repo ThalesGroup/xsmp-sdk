@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "Smp/PrimitiveTypes.h"
 #include <Xsmp/Storage.h>
+#include <ios>
 
 namespace Xsmp {
 

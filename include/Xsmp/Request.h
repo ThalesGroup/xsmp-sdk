@@ -27,8 +27,11 @@ namespace Smp {
 class IComponent;
 } // namespace Smp
 
+/// XSMP standard types and interfaces.
 namespace Xsmp {
 
+/// @class Request
+/// XSMP request helper.
 struct Request {
 private:
   static void setValue(::Smp::IComponent const *component,

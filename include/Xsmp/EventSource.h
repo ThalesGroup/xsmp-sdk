@@ -26,9 +26,12 @@ namespace Smp {
 class IComponent;
 } // namespace Smp
 
+/// XSMP standard types and interfaces.
 namespace Xsmp {
 class Component;
 class EventProvider;
+
+/// XSMP implementation details.
 namespace detail {
 
 class AbstractEventSource : public ::Smp::IEventSource {
@@ -70,13 +73,28 @@ private:
 
 } // namespace detail
 
+/// @class EventSource
+/// XSMP implementation of ::Smp::IEventSource with argument.
 template <typename T = void>
 class EventSource final : public ::Xsmp::detail::AbstractEventSource {
 public:
+  /// Constructs a new event source object with the specified name,
+  /// description, parent and event argument type.
+  /// @param name The name of the event source.
+  /// @param description The description of the event source.
+  /// @param parent The parent object of the event source.
+  /// @param eventArgType The event argument type.
   EventSource(::Smp::String8 name, ::Smp::String8 description,
               ::Xsmp::EventProvider *parent,
               ::Smp::PrimitiveTypeKind eventArgType)
       : AbstractEventSource(name, description, parent, eventArgType) {}
+
+  /// Constructs a new event source object with the specified name,
+  /// description, parent and event argument type.
+  /// @param name The name of the event source.
+  /// @param description The description of the event source.
+  /// @param parent The parent object of the event source.
+  /// @param eventArgType The event argument type.
   EventSource(::Smp::String8 name, ::Smp::String8 description,
               ::Smp::IObject *parent, ::Smp::PrimitiveTypeKind eventArgType)
       : AbstractEventSource(name, description, parent, eventArgType) {}
@@ -92,7 +110,6 @@ public:
   /// Emit the event to all connected events sinks
   /// @remark use the parent as emitter
   /// @param value event value to send
-
   void Emit(T value) const { Emit(this->GetParent(), value); }
 
   /// Emit the event to all connected events sinks
@@ -108,12 +125,24 @@ public:
   void operator()(T value) { Emit(value); }
 };
 
-/// specialization for void event (implemented in .cpp)
+/// @class EventSource
+/// XSMP implementation of ::Smp::IEventSource without argument.
 template <>
 class EventSource<void> final : public ::Xsmp::detail::AbstractEventSource {
 public:
+  /// Constructs a new event source object with the specified name,
+  /// description and parent.
+  /// @param name The name of the event source.
+  /// @param description The description of the event source.
+  /// @param parent The parent object of the event source.
   EventSource(::Smp::String8 name, ::Smp::String8 description,
               ::Xsmp::EventProvider *parent);
+
+  /// Constructs a new event source object with the specified name,
+  /// description and parent.
+  /// @param name The name of the event source.
+  /// @param description The description of the event source.
+  /// @param parent The parent object of the event source.
   EventSource(::Smp::String8 name, ::Smp::String8 description,
               ::Smp::IObject *parent);
 

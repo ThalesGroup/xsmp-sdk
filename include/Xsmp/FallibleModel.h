@@ -20,19 +20,43 @@
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Collection.h>
 
+/// XSMP standard types and interfaces.
 namespace Xsmp {
+
+/// XSMP implementation details.
 namespace detail {
 class Failure;
 } // namespace detail
 
+/// @class FallibleModel
+/// XSMP implementation of ::Smp::IFallibleModel.
 class FallibleModel : public virtual ::Smp::IFallibleModel {
 public:
+  /// Default constructor
   FallibleModel();
+
+  /// Query for whether the model is failed. A model is failed when at
+  /// least one of its failures is failed.
+  /// @return  Whether the model is failed or not.
   ::Smp::Bool IsFailed() const override;
+
+  /// Query for the collection of all failures.
+  /// The returned collection may be empty if no failures exist for the
+  /// fallible model.
+  /// @return  Failure collection of the model.
   const ::Smp::FailureCollection *GetFailures() const override;
+
+  /// Get a failure by name.
+  /// The returned failure may be null if no child with the given name
+  /// could be found.
+  /// @param   name Name of the failure to return.
+  /// @return  Failure queried for by name, or null if no failure with
+  ///          this name exists.
   ::Smp::IFailure *GetFailure(::Smp::String8 name) const override;
 
 protected:
+  /// Adds a failure to this FallibleModel.
+  /// @param failure Pointer to the failure to add
   inline void AddFailure(::Smp::IFailure *failure) { _failures.Add(failure); }
   friend class ::Xsmp::detail::Failure;
 

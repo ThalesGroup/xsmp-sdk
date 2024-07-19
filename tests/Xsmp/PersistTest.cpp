@@ -258,13 +258,13 @@ TEST(Persist, RawArray) {
   Object sender{"sender", "", nullptr};
   Storage storage;
 
-  int v[] = {1, 2, 3, 4, 5};
-  std::string v2[] = {"1", "2", "3", "4", "5"};
+  const int v[] = {1, 2, 3, 4, 5};
+  const std::string v2[] = {"1", "2", "3", "4", "5"};
 
   Store(nullptr, &sender, &storage, v, v2);
 
-  decltype(v) v_r;
-  decltype(v2) v2_r;
+  int v_r[5];
+  std::string v2_r[5];
 
   Restore(nullptr, &sender, &storage, v_r, v2_r);
 

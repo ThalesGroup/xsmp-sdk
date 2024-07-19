@@ -22,7 +22,6 @@
 #include <Xsmp/Tests/ModelWithSimpleArrayFieldsGen.h>
 #include <Xsmp/Tests/ModelWithSimpleFieldsGen.h>
 #include <gtest/gtest.h>
-#include <type_traits>
 
 namespace Xsmp {
 

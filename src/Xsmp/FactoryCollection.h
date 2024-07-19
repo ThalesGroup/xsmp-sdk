@@ -18,8 +18,8 @@
 #include <Smp/IFactory.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Uuid.h>
-#include <cstddef>
 #include <memory>
+#include <stddef.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -40,11 +40,11 @@ public:
   ::Smp::IObject *GetParent() const override;
   ::Smp::IFactory *at(::Smp::String8 name) const override;
 
-  ::Smp::IFactory *at(std::size_t index) const override;
+  ::Smp::IFactory *at(size_t index) const override;
 
   ::Smp::IFactory *at(::Smp::Uuid uuid) const;
 
-  std::size_t size() const override;
+  size_t size() const override;
   const_iterator begin() const override;
   const_iterator end() const override;
   /// Add a factory to the collection

@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "Smp/IArrayField.h"
+#include "Smp/IDataflowField.h"
+#include "Smp/IFailure.h"
+#include "Smp/IForcibleField.h"
+#include "Smp/ISimpleField.h"
 #include <Smp/AnySimple.h>
 #include <Smp/ISimpleArrayField.h>
 #include <Smp/IStructureField.h>

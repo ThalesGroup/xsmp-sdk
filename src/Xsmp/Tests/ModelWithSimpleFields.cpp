@@ -18,6 +18,11 @@
 // -----------------------------------------------------------------------------
 /// @file Xsmp/Tests/ModelWithSimpleFields.cpp
 
+#include "Smp/IComponent.h"
+#include "Smp/IObject.h"
+#include "Smp/ISimulator.h"
+#include "Smp/Services/ILinkRegistry.h"
+#include "Smp/Services/ILogger.h"
 #include <Xsmp/Tests/ModelWithSimpleFields.h>
 
 namespace Xsmp::Tests {

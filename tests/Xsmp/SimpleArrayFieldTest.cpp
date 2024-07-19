@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "Smp/ISimpleField.h"
+
+#include "Smp/IDataflowField.h"
+#include "Smp/IFailure.h"
+#include "Smp/ISimpleArrayField.h"
 #include <Smp/AnySimple.h>
 #include <Smp/IArrayField.h>
 #include <Smp/IForcibleField.h>
@@ -135,7 +140,7 @@ TEST(SimpleArrayField, Int8Type) {
   EXPECT_FALSE(field[0]);
   field[0] = 42;
   EXPECT_EQ(field[0], 42);
-  Type v{42, 0, 0, 0};
+  const Type v{42, 0, 0, 0};
   EXPECT_EQ(field, v);
 
   field.SetValue(0, {::Smp::PrimitiveTypeKind::PTK_Int8, 10});

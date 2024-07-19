@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "Xsmp/Component.h"
 #include <Smp/CannotDelete.h>
 #include <Smp/ContainerFull.h>
 #include <Smp/DuplicateName.h>

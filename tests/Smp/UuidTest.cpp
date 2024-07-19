@@ -14,6 +14,7 @@
 
 #include <Smp/Exception.h>
 #include <Smp/Uuid.h>
+#include <functional>
 #include <gtest/gtest.h>
 
 constexpr const char *uuid1_str = "123e4567-e89b-12d3-a456-426614174005";

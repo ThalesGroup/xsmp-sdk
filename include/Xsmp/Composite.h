@@ -20,19 +20,40 @@
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Collection.h>
 
+/// XSMP standard types and interfaces.
 namespace Xsmp {
+/// XSMP implementation details.
 namespace detail {
 class AbstractContainer;
 } // namespace detail
 
+/// @class Composite
+/// XSMP implementation of ::Smp::IComposite.
 class Composite : public virtual ::Smp::IComposite {
 public:
+  /// Default constructor.
   Composite();
+
+  /// Virtual destructor to release memory.
   ~Composite() noexcept override = default;
+
+  /// Query for the collection of all containers of the composite.
+  /// The returned collection may be empty if no containers exist for the
+  /// composite.
+  /// @return  Collection of containers.
   const ::Smp::ContainerCollection *GetContainers() const override;
+
+  /// Query for a container of this composite by its name.
+  /// The returned container may be null if no container with the given
+  /// name could be found.
+  /// @param   name Container name.
+  /// @return  Container queried for by name, or null if no container
+  ///          with this name exists.
   ::Smp::IContainer *GetContainer(::Smp::String8 name) const override;
 
 protected:
+  /// Add a container to the collection of managed containers.
+  /// @param container Pointer to the ::Smp::IContainer to add.
   inline void AddContainer(::Smp::IContainer *container) {
     _containers.Add(container);
   }

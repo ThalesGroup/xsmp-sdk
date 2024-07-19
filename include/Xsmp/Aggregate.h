@@ -20,18 +20,40 @@
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Collection.h>
 
+/// XSMP standard types and interfaces.
 namespace Xsmp {
+
+/// XSMP implementation details.
 namespace detail {
 class AbstractReference;
 } // namespace detail
 
+/// @class Aggregate
+/// XSMP implementation of ::Smp::IAggregate.
 class Aggregate : public virtual ::Smp::IAggregate {
 public:
+  /// Default constructor
   Aggregate();
+
+  /// Query for the collection of all references of the aggregate
+  /// component.
+  /// The returned collection may be empty if no references exist for the
+  /// aggregate.
+  /// @return  Collection of references.
   const ::Smp::ReferenceCollection *GetReferences() const override;
+
+  /// Query for a reference of this aggregate component by its name.
+  /// The returned reference may be null if no reference with the given
+  /// name could be found. If more than one reference with this name
+  /// exists, it is not defined which one is returned.
+  /// @param   name Reference name.
+  /// @return  Reference queried for by name, or null if no reference
+  ///          with this name exists.
   ::Smp::IReference *GetReference(::Smp::String8 name) const override;
 
 protected:
+  /// Adds a reference to this aggregate component.
+  /// @param reference Pointer to the reference to add
   inline void AddReference(::Smp::IReference *reference) {
     _references.Add(reference);
   }

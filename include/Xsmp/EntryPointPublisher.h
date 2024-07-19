@@ -20,18 +20,34 @@
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Collection.h>
 
+/// XSMP standard types and interfaces.
 namespace Xsmp {
 
 class EntryPoint;
 
+/// @class EntryPointPublisher
+/// XSMP implementation of ::Smp::IEntryPointPublisher.
 class EntryPointPublisher : public virtual ::Smp::IEntryPointPublisher {
 public:
+  /// Default constructor
   EntryPointPublisher();
 
+  /// Query for the collection of all entry points of the component.
+  /// The collection may be empty if no entry points exist.
+  /// @return  Collection of entry points.
   const ::Smp::EntryPointCollection *GetEntryPoints() const override;
+
+  /// Query for an entry point of this component by its name.
+  /// The returned entry point may be null if no entry point with the
+  /// given name could be found.
+  /// @param   name Entry point name.
+  /// @return  Entry point with given name, or nullptr if no entry point
+  ///          with given name could be found.
   ::Smp::IEntryPoint *GetEntryPoint(::Smp::String8 name) const override;
 
 protected:
+  /// Adds an entry point to this EntryPointPublisher.
+  /// @param entryPoint Pointer to the entry point to add
   inline void AddEntryPoint(::Smp::IEntryPoint *entryPoint) {
     _entrypoints.Add(entryPoint);
   }

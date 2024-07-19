@@ -15,8 +15,13 @@
 #ifndef XSMP_VERSION_H_
 #define XSMP_VERSION_H_
 
+// Define the major version number of the software
 #define XSMP_VERSION_MAJOR 1
+
+// Define the minor version number of the software
 #define XSMP_VERSION_MINOR 0
+
+// Define the patch version number of the software
 #define XSMP_VERSION_PATCH 3
 
 #endif // XSMP_VERSION_H_

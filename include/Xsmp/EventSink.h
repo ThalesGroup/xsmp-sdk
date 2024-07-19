@@ -19,14 +19,15 @@
 #include <Smp/IEventSink.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/AnySimpleConverter.h>
+#include <Xsmp/cstring.h>
 #include <functional>
 
-#include <Xsmp/cstring.h>
-
+/// XSMP standard types and interfaces.
 namespace Xsmp {
 
 class EventConsumer;
 
+/// XSMP implementation details.
 namespace detail {
 class AbstractEventSink : public ::Smp::IEventSink {
 public:
@@ -48,26 +49,57 @@ private:
 };
 } // namespace detail
 
+/// @class EventSink
+/// XSMP implementation of ::Smp::IEventSink with argument.
+/// @tparam T The type of argument that this EvetnSink instance will handle.
 template <typename T = void>
 class EventSink final : public detail::AbstractEventSink {
   using callbackType = std::function<void(::Smp::IObject *sender, T value)>;
 
 public:
+  /// Constructs a new event sink object with the specified name,
+  /// description, parent, callback and event argument type.
+  /// @param name The name of the event sink.
+  /// @param description The description of the event sink.
+  /// @param parent The parent object of the event sink.
+  /// @param callback A function object representing the action to be executed
+  /// when this event sink is invoked.
+  /// @param eventArgType The event argument type.
   EventSink(::Smp::String8 name, ::Smp::String8 description,
             ::Smp::IObject *parent, callbackType &&callback,
             ::Smp::PrimitiveTypeKind eventArgType)
       : AbstractEventSink(name, description, parent),
         _callback(std::move(callback)), _eventArgType(eventArgType) {}
 
+  /// Constructs a new event sink object with the specified name,
+  /// description, parent, callback and event argument type.
+  /// @param name The name of the event sink.
+  /// @param description The description of the event sink.
+  /// @param parent The parent object of the event sink.
+  /// @param callback A function object representing the action to be executed
+  /// when this event sink is invoked.
+  /// @param eventArgType The event argument type.
   EventSink(::Smp::String8 name, ::Smp::String8 description,
             ::Xsmp::EventConsumer *parent, callbackType &&callback,
             ::Smp::PrimitiveTypeKind eventArgType)
       : AbstractEventSink(name, description, parent),
         _callback(std::move(callback)), _eventArgType(eventArgType) {}
 
+  /// Get the primitive type kind of the event argument.
+  /// This operation allows for type checking between an Event Source
+  /// (implementing IEventSource) and an event sink (implementing
+  /// IEventSink) during Subscribe.
+  /// @return  Primitive type kind of the event argument.
   ::Smp::PrimitiveTypeKind GetEventArgType() const override {
     return _eventArgType;
   }
+
+  /// This event handler method is called when an event is emitted.
+  /// Components providing event sinks must ensure that these event sinks
+  /// do not throw exceptions.
+  /// @param sender Object emitting the event.
+  /// @param value Event argument with context data for event notification.
+  /// The type of the event argument depends on the type of the event sink.
   void Notify(::Smp::IObject *sender, ::Smp::AnySimple value) override {
     std::invoke(_callback, sender, AnySimpleConverter<T>::convert(value));
   }
@@ -77,17 +109,41 @@ private:
   ::Smp::PrimitiveTypeKind _eventArgType;
 };
 
-/// specialization for void event (implemented in .cpp)
+/// @class EventSink
+/// XSMP implementation of ::Smp::IEventSink without argument.
 template <> class EventSink<void> final : public detail::AbstractEventSink {
   using callbackType = std::function<void(::Smp::IObject *sender)>;
 
 public:
+  /// Constructs a new event sink object with the specified name,
+  /// description, parent and callback.
+  /// @param name The name of the event sink.
+  /// @param description The description of the event sink.
+  /// @param parent The parent object of the event sink.
+  /// @param callback A function object representing the action to be executed
+  /// when this event sink is invoked.
   EventSink(::Smp::String8 name, ::Smp::String8 description,
             ::Smp::IObject *parent, callbackType &&callback);
+
+  /// Constructs a new event sink object with the specified name,
+  /// description, parent and callback.
+  /// @param name The name of the event sink.
+  /// @param description The description of the event sink.
+  /// @param parent The parent object of the event sink.
+  /// @param callback A function object representing the action to be executed
+  /// when this event sink is invoked.
   EventSink(::Smp::String8 name, ::Smp::String8 description,
             ::Xsmp::EventConsumer *parent, callbackType &&callback);
-  ~EventSink() noexcept override = default;
+
+  /// Get the None primitive type kind.
+  /// @return  PTK_None.
   ::Smp::PrimitiveTypeKind GetEventArgType() const override;
+
+  /// This event handler method is called when an event is emitted.
+  /// Components providing event sinks must ensure that these event sinks
+  /// do not throw exceptions.
+  /// @param sender Object emitting the event.
+  /// @param value Unused event argument.
   void Notify(::Smp::IObject *sender, ::Smp::AnySimple value) override;
 
 private:
@@ -95,10 +151,9 @@ private:
 };
 
 // deduction guide
-EventSink(::Smp::String8 name, ::Smp::String8 description,
-          ::Smp::IObject *parent,
-          std::function<void(::Smp::IObject *sender)> callback)
-    -> EventSink<void>;
+EventSink(
+    ::Smp::String8 name, ::Smp::String8 description, ::Smp::IObject *parent,
+    std::function<void(::Smp::IObject *sender)> callback) -> EventSink<void>;
 
 } // namespace Xsmp
 

@@ -22,11 +22,17 @@
 #include <string_view>
 #include <type_traits>
 
+/// XSMP standard types and interfaces.
 namespace Xsmp {
 
-///
-///
-///
+/**
+ * @class DateTime
+ * @brief This class represents a point in time that can be manipulated and compared.
+ *
+ * The DateTime class provides functionality to manage time-related operations. It allows you to initialize
+ * date and time objects, format them into strings, convert between different time representations,
+ * perform arithmetic operations on dates and times, and output the formatted date and time values to streams.
+ */
 struct DateTime final {
 
   /// A DateTime initialized to MJD2000 +0.5

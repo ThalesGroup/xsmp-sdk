@@ -445,8 +445,8 @@ std::string demangle(::Smp::String8 name) {
   return result;
 #endif
 }
-std::string TypeName(const ::Smp::IObject *type) {
-  return demangle(typeid(*type).name());
+std::string TypeName(const ::Smp::IObject *object) {
+  return demangle(typeid(*object).name());
 }
 
 void CopyString(::Smp::Char8 *destination, std::size_t size,
@@ -472,27 +472,25 @@ bool AreEquivalent(const ::Smp::IField *first, const ::Smp::IField *second) {
     return simpleTarget && AreEquivalent(simpleSource, simpleTarget);
   }
   // check a simple array field
-  else if (auto const *simpleArraySource =
-               dynamic_cast<const ::Smp::ISimpleArrayField *>(first)) {
+  if (auto const *simpleArraySource =
+          dynamic_cast<const ::Smp::ISimpleArrayField *>(first)) {
     auto const *simpleArrayTarget =
         dynamic_cast<const ::Smp::ISimpleArrayField *>(second);
     return simpleArrayTarget &&
            AreEquivalent(simpleArraySource, simpleArrayTarget);
   }
   // check an array field
-  else if (auto const *arraySource =
-               dynamic_cast<const ::Smp::IArrayField *>(first)) {
+  if (auto const *arraySource =
+          dynamic_cast<const ::Smp::IArrayField *>(first)) {
     auto const *arrayTarget = dynamic_cast<const ::Smp::IArrayField *>(second);
     return arrayTarget && AreEquivalent(arraySource, arrayTarget);
   }
   // check a structure field
-  else if (auto const *structSource =
-               dynamic_cast<const ::Smp::IStructureField *>(first)) {
+  if (auto const *structSource =
+          dynamic_cast<const ::Smp::IStructureField *>(first)) {
     auto const *structTarget =
         dynamic_cast<const ::Smp::IStructureField *>(second);
     return structTarget && AreEquivalent(structSource, structTarget);
-  } else {
-    // ignore
   }
   return false;
 }

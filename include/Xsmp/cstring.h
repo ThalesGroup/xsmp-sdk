@@ -18,8 +18,10 @@
 #include <cstddef>
 #include <string_view>
 
+/// XSMP standard types and interfaces.
 namespace Xsmp {
 
+/// @class cstring
 /// A lightweight holder for C String (const char*) with zero memory overhead (8
 /// bytes).
 /// With a typical implementation of std::string (32 bytes), it saves 24 bytes.

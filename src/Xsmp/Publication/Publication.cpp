@@ -249,7 +249,7 @@ const ::Smp::OperationCollection *Publication::GetOperations() const {
       return CreateGetRequest(operationName + 4);
     }
     // fallback on property setter if any
-    else if (std::strncmp(operationName, "set_", 4) == 0) {
+    if (std::strncmp(operationName, "set_", 4) == 0) {
       return CreateSetRequest(operationName + 4);
     }
   }

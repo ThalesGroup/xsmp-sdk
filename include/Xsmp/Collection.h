@@ -21,18 +21,23 @@
 #include <Xsmp/Exception.h>
 #include <Xsmp/Object.h>
 #include <algorithm>
-#include <cstddef>
+#include <stddef.h>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
 
+/// XSMP standard types and interfaces.
 namespace Xsmp {
+/// XSMP implementation details.
 namespace detail {
 template <typename T> class AbstractCollection : public ::Smp::ICollection<T> {
 public:
   using const_iterator = typename ::Smp::ICollection<T>::const_iterator;
   using iterator = typename ::Smp::ICollection<T>::iterator;
 
+  /// Retrieve element by name
+  /// @param name The name of the element to be retrieved.
+  /// @return Instance with given name, or nullptr if no such instance exists.
   T *at(::Smp::String8 name) const override {
     if (!name) {
       return nullptr;
@@ -40,22 +45,37 @@ public:
     auto it = _map.find(name);
     return it == _map.cend() ? nullptr : it->second;
   }
-  T *at(std::size_t index) const override {
+
+  /// Retrieve element by position in the sequence (based on order of
+  /// insertion).
+  /// @param index The position of the elment to be retrieved.
+  /// @return Instance at given index, or nullptr if no instance exists.
+  T *at(size_t index) const override {
     return (index < _vector.size() ? _vector[index] : nullptr);
   }
 
-  std::size_t size() const override { return _vector.size(); }
+  /// Get the number of objects in the sequence.
+  /// @return Number of objects in the sequence.
+  size_t size() const override { return _vector.size(); }
 
+  /// Check if the collection is empty.
+  /// @return true if the collection is empty, false otherwise.
   virtual bool empty() const { return _vector.empty(); };
 
+  /// Get the begin iterator
+  /// @return Begin iterator
   const_iterator begin() const override {
     return AbstractCollection<T>::const_iterator(*this, 0);
   }
+
+  /// Get the end iterator
+  /// @return End iterator
   const_iterator end() const override {
     return AbstractCollection<T>::const_iterator(*this, _vector.size());
   }
 
-  // Add an element to the collection
+  /// Add an element to the collection
+  /// @param element The element to add to the collection.
   void Add(T *element) {
     const auto *casted = dynamic_cast<const ::Smp::IObject *>(element);
     if (!casted) {
@@ -69,7 +89,9 @@ public:
     _map.emplace(casted->GetName(), element);
     _vector.push_back(element);
   }
-  // Remove an element from the collection
+
+  /// Remove an element from the collection.
+  /// @param element The element to be removed from the collection.
   void Remove(T *element) {
     const auto *casted = dynamic_cast<const ::Smp::IObject *>(element);
     if (!casted) {
@@ -86,6 +108,8 @@ public:
       _vector.erase(it2);
     }
   }
+
+  /// Removes all elements from the collection.
   void clear() {
     _vector.clear();
     _map.clear();
@@ -97,6 +121,9 @@ private:
 };
 } // namespace detail
 
+/// @class Collection
+/// XSMP implementation of ::Smp::ICollection.
+/// The Collection instance does not own the elements it contains.
 template <typename T>
 class Collection final : public ::Xsmp::Object,
                          public ::Xsmp::detail::AbstractCollection<T> {
@@ -104,6 +131,9 @@ public:
   using ::Xsmp::Object::Object;
 };
 
+/// @class ContainingCollection
+/// XSMP implementation of ::Smp::ICollection.
+/// The Collection instance owns the elements it contains.
 template <typename T>
 class ContainingCollection final : public ::Xsmp::Object,
                                    public ::Smp::ICollection<T> {
@@ -113,6 +143,9 @@ public:
   using const_iterator = typename ::Smp::ICollection<T>::const_iterator;
   using iterator = typename ::Smp::ICollection<T>::iterator;
 
+  /// Retrieve element by name
+  /// @param name The name of the element to be retrieved.
+  /// @return Instance with given name, or nullptr if no such instance exists.
   T *at(::Smp::String8 name) const override {
     if (!name) {
       return nullptr;
@@ -120,21 +153,46 @@ public:
     auto it = _map.find(name);
     return it == _map.cend() ? nullptr : it->second.get();
   }
-  T *at(std::size_t index) const override {
+
+  /// Retrieve element by position in the sequence (based on order of
+  /// insertion).
+  /// @param index The position of the elment to be retrieved.
+  /// @return Instance at given index, or nullptr if no instance exists.
+  T *at(size_t index) const override {
     return (index < _vector.size() ? _vector[index] : nullptr);
   }
 
-  std::size_t size() const override { return _vector.size(); }
+  /// Get the number of objects in the sequence.
+  /// @return Number of objects in the sequence.
+  size_t size() const override { return _vector.size(); }
+
+  /// Check if the collection is empty.
+  /// @return true if the collection is empty, false otherwise.
+  virtual bool empty() const { return _vector.empty(); };
+
+  /// Get the begin iterator
+  /// @return Begin iterator
   const_iterator begin() const override { return const_iterator(*this, 0); }
+
+  /// Get the end iterator
+  /// @return End iterator
   const_iterator end() const override {
     return const_iterator(*this, _vector.size());
   }
 
-  // Add an element to the collection
+  /// Add an element to the collection
+  /// @tparam U The type of the element to add
+  /// @tparam Args Variable argument types used in constructing the element
+  /// @param args Arguments to be forwarded to the constructor of U
+  /// @return A pointer to the added element
   template <typename U, class... Args> U *Add(Args &&...args) {
     return Add(std::make_unique<U>(std::forward<Args>(args)...));
   }
 
+  /// Add an element to the collection
+  /// @tparam U The type of the element to add
+  /// @param element A unique pointer to the element to be added
+  /// @return A raw pointer to the added element
   template <typename U> U *Add(std::unique_ptr<U> element) {
 
     auto *raw = element.get();
@@ -152,7 +210,9 @@ public:
     _map.emplace(casted->GetName(), std::move(element));
     return raw;
   }
-  // Remove an element from the collection
+
+  /// Remove an element from the collection.
+  /// @param element The element to be removed from the collection.
   void Remove(T *element) {
     const auto *casted = dynamic_cast<const ::Smp::IObject *>(element);
     if (!casted) {
@@ -170,6 +230,8 @@ public:
       _vector.erase(it);
     }
   }
+
+  /// Removes all elements from the collection.
   void clear() {
     _vector.clear();
     _map.clear();
@@ -180,6 +242,11 @@ private:
   std::unordered_map<std::string_view, std::unique_ptr<T>> _map;
 };
 
+/// @class DelegateCollection
+/// XSMP implementation of ::Smp::ICollection.
+/// The Collection instance does not own the elements it contains.
+/// The Collection contains its own elements and delegates to another
+/// collection for other elements.
 template <typename T>
 class DelegateCollection final : public ::Xsmp::detail::AbstractCollection<T> {
 public:
@@ -191,27 +258,45 @@ public:
   DelegateCollection(const DelegateCollection &) = delete;
   DelegateCollection &operator=(const DelegateCollection &) = delete;
 
+  /// Retrieve element by name
+  /// @param name The name of the element to be retrieved.
+  /// @return Instance with given name, or nullptr if no such instance exists.
   T *at(::Smp::String8 name) const override {
     auto *value = _delegate->at(name);
     return value ? value : ::Xsmp::detail::AbstractCollection<T>::at(name);
   }
-  T *at(std::size_t index) const override {
+
+  /// Retrieve element by position in the sequence (based on order of
+  /// insertion).
+  /// @param index The position of the elment to be retrieved.
+  /// @return Instance at given index, or nullptr if no instance exists.
+  T *at(size_t index) const override {
     return index < _delegate->size()
                ? _delegate->at(index)
                : ::Xsmp::detail::AbstractCollection<T>::at(index -
                                                            _delegate->size());
   }
 
-  std::size_t size() const override {
+  /// Get the number of objects in the sequence.
+  /// @return Number of objects in the sequence.
+  size_t size() const override {
     return detail::AbstractCollection<T>::size() + _delegate->size();
   }
+
+  /// Check if the collection is empty.
+  /// @return true if the collection is empty, false otherwise.
   bool empty() const override {
     return detail::AbstractCollection<T>::empty() && (_delegate->size() == 0);
   }
 
+  /// Get the begin iterator
+  /// @return Begin iterator
   const_iterator begin() const override {
     return DelegateCollection<T>::const_iterator(*this, 0);
   }
+
+  /// Get the end iterator
+  /// @return End iterator
   const_iterator end() const override {
     return DelegateCollection<T>::const_iterator(*this, size());
   }

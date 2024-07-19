@@ -20,6 +20,7 @@
 #include <Xsmp/Helper.h>
 #include <type_traits>
 
+/// XSMP standard types and interfaces.
 namespace Xsmp {
 
 /// Basic converter for standard types (integrals, floats, bool)

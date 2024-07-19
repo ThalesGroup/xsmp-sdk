@@ -45,8 +45,12 @@ class IType;
 } // namespace Publication
 } // namespace Smp
 
-namespace Xsmp::Exception {
+/// XSMP standard types and interfaces.
+namespace Xsmp::
+    // XSMP  exceptions
+    Exception {
 
+/// XSMP implementation details.
 namespace detail {
 
 std::ostream &operator<<(std::ostream &os, const ::Smp::IObject *obj);

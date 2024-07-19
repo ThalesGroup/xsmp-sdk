@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "Smp/Exception.h"
 #include <Smp/ComponentStateKind.h>
 #include <Smp/InvalidComponentState.h>
 #include <Smp/InvalidOperationName.h>

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "Xsmp/Component.h"
 #include <Smp/AnySimple.h>
 #include <Smp/CannotDelete.h>
 #include <Smp/CannotRemove.h>
@@ -1127,7 +1128,6 @@ public:
   const ::Smp::Uuid &GetUuid() const override { return uuid; }
   static constexpr ::Smp::Uuid uuid{1, 2, 3, 4, 5};
 };
-constexpr ::Smp::Uuid M1::uuid;
 
 TEST(Exception, DuplicateUuid) {
   Xsmp::Object parent{"parent"};

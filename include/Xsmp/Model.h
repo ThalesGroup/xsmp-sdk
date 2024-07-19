@@ -18,8 +18,11 @@
 #include <Smp/IModel.h>
 #include <Xsmp/Component.h>
 
+/// XSMP standard types and interfaces.
 namespace Xsmp {
 
+/// @class Model
+/// XSMP implementation of ::Smp::IModel.
 class Model : public Component, public virtual ::Smp::IModel {
 public:
   using Component::Component;

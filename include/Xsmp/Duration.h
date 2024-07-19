@@ -22,8 +22,18 @@
 #include <string_view>
 #include <type_traits>
 
+/// XSMP standard types and interfaces.
 namespace Xsmp {
 
+/**
+ * @class Xsmp::Duration
+ * @brief Represents a duration of time in nanoseconds.
+ *
+ * The Duration class provides a wrapper around the SMP Duration type, which is
+ * an alias for int64_t. It offers various constructors and operators to create,
+ * manipulate and compare durations easily. Duration can also be converted
+ * to/from standard library chrono::duration types.
+ */
 struct Duration final {
   constexpr Duration() : _value{} {}
   constexpr explicit Duration(::Smp::Duration duration) : _value(duration) {}

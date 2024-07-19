@@ -20,24 +20,57 @@
 #include <Xsmp/cstring.h>
 #include <functional>
 
+/// XSMP standard types and interfaces.
 namespace Xsmp {
 
 class EntryPointPublisher;
 
+/// @class EntryPoint
+/// XSMP implementation of ::Smp::IEntryPoint.
 class EntryPoint final : public ::Smp::IEntryPoint {
 public:
+  /// Constructs a new entry point object with the specified name,
+  /// description, parent, and callback.
+  /// @param name The name of the entry point.
+  /// @param description The description of the entry point.
+  /// @param parent The parent object of the entry point.
+  /// @param callback A function object representing the action to be executed
+  /// when this entry point is invoked.
   EntryPoint(::Smp::String8 name, ::Smp::String8 description,
              ::Xsmp::EntryPointPublisher *parent,
              std::function<void()> &&callback);
+
+  /// Constructs a new entry point object with the specified name,
+  /// description, parent, and callback.
+  /// @param name The name of the entry point.
+  /// @param description The description of the entry point.
+  /// @param parent The parent object of the entry point.
+  /// @param callback A function object representing the action to be executed
+  /// when this entry point is invoked.
   EntryPoint(::Smp::String8 name, ::Smp::String8 description,
              ::Smp::IObject *parent, std::function<void()> &&callback);
-  EntryPoint(const EntryPoint &) = delete;
-  EntryPoint &operator=(const EntryPoint &) = delete;
+
+  /// Virtual destructor to release memory.
   ~EntryPoint() noexcept override = default;
+
+  /// Return the name of the entry point.
+  /// @return  Name of entry point.
   ::Smp::String8 GetName() const override;
+
+  /// Return the description of the entry point.
+  /// Descriptions are optional and may be empty.
+  /// @return  Description of entry point.
   ::Smp::String8 GetDescription() const override;
+
+  /// Returns the parent object of the entry point.
+  /// @return  Parent object of entry point or nullptr if entry point has no
+  /// parent.
   ::Smp::IObject *GetParent() const override;
+
+  /// Execute the entry point's action.
   void Execute() const override;
+
+  /// Execute the entry point's action.
   inline void operator()() const { std::invoke(_callback); }
 
 private:

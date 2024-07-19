@@ -14,7 +14,6 @@
 
 #include <Smp/ComponentStateKind.h>
 #include <Smp/IAggregate.h>
-#include <Smp/IArrayField.h>
 #include <Smp/IComposite.h>
 #include <Smp/IEventProvider.h>
 #include <Smp/IField.h>
@@ -22,7 +21,6 @@
 #include <Smp/IProperty.h>
 #include <Smp/IPublication.h>
 #include <Smp/IRequest.h>
-#include <Smp/IStructureField.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Uuid.h>
 #include <Xsmp/Component.h>

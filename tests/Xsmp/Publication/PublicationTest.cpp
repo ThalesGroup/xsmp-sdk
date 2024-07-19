@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "Smp/Exception.h"
+#include "Smp/IObject.h"
 #include <Smp/IField.h>
 
 #include <Smp/AccessKind.h>
@@ -28,7 +30,6 @@
 #include <Smp/InvalidArrayIndex.h>
 #include <Smp/InvalidArraySize.h>
 #include <Smp/InvalidFieldName.h>
-#include <Smp/InvalidFieldType.h>
 #include <Smp/InvalidFieldValue.h>
 #include <Smp/InvalidTarget.h>
 #include <Smp/PrimitiveTypes.h>

@@ -14,6 +14,7 @@
 
 #include <Smp/AnySimple.h>
 #include <Smp/AnySimpleArray.h>
+#include <Smp/Exception.h>
 #include <Smp/IField.h>
 #include <Smp/ISimpleField.h>
 #include <Smp/IStructureField.h>

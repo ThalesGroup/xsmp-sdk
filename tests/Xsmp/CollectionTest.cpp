@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "Smp/Exception.h"
+#include "Smp/IObject.h"
+#include "Xsmp/Object.h"
 #include <Smp/CollectionIterator.h>
 #include <Smp/DuplicateName.h>
 #include <Smp/PrimitiveTypes.h>

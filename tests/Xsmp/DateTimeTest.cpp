@@ -16,6 +16,7 @@
 #include <Xsmp/DateTime.h>
 #include <Xsmp/Duration.h>
 #include <chrono>
+#include <sstream>
 #include <string>
 
 #include "gtest/gtest.h"

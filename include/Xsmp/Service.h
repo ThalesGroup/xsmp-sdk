@@ -18,8 +18,11 @@
 #include <Smp/IService.h>
 #include <Xsmp/Component.h>
 
+/// XSMP standard types and interfaces.
 namespace Xsmp {
 
+/// @class Service
+/// XSMP implementation of ::Smp::IService.
 class Service : public Component, public virtual ::Smp::IService {
 public:
   using Component::Component;

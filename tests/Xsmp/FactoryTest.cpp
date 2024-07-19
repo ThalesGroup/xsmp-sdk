@@ -14,13 +14,17 @@
 
 #include <Smp/CollectionIterator.h>
 #include <Smp/DuplicateUuid.h>
+#include <Smp/Exception.h>
+#include <Smp/IFactory.h>
 #include <Smp/Uuid.h>
+#include <Xsmp/Component.h>
 #include <Xsmp/Composite.h>
 #include <Xsmp/Factory.h>
 #include <Xsmp/FactoryCollection.h>
 #include <Xsmp/Model.h>
 #include <cstddef>
 #include <gtest/gtest.h>
+#include <memory>
 
 namespace Xsmp {
 
@@ -36,14 +40,13 @@ public:
   const ::Smp::Uuid &GetUuid() const override { return uuid; }
   static constexpr ::Smp::Uuid uuid{1, 2, 3, 4, 5};
 };
-constexpr ::Smp::Uuid M1::uuid;
+
 class M2 : public ::Xsmp::Model {
 public:
   using ::Xsmp::Model::Model;
   const ::Smp::Uuid &GetUuid() const override { return uuid; }
   static constexpr ::Smp::Uuid uuid{1, 2, 3, 4, 6};
 };
-constexpr ::Smp::Uuid M2::uuid;
 
 TEST(Factory, Create) {
 
