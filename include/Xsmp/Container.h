@@ -21,7 +21,7 @@
 #include <Xsmp/Exception.h>
 #include <Xsmp/cstring.h>
 #include <algorithm>
-#include <stddef.h>
+#include <cstddef>
 #include <stdexcept>
 #include <string_view>
 #include <vector>

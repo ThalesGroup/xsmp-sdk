@@ -37,11 +37,11 @@ AbstractReference::Collection::Collection(AbstractReference &parent)
 AbstractReference::Collection::at(::Smp::String8 name) const {
   return _parent.GetComponent(name);
 }
-::Smp::IComponent *AbstractReference::Collection::at(std::size_t index) const {
+::Smp::IComponent *AbstractReference::Collection::at(size_t index) const {
   return _parent.GetComponent(index);
 }
-std::size_t AbstractReference::Collection::size() const {
-  return static_cast<std::size_t>(_parent.GetCount());
+size_t AbstractReference::Collection::size() const {
+  return static_cast<size_t>(_parent.GetCount());
 }
 AbstractReference::Collection::const_iterator
 AbstractReference::Collection::begin() const {

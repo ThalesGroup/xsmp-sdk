@@ -32,8 +32,7 @@ inline void RegisterICollection(const py::module_ &m, ::Smp::String8 name) {
            "Get the number of objects in the sequence.")
 
       .def("at",
-           py::overload_cast<std::size_t>(&::Smp::ICollection<T>::at,
-                                          py::const_),
+           py::overload_cast<size_t>(&::Smp::ICollection<T>::at, py::const_),
            py::arg("index"), py::return_value_policy::reference,
            "Retrieve element by position in the sequence (based on order of "
            "insertion).")

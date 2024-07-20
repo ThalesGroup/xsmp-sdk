@@ -18,8 +18,8 @@
 #include <Smp/IFactory.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Uuid.h>
+#include <cstddef>
 #include <memory>
-#include <stddef.h>
 #include <string>
 #include <unordered_map>
 #include <vector>

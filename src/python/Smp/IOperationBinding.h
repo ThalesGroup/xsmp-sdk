@@ -47,7 +47,7 @@ inline py::object callOperation(::Smp::IOperation &self, const py::args &args,
   for (auto arg : args) {
     ++index;
     request->SetParameterValue(
-        index, convert(arg, parameters->at(static_cast<std::size_t>(index))
+        index, convert(arg, parameters->at(static_cast<size_t>(index))
                                 ->GetType()
                                 ->GetPrimitiveTypeKind()));
   }
@@ -64,7 +64,7 @@ inline py::object callOperation(::Smp::IOperation &self, const py::args &args,
                            "() got multiple values for argument '" + _name +
                            "'");
     request->SetParameterValue(
-        i, convert(value, parameters->at(static_cast<std::size_t>(i))
+        i, convert(value, parameters->at(static_cast<size_t>(i))
                               ->GetType()
                               ->GetPrimitiveTypeKind()));
   }

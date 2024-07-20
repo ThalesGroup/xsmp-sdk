@@ -21,7 +21,7 @@
 
 namespace Xsmp::Persist {
 
-template <typename T, std::size_t N> struct Helper<std::array<T, N>> {
+template <typename T, size_t N> struct Helper<std::array<T, N>> {
   static void Store(const ::Smp::ISimulator *simulator,
                     ::Smp::IStorageWriter *writer,
                     const std::array<T, N> &value) {
@@ -31,7 +31,7 @@ template <typename T, std::size_t N> struct Helper<std::array<T, N>> {
 
   static void Restore(const ::Smp::ISimulator *simulator,
                       ::Smp::IStorageReader *reader, std::array<T, N> &value) {
-    for (std::size_t i = 0; i < N; ++i)
+    for (size_t i = 0; i < N; ++i)
       ::Xsmp::Persist::Restore(simulator, reader, value[i]);
   }
 };

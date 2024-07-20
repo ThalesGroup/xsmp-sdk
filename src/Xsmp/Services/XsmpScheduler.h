@@ -395,9 +395,8 @@ private:
   std::map<::Smp::Duration, EventList> _zulu_events_table;
 
   // Mapping between an EventId and internal data
-  mutable std::mutex
-      _eventsMutex; // protection for _events, _immediate_events,
-                      // _events_table and _lastEventId
+  mutable std::mutex _eventsMutex; // protection for _events, _immediate_events,
+                                   // _events_table and _lastEventId
   // scheduling table for simu/epoch/mission time events
   std::map<::Smp::Duration, EventList> _events_table;
 

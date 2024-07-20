@@ -66,6 +66,8 @@ void StorageWriter::Store(void *address, ::Smp::UInt64 size) {
   return _filename.c_str();
 }
 
-::Smp::String8 StorageWriter::GetStateVectorFilePath() const { return _path.c_str(); }
+::Smp::String8 StorageWriter::GetStateVectorFilePath() const {
+  return _path.c_str();
+}
 
 } // namespace Xsmp

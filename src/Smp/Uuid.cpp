@@ -16,6 +16,7 @@
 #include <Xsmp/Exception.h>
 #include <array>
 #include <cctype>
+#include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <functional>
@@ -111,7 +112,7 @@ bool ::Smp::Uuid::operator!=(const ::Smp::Uuid & other) const {
 } // namespace Smp
 
 namespace std {
-std::size_t std::hash<::Smp::Uuid>::operator()(const ::Smp::Uuid &uuid) const {
+size_t std::hash<::Smp::Uuid>::operator()(const ::Smp::Uuid &uuid) const {
 
   const std::uint64_t left = (static_cast<std::uint64_t>(uuid.Data1) << 32) |
                              (static_cast<std::uint64_t>(uuid.Data2[0]) << 16) |

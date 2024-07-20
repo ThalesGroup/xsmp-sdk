@@ -37,7 +37,9 @@ EntryPoint::EntryPoint(::Smp::String8 name, ::Smp::String8 description,
 
 ::Smp::String8 EntryPoint::GetName() const { return _name.c_str(); }
 
-::Smp::String8 EntryPoint::GetDescription() const { return _description.c_str(); }
+::Smp::String8 EntryPoint::GetDescription() const {
+  return _description.c_str();
+}
 
 ::Smp::IObject *EntryPoint::GetParent() const { return _parent; }
 

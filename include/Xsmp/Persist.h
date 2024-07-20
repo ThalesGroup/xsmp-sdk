@@ -126,13 +126,13 @@ void Restore(const ::Smp::ISimulator *simulator, ::Smp::IStorageReader *reader,
 template <typename T, std::size_t N> struct Helper<T[N]> {
   static void Store(const ::Smp::ISimulator *simulator,
                     ::Smp::IStorageWriter *writer, const T (&value)[N]) {
-    for (std::size_t i = 0; i < N; ++i) {
+    for (size_t i = 0; i < N; ++i) {
       ::Xsmp::Persist::Store(simulator, writer, value[i]);
     }
   }
   static void Restore(const ::Smp::ISimulator *simulator,
                       ::Smp::IStorageReader *reader, T (&value)[N]) {
-    for (std::size_t i = 0; i < N; ++i) {
+    for (size_t i = 0; i < N; ++i) {
       ::Xsmp::Persist::Restore(simulator, reader, value[i]);
     }
   }
@@ -180,7 +180,7 @@ void Restore(const ::Smp::ISimulator *simulator, const ::Smp::IObject *sender,
              ::Smp::IStorageReader *reader, Args &...args) {
 
   auto restore = [simulator, sender, reader](auto &value) {
-    std::size_t hash = 0;
+    size_t hash = 0;
     Restore(simulator, reader, hash);
     if (hash != typeid(value).hash_code()) {
       ::Xsmp::Exception::throwCannotRestore(sender, typeid(value).name());

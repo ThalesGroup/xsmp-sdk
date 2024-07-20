@@ -39,6 +39,7 @@
 #include <Xsmp/cstring.h>
 #include <algorithm>
 #include <cctype>
+#include <cstddef>
 #include <cstdlib>
 #include <exception>
 #include <memory>
@@ -460,6 +461,20 @@ void CopyString(::Smp::Char8 *destination, std::size_t size,
   } else {
     destination[0] = '\0';
   }
+}
+
+[[nodiscard]] bool IsAncestor(const ::Smp::IObject *ancestorObject,
+                              const ::Smp::IObject *object) {
+  if (!ancestorObject) {
+    return false;
+  }
+  while (object) {
+    if (object == ancestorObject) {
+      return true;
+    }
+    object = object->GetParent();
+  }
+  return false;
 }
 
 bool AreEquivalent(const ::Smp::IField *first, const ::Smp::IField *second) {

@@ -122,6 +122,15 @@ template <typename T>
   return nullptr;
 }
 
+/// Returns whether the second object is the same as the first object, or is
+/// directly contained by the first object, i.e., whether the second object is
+/// in the content tree of the first.
+/// @param ancestorObject The ancestor object in question.
+/// @param object The object to test.
+/// @return Whether the first object is an ancestor of the second object..
+[[nodiscard]] bool IsAncestor(const ::Smp::IObject *ancestorObject,
+                              const ::Smp::IObject *object);
+
 /// Compares two SMP fields to determine if they are equivalent based on their
 /// types.
 /// @param first The first IField object to be compared for equivalence.

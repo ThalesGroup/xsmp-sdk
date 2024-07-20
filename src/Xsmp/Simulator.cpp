@@ -151,7 +151,9 @@ Simulator::~Simulator() {
 }
 ::Smp::String8 Simulator::GetName() const { return _name.c_str(); }
 
-::Smp::String8 Simulator::GetDescription() const { return _description.c_str(); }
+::Smp::String8 Simulator::GetDescription() const {
+  return _description.c_str();
+}
 
 ::Smp::IObject *Simulator::GetParent() const { return nullptr; }
 

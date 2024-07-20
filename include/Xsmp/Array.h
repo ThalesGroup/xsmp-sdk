@@ -41,7 +41,7 @@ template <typename Tp> struct _array_traits<Tp, 0> {
   // Empty type used instead of Tp[0] for Xsmp::Array<Tp, 0>.
   struct type {
     // Indexing is undefined.
-    Tp &operator[](std::size_t) const noexcept { std::abort(); }
+    Tp &operator[](size_t) const noexcept { std::abort(); }
 
     // Conversion to a pointer produces a null pointer.
     constexpr explicit operator Tp *() const noexcept { return nullptr; }
@@ -68,7 +68,7 @@ template <typename Tp, std::size_t Nm, typename... options> struct Array {
   using const_reference = const value_type &;
   using iterator = value_type *;
   using const_iterator = const value_type *;
-  using size_type = std::size_t;
+  using size_type = size_t;
   using difference_type = std::ptrdiff_t;
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;

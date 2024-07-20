@@ -230,7 +230,7 @@ public:
   /// @throws  Smp::ReferenceFull
   void AddComponent(::Smp::IComponent *component) override {
 
-    if (size() >= static_cast<std::size_t>(GetUpper())) {
+    if (size() >= static_cast<size_t>(GetUpper())) {
       ::Xsmp::Exception::throwReferenceFull(this, this->GetCount());
     }
     // check that the component type can be casted to T
@@ -255,7 +255,7 @@ public:
     if (it == end()) {
       ::Xsmp::Exception::throwNotReferenced(this, component);
     }
-    if (size() <= static_cast<std::size_t>(GetLower())) {
+    if (size() <= static_cast<size_t>(GetLower())) {
       ::Xsmp::Exception::throwCannotRemove(this, component, GetLower());
     }
     _vector.erase(it);

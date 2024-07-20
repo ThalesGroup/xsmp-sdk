@@ -40,7 +40,6 @@
 #include <Xsmp/cstring.h>
 #include <cstddef>
 #include <iterator>
-#include <set>
 #include <type_traits>
 #include <utility>
 
@@ -179,20 +178,47 @@ class IDataflowFieldExtension : public virtual ::Smp::IDataflowField {
 public:
   /// Virtual destructor to release memory.
   ~IDataflowFieldExtension() noexcept override = default;
+
   /// Disconnect this field to a target field for direct data flow.
   /// @param   target Target field to connect to. The field type must be
   ///          compatible.
-  virtual void Disconnect(::Smp::IField *target) = 0;
+  virtual void Disconnect(const ::Smp::IField *target) = 0;
+
+  virtual const ::Smp::FieldCollection *GetInputFields() const {
+    return nullptr;
+  };
+};
+
+class InputFieldCollection final : public ::Xsmp::Object,
+                                   public ::Smp::FieldCollection {
+public:
+  using ::Xsmp::Object::Object;
+  using const_iterator = typename ::Smp::FieldCollection::const_iterator;
+  using iterator = typename ::Smp::FieldCollection::iterator;
+  ::Smp::IField *at(::Smp::String8 name) const override;
+  ::Smp::IField *at(size_t index) const override;
+  size_t size() const override;
+  virtual bool empty() const;
+  const_iterator begin() const override;
+  const_iterator end() const override;
+  bool contains(const ::Smp::IField *input) const;
+  void add(::Smp::IField *input);
+  bool remove(const ::Smp::IField *input);
+
+private:
+  std::vector<::Smp::IField *> _fields;
 };
 class ArrayDataflowField : public virtual IDataflowFieldExtension,
                            public virtual ::Smp::IArrayField {
 public:
+  ArrayDataflowField();
   void Push() final;
   void Connect(::Smp::IField *target) final;
-  void Disconnect(::Smp::IField *target) final;
+  void Disconnect(const ::Smp::IField *target) final;
+  const ::Smp::FieldCollection *GetInputFields() const final;
 
 private:
-  std::set<::Smp::IArrayField *> _connectedFields;
+  InputFieldCollection _connectedFields;
   friend class ::Xsmp::detail::FieldHelper;
 };
 
@@ -203,10 +229,12 @@ using ArrayField = std::conditional_t<
 
 class SimpleConnectableField : public virtual ::Smp::ISimpleField {
 protected:
+  SimpleConnectableField();
   void internal_push() const;
+  const ::Smp::FieldCollection *GetInputFields() const;
 
 private:
-  std::set<::Smp::ISimpleField *> _connectedFields;
+  InputFieldCollection _connectedFields;
   friend class ::Xsmp::detail::FieldHelper;
 };
 class SimpleDataflowField : public virtual SimpleConnectableField,
@@ -214,7 +242,8 @@ class SimpleDataflowField : public virtual SimpleConnectableField,
 public:
   void Push() final;
   void Connect(::Smp::IField *target) final;
-  void Disconnect(::Smp::IField *target) final;
+  void Disconnect(const ::Smp::IField *target) final;
+  const ::Smp::FieldCollection *GetInputFields() const final;
 };
 template <typename... Annotations>
 using SimpleField = std::conditional_t<
@@ -226,10 +255,12 @@ using SimpleField = std::conditional_t<
 
 class SimpleArrayConnectableField : public virtual ::Smp::ISimpleArrayField {
 protected:
+  SimpleArrayConnectableField();
   void internal_push(::Smp::UInt64 index) const;
+  const ::Smp::FieldCollection *GetInputFields() const;
 
 private:
-  std::set<::Smp::ISimpleArrayField *> _connectedFields;
+  InputFieldCollection _connectedFields;
   friend class ::Xsmp::detail::FieldHelper;
 };
 
@@ -238,7 +269,8 @@ class SimpleArrayDataflowField : public virtual SimpleArrayConnectableField,
 public:
   void Push() final;
   void Connect(::Smp::IField *target) final;
-  void Disconnect(::Smp::IField *target) final;
+  void Disconnect(const ::Smp::IField *target) final;
+  const ::Smp::FieldCollection *GetInputFields() const final;
 };
 template <typename... Annotations>
 using SimpleArrayField = std::conditional_t<
@@ -291,12 +323,14 @@ private:
 class StructureDataflowField : public ::Xsmp::detail::AbstractStructureField,
                                public virtual IDataflowFieldExtension {
 public:
+  StructureDataflowField();
   void Push() final;
   void Connect(::Smp::IField *target) final;
-  void Disconnect(::Smp::IField *target) final;
+  void Disconnect(const ::Smp::IField *target) final;
+  const ::Smp::FieldCollection *GetInputFields() const final;
 
 private:
-  std::set<::Smp::IStructureField *> _connectedFields;
+  InputFieldCollection _connectedFields;
   friend class ::Xsmp::detail::FieldHelper;
 };
 template <typename... Annotations>
@@ -503,7 +537,7 @@ class ArrayField final
     : public ::Xsmp::detail::Field<T, Annotations...>,
       public virtual ::Xsmp::detail::ArrayField<Annotations...> {
 
-  static constexpr std::size_t _size = ::Xsmp::detail::FieldTypeHelper<T>::size;
+  static constexpr size_t _size = ::Xsmp::detail::FieldTypeHelper<T>::size;
 
   template <typename... Options> struct apply_options {
     template <typename U> struct on {
@@ -596,7 +630,7 @@ public:
   using const_reference = const value_type &;
   using iterator = value_type *;
   using const_iterator = const value_type *;
-  using size_type = std::size_t;
+  using size_type = size_t;
   using difference_type = std::ptrdiff_t;
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
@@ -687,7 +721,7 @@ public:
   }
 
 private:
-  template <std::size_t... I>
+  template <size_t... I>
   ::Xsmp::Array<value_type, _size>
   create_array_impl(::Smp::Publication::ITypeRegistry *typeRegistry,
                     const T &value, std::index_sequence<I...>) {
@@ -711,7 +745,7 @@ class SimpleArrayField final
   static_assert(
       !::Xsmp::Annotation::any_of<::Xsmp::Annotation::forcible, Annotations...>,
       "A SimpleArrayField cannot be forcible.");
-  static constexpr std::size_t _size = ::Xsmp::detail::FieldTypeHelper<T>::size;
+  static constexpr size_t _size = ::Xsmp::detail::FieldTypeHelper<T>::size;
 
 public:
   SimpleArrayField(const SimpleArrayField &) = delete;
@@ -753,7 +787,7 @@ public:
       ::Xsmp::Exception::throwInvalidArraySize(this, length);
     }
     auto _itemKind = _type->GetItemType()->GetPrimitiveTypeKind();
-    for (std::size_t i = 0; i < _size; ++i) {
+    for (size_t i = 0; i < _size; ++i) {
       values[i] =
           ::Xsmp::AnySimpleConverter<value_type>::convert(_itemKind, _value[i]);
     }
@@ -764,7 +798,7 @@ public:
       ::Xsmp::Exception::throwInvalidArraySize(this, length);
     }
     auto _itemKind = _type->GetItemType()->GetPrimitiveTypeKind();
-    for (std::size_t i = 0; i < _size; ++i) {
+    for (size_t i = 0; i < _size; ++i) {
       if (values[i].type != _itemKind) {
         ::Xsmp::Exception::throwInvalidArrayValue(this, i, values[i]);
       }
@@ -796,7 +830,7 @@ public:
 
   struct protected_reference {
     protected_reference(SimpleArrayField *parent, value_type &value,
-                        std::size_t index)
+                        size_t index)
         : _parent{parent}, _value{value}, _index{index} {}
 
     operator const T &() const noexcept { return _value; }
@@ -860,7 +894,7 @@ public:
     }
     SimpleArrayField *_parent;
     value_type &_value;
-    std::size_t _index;
+    size_t _index;
   };
 
   using reference =
@@ -868,7 +902,7 @@ public:
                              ::Xsmp::Annotation::connectable, Annotations...>,
                          protected_reference, value_type &>;
   using const_reference = const value_type &;
-  using size_type = std::size_t;
+  using size_type = size_t;
   using difference_type = std::ptrdiff_t;
   struct protected_iterator {
     using iterator_category = std::forward_iterator_tag;
@@ -878,7 +912,7 @@ public:
     using reference = SimpleArrayField::reference;
 
     protected_iterator(SimpleArrayField *parent, value_type *value,
-                       std::size_t index)
+                       size_t index)
         : _parent{parent}, _value{value}, _index{index} {}
     friend inline bool operator==(const protected_iterator &lhs,
                                   const protected_iterator &rhs) {
@@ -940,7 +974,7 @@ public:
   private:
     SimpleArrayField *_parent;
     value_type *_value;
-    std::size_t _index;
+    size_t _index;
   };
 
   using iterator =
@@ -1191,7 +1225,7 @@ struct FieldTypeHelper<::Xsmp::Array<T, Nm, TypeAnnotations...>,
   template <typename... Annotations>
   using field = ::Xsmp::ArrayField<::Xsmp::Array<T, Nm, TypeAnnotations...>,
                                    Annotations...>;
-  static constexpr std::size_t size = Nm;
+  static constexpr size_t size = Nm;
 };
 
 template <typename T, std::size_t Nm, typename... TypeAnnotations>
@@ -1203,7 +1237,7 @@ struct FieldTypeHelper<::Xsmp::Array<T, Nm, TypeAnnotations...>,
   using field =
       ::Xsmp::SimpleArrayField<::Xsmp::Array<T, Nm, TypeAnnotations...>,
                                Annotations...>;
-  static constexpr std::size_t size = Nm;
+  static constexpr size_t size = Nm;
 };
 
 } // namespace detail

@@ -49,11 +49,10 @@ AbstractContainer::Collection::at(::Smp::String8 name) const {
 
   return _parent.GetComponent(index);
 }
-size_t AbstractContainer::Collection::size() const {
-  return static_cast<size_t>(_parent.GetCount());
+std::size_t AbstractContainer::Collection::size() const {
+  return static_cast<std::size_t>(_parent.GetCount());
 }
-bool AbstractContainer::Collection::empty() const
-{
+bool AbstractContainer::Collection::empty() const {
   return _parent.GetCount() == 0;
 }
 AbstractContainer::Collection::const_iterator
@@ -180,16 +179,16 @@ void CheckNoDuplicateName(::Smp::IContainer const *container,
 } // namespace
 
 void AbstractContainer::AddComponent(::Smp::IComponent *component) {
-  if (static_cast<size_t>(GetCount()) >=
-      static_cast<size_t>(GetUpper())) {
+  if (static_cast<std::size_t>(GetCount()) >=
+      static_cast<std::size_t>(GetUpper())) {
     ::Xsmp::Exception::throwContainerFull(this);
   }
 
   CheckNoDuplicateName(this, component);
 }
 void AbstractContainer::DeleteComponent(::Smp::IComponent *component) {
-  if (static_cast<size_t>(GetCount()) <=
-      static_cast<size_t>(GetLower())) {
+  if (static_cast<std::size_t>(GetCount()) <=
+      static_cast<std::size_t>(GetLower())) {
     ::Xsmp::Exception::throwCannotDelete(this, component);
   }
   if (component->GetState() == ::Smp::ComponentStateKind::CSK_Connected) {

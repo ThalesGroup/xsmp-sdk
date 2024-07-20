@@ -21,7 +21,7 @@
 #include <Xsmp/Exception.h>
 #include <Xsmp/Object.h>
 #include <algorithm>
-#include <stddef.h>
+#include <cstddef>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
@@ -64,15 +64,11 @@ public:
 
   /// Get the begin iterator
   /// @return Begin iterator
-  const_iterator begin() const override {
-    return AbstractCollection<T>::const_iterator(*this, 0);
-  }
+  const_iterator begin() const override { return {*this, 0}; }
 
   /// Get the end iterator
   /// @return End iterator
-  const_iterator end() const override {
-    return AbstractCollection<T>::const_iterator(*this, _vector.size());
-  }
+  const_iterator end() const override { return {*this, _vector.size()}; }
 
   /// Add an element to the collection
   /// @param element The element to add to the collection.
@@ -172,13 +168,11 @@ public:
 
   /// Get the begin iterator
   /// @return Begin iterator
-  const_iterator begin() const override { return const_iterator(*this, 0); }
+  const_iterator begin() const override { return {*this, 0}; }
 
   /// Get the end iterator
   /// @return End iterator
-  const_iterator end() const override {
-    return const_iterator(*this, _vector.size());
-  }
+  const_iterator end() const override { return {*this, _vector.size()}; }
 
   /// Add an element to the collection
   /// @tparam U The type of the element to add
@@ -291,15 +285,11 @@ public:
 
   /// Get the begin iterator
   /// @return Begin iterator
-  const_iterator begin() const override {
-    return DelegateCollection<T>::const_iterator(*this, 0);
-  }
+  const_iterator begin() const override { return {*this, 0}; }
 
   /// Get the end iterator
   /// @return End iterator
-  const_iterator end() const override {
-    return DelegateCollection<T>::const_iterator(*this, size());
-  }
+  const_iterator end() const override { return {*this, size()}; }
 
   ::Smp::String8 GetName() const override { return _delegate->GetName(); }
   ::Smp::String8 GetDescription() const override {

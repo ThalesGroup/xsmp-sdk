@@ -242,6 +242,8 @@ private:
                            const ::Smp::IComponent *target) noexcept;
   static void RemoveAggregateLinks(const ::Smp::IAggregate *aggregate,
                                    const ::Smp::IComponent *target) noexcept;
+  static void RemoveFieldLinks(::Smp::IField *field,
+                               const ::Smp::IComponent *target) noexcept;
 
   ::Xsmp::cstring _name;
   ::Xsmp::cstring _description;

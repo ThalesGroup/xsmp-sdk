@@ -14,6 +14,7 @@
 
 #include <Smp/ComponentStateKind.h>
 #include <Smp/IAggregate.h>
+#include <Smp/IArrayField.h>
 #include <Smp/IComposite.h>
 #include <Smp/IEventProvider.h>
 #include <Smp/IField.h>
@@ -21,6 +22,7 @@
 #include <Smp/IProperty.h>
 #include <Smp/IPublication.h>
 #include <Smp/IRequest.h>
+#include <Smp/IStructureField.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Uuid.h>
 #include <Xsmp/Component.h>
@@ -148,6 +150,38 @@ void Component::RemoveAggregateLinks(const ::Smp::IAggregate *aggregate,
     }
   }
 }
+void Component::RemoveFieldLinks(::Smp::IField *field,
+                                 const ::Smp::IComponent *target) noexcept {
+  // disconnect a dataflow field
+  if (auto *dataflowField =
+          dynamic_cast<::Xsmp::detail::IDataflowFieldExtension *>(field)) {
+    if (const auto *inputFields = dataflowField->GetInputFields()) {
+      for (const auto *inputField : *inputFields) {
+        if (::Xsmp::Helper::IsAncestor(target, inputField)) {
+          dataflowField->Disconnect(inputField);
+        }
+      }
+    }
+  }
+  // recursively disconnect subfields of a structure field
+  else if (const auto *structureField =
+               dynamic_cast<::Smp::IStructureField *>(field)) {
+    if (const auto *fields = structureField->GetFields()) {
+      for (auto *subField : *fields) {
+        RemoveFieldLinks(subField, target);
+      }
+    }
+  }
+  // recursively disconnect items of an array field
+  else if (const auto *arrayField = dynamic_cast<::Smp::IArrayField *>(field)) {
+    const auto size = arrayField->GetSize();
+    for (::Smp::UInt64 i = 0; i < size; ++i) {
+      RemoveFieldLinks(arrayField->GetItem(i), target);
+    }
+  } else {
+    // ignore: the field is a simple field or simple array field without links
+  }
+}
 
 void Component::RemoveLinks(const ::Smp::IComponent *target) {
 
@@ -159,16 +193,12 @@ void Component::RemoveLinks(const ::Smp::IComponent *target) {
   if (auto const *aggregate = dynamic_cast<::Smp::IAggregate *>(this)) {
     RemoveAggregateLinks(aggregate, target);
   }
-  //  // disconnect fields
-  //  if (auto const *fields = GetFields()) {
-  //    for (auto *field : *fields) {
-  //      if (auto *f =
-  //              dynamic_cast<::Xsmp::detail::IDataflowFieldExtension
-  //              *>(field)) {
-  //         f->RemoveLinks(target);
-  //      }
-  //    }
-  //  }
+  // disconnect fields
+  if (auto const *fields = GetFields()) {
+    for (auto *field : *fields) {
+      RemoveFieldLinks(field, target);
+    }
+  }
 }
 
 } // namespace Xsmp
