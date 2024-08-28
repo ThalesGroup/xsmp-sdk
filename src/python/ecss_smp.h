@@ -15,10 +15,12 @@
 #ifndef PYTHON_ECSS_SMP_H_
 #define PYTHON_ECSS_SMP_H_
 
+// pybind11 must be the first header to be included
+#include <pybind11/pybind11.h>
+// empty
 #include <Smp/AnySimple.h>
 #include <Smp/IObject.h>
 #include <Smp/PrimitiveTypes.h>
-#include <pybind11/pybind11.h>
 #include <string>
 #include <type_traits>
 #include <typeinfo>

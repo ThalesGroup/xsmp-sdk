@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// pybind11 must be the first header to be included
+#include <pybind11/pybind11.h>
+// empty
+
 #include <Smp/AnySimple.h>
 #include <Smp/CannotDelete.h>
 #include <Smp/CannotRemove.h>
