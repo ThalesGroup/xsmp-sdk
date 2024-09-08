@@ -27,13 +27,13 @@
 namespace Xsmp {
 
 void Request::setValue(::Smp::IComponent const *component,
-                       ::Smp::IRequest *request, const std::string &name,
+                       ::Smp::IRequest *request, ::Smp::String8 name,
                        const ::Smp::AnySimple &value) {
-  const auto index = request->GetParameterIndex(name.c_str());
+  const auto index = request->GetParameterIndex(name);
   if (index == -1) {
     ::Xsmp::Exception::throwException(component, name,
-                                      "No Parameter named " + name +
-                                          " in Operation " +
+                                      "No Parameter named " +
+                                          std::string(name) + " in Operation " +
                                           request->GetOperationName() + ".");
   }
   request->SetParameterValue(index, value);
@@ -41,17 +41,17 @@ void Request::setValue(::Smp::IComponent const *component,
 
 ::Smp::AnySimple Request::getValue(::Smp::IComponent const *component,
                                    ::Smp::IRequest const *request,
-                                   const std::string &name,
+                                   ::Smp::String8 name,
                                    ::Smp::PrimitiveTypeKind kind,
                                    bool useDefaultValue) {
-  const auto index = request->GetParameterIndex(name.c_str());
+  const auto index = request->GetParameterIndex(name);
   if (index == -1) {
     if (useDefaultValue) {
       return {};
     }
     ::Xsmp::Exception::throwException(component, name,
-                                      "No Parameter named " + name +
-                                          " in Operation " +
+                                      "No Parameter named " +
+                                          std::string(name) + " in Operation " +
                                           request->GetOperationName() + ".");
   }
   auto value = request->GetParameterValue(index);
@@ -64,19 +64,18 @@ void Request::setValue(::Smp::IComponent const *component,
 }
 
 void Request::extract(::Smp::IRequest *request, ::Smp::IField *field,
-                      const std::string &name, bool ignoreMissingParameters) {
-
+                      ::Smp::String8 name, bool ignoreMissingParameters) {
   // simple field
   if (auto *simple = dynamic_cast<::Smp::ISimpleField *>(field)) {
-    const auto index = request->GetParameterIndex(name.c_str());
+    const auto index = request->GetParameterIndex(name);
     if (index == -1) {
       if (ignoreMissingParameters) {
         return;
       }
-      ::Xsmp::Exception::throwException(field, name,
-                                        "No Parameter named " + name +
-                                            " in Operation " +
-                                            request->GetOperationName() + ".");
+      ::Xsmp::Exception::throwException(
+          field, name,
+          "No Parameter named " + std::string(name) + " in Operation " +
+              request->GetOperationName() + ".");
     }
     simple->SetValue(request->GetParameterValue(index));
   }
@@ -84,7 +83,8 @@ void Request::extract(::Smp::IRequest *request, ::Smp::IField *field,
   else if (auto *simpleArray =
                dynamic_cast<::Smp::ISimpleArrayField *>(field)) {
     for (::Smp::UInt64 i = 0, size = simpleArray->GetSize(); i < size; ++i) {
-      const std::string itemName = name + "[" + std::to_string(i) + "]";
+      const std::string itemName =
+          std::string(name) + "[" + std::to_string(i) + "]";
       const auto index = request->GetParameterIndex(itemName.c_str());
       if (index != -1) {
         simpleArray->SetValue(i, request->GetParameterValue(index));
@@ -101,7 +101,8 @@ void Request::extract(::Smp::IRequest *request, ::Smp::IField *field,
   // array field
   else if (auto const *array = dynamic_cast<::Smp::IArrayField *>(field)) {
     for (::Smp::UInt64 i = 0, size = array->GetSize(); i < size; ++i) {
-      extract(request, array->GetItem(i), name + "[" + std::to_string(i) + "]",
+      extract(request, array->GetItem(i),
+              (std::string(name) + "[" + std::to_string(i) + "]").c_str(),
               ignoreMissingParameters);
     }
   }
@@ -110,7 +111,8 @@ void Request::extract(::Smp::IRequest *request, ::Smp::IField *field,
                dynamic_cast<::Smp::IStructureField *>(field)) {
 
     for (auto *nestedField : *structure->GetFields()) {
-      extract(request, nestedField, name + "." + nestedField->GetName(),
+      extract(request, nestedField,
+              (std::string(name) + "." + nestedField->GetName()).c_str(),
               ignoreMissingParameters);
     }
   }
@@ -120,16 +122,16 @@ void Request::extract(::Smp::IRequest *request, ::Smp::IField *field,
   }
 }
 void Request::inject(::Smp::IRequest *request, ::Smp::IField *field,
-                     const std::string &name) {
+                     ::Smp::String8 name) {
 
   // simple field
   if (auto const *simple = dynamic_cast<::Smp::ISimpleField *>(field)) {
-    const auto index = request->GetParameterIndex(name.c_str());
+    const auto index = request->GetParameterIndex(name);
     if (index == -1) {
-      ::Xsmp::Exception::throwException(field, name,
-                                        "No Parameter named " + name +
-                                            " in Operation " +
-                                            request->GetOperationName() + ".");
+      ::Xsmp::Exception::throwException(
+          field, name,
+          "No Parameter named " + std::string(name) + " in Operation " +
+              request->GetOperationName() + ".");
     }
     request->SetParameterValue(index, simple->GetValue());
   }
@@ -137,7 +139,8 @@ void Request::inject(::Smp::IRequest *request, ::Smp::IField *field,
   else if (auto const *simpleArray =
                dynamic_cast<::Smp::ISimpleArrayField *>(field)) {
     for (::Smp::UInt64 i = 0, size = simpleArray->GetSize(); i < size; ++i) {
-      const std::string itemName = name + "[" + std::to_string(i) + "]";
+      const std::string itemName =
+          std::string(name) + "[" + std::to_string(i) + "]";
       const auto index = request->GetParameterIndex(itemName.c_str());
       if (index == -1) {
         ::Xsmp::Exception::throwException(
@@ -151,14 +154,16 @@ void Request::inject(::Smp::IRequest *request, ::Smp::IField *field,
   // array field
   else if (auto const *array = dynamic_cast<::Smp::IArrayField *>(field)) {
     for (::Smp::UInt64 i = 0, size = array->GetSize(); i < size; ++i) {
-      inject(request, array->GetItem(i), name + "[" + std::to_string(i) + "]");
+      inject(request, array->GetItem(i),
+             (std::string(name) + "[" + std::to_string(i) + "]").c_str());
     }
   }
   // structure field
   else if (auto const *structure =
                dynamic_cast<::Smp::IStructureField *>(field)) {
     for (auto *nestedField : *structure->GetFields()) {
-      inject(request, nestedField, name + "." + nestedField->GetName());
+      inject(request, nestedField,
+             (std::string(name) + "." + nestedField->GetName()).c_str());
     }
   }
   // should not happen

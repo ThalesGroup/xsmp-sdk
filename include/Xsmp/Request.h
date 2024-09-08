@@ -21,7 +21,6 @@
 #include <Smp/Uuid.h>
 #include <Xsmp/AnySimpleConverter.h>
 #include <Xsmp/Field.h>
-#include <string>
 
 namespace Smp {
 class IComponent;
@@ -35,21 +34,21 @@ namespace Xsmp {
 struct Request {
 private:
   static void setValue(::Smp::IComponent const *component,
-                       ::Smp::IRequest *request, const std::string &name,
+                       ::Smp::IRequest *request, ::Smp::String8 name,
                        const ::Smp::AnySimple &value);
 
   [[nodiscard]] static ::Smp::AnySimple
   getValue(::Smp::IComponent const *component, ::Smp::IRequest const *request,
-           const std::string &name, ::Smp::PrimitiveTypeKind kind,
+           ::Smp::String8 name, ::Smp::PrimitiveTypeKind kind,
            bool useDefaultValue = false);
 
   /// Extract a field value from a request
   static void extract(::Smp::IRequest *request, ::Smp::IField *field,
-                      const std::string &name,
+                      ::Smp::String8 name,
                       bool ignoreMissingParameters = false);
   /// inject a field value in a request
   static void inject(::Smp::IRequest *request, ::Smp::IField *field,
-                     const std::string &name);
+                     ::Smp::String8 name);
 
 public:
   /// Get an input parameter value from a request
@@ -62,7 +61,7 @@ public:
   template <typename T>
   [[nodiscard]] static T
   get(::Smp::IComponent const *component, ::Smp::IRequest const *request,
-      const std::string &name, ::Smp::PrimitiveTypeKind kind) {
+      ::Smp::String8 name, ::Smp::PrimitiveTypeKind kind) {
     return AnySimpleConverter<T>::convert(
         getValue(component, request, name, kind));
   }
@@ -78,7 +77,7 @@ public:
   template <typename T>
   [[nodiscard]] static T
   get(::Smp::IComponent const *component, ::Smp::IRequest const *request,
-      const std::string &name, ::Smp::PrimitiveTypeKind kind, T defaultValue) {
+      ::Smp::String8 name, ::Smp::PrimitiveTypeKind kind, T defaultValue) {
     auto value = getValue(component, request, name, kind, true);
 
     if (value.GetType() == ::Smp::PrimitiveTypeKind::PTK_None) {
@@ -95,9 +94,10 @@ public:
   /// @return the parameter value
   template <typename T, class C>
   [[nodiscard]] static T get(C *component, ::Smp::IRequest *request,
-                             const std::string &name, const ::Smp::Uuid &uuid) {
-    Field<T> parameter{component, uuid, name};
-    extract(request, &parameter, parameter.GetName());
+                             ::Smp::String8 name, const ::Smp::Uuid &uuid) {
+    ::Xsmp::Field<T> parameter{component->GetSimulator()->GetTypeRegistry(),
+                               uuid, name, "", component};
+    extract(request, &parameter, name);
     return parameter;
   }
   /// Get an input parameter value from a request with default value
@@ -105,14 +105,20 @@ public:
   /// @param request the request
   /// @param name the parameter name
   /// @param uuid the type uuid
+  /// @param default_value The default value
   /// @return the parameter value
   template <typename T, class C>
   [[nodiscard]] static T get(C *component, ::Smp::IRequest *request,
-                             const std::string &name, const ::Smp::Uuid &uuid,
+                             ::Smp::String8 name, const ::Smp::Uuid &uuid,
                              const T &default_value) {
-    Field<T> parameter{component, uuid, name};
-    parameter = default_value;
-    extract(request, &parameter, parameter.GetName(), true);
+    ::Xsmp::Field<T> parameter{component->GetSimulator()->GetTypeRegistry(),
+                               uuid,
+                               name,
+                               "",
+                               component,
+                               ::Smp::ViewKind::VK_None,
+                               default_value};
+    extract(request, &parameter, name, true);
     return parameter;
   }
 
@@ -125,7 +131,7 @@ public:
   /// @param value The value
   template <typename T>
   static void set(::Smp::IComponent *component, ::Smp::IRequest *request,
-                  const std::string &name, ::Smp::PrimitiveTypeKind kind,
+                  ::Smp::String8 name, ::Smp::PrimitiveTypeKind kind,
                   const T &value) {
     setValue(component, request, name,
              AnySimpleConverter<T>::convert(kind, value));
@@ -138,12 +144,16 @@ public:
   /// @param uuid The type UUID
   /// @param value The value
   template <typename T, class C>
-  static void set(C *component, ::Smp::IRequest *request,
-                  const std::string &name, const ::Smp::Uuid &uuid,
-                  const T &value) {
-    Field<T> parameter{component, getTypeRegistry(component), uuid, name};
-    parameter = value;
-    inject(request, &parameter, parameter.GetName());
+  static void set(C *component, ::Smp::IRequest *request, ::Smp::String8 name,
+                  const ::Smp::Uuid &uuid, const T &value) {
+    ::Xsmp::Field<T> parameter{component->GetSimulator()->GetTypeRegistry(),
+                               uuid,
+                               name,
+                               "",
+                               component,
+                               ::Smp::ViewKind::VK_None,
+                               value};
+    inject(request, &parameter, name);
   }
 
   /// Set a parameter value in a request
