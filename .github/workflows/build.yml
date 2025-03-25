@@ -66,6 +66,7 @@ jobs:
             - 11
             - 12
             - 13
+            - 14
       steps:
       -  uses: actions/checkout@v4
       -  name: Setup CMake
@@ -104,6 +105,8 @@ jobs:
             - 15
             - 16
             - 17
+            - 18
+            - 19
       steps:
       -  uses: actions/checkout@v4
       -  name: Setup CMake
@@ -154,7 +157,7 @@ jobs:
          fail-fast: false
          matrix:
             os:
-            - ubuntu-latest
+            - ubuntu-22.04
             - macos-13
 #            - windows-latest
             python-version:

@@ -231,7 +231,7 @@ class SimpleConnectableField : public virtual ::Smp::ISimpleField {
 protected:
   SimpleConnectableField();
   void internal_push() const;
-  const ::Smp::FieldCollection *GetInputFields() const;
+  virtual const ::Smp::FieldCollection *GetInputFields() const;
 
 private:
   InputFieldCollection _connectedFields;
@@ -257,7 +257,7 @@ class SimpleArrayConnectableField : public virtual ::Smp::ISimpleArrayField {
 protected:
   SimpleArrayConnectableField();
   void internal_push(::Smp::UInt64 index) const;
-  const ::Smp::FieldCollection *GetInputFields() const;
+  virtual const ::Smp::FieldCollection *GetInputFields() const;
 
 private:
   InputFieldCollection _connectedFields;
@@ -363,7 +363,7 @@ public:
       : AbstractField(name, description, parent, view) {
     if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::failure,
                                              Annotations...>) {
-      this->Failure::Register();
+      this->Register();
     }
   }
 

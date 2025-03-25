@@ -58,7 +58,7 @@ FetchContent_Declare(
 FetchContent_Declare(
     date_src
     GIT_REPOSITORY https://github.com/HowardHinnant/date.git
-    GIT_TAG        1ead6715dec030d340a316c927c877a3c4e5a00c
+    GIT_TAG        v3.0.3
 )
 
 FetchContent_MakeAvailable(ecss_smp date_src)
@@ -292,7 +292,7 @@ if(XSMP_BUILD_PYTHON_BINDINGS)
     FetchContent_Declare(
       pybind11
       GIT_REPOSITORY https://github.com/pybind/pybind11.git
-      GIT_TAG        v2.13.5
+      GIT_TAG        v2.13.6
     )
     FetchContent_MakeAvailable(pybind11)
 
@@ -542,7 +542,7 @@ if(XSMP_BUILD_TESTS AND BUILD_TESTING)
     FetchContent_Declare(
         googletest
         GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG        34ad51b3dc4f922d8ab622491dd44fc2c39afee9
+        GIT_TAG        v1.16.0
     )
     # For Windows: Prevent overriding the parent project's compiler/linker settings
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
