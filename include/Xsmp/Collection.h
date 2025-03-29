@@ -19,9 +19,11 @@
 #include <Smp/IObject.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Exception.h>
+#include <Xsmp/Helper.h>
 #include <Xsmp/Object.h>
 #include <algorithm>
 #include <cstddef>
+#include <cstring>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
@@ -30,11 +32,12 @@
 namespace Xsmp {
 /// XSMP implementation details.
 namespace detail {
-template <typename T> class AbstractCollection : public ::Smp::ICollection<T> {
+
+template <typename T, bool AllowDuplicates = false>
+class AbstractCollection : public ::Smp::ICollection<T> {
 public:
   using const_iterator = typename ::Smp::ICollection<T>::const_iterator;
   using iterator = typename ::Smp::ICollection<T>::iterator;
-
   /// Retrieve element by name
   /// @param name The name of the element to be retrieved.
   /// @return Instance with given name, or nullptr if no such instance exists.
@@ -42,8 +45,13 @@ public:
     if (!name) {
       return nullptr;
     }
-    auto it = _map.find(name);
-    return it == _map.cend() ? nullptr : it->second;
+    auto it = std::find_if(
+        _vector.begin(), _vector.end(),
+        [name](typename std::vector<T *>::const_reference it) {
+          return std::strcmp(name, ::Xsmp::Helper::auto_cast<::Smp::IObject>(it)
+                                       ->GetName()) == 0;
+        });
+    return it == _vector.cend() ? nullptr : *it;
   }
 
   /// Retrieve element by position in the sequence (based on order of
@@ -73,56 +81,62 @@ public:
   /// Add an element to the collection
   /// @param element The element to add to the collection.
   void Add(T *element) {
-    const auto *casted = dynamic_cast<const ::Smp::IObject *>(element);
-    if (!casted) {
-      ::Xsmp::Exception::throwException(
-          this, "InvalidObject", "",
-          "Tried to add an element that is not an ::Smp::IObject");
+    if constexpr (std::is_base_of_v<::Smp::IObject, T>) {
+      if constexpr (!AllowDuplicates) {
+        if (this->at(element->GetName())) {
+          ::Xsmp::Exception::throwDuplicateName(this, element->GetName(), this);
+        }
+      }
+    } else {
+      const auto *casted = dynamic_cast<const ::Smp::IObject *>(element);
+      if (!casted) {
+        ::Xsmp::Exception::throwException(
+            this, "InvalidObject", "",
+            "Tried to add an element that is not an ::Smp::IObject");
+      }
+      if constexpr (!AllowDuplicates) {
+        if (this->at(casted->GetName())) {
+          ::Xsmp::Exception::throwDuplicateName(this, casted->GetName(), this);
+        }
+      }
     }
-    if (this->at(casted->GetName())) {
-      ::Xsmp::Exception::throwDuplicateName(this, casted->GetName(), this);
-    }
-    _map.emplace(casted->GetName(), element);
     _vector.push_back(element);
   }
 
   /// Remove an element from the collection.
   /// @param element The element to be removed from the collection.
-  void Remove(T *element) {
-    const auto *casted = dynamic_cast<const ::Smp::IObject *>(element);
-    if (!casted) {
-      ::Xsmp::Exception::throwException(
-          this, "InvalidObject", "",
-          "Tried to remove an element that is not an ::Smp::IObject");
+  bool Remove(T *element) {
+    if constexpr (!std::is_base_of_v<::Smp::IObject, T>) {
+      if (!dynamic_cast<const ::Smp::IObject *>(element)) {
+        ::Xsmp::Exception::throwException(
+            this, "InvalidObject", "",
+            "Tried to remove an element that is not an ::Smp::IObject");
+      }
     }
 
-    if (auto it = _map.find(casted->GetName()); it != _map.end()) {
-      _map.erase(it);
+    if (const auto it = std::find(_vector.begin(), _vector.end(), element);
+        it != _vector.cend()) {
+      _vector.erase(it);
+      return true;
     }
-    const auto it2 = std::find(_vector.begin(), _vector.end(), element);
-    if (it2 != _vector.cend()) {
-      _vector.erase(it2);
-    }
+    return false;
   }
 
   /// Removes all elements from the collection.
-  void clear() {
-    _vector.clear();
-    _map.clear();
-  }
+  void clear() { _vector.clear(); }
 
 private:
   std::vector<T *> _vector;
-  std::unordered_map<std::string_view, T *> _map;
 };
 } // namespace detail
 
 /// @class Collection
 /// XSMP implementation of ::Smp::ICollection.
 /// The Collection instance does not own the elements it contains.
-template <typename T>
-class Collection final : public ::Xsmp::Object,
-                         public ::Xsmp::detail::AbstractCollection<T> {
+template <typename T, bool AllowDuplicates = false>
+class Collection final
+    : public ::Xsmp::Object,
+      public ::Xsmp::detail::AbstractCollection<T, AllowDuplicates> {
 public:
   using ::Xsmp::Object::Object;
 };
@@ -130,9 +144,11 @@ public:
 /// @class ContainingCollection
 /// XSMP implementation of ::Smp::ICollection.
 /// The Collection instance owns the elements it contains.
-template <typename T>
+template <typename T, bool allowDuplicates = false>
 class ContainingCollection final : public ::Xsmp::Object,
                                    public ::Smp::ICollection<T> {
+  static_assert(std::is_base_of_v<::Smp::IObject, T>);
+
 public:
   using ::Xsmp::Object::Object;
 
@@ -146,8 +162,13 @@ public:
     if (!name) {
       return nullptr;
     }
-    auto it = _map.find(name);
-    return it == _map.cend() ? nullptr : it->second.get();
+    auto it = std::find_if(
+        _vector.begin(), _vector.end(), [name](const std::unique_ptr<T> &it) {
+          return std::strcmp(name,
+                             ::Xsmp::Helper::auto_cast<::Smp::IObject>(it.get())
+                                 ->GetName()) == 0;
+        });
+    return it == _vector.cend() ? nullptr : it->get();
   }
 
   /// Retrieve element by position in the sequence (based on order of
@@ -155,7 +176,7 @@ public:
   /// @param index The position of the elment to be retrieved.
   /// @return Instance at given index, or nullptr if no instance exists.
   T *at(size_t index) const override {
-    return (index < _vector.size() ? _vector[index] : nullptr);
+    return (index < _vector.size() ? _vector[index].get() : nullptr);
   }
 
   /// Get the number of objects in the sequence.
@@ -188,52 +209,35 @@ public:
   /// @param element A unique pointer to the element to be added
   /// @return A raw pointer to the added element
   template <typename U> U *Add(std::unique_ptr<U> element) {
-
+    if constexpr (!allowDuplicates) {
+      if (this->at(element->GetName())) {
+        ::Xsmp::Exception::throwDuplicateName(this, element->GetName(), this);
+      }
+    }
     auto *raw = element.get();
-    const auto *casted = dynamic_cast<const ::Smp::IObject *>(raw);
-    if (!casted) {
-      ::Xsmp::Exception::throwException(
-          this, "InvalidObject", "",
-          "Tried to add an element that is not an ::Smp::IObject");
-    }
-    if (this->at(casted->GetName())) {
-      ::Xsmp::Exception::throwDuplicateName(this, casted->GetName(), this);
-    }
-
-    _vector.push_back(raw);
-    _map.emplace(casted->GetName(), std::move(element));
+    _vector.emplace_back(std::move(element));
     return raw;
   }
 
   /// Remove an element from the collection.
   /// @param element The element to be removed from the collection.
-  void Remove(T *element) {
-    const auto *casted = dynamic_cast<const ::Smp::IObject *>(element);
-    if (!casted) {
-      ::Xsmp::Exception::throwException(
-          this, "InvalidObject", "",
-          "Tried to remove an element that is not an ::Smp::IObject");
-    }
-
-    if (auto it = _map.find(casted->GetName()); it != _map.end()) {
-      _map.erase(it);
-    }
-
-    if (auto it = std::find(_vector.begin(), _vector.end(), element);
-        it != _vector.end()) {
+  bool Remove(T *element) {
+    auto it = std::find_if(_vector.begin(), _vector.end(),
+                           [element](const std::unique_ptr<T> &it) {
+                             return element == it.get();
+                           });
+    if (it != _vector.end()) {
       _vector.erase(it);
+      return true;
     }
+    return false;
   }
 
   /// Removes all elements from the collection.
-  void clear() {
-    _vector.clear();
-    _map.clear();
-  }
+  void clear() { _vector.clear(); }
 
 private:
-  std::vector<T *> _vector;
-  std::unordered_map<std::string_view, std::unique_ptr<T>> _map;
+  std::vector<std::unique_ptr<T>> _vector;
 };
 
 /// @class DelegateCollection
@@ -241,8 +245,9 @@ private:
 /// The Collection instance does not own the elements it contains.
 /// The Collection contains its own elements and delegates to another
 /// collection for other elements.
-template <typename T>
-class DelegateCollection final : public ::Xsmp::detail::AbstractCollection<T> {
+template <typename T, bool AllowDuplicates = false>
+class DelegateCollection final
+    : public ::Xsmp::detail::AbstractCollection<T, AllowDuplicates> {
 public:
   using const_iterator = typename ::Smp::ICollection<T>::const_iterator;
   using iterator = typename ::Smp::ICollection<T>::iterator;

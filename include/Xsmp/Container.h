@@ -19,6 +19,7 @@
 #include <Smp/IContainer.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Exception.h>
+#include <Xsmp/Helper.h>
 #include <Xsmp/cstring.h>
 #include <algorithm>
 #include <cstddef>
@@ -240,7 +241,7 @@ public:
   ::Smp::IComponent *GetComponent(::Smp::String8 name) const override {
     if (name) {
       if (auto it = find(name); it != end()) {
-        return dynamic_cast<::Smp::IComponent *>(*it);
+        return ::Xsmp::Helper::auto_cast<::Smp::IComponent>(*it);
       }
     }
     return nullptr;
@@ -254,7 +255,7 @@ public:
   ///          given index exists.
   ::Smp::IComponent *GetComponent(size_t index) const override {
     if (index < size()) {
-      return dynamic_cast<::Smp::IComponent *>(_vector[index]);
+      return ::Xsmp::Helper::auto_cast<::Smp::IComponent>(_vector[index]);
     }
     return nullptr;
   }
@@ -272,9 +273,9 @@ public:
   /// @throws  Smp::DuplicateName
   /// @throws  Smp::InvalidObjectType
   void AddComponent(::Smp::IComponent *component) override {
-    AbstractContainer::AddComponent(component);
     // check that the component type can be casted to T
     if (auto *casted = dynamic_cast<T *>(component)) {
+      AbstractContainer::AddComponent(component);
       _vector.emplace_back(casted);
     } else {
       ::Xsmp::Exception::throwInvalidObjectType<T>(this, component);
@@ -365,7 +366,8 @@ public:
   /// @return the iterator
   iterator find(std::string_view name) {
     return std::find_if(_vector.begin(), _vector.end(), [name](reference it) {
-      return name == dynamic_cast<::Smp::IComponent *>(it)->GetName();
+      return name ==
+             ::Xsmp::Helper::auto_cast<::Smp::IComponent>(it)->GetName();
     });
   }
   /// Find an element
@@ -380,7 +382,8 @@ public:
   const_iterator find(std::string_view name) const {
     return std::find_if(
         _vector.begin(), _vector.end(), [name](const_reference it) {
-          return name == dynamic_cast<const ::Smp::IComponent *>(it)->GetName();
+          return name ==
+                 ::Xsmp::Helper::auto_cast<::Smp::IComponent>(it)->GetName();
         });
   }
   /// Find an element

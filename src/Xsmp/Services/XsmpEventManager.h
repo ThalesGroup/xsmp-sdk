@@ -19,6 +19,7 @@
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Services/EventId.h>
 #include <Xsmp/Services/XsmpEventManagerGen.h>
+#include <Xsmp/ThreadSafeData.h>
 #include <mutex>
 #include <string>
 #include <unordered_map>
@@ -110,15 +111,17 @@ public:
 
 private:
   friend class ::Xsmp::Component::Helper;
-  std::mutex _eventsMutex;
-  std::unordered_map<std::string, ::Smp::Services::EventId> _events;
 
-  mutable std::mutex _idsMutex;
-  std::unordered_map<::Smp::Services::EventId, const std::string &> _ids;
+  Xsmp::ThreadSafeData<
+      std::unordered_map<std::string, ::Smp::Services::EventId>>
+      _events;
 
-  std::mutex _subscriptionsMutex;
-  std::unordered_map<::Smp::Services::EventId,
-                     std::vector<const ::Smp::IEntryPoint *>>
+  Xsmp::ThreadSafeData<
+      std::unordered_map<::Smp::Services::EventId, const std::string &>>
+      _ids;
+
+  Xsmp::ThreadSafeData<std::unordered_map<
+      ::Smp::Services::EventId, std::vector<const ::Smp::IEntryPoint *>>>
       _subscriptions;
 
   const std::string &GetEventName(::Smp::Services::EventId event) const;

@@ -41,7 +41,7 @@ template <typename K, typename Alloc> struct Helper<std::vector<K, Alloc>> {
     for (size_type i = 0; i < size; ++i) {
       K k;
       ::Xsmp::Persist::Restore(simulator, reader, k);
-      value.push_back(k);
+      value.push_back(std::move(k));
     }
   }
 };

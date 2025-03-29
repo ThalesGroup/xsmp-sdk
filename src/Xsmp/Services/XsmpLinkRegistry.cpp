@@ -26,12 +26,14 @@ void XsmpLinkRegistry::AddLink(::Smp::IComponent *source,
 
   auto key = std::make_pair(source, target);
 
-  const std::scoped_lock lck{_linksMutex};
-  auto it = _links.find(key);
-  if (it == _links.end()) {
-    _links.try_emplace(key, 1);
-    const std::scoped_lock lck2{_targetsMutex};
-    _targets.try_emplace(target, "Links", "", this).first->second.Add(source);
+  auto linksAccess = _links.write();
+  auto it = linksAccess.get().find(key);
+  if (it == linksAccess.get().end()) {
+    linksAccess.get().try_emplace(key, 1);
+    _targets.write()
+        .get()
+        .try_emplace(target, "Links", "", this)
+        .first->second.Add(source);
   } else {
     ++it->second;
   }
@@ -40,10 +42,9 @@ void XsmpLinkRegistry::AddLink(::Smp::IComponent *source,
 ::Smp::UInt32
 XsmpLinkRegistry::GetLinkCount(const ::Smp::IComponent *source,
                                const ::Smp::IComponent *target) const {
-
-  const std::scoped_lock lck{_linksMutex};
-  if (auto it = _links.find(std::make_pair(source, target));
-      it != _links.cend()) {
+  auto linksAccess = _links.read();
+  if (auto it = linksAccess.get().find(std::make_pair(source, target));
+      it != linksAccess.get().cend()) {
     return it->second;
   }
   return 0;
@@ -52,18 +53,18 @@ XsmpLinkRegistry::GetLinkCount(const ::Smp::IComponent *source,
 ::Smp::Bool XsmpLinkRegistry::RemoveLink(::Smp::IComponent *source,
                                          const ::Smp::IComponent *target) {
   auto key = std::make_pair(source, target);
-  std::unique_lock lck{_linksMutex};
-  auto it = _links.find(key);
-  if (it == _links.end()) {
+  auto linksAccess = _links.write();
+  auto it = linksAccess.get().find(key);
+  if (it == linksAccess.get().end()) {
     return false;
   }
   it->second--;
   if (it->second == 0) {
-    _links.erase(it);
-    lck.unlock();
-    const std::scoped_lock lck2{_targetsMutex};
-    auto it2 = _targets.find(target);
-    if (it2 != _targets.end()) {
+    linksAccess.get().erase(it);
+    linksAccess.unlock();
+    auto targetsAccess = _targets.write();
+    auto it2 = targetsAccess.get().find(target);
+    if (it2 != targetsAccess.get().end()) {
       it2->second.Remove(source);
     }
   }
@@ -74,12 +75,16 @@ XsmpLinkRegistry::GetLinkCount(const ::Smp::IComponent *source,
 const ::Smp::ComponentCollection *
 XsmpLinkRegistry::GetLinkSources(const ::Smp::IComponent *target) const {
 
-  const std::scoped_lock lck{_targetsMutex};
+  auto targetAccess = _targets.read();
 
-  if (auto it = _targets.find(target); it != _targets.end()) {
+  if (auto it = targetAccess.get().find(target);
+      it != targetAccess.get().end()) {
     return &it->second;
   }
-  return &_targets
+  targetAccess.unlock();
+
+  return &_targets.write()
+              .get()
               .try_emplace(target, "Links", "",
                            const_cast<XsmpLinkRegistry *>(this))
               .first->second;
@@ -87,9 +92,10 @@ XsmpLinkRegistry::GetLinkSources(const ::Smp::IComponent *target) const {
 
 ::Smp::Bool XsmpLinkRegistry::CanRemove(const ::Smp::IComponent *target) {
 
-  const std::scoped_lock lck{_targetsMutex};
+  auto targetAccess = _targets.read();
 
-  if (auto it = _targets.find(target); it != _targets.end()) {
+  if (auto it = targetAccess.get().find(target);
+      it != targetAccess.get().end()) {
     for (auto *source : it->second) {
       if (!dynamic_cast<::Smp::ILinkingComponent *>(source)) {
         return false;
@@ -100,13 +106,14 @@ XsmpLinkRegistry::GetLinkSources(const ::Smp::IComponent *target) const {
 }
 
 void XsmpLinkRegistry::RemoveLinks(const ::Smp::IComponent *target) {
-  std::unique_lock lck{_targetsMutex};
-  if (auto it = _targets.find(target); it != _targets.end()) {
+  auto targetAccess = _targets.read();
+  if (auto it = targetAccess.get().find(target);
+      it != targetAccess.get().end()) {
     for (auto *source : it->second) {
       if (auto *cmp = dynamic_cast<::Smp::ILinkingComponent *>(source)) {
-        lck.unlock();
+        targetAccess.unlock();
         cmp->RemoveLinks(target);
-        lck.lock();
+        targetAccess.lock();
       }
     }
   }

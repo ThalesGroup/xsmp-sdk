@@ -43,6 +43,17 @@ namespace Xsmp::
     /// XSMP helpers.
     Helper {
 
+template <typename T, typename U>
+constexpr auto auto_cast(U *element)
+    -> std::conditional_t<std::is_const_v<U>, const T *, T *> {
+  if constexpr (std::is_base_of_v<T, U>) {
+    return element;
+  } else {
+    return dynamic_cast<std::conditional_t<std::is_const_v<U>, const T *, T *>>(
+        element);
+  }
+}
+
 /// Execute an EntryPoint.
 /// If an exception is raised by the entry point, the Simulation
 /// is aborted and the exception is logged.

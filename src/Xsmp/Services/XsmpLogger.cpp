@@ -563,16 +563,21 @@ XsmpLogger::QueryLogMessageKind(::Smp::String8 messageKindName) {
   // we do not expect to call this method too often and to have many different
   // kinds of msg
 
-  if (auto it = std::find(_logMessageKinds.begin(), _logMessageKinds.end(),
-                          messageKindName);
-      it != _logMessageKinds.end()) {
+  auto msgKindAccess = _logMessageKinds.read();
+  if (auto it = std::find(msgKindAccess.get().begin(),
+                          msgKindAccess.get().end(), messageKindName);
+      it != msgKindAccess.get().end()) {
     return static_cast<::Smp::Services::LogMessageKind>(
-        it - _logMessageKinds.begin());
+        it - msgKindAccess.get().begin());
   }
+  // release read access
+  msgKindAccess.unlock();
+  // create write access
+  auto msgKindAccessWrite = _logMessageKinds.write();
   // the kind is a direct cast from UInt32 to ::Smp::Services::LogMessageKind
-  auto kind =
-      static_cast<::Smp::Services::LogMessageKind>(_logMessageKinds.size());
-  _logMessageKinds.emplace_back(messageKindName);
+  auto kind = static_cast<::Smp::Services::LogMessageKind>(
+      msgKindAccessWrite.get().size());
+  msgKindAccessWrite.get().emplace_back(messageKindName);
   return kind;
 }
 
@@ -583,9 +588,11 @@ void XsmpLogger::Log(const ::Smp::IObject *sender, ::Smp::String8 message,
   // the index is a direct cast from ::Smp::Services::LogMessageKind to
   // ::Smp::UInt32
   auto index = static_cast<::Smp::UInt32>(kind);
-  const auto &msgKind = index < _logMessageKinds.size()
-                            ? _logMessageKinds[index]
+  auto msgKindAccess = _logMessageKinds.read();
+  const auto &msgKind = index < msgKindAccess.get().size()
+                            ? msgKindAccess.get()[index]
                             : "<unknown: " + std::to_string(kind) + ">";
+  msgKindAccess.unlock();
 
   if (GetSimulator() && GetSimulator()->GetTimeKeeper()) {
     auto const *tk = GetSimulator()->GetTimeKeeper();
@@ -600,11 +607,13 @@ void XsmpLogger::Log(const ::Smp::IObject *sender, ::Smp::String8 message,
 }
 
 void XsmpLogger::Restore(::Smp::IStorageReader *reader) {
-  ::Xsmp::Persist::Restore(GetSimulator(), this, reader, _logMessageKinds);
+  ::Xsmp::Persist::Restore(GetSimulator(), this, reader,
+                           _logMessageKinds.write().get());
 }
 
 void XsmpLogger::Store(::Smp::IStorageWriter *writer) {
-  ::Xsmp::Persist::Store(GetSimulator(), this, writer, _logMessageKinds);
+  ::Xsmp::Persist::Store(GetSimulator(), this, writer,
+                         _logMessageKinds.read().get());
 }
 
 } // namespace Xsmp::Services

@@ -44,47 +44,49 @@ XsmpEventManager::XsmpEventManager(::Smp::String8 name,
     : XsmpEventManagerGen::XsmpEventManagerGen(name, description, parent,
                                                simulator) {
 
-  _events.try_emplace(IEventManager::SMP_LeaveConnecting,
-                      IEventManager::SMP_LeaveConnectingId);
-  _events.try_emplace(IEventManager::SMP_EnterInitialising,
-                      IEventManager::SMP_EnterInitialisingId);
-  _events.try_emplace(IEventManager::SMP_LeaveInitialising,
-                      IEventManager::SMP_LeaveInitialisingId);
-  _events.try_emplace(IEventManager::SMP_EnterStandby,
-                      IEventManager::SMP_EnterStandbyId);
-  _events.try_emplace(IEventManager::SMP_LeaveStandby,
-                      IEventManager::SMP_LeaveStandbyId);
-  _events.try_emplace(IEventManager::SMP_EnterExecuting,
-                      IEventManager::SMP_EnterExecutingId);
-  _events.try_emplace(IEventManager::SMP_LeaveExecuting,
-                      IEventManager::SMP_LeaveExecutingId);
-  _events.try_emplace(IEventManager::SMP_EnterStoring,
-                      IEventManager::SMP_EnterStoringId);
-  _events.try_emplace(IEventManager::SMP_LeaveStoring,
-                      IEventManager::SMP_LeaveStoringId);
-  _events.try_emplace(IEventManager::SMP_EnterRestoring,
-                      IEventManager::SMP_EnterRestoringId);
-  _events.try_emplace(IEventManager::SMP_LeaveRestoring,
-                      IEventManager::SMP_LeaveRestoringId);
-  _events.try_emplace(IEventManager::SMP_EnterExiting,
-                      IEventManager::SMP_EnterExitingId);
-  _events.try_emplace(IEventManager::SMP_EnterAborting,
-                      IEventManager::SMP_EnterAbortingId);
-  _events.try_emplace(IEventManager::SMP_EpochTimeChanged,
-                      IEventManager::SMP_EpochTimeChangedId);
-  _events.try_emplace(IEventManager::SMP_MissionTimeChanged,
-                      IEventManager::SMP_MissionTimeChangedId);
-  _events.try_emplace(IEventManager::SMP_EnterReconnecting,
-                      IEventManager::SMP_EnterReconnectingId);
-  _events.try_emplace(IEventManager::SMP_LeaveReconnecting,
-                      IEventManager::SMP_LeaveReconnectingId);
-  _events.try_emplace(IEventManager::SMP_PreSimTimeChange,
-                      IEventManager::SMP_PreSimTimeChangeId);
-  _events.try_emplace(IEventManager::SMP_PostSimTimeChange,
-                      IEventManager::SMP_PostSimTimeChangeId);
+  auto eventsAccess = _events.write();
+  eventsAccess.get().try_emplace(IEventManager::SMP_LeaveConnecting,
+                                 IEventManager::SMP_LeaveConnectingId);
+  eventsAccess.get().try_emplace(IEventManager::SMP_EnterInitialising,
+                                 IEventManager::SMP_EnterInitialisingId);
+  eventsAccess.get().try_emplace(IEventManager::SMP_LeaveInitialising,
+                                 IEventManager::SMP_LeaveInitialisingId);
+  eventsAccess.get().try_emplace(IEventManager::SMP_EnterStandby,
+                                 IEventManager::SMP_EnterStandbyId);
+  eventsAccess.get().try_emplace(IEventManager::SMP_LeaveStandby,
+                                 IEventManager::SMP_LeaveStandbyId);
+  eventsAccess.get().try_emplace(IEventManager::SMP_EnterExecuting,
+                                 IEventManager::SMP_EnterExecutingId);
+  eventsAccess.get().try_emplace(IEventManager::SMP_LeaveExecuting,
+                                 IEventManager::SMP_LeaveExecutingId);
+  eventsAccess.get().try_emplace(IEventManager::SMP_EnterStoring,
+                                 IEventManager::SMP_EnterStoringId);
+  eventsAccess.get().try_emplace(IEventManager::SMP_LeaveStoring,
+                                 IEventManager::SMP_LeaveStoringId);
+  eventsAccess.get().try_emplace(IEventManager::SMP_EnterRestoring,
+                                 IEventManager::SMP_EnterRestoringId);
+  eventsAccess.get().try_emplace(IEventManager::SMP_LeaveRestoring,
+                                 IEventManager::SMP_LeaveRestoringId);
+  eventsAccess.get().try_emplace(IEventManager::SMP_EnterExiting,
+                                 IEventManager::SMP_EnterExitingId);
+  eventsAccess.get().try_emplace(IEventManager::SMP_EnterAborting,
+                                 IEventManager::SMP_EnterAbortingId);
+  eventsAccess.get().try_emplace(IEventManager::SMP_EpochTimeChanged,
+                                 IEventManager::SMP_EpochTimeChangedId);
+  eventsAccess.get().try_emplace(IEventManager::SMP_MissionTimeChanged,
+                                 IEventManager::SMP_MissionTimeChangedId);
+  eventsAccess.get().try_emplace(IEventManager::SMP_EnterReconnecting,
+                                 IEventManager::SMP_EnterReconnectingId);
+  eventsAccess.get().try_emplace(IEventManager::SMP_LeaveReconnecting,
+                                 IEventManager::SMP_LeaveReconnectingId);
+  eventsAccess.get().try_emplace(IEventManager::SMP_PreSimTimeChange,
+                                 IEventManager::SMP_PreSimTimeChangeId);
+  eventsAccess.get().try_emplace(IEventManager::SMP_PostSimTimeChange,
+                                 IEventManager::SMP_PostSimTimeChangeId);
 
-  for (const auto &[eventName, id] : _events) {
-    _ids.try_emplace(id, eventName);
+  auto idsAccess = _ids.write();
+  for (const auto &[eventName, id] : eventsAccess.get()) {
+    idsAccess.get().try_emplace(id, eventName);
   }
 }
 
@@ -93,27 +95,28 @@ XsmpEventManager::QueryEventId(::Smp::String8 eventName) {
   if (!eventName || eventName[0] == '\0') {
     ::Xsmp::Exception::throwInvalidEventName(this, eventName);
   }
-  const std::scoped_lock lck{_eventsMutex};
+  auto eventsAccess = _events.write();
 
-  if (auto it = _events.find(eventName); it != _events.end()) {
+  if (auto it = eventsAccess.get().find(eventName);
+      it != eventsAccess.get().end()) {
     return it->second;
   }
 
-  auto eventId = static_cast<::Smp::Services::EventId>(_events.size() + 1);
+  auto eventId =
+      static_cast<::Smp::Services::EventId>(eventsAccess.get().size() + 1);
 
-  const auto &name = _events.try_emplace(eventName, eventId).first->first;
-
-  const std::scoped_lock lck2{_idsMutex};
-  _ids.try_emplace(eventId, name);
-
+  const auto &name =
+      eventsAccess.get().try_emplace(eventName, eventId).first->first;
+  eventsAccess.unlock();
+  _ids.write().get().try_emplace(eventId, name);
   return eventId;
 }
 
 const std::string &
 XsmpEventManager::GetEventName(::Smp::Services::EventId event) const {
-  const std::scoped_lock lck{_idsMutex};
-  auto it = _ids.find(event);
-  if (it == _ids.end()) {
+  auto idsAccess = _ids.read();
+  auto it = idsAccess.get().find(event);
+  if (it == idsAccess.get().end()) {
     ::Xsmp::Exception::throwInvalidEventId(this, event);
   }
   return it->second;
@@ -124,9 +127,9 @@ void XsmpEventManager::Subscribe(::Smp::Services::EventId event,
 
   const auto &event_name = GetEventName(event);
   {
-    const std::scoped_lock lck{_subscriptionsMutex};
-
-    if (auto it = _subscriptions.find(event); it != _subscriptions.end()) {
+    auto subscriptionAccess = _subscriptions.write();
+    if (auto it = subscriptionAccess.get().find(event);
+        it != subscriptionAccess.get().end()) {
       auto &entryPoints = it->second;
 
       if (std::find(entryPoints.begin(), entryPoints.end(), entryPoint) !=
@@ -136,7 +139,7 @@ void XsmpEventManager::Subscribe(::Smp::Services::EventId event,
       }
       entryPoints.push_back(entryPoint);
     } else {
-      _subscriptions.try_emplace(
+      subscriptionAccess.get().try_emplace(
           event, std::vector<const ::Smp::IEntryPoint *>{entryPoint});
     }
   }
@@ -154,12 +157,11 @@ void XsmpEventManager::Unsubscribe(::Smp::Services::EventId event,
 
   const auto &event_name = GetEventName(event);
 
-  const std::scoped_lock lck{_subscriptionsMutex};
-
-  if (auto it = _subscriptions.find(event); it != _subscriptions.end()) {
+  auto subscriptionAccess = _subscriptions.write();
+  if (auto it = subscriptionAccess.get().find(event);
+      it != subscriptionAccess.get().end()) {
 
     auto &entryPoints = it->second;
-
     auto it2 = std::find(entryPoints.begin(), entryPoints.end(), entryPoint);
     if (it2 != entryPoints.end()) {
       entryPoints.erase(it2);
@@ -184,14 +186,12 @@ void XsmpEventManager::Emit(::Smp::Services::EventId event,
   if (auto *logger = GetSimulator()->GetLogger()) {
     logger->Log(this, event_name.c_str(), ::Smp::Services::ILogger::LMK_Event);
   }
-  std::unique_lock lck{_subscriptionsMutex};
-
-  if (auto it = _subscriptions.find(event); it != _subscriptions.end()) {
+  auto subscriptionAccess = _subscriptions.read();
+  if (auto it = subscriptionAccess.get().find(event);
+      it != subscriptionAccess.get().end()) {
     // copy the entrypoints
     auto entryPoints = it->second;
-    lck.unlock();
-    // sync mode
-
+    subscriptionAccess.unlock();
     for (const auto *entry_point : entryPoints) {
       ::Xsmp::Helper::SafeExecute(GetSimulator(), entry_point);
     }
@@ -199,17 +199,19 @@ void XsmpEventManager::Emit(::Smp::Services::EventId event,
 }
 
 void XsmpEventManager::Restore(::Smp::IStorageReader *reader) {
-  ::Xsmp::Persist::Restore(GetSimulator(), this, reader, _events,
-                           _subscriptions);
+  ::Xsmp::Persist::Restore(GetSimulator(), this, reader, _events.write().get(),
+                           _subscriptions.write().get());
   // rebuild _ids map from _events
-  _ids.clear();
-  for (const auto &[name, id] : _events) {
-    _ids.try_emplace(id, name);
+  auto idsAccess = _ids.write();
+  idsAccess.get().clear();
+  for (const auto &[name, id] : _events.read().get()) {
+    idsAccess.get().try_emplace(id, name);
   }
 }
 
 void XsmpEventManager::Store(::Smp::IStorageWriter *writer) {
-  ::Xsmp::Persist::Store(GetSimulator(), this, writer, _events, _subscriptions);
+  ::Xsmp::Persist::Store(GetSimulator(), this, writer, _events.read().get(),
+                         _subscriptions.read().get());
 }
 
 } // namespace Xsmp::Services

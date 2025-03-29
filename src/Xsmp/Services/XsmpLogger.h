@@ -18,6 +18,7 @@
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Services/LogMessageKind.h>
 #include <Xsmp/Services/XsmpLoggerGen.h>
+#include <Xsmp/ThreadSafeData.h>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -76,9 +77,9 @@ private:
   friend class ::Xsmp::Component::Helper;
 
   // init pre-defined kinds: keep ordered
-  std::vector<std::string> _logMessageKinds{LMK_InformationName, LMK_EventName,
-                                            LMK_WarningName, LMK_ErrorName,
-                                            LMK_DebugName};
+  Xsmp::ThreadSafeData<std::vector<std::string>> _logMessageKinds{
+      std::vector<std::string>{LMK_InformationName, LMK_EventName,
+                               LMK_WarningName, LMK_ErrorName, LMK_DebugName}};
   std::mutex _mutex;
   std::unique_ptr<LoggerProcessor> _processor;
 };

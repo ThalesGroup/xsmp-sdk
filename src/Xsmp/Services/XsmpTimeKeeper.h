@@ -19,6 +19,7 @@
 #include <Xsmp/Services/XsmpTimeKeeperGen.h>
 #include <atomic>
 #include <mutex>
+#include <Xsmp/ThreadSafeData.h>
 
 // ----------------------------------------------------------------------------
 // ------------------------ Types and Interfaces ------------------------
@@ -129,10 +130,10 @@ public:
 
 private:
   friend class ::Xsmp::Component::Helper;
-  mutable std::mutex _mutex;
-  ::Smp::Duration _simulationTime{};
-  ::Smp::DateTime _missionStartTime{};
-  ::Smp::DateTime _epochStart{};
+
+  Xsmp::ThreadSafeData<::Smp::Duration> _simulationTime{};
+  Xsmp::ThreadSafeData<::Smp::DateTime> _missionStartTime{};
+  Xsmp::ThreadSafeData<::Smp::DateTime> _epochStart{};
   std::atomic_bool _simTimeChanging{};
   void DoConnect(const ::Smp::ISimulator *simulator) const;
 };

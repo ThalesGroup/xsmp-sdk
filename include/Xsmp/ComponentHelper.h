@@ -27,15 +27,16 @@ namespace Xsmp {
 
 class Component::Helper {
 public:
-  template <typename T>
-  static void Publish(Component *cmp, ::Smp::IPublication *receiver) {
+  template <typename T, typename U>
+  static void Publish(U *cmp, ::Smp::IPublication *receiver) {
+    static_assert(std::is_base_of_v<U, T>);
     if constexpr (hasDoPublish<T>::value) {
 
       if constexpr (std::is_invocable_v<decltype(&T::DoPublish), T *,
                                         ::Smp::IPublication *>) {
-        dynamic_cast<T *>(cmp)->DoPublish(receiver);
+        static_cast<T *>(cmp)->DoPublish(receiver);
       } else if constexpr (std::is_invocable_v<decltype(&T::DoPublish), T *>) {
-        dynamic_cast<T *>(cmp)->DoPublish();
+        static_cast<T *>(cmp)->DoPublish();
       }
       static_assert(std::is_invocable_v<decltype(&T::DoPublish), T *,
                                         ::Smp::IPublication *> ||
@@ -44,26 +45,27 @@ public:
                     "DoPublish(Smp::IPublication*)' or 'void DoPublish()'.");
     }
   }
-  template <typename T>
-  static void Configure(Component *cmp, ::Smp::Services::ILogger *logger,
+  template <typename T, typename U>
+  static void Configure(U *cmp, ::Smp::Services::ILogger *logger,
                         ::Smp::Services::ILinkRegistry *linkRegistry) {
+    static_assert(std::is_base_of_v<U, T>);
     if constexpr (hasDoConfigure<T>::value) {
-      dynamic_cast<T *>(cmp)->DoConfigure(logger, linkRegistry);
+      static_cast<T *>(cmp)->DoConfigure(logger, linkRegistry);
 
       if constexpr (std::is_invocable_v<decltype(&T::DoConfigure), T *,
                                         ::Smp::Services::ILogger *,
                                         ::Smp::Services::ILinkRegistry *>) {
-        dynamic_cast<T *>(cmp)->DoConfigure(logger, linkRegistry);
+        static_cast<T *>(cmp)->DoConfigure(logger, linkRegistry);
       } else if constexpr (std::is_invocable_v<decltype(&T::DoConfigure), T *,
                                                ::Smp::Services::ILogger *>) {
-        dynamic_cast<T *>(cmp)->DoConfigure(logger);
+        static_cast<T *>(cmp)->DoConfigure(logger);
       } else if constexpr (std::is_invocable_v<
                                decltype(&T::DoConfigure), T *,
                                ::Smp::Services::ILinkRegistry *>) {
-        dynamic_cast<T *>(cmp)->DoConfigure(linkRegistry);
+        static_cast<T *>(cmp)->DoConfigure(linkRegistry);
       } else if constexpr (std::is_invocable_v<decltype(&T::DoConfigure),
                                                T *>) {
-        dynamic_cast<T *>(cmp)->DoConfigure();
+        static_cast<T *>(cmp)->DoConfigure();
       }
       static_assert(std::is_invocable_v<decltype(&T::DoConfigure), T *,
                                         ::Smp::Services::ILogger *,
@@ -82,14 +84,15 @@ public:
     }
   }
 
-  template <typename T>
-  static void Connect(Component *cmp, ::Smp::ISimulator *simulator) {
+  template <typename T, typename U>
+  static void Connect(U *cmp, ::Smp::ISimulator *simulator) {
+    static_assert(std::is_base_of_v<U, T>);
     if constexpr (hasDoConnect<T>::value) {
       if constexpr (std::is_invocable_v<decltype(&T::DoConnect), T *,
                                         ::Smp::ISimulator *>) {
-        dynamic_cast<T *>(cmp)->DoConnect(simulator);
+        static_cast<T *>(cmp)->DoConnect(simulator);
       } else if constexpr (std::is_invocable_v<decltype(&T::DoConnect), T *>) {
-        dynamic_cast<T *>(cmp)->DoConnect();
+        static_cast<T *>(cmp)->DoConnect();
       }
       static_assert(std::is_invocable_v<decltype(&T::DoConnect), T *,
                                         ::Smp::ISimulator *> ||
@@ -99,10 +102,11 @@ public:
     }
   }
 
-  template <typename T> static void Disconnect(Component *cmp) {
+  template <typename T, typename U> static void Disconnect(U *cmp) {
+    static_assert(std::is_base_of_v<U, T>);
     if constexpr (hasDoDisconnect<T>::value) {
       if constexpr (std::is_invocable_v<decltype(&T::DoDisconnect), T *>) {
-        dynamic_cast<T *>(cmp)->DoDisconnect();
+        static_cast<T *>(cmp)->DoDisconnect();
       }
       static_assert(std::is_invocable_v<decltype(&T::DoDisconnect), T *>,
                     "DoDisconnect has an invalid signature. Expecting 'void "

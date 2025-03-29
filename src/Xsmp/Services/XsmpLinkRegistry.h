@@ -19,6 +19,7 @@
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Collection.h>
 #include <Xsmp/Services/XsmpLinkRegistryGen.h>
+#include <Xsmp/ThreadSafeData.h>
 #include <map>
 #include <mutex>
 #include <utility>
@@ -122,14 +123,13 @@ public:
 
 private:
   friend class ::Xsmp::Component::Helper;
-  mutable std::mutex _linksMutex;
-  std::map<std::pair<const ::Smp::IComponent *, const ::Smp::IComponent *>,
-           ::Smp::UInt32>
+  Xsmp::ThreadSafeData<
+      std::map<std::pair<const ::Smp::IComponent *, const ::Smp::IComponent *>,
+               ::Smp::UInt32>>
       _links;
 
-  mutable std::mutex _targetsMutex;
-  mutable std::map<const ::Smp::IComponent *,
-                   ::Xsmp::Collection<::Smp::IComponent>>
+  mutable Xsmp::ThreadSafeData<std::map<const ::Smp::IComponent *,
+                                        ::Xsmp::Collection<::Smp::IComponent>>>
       _targets;
 };
 } // namespace Xsmp::Services
