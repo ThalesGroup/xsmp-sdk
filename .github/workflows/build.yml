@@ -32,7 +32,7 @@ jobs:
             - '3.28'
             - latest
       steps:
-      -  uses: actions/checkout@v4
+      -  uses: actions/checkout@v5
       -  name: Get CMake ${{matrix.cmake_version}} and Ninja
          uses: lukka/get-cmake@latest
          with:
@@ -68,7 +68,7 @@ jobs:
             - 13
             - 14
       steps:
-      -  uses: actions/checkout@v4
+      -  uses: actions/checkout@v5
       -  name: Setup CMake
          uses: lukka/get-cmake@latest
       -  name: Add Git & Python3
@@ -108,7 +108,7 @@ jobs:
             - 18
             - 19
       steps:
-      -  uses: actions/checkout@v4
+      -  uses: actions/checkout@v5
       -  name: Setup CMake
          uses: lukka/get-cmake@latest
       -  name: Add Git & Python3
@@ -133,7 +133,7 @@ jobs:
             - windows-2022
             - windows-latest
       steps:
-      -  uses: actions/checkout@v4
+      -  uses: actions/checkout@v5
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -168,7 +168,7 @@ jobs:
             - '3.12'
             - '3.13'
       steps:
-      -  uses: actions/checkout@v4
+      -  uses: actions/checkout@v5
       -  uses: actions/setup-python@v5
          with:
             python-version: ${{matrix.python-version}}
