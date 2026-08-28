@@ -390,6 +390,10 @@ private:
       std::set<::Smp::Services::EventId,
                std::less<std::make_unsigned_t<::Smp::Services::EventId>>>;
 
+  // The mutexes below must always be acquired in this order:
+  //   _execMutex -> _eventsMutex -> _zuluEventsTableMutex
+  // Acquiring them in any other order would deadlock the scheduler.
+
   // scheduling table for zulu time events
   mutable std::mutex _zuluEventsTableMutex;
   std::map<::Smp::Duration, EventList> _zulu_events_table;
@@ -414,7 +418,7 @@ private:
 
   enum class Status { Running, Hold };
   std::atomic<double> _targetSpeed{100.};
-  std::atomic<Status> _simulationStatus;
+  std::atomic<Status> _simulationStatus{Status::Running};
   bool _terminate{};
 
   std::mutex _execMutex;
@@ -431,7 +435,7 @@ private:
   private:
     double sum{};
     static constexpr unsigned int sampleCount{20};
-    std::array<double, sampleCount> samples;
+    std::array<double, sampleCount> samples{};
     unsigned int index{};
     unsigned int size{};
     std::mutex _mutex;
@@ -460,11 +464,11 @@ private:
   /// @param eventId the event id to execute
   void ExecuteZulu(::Smp::Services::EventId eventId);
 
-  /// Execute a list of events
-  /// @param events the vector of events to execute
+  /// Execute all the events scheduled at the given simulation time
+  /// @param time the key of the event list in _events_table
   /// @return true if all events have been executed, false if hold immediate is
   /// requested and we have to exit
-  bool ExecuteEvents(EventList &events);
+  bool ExecuteEvents(::Smp::Duration time);
 
   /// Execute all immediate events
   /// @return true if all events have been executed, false if hold immediate is

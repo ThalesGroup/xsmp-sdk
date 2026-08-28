@@ -245,10 +245,11 @@ private:
 
   ::Smp::DateTime _value;
 
+  /// Must not access any non-static member: it is called from the member
+  /// initializer list, before _value is initialized.
   template <class Clock, class FromDuration>
-  constexpr ::Smp::DateTime
-  convert(const std::chrono::time_point<Clock, FromDuration> &timePoint)
-      const noexcept {
+  static constexpr ::Smp::DateTime
+  convert(const std::chrono::time_point<Clock, FromDuration> &timePoint) noexcept {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(
                timePoint.time_since_epoch())
                .count() -

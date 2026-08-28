@@ -66,6 +66,35 @@ template <> struct Helper<::Xsmp::Services::XsmpScheduler::Event> {
 namespace Xsmp::Services {
 static constexpr ::Smp::Duration MaxDuration =
     std::numeric_limits<::Smp::Duration>::max();
+static constexpr ::Smp::Duration MinDuration =
+    std::numeric_limits<::Smp::Duration>::lowest();
+
+namespace {
+/// Add two durations, saturating at the limits of the type instead of
+/// overflowing, which would be undefined behavior and would silently schedule
+/// the event in the past.
+constexpr ::Smp::Duration add(::Smp::Duration lhs,
+                              ::Smp::Duration rhs) noexcept {
+  if (rhs > 0 && lhs > MaxDuration - rhs) {
+    return MaxDuration;
+  }
+  if (rhs < 0 && lhs < MinDuration - rhs) {
+    return MinDuration;
+  }
+  return lhs + rhs;
+}
+/// Subtract two durations, saturating at the limits of the type.
+constexpr ::Smp::Duration subtract(::Smp::Duration lhs,
+                                   ::Smp::Duration rhs) noexcept {
+  if (rhs > 0 && lhs < MinDuration + rhs) {
+    return MinDuration;
+  }
+  if (rhs < 0 && lhs > MaxDuration + rhs) {
+    return MaxDuration;
+  }
+  return lhs - rhs;
+}
+} // namespace
 
 XsmpScheduler::XsmpScheduler(::Smp::String8 name, ::Smp::String8 description,
                              ::Smp::IComposite *parent,
@@ -170,8 +199,7 @@ XsmpScheduler::AddEvent(const ::Smp::IEntryPoint *entryPoint,
     ::Smp::Duration cycleTime, ::Smp::Int64 repeat) {
 
   const ::Smp::Duration time =
-      GetSimulator()->GetTimeKeeper()->GetSimulationTime() +
-      simulationTime; // TODO check overflow
+      add(GetSimulator()->GetTimeKeeper()->GetSimulationTime(), simulationTime);
   return AddEvent(entryPoint, time, time, cycleTime, repeat,
                   ::Smp::Services::TimeKind::TK_SimulationTime);
 }
@@ -180,9 +208,9 @@ XsmpScheduler::AddEvent(const ::Smp::IEntryPoint *entryPoint,
     const ::Smp::IEntryPoint *entryPoint, ::Smp::Duration missionTime,
     ::Smp::Duration cycleTime, ::Smp::Int64 repeat) {
 
-  auto simulationTime =
-      GetSimulator()->GetTimeKeeper()->GetSimulationTime() + missionTime -
-      GetSimulator()->GetTimeKeeper()->GetMissionTime(); // TODO check overflow
+  auto simulationTime = subtract(
+      add(GetSimulator()->GetTimeKeeper()->GetSimulationTime(), missionTime),
+      GetSimulator()->GetTimeKeeper()->GetMissionTime());
 
   return AddEvent(entryPoint, simulationTime, missionTime, cycleTime, repeat,
                   ::Smp::Services::TimeKind::TK_MissionTime);
@@ -192,9 +220,9 @@ XsmpScheduler::AddEvent(const ::Smp::IEntryPoint *entryPoint,
     const ::Smp::IEntryPoint *entryPoint, ::Smp::DateTime epochTime,
     ::Smp::Duration cycleTime, ::Smp::Int64 repeat) {
 
-  auto simulationTime =
-      GetSimulator()->GetTimeKeeper()->GetSimulationTime() + epochTime -
-      GetSimulator()->GetTimeKeeper()->GetEpochTime(); // TODO check overflow
+  auto simulationTime = subtract(
+      add(GetSimulator()->GetTimeKeeper()->GetSimulationTime(), epochTime),
+      GetSimulator()->GetTimeKeeper()->GetEpochTime());
 
   return AddEvent(entryPoint, simulationTime, epochTime, cycleTime, repeat,
                   ::Smp::Services::TimeKind::TK_EpochTime);
@@ -242,15 +270,21 @@ void XsmpScheduler::SetEventTime(::Smp::Services::EventId eventId,
   if (it == _events.end() || it->second.kind != kind) {
     ::Xsmp::Exception::throwInvalidEventId(this, eventId);
   }
-  auto &events = _events_table[it->second.nextScheduleSimulationTime];
-
-  events.erase(eventId);
-
-  if (events.empty()) {
-    _events_table.erase(it->second.nextScheduleSimulationTime);
+  if (auto entry = _events_table.find(it->second.nextScheduleSimulationTime);
+      entry != _events_table.end()) {
+    entry->second.erase(eventId);
+    if (entry->second.empty()) {
+      _events_table.erase(entry);
+    }
   }
   if (simulationTime < GetSimulator()->GetTimeKeeper()->GetSimulationTime()) {
-    _events.erase(it);
+    // the event is in the past: remove it, unless it is the event currently
+    // being executed, whose entry is still in use by Execute()
+    if (_currentEventId == eventId) {
+      it->second.repeat = 0;
+    } else {
+      _events.erase(it);
+    }
     return;
   }
 
@@ -264,24 +298,24 @@ void XsmpScheduler::SetEventSimulationTime(::Smp::Services::EventId event,
                                            ::Smp::Duration simulationTime) {
 
   const ::Smp::Duration time =
-      GetSimulator()->GetTimeKeeper()->GetSimulationTime() + simulationTime;
+      add(GetSimulator()->GetTimeKeeper()->GetSimulationTime(), simulationTime);
   SetEventTime(event, time, time, ::Smp::Services::TimeKind::TK_SimulationTime);
 }
 
 void XsmpScheduler::SetEventMissionTime(::Smp::Services::EventId event,
                                         ::Smp::Duration missionTime) {
-  const ::Smp::Duration simulationTime =
-      GetSimulator()->GetTimeKeeper()->GetSimulationTime() + missionTime -
-      GetSimulator()->GetTimeKeeper()->GetMissionTime();
+  const ::Smp::Duration simulationTime = subtract(
+      add(GetSimulator()->GetTimeKeeper()->GetSimulationTime(), missionTime),
+      GetSimulator()->GetTimeKeeper()->GetMissionTime());
   SetEventTime(event, simulationTime, missionTime,
                ::Smp::Services::TimeKind::TK_MissionTime);
 }
 
 void XsmpScheduler::SetEventEpochTime(::Smp::Services::EventId event,
                                       ::Smp::DateTime epochTime) {
-  const ::Smp::Duration simulationTime =
-      GetSimulator()->GetTimeKeeper()->GetSimulationTime() + epochTime -
-      GetSimulator()->GetTimeKeeper()->GetEpochTime();
+  const ::Smp::Duration simulationTime = subtract(
+      add(GetSimulator()->GetTimeKeeper()->GetSimulationTime(), epochTime),
+      GetSimulator()->GetTimeKeeper()->GetEpochTime());
   SetEventTime(event, simulationTime, epochTime,
                ::Smp::Services::TimeKind::TK_EpochTime);
 }
@@ -297,13 +331,23 @@ void XsmpScheduler::SetEventZuluTime(::Smp::Services::EventId event,
         it->second.kind != ::Smp::Services::TimeKind::TK_ZuluTime) {
       ::Xsmp::Exception::throwInvalidEventId(this, event);
     }
-    auto &events = _zulu_events_table[it->second.nextScheduleSimulationTime];
-
-    events.erase(event);
+    if (auto entry =
+            _zulu_events_table.find(it->second.nextScheduleSimulationTime);
+        entry != _zulu_events_table.end()) {
+      entry->second.erase(event);
+      if (entry->second.empty()) {
+        _zulu_events_table.erase(entry);
+      }
+    }
 
     if (zuluTime < currentZulu) {
-      _events.erase(it);
-      // TODO log warning
+      // the zulu time is in the past: remove the event, unless it is the one
+      // currently being executed, whose entry is still in use by ExecuteZulu()
+      if (_currentEventId == event) {
+        it->second.repeat = 0;
+      } else {
+        _events.erase(it);
+      }
       return;
     }
 
@@ -354,24 +398,21 @@ void XsmpScheduler::RemoveEvent(::Smp::Services::EventId event) {
     return;
   }
 
+  const auto time = it->second.nextScheduleSimulationTime;
   if (it->second.kind == ::Smp::Services::TimeKind::TK_ZuluTime) {
     const std::scoped_lock lckZulu{_zuluEventsTableMutex};
-
-    auto &events = _zulu_events_table[it->second.nextScheduleSimulationTime];
-
-    events.erase(event);
-
-    if (events.empty()) {
-      _events_table.erase(it->second.nextScheduleSimulationTime);
+    if (auto entry = _zulu_events_table.find(time);
+        entry != _zulu_events_table.end()) {
+      entry->second.erase(event);
+      if (entry->second.empty()) {
+        _zulu_events_table.erase(entry);
+      }
     }
-  } else {
-
-    auto &events = _events_table[it->second.nextScheduleSimulationTime];
-
-    events.erase(event);
-
-    if (events.empty()) {
-      _events_table.erase(it->second.nextScheduleSimulationTime);
+  } else if (auto entry = _events_table.find(time);
+             entry != _events_table.end()) {
+    entry->second.erase(event);
+    if (entry->second.empty()) {
+      _events_table.erase(entry);
     }
   }
   _events.erase(it);
@@ -392,43 +433,60 @@ void XsmpScheduler::RemoveEvent(::Smp::Services::EventId event) {
 
 void XsmpScheduler::Execute(::Smp::Services::EventId eventId) {
 
+  // _execMutex is taken first and kept for the whole execution: it serializes
+  // the execution of the events between the simulation and the zulu threads.
+  // Taking it before _eventsMutex is mandatory, see the lock order documented
+  // in the header.
+  const std::scoped_lock execLck{_execMutex};
   std::unique_lock lck{_eventsMutex};
 
-  auto &event = _events.at(eventId);
+  auto it = _events.find(eventId);
+  if (it == _events.end()) {
+    // the event has been removed in the meantime
+    return;
+  }
 
   // skip event if epoch/mission time has changed and event is in the past
   bool skip = false;
-  switch (event.kind) {
+  switch (it->second.kind) {
   case ::Smp::Services::TimeKind::TK_EpochTime:
-    skip = event.time < GetSimulator()->GetTimeKeeper()->GetEpochTime();
+    skip = it->second.time < GetSimulator()->GetTimeKeeper()->GetEpochTime();
     break;
   case ::Smp::Services::TimeKind::TK_MissionTime:
-    skip = event.time < GetSimulator()->GetTimeKeeper()->GetMissionTime();
+    skip = it->second.time < GetSimulator()->GetTimeKeeper()->GetMissionTime();
     break;
   default:
     break;
   }
 
   if (!skip) {
-    const std::scoped_lock lck2(_execMutex);
+    const auto *entryPoint = it->second.entryPoint;
     _currentEventId = eventId;
     lck.unlock();
-    ::Xsmp::Helper::SafeExecute(GetSimulator(), event.entryPoint);
+    ::Xsmp::Helper::SafeExecute(GetSimulator(), entryPoint);
     lck.lock();
     _currentEventId = -1;
+
+    // the entry point may have modified the scheduling table
+    it = _events.find(eventId);
+    if (it == _events.end()) {
+      return;
+    }
   }
+  auto &event = it->second;
 
   if (event.repeat == 0) {
     // remove the event
-    _events.erase(_events.find(eventId));
+    _events.erase(it);
   } else {
     // decrement the repeat
     if (event.repeat > 0) {
       event.repeat--;
     }
     // compute the next time the event will be executed
-    event.nextScheduleSimulationTime += event.cycleTime;
-    event.time += event.cycleTime;
+    event.nextScheduleSimulationTime =
+        add(event.nextScheduleSimulationTime, event.cycleTime);
+    event.time = add(event.time, event.cycleTime);
 
     // post the event in the table
     _events_table.try_emplace(event.nextScheduleSimulationTime)
@@ -438,33 +496,46 @@ void XsmpScheduler::Execute(::Smp::Services::EventId eventId) {
 
 void XsmpScheduler::ExecuteZulu(::Smp::Services::EventId eventId) {
 
-  std::unique_lock lck(_eventsMutex);
+  const std::scoped_lock execLck{_execMutex};
+  std::unique_lock lck{_eventsMutex};
 
-  auto &event = _events.at(eventId);
+  auto it = _events.find(eventId);
+  if (it == _events.end()) {
+    // the event has been removed in the meantime
+    return;
+  }
 
   // execute the event only in executing and standby states
   if (auto state = GetSimulator()->GetState();
       state == ::Smp::SimulatorStateKind::SSK_Executing ||
       state == ::Smp::SimulatorStateKind::SSK_Standby) {
 
-    const std::scoped_lock lck2(_execMutex);
+    const auto *entryPoint = it->second.entryPoint;
     _currentEventId = eventId;
     lck.unlock();
-    ::Xsmp::Helper::SafeExecute(GetSimulator(), event.entryPoint);
+    ::Xsmp::Helper::SafeExecute(GetSimulator(), entryPoint);
     lck.lock();
     _currentEventId = -1;
+
+    // the entry point may have modified the scheduling table
+    it = _events.find(eventId);
+    if (it == _events.end()) {
+      return;
+    }
   }
+  auto &event = it->second;
 
   if (event.repeat == 0) {
     // remove the event
-    _events.erase(_events.find(eventId));
+    _events.erase(it);
   } else {
     // decrement the repeat
     if (event.repeat > 0) {
       event.repeat--;
     }
     // compute the next time the event will be executed
-    event.nextScheduleSimulationTime += event.cycleTime;
+    event.nextScheduleSimulationTime =
+        add(event.nextScheduleSimulationTime, event.cycleTime);
     // post the event in the table
     const std::scoped_lock lckZulu{_zuluEventsTableMutex};
     _zulu_events_table.try_emplace(event.nextScheduleSimulationTime)
@@ -472,43 +543,59 @@ void XsmpScheduler::ExecuteZulu(::Smp::Services::EventId eventId) {
   }
 }
 
-bool XsmpScheduler::ExecuteEvents(EventList &events) {
+bool XsmpScheduler::ExecuteEvents(::Smp::Duration time) {
 
-  // execute all events
-  while (!events.empty()) {
-    // swap the current list of events
+  // execute all the events scheduled at that time, including the ones posted
+  // while executing them
+  while (true) {
     EventList current;
-    current.swap(events);
+    {
+      const std::scoped_lock lck{_eventsMutex};
+      auto entry = _events_table.find(time);
+      if (entry == _events_table.end() || entry->second.empty()) {
+        return true;
+      }
+      // swap the current list of events
+      current.swap(entry->second);
+    }
+
     for (auto it = current.begin(); it != current.end(); ++it) {
       Execute(*it);
       // process immediate events posted by this event
       if (_simulationStatus == Status::Hold || !ExecuteImmediateEvents()) {
         // store un-executed events and exit
-        events.insert(++it, current.end());
+        const std::scoped_lock lck{_eventsMutex};
+        _events_table[time].insert(++it, current.end());
         return false;
       }
     }
   }
-  return true;
 }
+
 bool XsmpScheduler::ExecuteImmediateEvents() {
   // execute all events
-  while (!_immediate_events.empty()) {
-    // swap  the current list of events
+  while (true) {
     EventList events;
-    events.swap(_immediate_events);
+    {
+      const std::scoped_lock lck{_eventsMutex};
+      if (_immediate_events.empty()) {
+        return true;
+      }
+      // swap the current list of events
+      events.swap(_immediate_events);
+    }
 
     for (auto it = events.begin(); it != events.end(); ++it) {
       Execute(*it);
-      // process immediate events posted by this event
+      // stop here if a hold has been requested by this event
       if (_simulationStatus == Status::Hold) {
         // store un-executed events and exit
+        const std::scoped_lock lck{_eventsMutex};
         _immediate_events.insert(++it, events.end());
         return false;
       }
     }
   }
-  return true;
 }
 
 void XsmpScheduler::InternalZuluRun() {
@@ -607,11 +694,17 @@ void XsmpScheduler::_EnterExecuting() {
   }
   auto *eventManager = GetSimulator()->GetEventManager();
 
-  std::unique_lock lck(_eventsMutex);
   // execute all events
-  for (auto it = _events_table.begin(); it != _events_table.end();
-       it = _events_table.erase(it)) {
-    lck.unlock();
+  while (true) {
+    ::Smp::Duration time;
+    {
+      const std::scoped_lock lck{_eventsMutex};
+      auto it = _events_table.begin();
+      if (it == _events_table.end()) {
+        break;
+      }
+      time = it->first;
+    }
 
     // notify that simulation time will be changed
     eventManager->Emit(::Smp::Services::IEventManager::SMP_PreSimTimeChangeId,
@@ -620,7 +713,7 @@ void XsmpScheduler::_EnterExecuting() {
     if (_simulationStatus == Status::Hold) {
       return; // exit immediately if hold is requested
     }
-    auto duration = it->first - timeKeeper->GetSimulationTime();
+    auto duration = subtract(time, timeKeeper->GetSimulationTime());
     delay += static_cast<::Smp::Duration>(static_cast<double>(duration) /
                                           _targetSpeed) -
              (timeKeeper->GetZuluTime() - startZuluTime);
@@ -647,17 +740,23 @@ void XsmpScheduler::_EnterExecuting() {
     }
 
     // change the simulation time
-    timeKeeper->SetSimulationTime(it->first);
+    timeKeeper->SetSimulationTime(time);
 
     // notify that simulation time has changed
     eventManager->Emit(::Smp::Services::IEventManager::SMP_PostSimTimeChangeId);
 
     // process all events (check for eventually events added by
     // SMP_PostSimTimeChangeId )
-    if (!ExecuteImmediateEvents() || !ExecuteEvents(it->second)) {
+    if (!ExecuteImmediateEvents() || !ExecuteEvents(time)) {
       return; // exit immediately in case of hold
     }
-    lck.lock();
+
+    // all the events of that time have been executed: drop the entry
+    const std::scoped_lock lck{_eventsMutex};
+    if (auto it = _events_table.find(time);
+        it != _events_table.end() && it->second.empty()) {
+      _events_table.erase(it);
+    }
   }
 
   _load.clear();

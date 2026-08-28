@@ -15,7 +15,6 @@
 #ifndef XSMP_THREADSAFEDATA_H_
 #define XSMP_THREADSAFEDATA_H_
 
-#include <condition_variable>
 #include <mutex>
 #include <optional>
 #include <shared_mutex>
@@ -69,10 +68,7 @@ public:
     }
 
     // Unlock the write lock
-    void unlock() {
-      _lock.unlock();
-      _wrapper._cv.notify_all(); // Notify all waiting threads
-    }
+    void unlock() { _lock.unlock(); }
 
   private:
     ThreadSafeData &_wrapper;                  // Reference to the wrapper
@@ -107,9 +103,7 @@ public:
 
 private:
   mutable std::shared_mutex _mutex; // Mutex to protect the data
-  mutable std::condition_variable_any
-      _cv; // Condition variable for synchronization
-  T _data; // The actual data
+  T _data;                          // The actual data
 };
 
 } // namespace Xsmp

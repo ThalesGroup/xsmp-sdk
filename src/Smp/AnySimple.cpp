@@ -20,6 +20,7 @@
 #include <cmath>
 #include <limits>
 #include <string>
+#include <type_traits>
 
 namespace Smp {
 
@@ -96,13 +97,53 @@ T convertIntegral(U newValue, ::Smp::PrimitiveTypeKind kind,
   return static_cast<T>(newValue);
 }
 
+/// Check that an integral value can be stored in the floating point type T
+/// without losing precision: its magnitude, once the trailing zero bits are
+/// removed, must fit in the mantissa of T.
+/// The value is never converted back to the integral type, as that conversion
+/// is undefined as soon as the rounded value falls outside of its range.
+template <typename T, typename U> constexpr bool isExactInteger(U newValue) {
+  using Unsigned = std::make_unsigned_t<U>;
+  // unsigned negation is well defined, including for the lowest value
+  auto magnitude = static_cast<Unsigned>(newValue);
+  if constexpr (std::is_signed_v<U>) {
+    if (newValue < 0) {
+      magnitude = static_cast<Unsigned>(-magnitude);
+    }
+  }
+  // the trailing zero bits are carried by the exponent
+  while (magnitude != 0 && (magnitude & 1U) == 0) {
+    magnitude >>= 1U;
+  }
+  int significantBits = 0;
+  while (magnitude != 0) {
+    ++significantBits;
+    magnitude >>= 1U;
+  }
+  return significantBits <= std::numeric_limits<T>::digits;
+}
+
 template <typename T, typename U>
 T convertFloat(U newValue, ::Smp::PrimitiveTypeKind kind,
                ::Smp::PrimitiveTypeKind expected) {
 
-  if (std::fabs(newValue - static_cast<U>(static_cast<T>(newValue))) >
-      std::numeric_limits<U>::epsilon()) {
-    ::Xsmp::Exception::throwInvalidAnyType(nullptr, expected, kind);
+  if constexpr (std::is_integral_v<U>) {
+    if (!isExactInteger<T>(newValue)) {
+      ::Xsmp::Exception::throwInvalidAnyType(nullptr, expected, kind);
+    }
+  } else {
+    // U is the wider floating point type: the conversion is lossless if and
+    // only if converting back yields exactly the initial value.
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+#endif
+    if (static_cast<U>(static_cast<T>(newValue)) != newValue) {
+      ::Xsmp::Exception::throwInvalidAnyType(nullptr, expected, kind);
+    }
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
   }
   return static_cast<T>(newValue);
 }

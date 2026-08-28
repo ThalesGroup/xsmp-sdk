@@ -35,6 +35,7 @@
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
 #include <Xsmp/LibraryHelper.h>
+#include <exception>
 #include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Simulator.h>
 #include <Xsmp/StorageReader.h>
@@ -115,37 +116,65 @@ constexpr ::Smp::String8 initialiseSymbol = "Initialise";
 constexpr ::Smp::String8 finaliseSymbol = "Finalise";
 } // namespace
 Simulator::~Simulator() {
-  // Exit the simulation properly if the simulator is not already in exit or
-  // abort state
-  if (_state == ::Smp::SimulatorStateKind::SSK_Executing) {
-    Hold(true);
+  // A destructor is implicitly noexcept: an exception thrown by a model in its
+  // exit sequence must not terminate the process.
+  try {
+    // Exit the simulation properly if the simulator is not already in exit or
+    // abort state
+    if (_state == ::Smp::SimulatorStateKind::SSK_Executing) {
+      Hold(true);
+    }
+    if (_state == ::Smp::SimulatorStateKind::SSK_Standby) {
+      Exit();
+    }
+  } catch (const std::exception &e) {
+    if (_logger) {
+      _logger->Log(this,
+                   (std::string("Exception thrown while exiting the "
+                                "simulation: ") +
+                    e.what())
+                       .c_str(),
+                   ::Smp::Services::ILogger::LMK_Error);
+    }
+  } catch (...) {
+    if (_logger) {
+      _logger->Log(this, "Exception thrown while exiting the simulation.",
+                   ::Smp::Services::ILogger::LMK_Error);
+    }
   }
-  if (_state == ::Smp::SimulatorStateKind::SSK_Standby) {
-    Exit();
-  }
+
   // finalise the libraries in reverse order
   while (!_libraries.empty()) {
     const auto &[name, handle] = _libraries.back();
     if (_logger) {
-      _logger->Log(this, ("Unloading " + name + " library...").c_str(),
+      _logger->Log(this, ("Finalising " + name + " library...").c_str(),
                    ::Smp::Services::ILogger::LMK_Debug);
     }
 
-    // Call Finalise
-    if ((*::Xsmp::GetSymbol<bool (*)(::Smp::ISimulator *simulator)>(
-            handle, finaliseSymbol))(this)) {
+    // Call Finalise. Its existence is checked by LoadLibrary.
+    try {
+      if ((*::Xsmp::GetSymbol<bool (*)(::Smp::ISimulator *simulator)>(
+              handle, finaliseSymbol))(this)) {
+        if (_logger) {
+          _logger->Log(this,
+                       ("Library " + name + " successfully finalised.").c_str(),
+                       ::Smp::Services::ILogger::LMK_Debug);
+        }
+      } else if (_logger) {
+        _logger->Log(this, ("Unable to finalise " + name + " library.").c_str(),
+                     ::Smp::Services::ILogger::LMK_Error);
+      }
+    } catch (...) {
       if (_logger) {
         _logger->Log(this,
-                     ("Library " + name + " successfully unloaded.").c_str(),
-                     ::Smp::Services::ILogger::LMK_Debug);
-      }
-    } else {
-      if (_logger) {
-        _logger->Log(this, ("Unable to unload " + name + " library.").c_str(),
+                     ("Exception thrown by Finalise() of library " + name + ".")
+                         .c_str(),
                      ::Smp::Services::ILogger::LMK_Error);
       }
     }
-    // remove the library handle
+    // The library stays mapped: the models it created are held by _models and
+    // _publications, which are destroyed after this body runs, and their
+    // destructors and vtables live in the library.
     _libraries.pop_back();
   }
 }
@@ -665,6 +694,9 @@ const ::Smp::FactoryCollection *Simulator::GetFactories() const {
 
 void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
 
+  if (!libraryPath) {
+    ::Xsmp::Exception::throwLibraryNotFound(this, "", "No library name given.");
+  }
   if (_logger) {
     _logger->Log(
         this,
@@ -695,6 +727,7 @@ void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
     if (_logger) {
       _logger->Log(this, msg.c_str(), ::Smp::Services::ILogger::LMK_Error);
     }
+    ::Xsmp::CloseLibrary(handle);
     ::Xsmp::Exception::throwInvalidLibrary(this, libraryPath, msg);
   }
 
@@ -707,6 +740,7 @@ void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
     if (_logger) {
       _logger->Log(this, msg.c_str(), ::Smp::Services::ILogger::LMK_Error);
     }
+    ::Xsmp::CloseLibrary(handle);
     ::Xsmp::Exception::throwInvalidLibrary(this, libraryPath, msg);
   }
 
@@ -724,6 +758,7 @@ void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
     if (_logger) {
       _logger->Log(this, msg.c_str(), ::Smp::Services::ILogger::LMK_Error);
     }
+    ::Xsmp::CloseLibrary(handle);
     ::Xsmp::Exception::throwInvalidLibrary(this, libraryPath, msg);
   }
   _libraries.emplace_back(libraryPath, handle);

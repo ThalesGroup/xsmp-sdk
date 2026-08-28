@@ -55,6 +55,9 @@ void *LoadLibrary(const char *libraryName) {
 }
 
 void CloseLibrary(void *handle) {
+  if (!handle) {
+    return;
+  }
 #if (defined(_WIN32) || defined(_WIN64))
   FreeLibrary(static_cast<HMODULE>(handle));
 #else
@@ -90,13 +93,17 @@ std::string GetLastError() {
       LPCWSTR lpMsgStr = (LPCWSTR)lpMsgBuf;
       int utf8BufferSize =
           WideCharToMultiByte(CP_UTF8, 0, lpMsgStr, -1, NULL, 0, NULL, NULL);
+      std::string result;
       if (utf8BufferSize > 0) {
-        std::string result(utf8BufferSize, 0);
+        // utf8BufferSize accounts for the terminating null character
+        result.resize(static_cast<std::size_t>(utf8BufferSize));
         WideCharToMultiByte(CP_UTF8, 0, lpMsgStr, -1, &result[0],
                             utf8BufferSize, NULL, NULL);
-
-        LocalFree(lpMsgBuf);
-
+        result.resize(static_cast<std::size_t>(utf8BufferSize) - 1);
+      }
+      // the buffer allocated by FormatMessageW must be released on every path
+      LocalFree(lpMsgBuf);
+      if (!result.empty()) {
         return result;
       }
     }
