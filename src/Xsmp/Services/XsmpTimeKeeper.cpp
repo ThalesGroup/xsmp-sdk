@@ -84,8 +84,8 @@ void XsmpTimeKeeper::SetSimulationTime(::Smp::Duration simulationTime) {
     return;
   }
   auto max = GetSimulator()->GetScheduler()->GetNextScheduledEventTime();
-  auto current = _simulationTime.read().get();
-  if (simulationTime < current || simulationTime > max) {
+  if (auto current = _simulationTime.read().get();
+      simulationTime < current || simulationTime > max) {
     ::Xsmp::Exception::throwInvalidSimulationTime(this, current, simulationTime,
                                                   max);
   }

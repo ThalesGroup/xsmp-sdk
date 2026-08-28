@@ -59,8 +59,6 @@ jobs:
             os:
             - ubuntu-latest
             gcc:
-            - 7
-            - 8
             - 9
             - 10
             - 11
@@ -69,10 +67,11 @@ jobs:
             - 14
       steps:
       -  uses: actions/checkout@v4
+      -  name: Add Git, unzip & Python3
+         # git is needed by FetchContent, unzip by get-cmake to extract Ninja
+         run: apt-get update; apt-get install -y git unzip python3-dev python3-pytest
       -  name: Setup CMake
          uses: lukka/get-cmake@latest
-      -  name: Add Git & Python3
-         run: apt-get update; apt-get install -y git python3-dev python3-pytest
       -  name: Configure CMake
          run: |
             cmake -B build -DCMAKE_BUILD_TYPE=Release -DXSMP_BUILD_EXAMPLES=ON -S .
@@ -85,7 +84,7 @@ jobs:
    clang:
       name: '${{matrix.os}} :: Clang ${{matrix.clang}}'
       runs-on: ${{matrix.os}}
-      container: silkeh/clang:${{matrix.clang}}
+      container: silkeh/clang:${{matrix.clang}}${{matrix.container_suffix}}
       strategy:
          fail-fast: false
          matrix:
@@ -94,10 +93,6 @@ jobs:
             clang:
             - 5
             - 6
-            - 7
-            - 8
-            - 9
-            - 10
             - 11
             - 12
             - 13
@@ -107,12 +102,32 @@ jobs:
             - 17
             - 18
             - 19
+            include:
+            -  clang: 11
+               container_suffix: '-bullseye'
+            -  clang: 12
+               container_suffix: '-bullseye'
+            -  clang: 13
+               container_suffix: '-bullseye'
+            -  clang: 14
+               container_suffix: '-bullseye'
+            -  clang: 15
+               container_suffix: '-bookworm'
+            -  clang: 16
+               container_suffix: '-bookworm'
+            -  clang: 17
+               container_suffix: '-bookworm'
+            -  clang: 18
+               container_suffix: '-bookworm'
+            -  clang: 19
+               container_suffix: '-bookworm'
       steps:
       -  uses: actions/checkout@v4
+      -  name: Add Git, unzip & Python3
+         # git is needed by FetchContent, unzip by get-cmake to extract Ninja
+         run: apt-get update; apt-get install -y git unzip python3-dev python3-pytest
       -  name: Setup CMake
          uses: lukka/get-cmake@latest
-      -  name: Add Git & Python3
-         run: apt-get update; apt-get install -y git python3-dev python3-pytest
       -  name: Configure CMake
          run: |
             cmake -B build -DCMAKE_BUILD_TYPE=Release -DXSMP_BUILD_EXAMPLES=ON -S .
@@ -129,7 +144,6 @@ jobs:
          fail-fast: false
          matrix:
             os:
-            - windows-2019
             - windows-2022
             - windows-latest
       steps:
@@ -148,8 +162,56 @@ jobs:
          run: |
             cmake --build build --config Release -j 2
       -  name: Run tests
+         # the zulu and speed tests assert on wall clock durations with a 5 ms
+         # margin, below the ~15 ms timer resolution of the Windows runners
          run: |
-            cd build && ctest -C Release --output-on-failure -E "XsmpScheduler"
+            cd build && ctest -C Release --output-on-failure -E "XsmpScheduler.zulu_events|SpeedFixture"
+   warnings:
+      name: 'ubuntu-latest :: All warnings'
+      runs-on: ubuntu-latest
+      steps:
+      -  uses: actions/checkout@v4
+      -  name: Setup CMake
+         uses: lukka/get-cmake@latest
+      -  name: install pytest
+         run: pip install pytest
+      -  name: Configure cmake
+         run: |
+            cmake -B build -DCMAKE_BUILD_TYPE=Debug -DXSMP_BUILD_WITH_WARNINGS=ON -S .
+      -  name: Build
+         run: |
+            cmake --build build -j 2
+   sanitizers:
+      name: 'ubuntu-latest :: ${{matrix.sanitizer}}'
+      runs-on: ubuntu-latest
+      strategy:
+         fail-fast: false
+         matrix:
+            include:
+            -  sanitizer: address,undefined
+               options: 'UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 ASAN_OPTIONS=detect_leaks=1'
+            -  sanitizer: thread
+               options: 'TSAN_OPTIONS=halt_on_error=1:detect_deadlocks=1:second_deadlock_stack=1'
+      steps:
+      -  uses: actions/checkout@v4
+      -  name: Setup CMake
+         uses: lukka/get-cmake@latest
+      -  name: Configure cmake
+         # the python bindings are skipped: the interpreter is not instrumented
+         run: |
+            cmake -B build -S . \
+              -DCMAKE_BUILD_TYPE=Debug \
+              -DXSMP_BUILD_TESTS=ON \
+              -DXSMP_BUILD_PYTHON_BINDINGS=OFF \
+              -DCMAKE_CXX_FLAGS="-fsanitize=${{matrix.sanitizer}} -fno-omit-frame-pointer -g -O1" \
+              -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=${{matrix.sanitizer}}" \
+              -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=${{matrix.sanitizer}}"
+      -  name: Build
+         run: |
+            cmake --build build -j 2 --target XsmpTests
+      -  name: Run tests
+         run: |
+            env ${{matrix.options}} ./build/bin/XsmpTests
    python:
       name: '${{matrix.os}} :: Python ${{matrix.python-version}}'
       runs-on: ${{matrix.os}}
@@ -158,7 +220,7 @@ jobs:
          matrix:
             os:
             - ubuntu-22.04
-            - macos-13
+            - macos-latest
 #            - windows-latest
             python-version:
             - '3.7'
@@ -167,6 +229,10 @@ jobs:
             - '3.11'
             - '3.12'
             - '3.13'
+            exclude:
+            # python 3.7 is not available on the arm64 macOS runners
+            -  os: macos-latest
+               python-version: '3.7'
       steps:
       -  uses: actions/checkout@v4
       -  uses: actions/setup-python@v5

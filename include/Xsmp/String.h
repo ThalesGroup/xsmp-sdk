@@ -166,12 +166,12 @@ template <std::size_t Nm> struct String {
     return data();
   }
 
-  constexpr void remove_prefix(size_t length) {
-    auto newLength = this->length();
-    std::copy(internalString + length, internalString + newLength,
+  constexpr void remove_prefix(size_t length) noexcept {
+    auto currentLength = this->length();
+    length = std::min(length, currentLength);
+    std::copy(internalString + length, internalString + currentLength,
               internalString);
-    newLength -= length;
-    internalString[newLength] = '\0';
+    internalString[currentLength - length] = '\0';
   }
 
   constexpr void remove_suffix(size_t length) noexcept {
@@ -315,7 +315,7 @@ template <std::size_t Nm> struct String {
   constexpr void clear() noexcept { internalString[0] = '\0'; }
 
   template <size_t S> constexpr String &assign(const String<S> &str) {
-    return assign(str.c_str(), S);
+    return assign(str.c_str(), str.size());
   }
   constexpr String &assign(std::string_view str) {
     const size_t length = std::min(str.length(), Nm);
@@ -490,9 +490,9 @@ private:
   }
 };
 
-template <std::size_t Nm, std::size_t Nm2>
-constexpr void swap(const String<Nm> &lhs, const String<Nm2> &rhs) noexcept {
-  rhs.swap(lhs);
+template <std::size_t Nm>
+constexpr void swap(String<Nm> &lhs, String<Nm> &rhs) noexcept {
+  lhs.swap(rhs);
 }
 
 template <std::size_t Nm>

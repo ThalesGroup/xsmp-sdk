@@ -31,8 +31,6 @@ jobs:
       -  name: install gcovr & pytest
          run: |
             pip install gcovr pytest
-      -  name: Install sonar-scanner and build-wrapper
-         uses: SonarSource/sonarcloud-github-c-cpp@v3
       -  name: Configure cmake
          run: |
             #configure and extract project version
@@ -47,20 +45,21 @@ jobs:
          run: |
             gcovr --sonarqube coverage.xml
       -  name: Run sonar-scanner
+         uses: SonarSource/sonarqube-scan-action@v8
          env:
             GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
             SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
-         run: >
-            sonar-scanner
-            -Dsonar.projectKey=ThalesGroup_xsmp-sdk
-            -Dsonar.organization=thalesgroup
-            -Dsonar.projectVersion=${{env.PROJECT_VERSION}}
-            -Dsonar.cfamily.compile-commands=build/compile_commands.json
-            -Dsonar.coverageReportPaths=coverage.xml
-            -Dsonar.sources=include,src
-            -Dsonar.tests=src,tests
-            -Dsonar.sourceEncoding=UTF-8
-            -Dsonar.c.file.suffixes=.c
-            -Dsonar.cpp.file.suffixes=.cpp,.h
-            -Dsonar.exclusions=src/Xsmp/Tests/**,src/python/**
-            -Dsonar.test.inclusions=src/Xsmp/Tests/**
+         with:
+            args: >
+               -Dsonar.projectKey=ThalesGroup_xsmp-sdk
+               -Dsonar.organization=thalesgroup
+               -Dsonar.projectVersion=${{env.PROJECT_VERSION}}
+               -Dsonar.cfamily.compile-commands=build/compile_commands.json
+               -Dsonar.coverageReportPaths=coverage.xml
+               -Dsonar.sources=include,src
+               -Dsonar.tests=src,tests
+               -Dsonar.sourceEncoding=UTF-8
+               -Dsonar.c.file.suffixes=.c
+               -Dsonar.cpp.file.suffixes=.cpp,.h
+               -Dsonar.exclusions=src/Xsmp/Tests/**,src/python/**
+               -Dsonar.test.inclusions=src/Xsmp/Tests/**

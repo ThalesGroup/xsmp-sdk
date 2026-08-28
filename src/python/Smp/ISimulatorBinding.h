@@ -92,17 +92,35 @@ void Run(::Smp::ISimulator &self, double ns, double us, double ms, double s,
     ::Xsmp::EntryPoint hold{"hold",
                             "call simulator hold after the specified duration",
                             &self, [&self] { self.Hold(false); }};
-    self.GetScheduler()->AddSimulationTimeEvent(&hold, duration);
+    const auto eventId =
+        self.GetScheduler()->AddSimulationTimeEvent(&hold, duration);
 
-    self.Run();
-
-    while (self.GetState() == ::Smp::SimulatorStateKind::SSK_Executing) {
-      if (PyErr_CheckSignals() != 0) {
-        self.Hold(true);
-        throw py::error_already_set();
+    // `hold` lives on the stack: the event must be removed from the scheduler
+    // on every exit path, otherwise the scheduler keeps a pointer to a
+    // destroyed entry point and executes it during a later Run().
+    const auto removeHoldEvent = [&self, eventId]() noexcept {
+      try {
+        self.GetScheduler()->RemoveEvent(eventId);
+      } catch (...) {
+        // the event has already been executed and removed by the scheduler
       }
-      std::this_thread::sleep_for(std::chrono::microseconds(10));
+    };
+
+    try {
+      self.Run();
+
+      while (self.GetState() == ::Smp::SimulatorStateKind::SSK_Executing) {
+        if (PyErr_CheckSignals() != 0) {
+          self.Hold(true);
+          throw py::error_already_set();
+        }
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+      }
+    } catch (...) {
+      removeHoldEvent();
+      throw;
     }
+    removeHoldEvent();
   } else {
     self.Run();
   }

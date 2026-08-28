@@ -4,7 +4,7 @@ if(NOT "${CMAKE_VERSION}" VERSION_LESS "3.27")
   cmake_policy(SET CMP0144 NEW)
 endif()
 
-find_package(Python COMPONENTS Interpreter Development)
+find_package(Python COMPONENTS Interpreter REQUIRED)
 
 function(pytest_discover_tests)
     cmake_parse_arguments(
