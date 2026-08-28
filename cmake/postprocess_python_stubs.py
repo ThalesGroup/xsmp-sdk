@@ -30,8 +30,11 @@ import pathlib
 import re
 import sys
 
+# below python 3.9 pybind11-stubgen annotates with typing_extensions.Annotated,
+# as typing.Annotated does not exist yet
 FIXED_SIZE = re.compile(
-    r"typing\.Annotated\[\s*([^\[\]]+(?:\[[^\[\]]*\])?)\s*,"
+    r"(?:typing|typing_extensions)\.Annotated\["
+    r"\s*([^\[\]]+(?:\[[^\[\]]*\])?)\s*,"
     r"\s*pybind11_stubgen\.typing_ext\.FixedSize\([^()]*\)\s*\]"
 )
 
