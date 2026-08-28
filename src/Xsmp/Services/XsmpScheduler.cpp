@@ -670,9 +670,10 @@ void XsmpScheduler::Store(::Smp::IStorageWriter *writer) {
 
 void XsmpScheduler::_LeaveExecuting() {
 
-  std::unique_lock lck{_holdMutex};
-  _simulationStatus = Status::Hold;
-  lck.unlock();
+  {
+    const std::scoped_lock lck{_holdMutex};
+    _simulationStatus = Status::Hold;
+  }
   _holdCv.notify_one();
 }
 

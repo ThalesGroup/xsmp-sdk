@@ -110,10 +110,6 @@ void Component::Invoke(::Smp::IRequest *request) {
 void Component::DeleteRequest(::Smp::IRequest *request) {
   if (_publication) {
     _publication->DeleteRequest(request);
-  } else {
-    // the component has been unpublished since the request was created: the
-    // request would leak otherwise
-    delete request;
   }
 }
 

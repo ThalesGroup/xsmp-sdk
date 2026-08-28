@@ -714,9 +714,8 @@ void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
   }
 
   auto initialise = ::Xsmp::GetSymbol<bool (*)(
-      ::Smp::ISimulator *simulator,
-      ::Smp::Publication::ITypeRegistry *type_registry)>(handle,
-                                                         initialiseSymbol);
+      ::Smp::ISimulator *, ::Smp::Publication::ITypeRegistry *)>(
+      handle, initialiseSymbol);
 
   if (!initialise) {
     const std::string msg =
@@ -732,8 +731,8 @@ void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
   }
 
   // check that Finalise exist
-  if (!::Xsmp::GetSymbol<bool (*)(::Smp::ISimulator *simulator)>(
-          handle, finaliseSymbol)) {
+  if (!::Xsmp::GetSymbol<bool (*)(::Smp::ISimulator *)>(handle,
+                                                       finaliseSymbol)) {
     const std::string msg = std::string("Library '") + libraryPath +
                             "' does not provide function 'bool Finalise()': " +
                             ::Xsmp::GetLastError();

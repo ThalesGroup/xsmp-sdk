@@ -104,11 +104,11 @@ T convertIntegral(U newValue, ::Smp::PrimitiveTypeKind kind,
 /// is undefined as soon as the rounded value falls outside of its range.
 template <typename T, typename U> constexpr bool isExactInteger(U newValue) {
   using Unsigned = std::make_unsigned_t<U>;
-  // unsigned negation is well defined, including for the lowest value
   auto magnitude = static_cast<Unsigned>(newValue);
   if constexpr (std::is_signed_v<U>) {
     if (newValue < 0) {
-      magnitude = static_cast<Unsigned>(-magnitude);
+      // negating in two steps keeps the lowest value in range
+      magnitude = static_cast<Unsigned>(-(newValue + 1)) + 1U;
     }
   }
   // the trailing zero bits are carried by the exponent
