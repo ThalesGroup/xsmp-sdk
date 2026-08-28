@@ -29,6 +29,46 @@
 - **Enhanced Productivity**: Using these two projects together accelerates development and reduces errors.
 - **Consistency and Standardization**: Ensures adherence to established standards and practices.
 
+## Building and installing
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j
+# the install rule is enabled by default when xsmp-sdk is the top level project
+cmake --install build --prefix /path/to/install
+```
+
+### CMake options
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `XSMP_BUILD_TESTS` | `ON` for the top level project | Build the unit tests. |
+| `XSMP_BUILD_PYTHON_BINDINGS` | `ON` | Build the `ecss_smp` Python module and install the Python packages. |
+| `XSMP_BUILD_PACKAGE` | `ON` for the top level project | Build the CPack package. |
+| `XSMP_BUILD_EXAMPLES` | `OFF` | Build the examples. |
+| `XSMP_ENABLE_INSTALL` | `ON` for the top level project | Enable the install rule, required to export the targets and use `find_package(xsmp-sdk)`. |
+| `XSMP_ENABLE_CODECOVERAGE` | `OFF` | Enable the code coverage support. |
+| `XSMP_BUILD_WITH_WARNINGS` | `OFF` | Enable all compiler warnings. |
+| `XSMP_INSTALL_PYTHONDIR` | `<libdir>/python<X.Y>/site-packages` | Directory where the Python modules are installed. |
+
+### Installing the Python modules
+
+The `ecss_smp` module and the Python packages (`xsmp`, `xsmp_logger`, ...) are installed in
+`XSMP_INSTALL_PYTHONDIR`, whose default value is deduced from the `site-packages` layout of the
+Python interpreter found at configuration time (e.g. `lib/python3.12/site-packages`).
+
+- A **relative** path (the default) is resolved against the install prefix, so
+  `cmake --install build --prefix /tmp/test` installs everything under `/tmp/test`. Add
+  `/tmp/test/lib/python<X.Y>/site-packages` to your `PYTHONPATH` to use them.
+- An **absolute** path installs the modules outside of the install prefix, e.g. to install them
+  directly in the `site-packages` directory of the current interpreter:
+  ```bash
+  cmake -S . -B build -DXSMP_INSTALL_PYTHONDIR="$(python3 -c 'import sysconfig; print(sysconfig.get_path("purelib"))')"
+  ```
+
+Building with `-DXSMP_BUILD_PYTHON_BINDINGS=OFF` installs no Python module at all; only the C++
+libraries, the headers and the CMake configuration files are installed.
+
 ## Documentation
 
 Comprehensive documentation is available [here](https://ThalesGroup.github.io/xsmp-sdk/). We encourage you to read it to get the most out of the XSMP SDK.
