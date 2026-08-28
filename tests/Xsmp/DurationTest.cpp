@@ -160,4 +160,18 @@ TEST(Duration, stream) {
   EXPECT_STREAM_OPERATOR_FORMAT_EQ(1_h, "01:00", std::string("%R"));
 }
 
+TEST(Duration, Parsing) {
+
+  // a duration is parsed back from the text it produces, sign included
+  EXPECT_EQ(Duration{"01:00:00.000000000"}, 1_h);
+  EXPECT_EQ(Duration{"-00:00:01.000000000"}, Duration{-1000000000});
+  EXPECT_EQ(Duration{"-01:00:00.000000000"}, Duration{-3600000000000});
+
+  // an input that does not match the format is rejected instead of yielding
+  // the default value
+  EXPECT_THROW(Duration{"not-a-duration"}, std::invalid_argument);
+  EXPECT_THROW(Duration{""}, std::invalid_argument);
+  EXPECT_THROW((Duration{"01:00", "%F"}), std::invalid_argument);
+}
+
 } // namespace Xsmp

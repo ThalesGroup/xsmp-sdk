@@ -372,6 +372,7 @@ public:
 
 private:
   void EmitGlobalEvent(::Smp::Services::EventId eventId);
+  void BackToStandby(::Smp::Services::EventId leaveEventId) noexcept;
 
   [[nodiscard]] ::Xsmp::Publication::Publication *
   CreatePublication(::Smp::IComponent *component);
@@ -383,12 +384,15 @@ private:
 
   ::Smp::Services::EventId _lastGlobalEventId = -1;
 
+  // the publications are declared before the components they describe, so that
+  // they are destroyed after them: a component holds a pointer to its
+  // publication and may use it while being destroyed
+  std::list<::Xsmp::Publication::Publication> _publications;
+
   Container<::Smp::IService> _services;
   Container<::Smp::IModel> _models;
 
   std::vector<::Smp::IEntryPoint *> _initEntryPoints;
-
-  std::list<::Xsmp::Publication::Publication> _publications;
 
   FactoryCollection _factories;
 

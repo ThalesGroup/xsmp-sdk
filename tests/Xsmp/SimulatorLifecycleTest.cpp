@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/CannotRestore.h>
 #include <Smp/IPersist.h>
 #include <Smp/IPublication.h>
 #include <Smp/IStorageReader.h>
@@ -29,6 +30,7 @@
 #include <Xsmp/Model.h>
 #include <Xsmp/Service.h>
 #include <Xsmp/Simulator.h>
+#include <cstddef>
 #include <filesystem>
 #include <gtest/gtest.h>
 #include <stdexcept>
@@ -72,6 +74,35 @@ class Assembly final : public Model, public virtual ::Xsmp::Composite {
 public:
   using Model::Model;
   Container<Counter> counters{"counters", "", this, 0, -1};
+};
+
+/// A model publishing the same field name as Counter, with a wider type.
+class WideCounter final : public Model {
+public:
+  using Model::Model;
+  void Publish(::Smp::IPublication *receiver) override {
+    Model::Publish(receiver);
+    receiver->PublishField("count", "", &count);
+  }
+  ::Smp::Int64 count{};
+};
+
+/// A model reading its published fields while being destroyed, as one
+/// releasing resources tied to them would.
+class SelfReadingModel final : public Model {
+public:
+  using Model::Model;
+  void Publish(::Smp::IPublication *receiver) override {
+    Model::Publish(receiver);
+    receiver->PublishField("value", "", &value);
+  }
+  ~SelfReadingModel() override {
+    if (const auto *fields = GetFields()) {
+      seen = fields->size();
+    }
+  }
+  ::Smp::Int32 value{};
+  std::size_t seen{};
 };
 
 } // namespace
@@ -245,6 +276,90 @@ TEST(SimulatorLifecycle, OperationsRefusedOutsideTheirState) {
   sim.Exit();
   EXPECT_EQ(sim.GetState(), ::Smp::SimulatorStateKind::SSK_Exiting);
   EXPECT_FALSE(std::filesystem::exists(directory));
+}
+
+TEST(SimulatorLifecycle, ModelReadsItsFieldsWhileBeingDestroyed) {
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.AddModel(new SelfReadingModel("model", "", &sim, &sim));
+  sim.Connect();
+
+  // the publications outlive the components they describe, so a model can
+  // still use them while the simulator destroys it
+  sim.Exit();
+}
+
+TEST(SimulatorLifecycle, AnInterruptedRestoreLeavesTheSimulationUsable) {
+
+  const auto directory =
+      (std::filesystem::temp_directory_path() / "xsmp-interrupted").string();
+  std::filesystem::remove_all(directory);
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  auto *counter = new Counter("counter", "", &sim, &sim);
+  sim.AddModel(counter);
+  sim.Connect();
+
+  // restoring from a state that does not exist fails without leaving the
+  // simulation in the Restoring state
+  EXPECT_THROW(sim.Restore(directory.c_str()), ::Smp::CannotRestore);
+  EXPECT_EQ(sim.GetState(), ::Smp::SimulatorStateKind::SSK_Standby);
+
+  // so that a correct store and restore still works afterwards
+  counter->count = 13;
+  sim.Store(directory.c_str());
+  counter->count = 0;
+  sim.Restore(directory.c_str());
+  EXPECT_EQ(counter->count, 13);
+
+  sim.Exit();
+  std::filesystem::remove_all(directory);
+}
+
+TEST(SimulatorLifecycle, RestoringAStateOfAnotherModelTreeIsRefused) {
+
+  const auto directory =
+      (std::filesystem::temp_directory_path() / "xsmp-other-tree").string();
+  std::filesystem::remove_all(directory);
+
+  {
+    Simulator sim;
+    sim.LoadLibrary("xsmp_services");
+    auto *counter = new Counter("counter", "", &sim, &sim);
+    sim.AddModel(counter);
+    sim.Connect();
+    counter->count = 42;
+    sim.Store(directory.c_str());
+    sim.Exit();
+  }
+  {
+    // the same path, holding a field of a wider type: restoring would read the
+    // stored bytes into a field they do not belong to
+    Simulator sim;
+    sim.LoadLibrary("xsmp_services");
+    auto *counter = new WideCounter("counter", "", &sim, &sim);
+    sim.AddModel(counter);
+    sim.Connect();
+    EXPECT_THROW(sim.Restore(directory.c_str()), ::Smp::CannotRestore);
+    EXPECT_EQ(counter->count, 0);
+    sim.Exit();
+  }
+  std::filesystem::remove_all(directory);
+}
+
+TEST(SimulatorLifecycle, AbortAfterExit) {
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.Connect();
+  sim.Exit();
+
+  // aborting is allowed from any state, including once the services have been
+  // disconnected
+  sim.Abort();
+  EXPECT_EQ(sim.GetState(), ::Smp::SimulatorStateKind::SSK_Aborting);
 }
 
 } // namespace Xsmp

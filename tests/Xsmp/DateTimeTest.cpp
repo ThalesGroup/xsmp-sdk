@@ -147,4 +147,14 @@ TEST(DateTime, stream) {
   EXPECT_STREAM_OPERATOR_EQ(DateTime{"2000-01-01 12:00:00"}, 0);
 }
 
+TEST(DateTime, Parsing) {
+
+  EXPECT_EQ(DateTime{"2000-01-01 12:00:00"}, DateTime{0});
+
+  // an input that does not match the format is rejected instead of yielding
+  // the epoch
+  EXPECT_THROW(DateTime{"garbage"}, std::invalid_argument);
+  EXPECT_THROW(DateTime{""}, std::invalid_argument);
+}
+
 } // namespace Xsmp

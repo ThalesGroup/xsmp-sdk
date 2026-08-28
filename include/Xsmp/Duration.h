@@ -42,8 +42,12 @@ struct Duration final {
   constexpr explicit Duration(const std::chrono::duration<Rep, Period> &d)
       : _value{
             std::chrono::duration_cast<std::chrono::nanoseconds>(d).count()} {}
+  /// Parses a duration, an optional leading '-' negating it.
+  /// @throws std::invalid_argument if the input does not match the format.
   explicit Duration(std::string_view date, const char *fmt = "%T");
 
+  /// Parses a duration, an optional leading '-' negating it.
+  /// @throws std::invalid_argument if the input does not match the format.
   explicit Duration(std::istream &inputStream, const char *fmt = "%T");
 
   std::string format(const char *fmt = "%T") const;

@@ -14,6 +14,7 @@
 
 #include <Smp/IPublication.h>
 #include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/IArrayType.h>
 #include <Smp/Uuid.h>
 #include <Smp/ViewKind.h>
 #include <Xsmp/Exception.h>
@@ -21,6 +22,7 @@
 #include <Xsmp/Publication/Type.h>
 #include <Xsmp/Publication/TypeRegistry.h>
 #include <map>
+#include <set>
 #include <vector>
 
 namespace Xsmp::Publication {
@@ -184,14 +186,49 @@ StructureType::StructureType(::Smp::String8 name, ::Smp::String8 description,
                              ::Smp::Uuid typeUuid)
     : Type(name, description, typeRegistry, typeUuid) {}
 
+namespace {
+/// Whether the given type is, or contains through any number of intermediate
+/// structures and arrays, the type identified by target.
+bool contains(const ::Xsmp::Publication::TypeRegistry *typeRegistry,
+              const ::Smp::Publication::IType *type, ::Smp::Uuid target,
+              std::set<::Smp::Uuid> &visited) {
+  if (!type) {
+    return false;
+  }
+  if (type->GetUuid() == target) {
+    return true;
+  }
+  // a type already registered as cyclic cannot make this one cyclic in turn
+  if (!visited.insert(type->GetUuid()).second) {
+    return false;
+  }
+  if (const auto *structure = dynamic_cast<const StructureType *>(type)) {
+    for (const auto &field : structure->GetFields()) {
+      if (contains(typeRegistry, typeRegistry->GetType(field.uuid), target,
+                   visited)) {
+        return true;
+      }
+    }
+  } else if (const auto *array =
+                 dynamic_cast<const ::Smp::Publication::IArrayType *>(type)) {
+    return contains(typeRegistry, array->GetItemType(), target, visited);
+  }
+  return false;
+}
+} // namespace
+
 void StructureType::AddField(::Smp::String8 name, ::Smp::String8 description,
                              ::Smp::Uuid uuid, ::Smp::Int64 offset,
                              ::Smp::ViewKind view, ::Smp::Bool state,
                              ::Smp::Bool input, ::Smp::Bool output) {
 
-  // a field of the structure's own type makes the publication of a field of
-  // that type, and the creation of a request holding one, recurse forever
-  if (uuid == GetUuid()) {
+  // a structure containing itself, directly or through other types, makes the
+  // publication of a field of that type, and the creation of a request holding
+  // one, recurse forever
+  std::set<::Smp::Uuid> visited;
+  if (uuid == GetUuid() ||
+      contains(GetTypeRegistry(), GetTypeRegistry()->GetType(uuid), GetUuid(),
+               visited)) {
     ::Xsmp::Exception::throwIncompatibleType(
         this, uuid, "A structure cannot contain a field of its own type.");
   }

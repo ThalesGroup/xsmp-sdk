@@ -15,6 +15,7 @@
 #ifndef XSMP_PERSIST_STDSTRING_H_
 #define XSMP_PERSIST_STDSTRING_H_
 
+#include <Xsmp/Exception.h>
 #include <Xsmp/Persist.h>
 #include <string>
 
@@ -39,6 +40,12 @@ struct Helper<std::basic_string<CharT, Traits, Alloc>> {
                       ::Smp::IStorageReader *reader, type &value) {
     size_type size;
     ::Xsmp::Persist::Restore(simulator, reader, size);
+    // the length comes from the file: a corrupted one must be reported as a
+    // state that cannot be restored, not as a length_error
+    if (size > value.max_size()) {
+      ::Xsmp::Exception::throwCannotRestore(nullptr,
+                                            "Invalid stored string length.");
+    }
     value.resize(size);
     if (size)
       reader->Restore(value.data(), size);

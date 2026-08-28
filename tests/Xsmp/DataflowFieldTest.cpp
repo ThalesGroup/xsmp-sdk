@@ -365,4 +365,28 @@ TEST(DataflowField, IncompatibleTarget) {
   EXPECT_THROW(arrayOutput.Connect(&simpleInput), ::Smp::InvalidTarget);
 }
 
+TEST(DataflowField, ConnectionCycle) {
+
+  Xsmp::Publication::TypeRegistry registry;
+
+  // a field can be both an input and an output: two of them connected to each
+  // other form a cycle
+  Field<::Smp::Int32>::output::input first{&registry, ::Smp::Uuids::Uuid_Int32,
+                                           "first"};
+  Field<::Smp::Int32>::output::input second{&registry,
+                                            ::Smp::Uuids::Uuid_Int32, "second"};
+
+  first.Connect(&second);
+  second.Connect(&first);
+
+  // the value goes round the cycle once instead of propagating for ever
+  first = 42;
+  EXPECT_EQ(static_cast<::Smp::Int32>(first), 42);
+  EXPECT_EQ(static_cast<::Smp::Int32>(second), 42);
+
+  second = 7;
+  EXPECT_EQ(static_cast<::Smp::Int32>(first), 7);
+  EXPECT_EQ(static_cast<::Smp::Int32>(second), 7);
+}
+
 } // namespace Xsmp

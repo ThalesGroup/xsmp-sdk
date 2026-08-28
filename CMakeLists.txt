@@ -237,9 +237,13 @@ add_library(LibraryHelper OBJECT
     src/Xsmp/LibraryHelper.cpp
 )
 add_library(Xsmp::LibraryHelper ALIAS LibraryHelper)
+# LibraryHelper is internal: its header lives with its source, outside the
+# installed include directory, and the object library is neither installed nor
+# exported. The symbols it provides are part of the Simulator library.
 target_include_directories(
     LibraryHelper
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 )
 target_link_libraries(LibraryHelper INTERFACE ${CMAKE_DL_LIBS})
 
@@ -582,7 +586,8 @@ target_include_directories(
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 )
 
-target_link_libraries(Simulator PUBLIC Xsmp::Cdk Xsmp::LibraryHelper)
+target_link_libraries(Simulator PUBLIC Xsmp::Cdk)
+target_link_libraries(Simulator PRIVATE Xsmp::LibraryHelper)
 
 target_compile_options(Simulator PRIVATE ${XSMP_COMPILE_OPTIONS})
 
@@ -726,11 +731,20 @@ if(XSMP_ENABLE_INSTALL)
         )
     endif()
 
-    install(TARGETS Smp Cdk LibraryHelper Simulator EventManager LinkRegistry Logger Resolver Scheduler TimeKeeper
+    install(TARGETS Smp Cdk Simulator EventManager LinkRegistry Logger Resolver Scheduler TimeKeeper Services
         EXPORT ${PROJECT_NAME}-config
     )
     install(EXPORT ${PROJECT_NAME}-config
         NAMESPACE Xsmp::
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+    )
+
+    include(CMakePackageConfigHelpers)
+    write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
+        VERSION "${PROJECT_VERSION}"
+        COMPATIBILITY SameMajorVersion
+    )
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
     )
 endif(XSMP_ENABLE_INSTALL)

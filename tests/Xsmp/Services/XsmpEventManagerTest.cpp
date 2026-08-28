@@ -22,6 +22,7 @@
 #include <Xsmp/EntryPoint.h>
 #include <Xsmp/EntryPointPublisher.h>
 #include <Xsmp/Simulator.h>
+#include <filesystem>
 #include <gtest/gtest.h>
 #include <initializer_list>
 #include <map>
@@ -118,6 +119,38 @@ TEST(XsmpEventManager, QueryEventId) {
   EXPECT_EQ(
       sim.GetEventManager()->QueryEventId(IEventManager::SMP_PostSimTimeChange),
       IEventManager::SMP_PostSimTimeChangeId);
+}
+
+TEST(XsmpEventManager, RestoreDoesNotReissueALiveEventId) {
+
+  const auto directory =
+      (std::filesystem::temp_directory_path() / "xsmp-event-ids").string();
+  std::filesystem::remove_all(directory);
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.Connect();
+
+  const auto stored = sim.GetEventManager()->QueryEventId("stored");
+  sim.Store(directory.c_str());
+
+  // an event declared after the state was stored is not part of it
+  const auto late = sim.GetEventManager()->QueryEventId("late");
+  EXPECT_NE(late, stored);
+  sim.Restore(directory.c_str());
+
+  // querying a name always yields the same identifier, restore included
+  EXPECT_EQ(sim.GetEventManager()->QueryEventId("stored"), stored);
+  EXPECT_EQ(sim.GetEventManager()->QueryEventId("late"), late);
+
+  // and an identifier a component may still hold is never handed out for
+  // another event
+  const auto next = sim.GetEventManager()->QueryEventId("next");
+  EXPECT_NE(next, late);
+  EXPECT_NE(next, stored);
+
+  sim.Exit();
+  std::filesystem::remove_all(directory);
 }
 
 TEST(XsmpEventManager, ep) {

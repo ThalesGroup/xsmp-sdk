@@ -23,6 +23,7 @@
 #include <Xsmp/Helper.h>
 #include <Xsmp/Persist.h>
 #include <Xsmp/Services/XsmpTimeKeeper.h>
+#include <limits>
 #include <mutex>
 
 namespace Xsmp::Services {
@@ -37,6 +38,23 @@ void XsmpTimeKeeper::DoConnect(const ::Smp::ISimulator *simulator) const {
       ::Smp::Services::IEventManager::SMP_PostSimTimeChangeId,
       &PostSimTimeChange);
 }
+namespace {
+/// The time bases are Int64 nanoseconds and are defined by their differences:
+/// saturating keeps the result of a subtraction inside the type instead of
+/// overflowing it.
+::Smp::Duration subtract(::Smp::Int64 lhs, ::Smp::Int64 rhs) {
+  constexpr auto highest = std::numeric_limits<::Smp::Int64>::max();
+  constexpr auto lowest = std::numeric_limits<::Smp::Int64>::lowest();
+  if (rhs < 0 && lhs > highest + rhs) {
+    return highest;
+  }
+  if (rhs > 0 && lhs < lowest + rhs) {
+    return lowest;
+  }
+  return lhs - rhs;
+}
+} // namespace
+
 ::Smp::Duration XsmpTimeKeeper::GetSimulationTime() const {
   return _simulationTime.read().get();
 }
@@ -50,14 +68,14 @@ void XsmpTimeKeeper::DoConnect(const ::Smp::ISimulator *simulator) const {
   // take them in the order the compiler chooses to evaluate the operands
   const auto simulationTime = _simulationTime.read().get();
   const auto epochStart = _epochStart.read().get();
-  return simulationTime - epochStart;
+  return subtract(simulationTime, epochStart);
 }
 
 ::Smp::Duration XsmpTimeKeeper::GetMissionTime() const {
   const auto simulationTime = _simulationTime.read().get();
   const auto epochStart = _epochStart.read().get();
   const auto missionStartTime = _missionStartTime.read().get();
-  return simulationTime - epochStart - missionStartTime;
+  return subtract(subtract(simulationTime, epochStart), missionStartTime);
 }
 
 ::Smp::DateTime XsmpTimeKeeper::GetZuluTime() const {
@@ -66,7 +84,7 @@ void XsmpTimeKeeper::DoConnect(const ::Smp::ISimulator *simulator) const {
 
 void XsmpTimeKeeper::SetEpochTime(::Smp::DateTime epochTime) {
   const auto simulationTime = _simulationTime.read().get();
-  _epochStart.write().get() = simulationTime - epochTime;
+  _epochStart.write().get() = subtract(simulationTime, epochTime);
   GetSimulator()->GetEventManager()->Emit(
       ::Smp::Services::IEventManager::SMP_EpochTimeChangedId);
 }
@@ -80,7 +98,8 @@ void XsmpTimeKeeper::SetMissionStartTime(::Smp::DateTime missionStart) {
 void XsmpTimeKeeper::SetMissionTime(::Smp::Duration missionTime) {
   const auto simulationTime = _simulationTime.read().get();
   const auto epochStart = _epochStart.read().get();
-  _missionStartTime.write().get() = simulationTime - epochStart - missionTime;
+  _missionStartTime.write().get() =
+      subtract(subtract(simulationTime, epochStart), missionTime);
 
   GetSimulator()->GetEventManager()->Emit(
       ::Smp::Services::IEventManager::SMP_MissionTimeChangedId);

@@ -16,6 +16,7 @@
 #include <Smp/IComposite.h>
 #include <Smp/IFactory.h>
 #include <Smp/IField.h>
+#include <Smp/Publication/IType.h>
 #include <Smp/IModel.h>
 #include <Smp/IPersist.h>
 #include <Smp/IService.h>
@@ -42,6 +43,7 @@
 #include <cstdint>
 #include <exception>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <vector>
 
@@ -401,12 +403,57 @@ void Simulator::Hold(::Smp::Bool immediate) {
 
 namespace {
 enum class PersistKind : std::uint8_t { PERSIST, FIELD };
+
+/// The state vector is a positional format: each entry is tagged with the
+/// identity of the object it belongs to, so that restoring a state stored by a
+/// different model tree is refused instead of reading one object's bytes into
+/// another. The hash is computed here rather than taken from std::hash, whose
+/// result is not stable across implementations.
+::Smp::UInt64 hash(std::string_view value) {
+  ::Smp::UInt64 result = 14695981039346656037ULL;
+  for (const auto character : value) {
+    result ^= static_cast<unsigned char>(character);
+    result *= 1099511628211ULL;
+  }
+  return result;
+}
+
+::Smp::UInt64 identity(const ::Smp::IObject *object) {
+  return hash(::Xsmp::Helper::GetPath(object));
+}
+
+/// A field is identified by its path and its type, so that a field whose type
+/// changed is not restored from the bytes of the previous one.
+::Smp::UInt64 identity(const ::Smp::IField *field) {
+  const auto *type = field->GetType();
+  return hash(::Xsmp::Helper::GetPath(field) + '|' +
+              (type ? type->GetName() : ""));
+}
+
+void storeEntry(::Smp::IStorageWriter *writer, PersistKind kind,
+                ::Smp::UInt64 objectId) {
+  writer->Store(&kind, sizeof(kind));
+  writer->Store(&objectId, sizeof(objectId));
+}
+
+void check(const ::Smp::IObject *obj, ::Smp::IStorageReader *reader,
+           PersistKind expectedKind, ::Smp::UInt64 expectedId) {
+  PersistKind kind{};
+  reader->Restore(&kind, sizeof(kind));
+  ::Smp::UInt64 objectId{};
+  reader->Restore(&objectId, sizeof(objectId));
+
+  if (kind != expectedKind || objectId != expectedId) {
+    ::Xsmp::Exception::throwCannotRestore(
+        obj, "The stored state does not belong to this object.");
+  }
+}
+
 /// Self persistence of a component: the state it stores itself through the
 /// ::Smp::IPersist interface.
 void storeSelf(::Smp::IComponent *component, ::Smp::IStorageWriter *writer) {
   if (auto *persist = dynamic_cast<::Smp::IPersist *>(component)) {
-    auto kind = PersistKind::PERSIST;
-    writer->Store(&kind, sizeof(kind));
+    storeEntry(writer, PersistKind::PERSIST, identity(component));
     persist->Store(writer);
   }
 }
@@ -418,26 +465,15 @@ void storeFields(const ::Smp::IComponent *component,
                  ::Smp::IStorageWriter *writer) {
   if (const auto *fields = component->GetFields()) {
     for (auto *field : *fields) {
-      auto kind = PersistKind::FIELD;
-      writer->Store(&kind, sizeof(kind));
+      storeEntry(writer, PersistKind::FIELD, identity(field));
       field->Store(writer);
     }
   }
 }
 
-void check(const ::Smp::IObject *obj, ::Smp::IStorageReader *reader,
-           PersistKind expectedKind) {
-  PersistKind kind{};
-  reader->Restore(&kind, sizeof(kind));
-
-  if (kind != expectedKind) {
-    ::Xsmp::Exception::throwCannotRestore(obj, "Wrong check");
-  }
-}
-
 void restoreSelf(::Smp::IComponent *component, ::Smp::IStorageReader *reader) {
   if (auto *persist = dynamic_cast<::Smp::IPersist *>(component)) {
-    check(component, reader, PersistKind::PERSIST);
+    check(component, reader, PersistKind::PERSIST, identity(component));
     persist->Restore(reader);
   }
 }
@@ -446,7 +482,7 @@ void restoreFields(const ::Smp::IComponent *component,
                    ::Smp::IStorageReader *reader) {
   if (const auto *fields = component->GetFields()) {
     for (auto *field : *fields) {
-      check(field, reader, PersistKind::FIELD);
+      check(field, reader, PersistKind::FIELD, identity(field));
       field->Restore(reader);
     }
   }
@@ -457,6 +493,19 @@ void restoreFields(const ::Smp::IComponent *component,
 // order as they are restored
 static constexpr ::Smp::String8 PERSIST_FILENAME = "simulator.bin";
 static constexpr ::Smp::String8 SELF_PERSIST_FILENAME = "components.bin";
+/// Returns to the Standby state after an operation that left it was
+/// interrupted. A failure of the event emissions is dropped: the exception
+/// that interrupted the operation is the one worth reporting.
+void Simulator::BackToStandby(::Smp::Services::EventId leaveEventId) noexcept {
+  try {
+    EmitGlobalEvent(leaveEventId);
+    _state = ::Smp::SimulatorStateKind::SSK_Standby;
+    EmitGlobalEvent(::Smp::Services::IEventManager::SMP_EnterStandbyId);
+  } catch (...) {
+    _state = ::Smp::SimulatorStateKind::SSK_Standby;
+  }
+}
+
 void Simulator::Store(::Smp::String8 filename) {
 
   if (_state != ::Smp::SimulatorStateKind::SSK_Standby ||
@@ -476,17 +525,22 @@ void Simulator::Store(::Smp::String8 filename) {
 
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_EnterStoringId);
 
-  StorageWriter writer{filename, PERSIST_FILENAME, this};
-  StorageWriter selfWriter{filename, SELF_PERSIST_FILENAME, this};
+  try {
+    StorageWriter writer{filename, PERSIST_FILENAME, this};
+    StorageWriter selfWriter{filename, SELF_PERSIST_FILENAME, this};
 
-  // self persistence is performed first, so that a component can update its
-  // published fields before they are stored
-  recursive_action(this, [&selfWriter](::Smp::IComponent *cmp) {
-    storeSelf(cmp, &selfWriter);
-  });
-  recursive_action(this, [&writer](const ::Smp::IComponent *cmp) {
-    storeFields(cmp, &writer);
-  });
+    // self persistence is performed first, so that a component can update its
+    // published fields before they are stored
+    recursive_action(this, [&selfWriter](::Smp::IComponent *cmp) {
+      storeSelf(cmp, &selfWriter);
+    });
+    recursive_action(this, [&writer](const ::Smp::IComponent *cmp) {
+      storeFields(cmp, &writer);
+    });
+  } catch (...) {
+    BackToStandby(::Smp::Services::IEventManager::SMP_LeaveStoringId);
+    throw;
+  }
 
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveStoringId);
   _state = ::Smp::SimulatorStateKind::SSK_Standby;
@@ -510,17 +564,22 @@ void Simulator::Restore(::Smp::String8 filename) {
 
   _state = ::Smp::SimulatorStateKind::SSK_Restoring;
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_EnterRestoringId);
-  StorageReader reader{filename, PERSIST_FILENAME, this};
-  StorageReader selfReader{filename, SELF_PERSIST_FILENAME, this};
+  try {
+    StorageReader reader{filename, PERSIST_FILENAME, this};
+    StorageReader selfReader{filename, SELF_PERSIST_FILENAME, this};
 
-  // the published fields are restored first, so that a component can use them
-  // while restoring itself
-  recursive_action(this, [&reader](const ::Smp::IComponent *cmp) {
-    restoreFields(cmp, &reader);
-  });
-  recursive_action(this, [&selfReader](::Smp::IComponent *cmp) {
-    restoreSelf(cmp, &selfReader);
-  });
+    // the published fields are restored first, so that a component can use
+    // them while restoring itself
+    recursive_action(this, [&reader](const ::Smp::IComponent *cmp) {
+      restoreFields(cmp, &reader);
+    });
+    recursive_action(this, [&selfReader](::Smp::IComponent *cmp) {
+      restoreSelf(cmp, &selfReader);
+    });
+  } catch (...) {
+    BackToStandby(::Smp::Services::IEventManager::SMP_LeaveRestoringId);
+    throw;
+  }
 
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveRestoringId);
   _state = ::Smp::SimulatorStateKind::SSK_Standby;
@@ -545,18 +604,23 @@ void Simulator::Reconnect(::Smp::IComponent *root) {
   _state = ::Smp::SimulatorStateKind::SSK_Reconnecting;
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_EnterReconnectingId);
 
-  if (auto const *composite = dynamic_cast<::Smp::IComposite *>(root)) {
-    recursive_action(composite, [this](::Smp::IComponent *cmp) {
-      if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Created) {
-        cmp->Publish(CreatePublication(cmp));
-      }
-      if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Publishing) {
-        cmp->Configure(_logger, _linkRegistry);
-      }
-      if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Configured) {
-        cmp->Connect(this);
-      }
-    });
+  try {
+    if (auto const *composite = dynamic_cast<::Smp::IComposite *>(root)) {
+      recursive_action(composite, [this](::Smp::IComponent *cmp) {
+        if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Created) {
+          cmp->Publish(CreatePublication(cmp));
+        }
+        if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Publishing) {
+          cmp->Configure(_logger, _linkRegistry);
+        }
+        if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Configured) {
+          cmp->Connect(this);
+        }
+      });
+    }
+  } catch (...) {
+    BackToStandby(::Smp::Services::IEventManager::SMP_LeaveReconnectingId);
+    throw;
   }
   _state = ::Smp::SimulatorStateKind::SSK_Standby;
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_EnterStandbyId);
@@ -756,7 +820,30 @@ void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
     ::Xsmp::Exception::throwInvalidLibrary(this, libraryPath, msg);
   }
 
-  if ((*initialise)(this, &_typeRegistry)) {
+  bool initialised = false;
+  try {
+    initialised = (*initialise)(this, &_typeRegistry);
+  } catch (const std::exception &e) {
+    // Initialise() reports a failure through its return value: an exception
+    // is outside this operation's contract and would leave the library loaded
+    const std::string msg = std::string("Initialise() of library '") +
+                            libraryPath + "' threw: " + e.what();
+    if (_logger) {
+      _logger->Log(this, msg.c_str(), ::Smp::Services::ILogger::LMK_Error);
+    }
+    ::Xsmp::CloseLibrary(handle);
+    ::Xsmp::Exception::throwInvalidLibrary(this, libraryPath, msg);
+  } catch (...) {
+    const std::string msg = std::string("Initialise() of library '") +
+                            libraryPath + "' threw an unknown exception.";
+    if (_logger) {
+      _logger->Log(this, msg.c_str(), ::Smp::Services::ILogger::LMK_Error);
+    }
+    ::Xsmp::CloseLibrary(handle);
+    ::Xsmp::Exception::throwInvalidLibrary(this, libraryPath, msg);
+  }
+
+  if (initialised) {
     if (_logger) {
       _logger->Log(
           this,

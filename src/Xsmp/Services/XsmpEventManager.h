@@ -124,6 +124,11 @@ private:
       ::Smp::Services::EventId, std::vector<const ::Smp::IEntryPoint *>>>
       _subscriptions;
 
+  /// The highest identifier handed out so far, guarded by _events. It never
+  /// decreases, so that an identifier a component still holds is not handed
+  /// out again for another event after a Restore.
+  ::Smp::Services::EventId _lastEventId{};
+
   const std::string &GetEventName(::Smp::Services::EventId event) const;
 };
 } // namespace Xsmp::Services

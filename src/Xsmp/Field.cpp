@@ -357,9 +357,20 @@ SimpleConnectableField::SimpleConnectableField()
                        this} {}
 
 void SimpleConnectableField::internal_push() const {
-  for (auto *field : _connectedFields) {
-    dynamic_cast<::Smp::ISimpleField *>(field)->SetValue(this->GetValue());
+  // a connected field can push back to this one: propagate the value only once
+  if (_pushing) {
+    return;
   }
+  _pushing = true;
+  try {
+    for (auto *field : _connectedFields) {
+      dynamic_cast<::Smp::ISimpleField *>(field)->SetValue(this->GetValue());
+    }
+  } catch (...) {
+    _pushing = false;
+    throw;
+  }
+  _pushing = false;
 }
 const ::Smp::FieldCollection *SimpleConnectableField::GetInputFields() const {
   return &_connectedFields;
@@ -517,10 +528,21 @@ SimpleArrayConnectableField::SimpleArrayConnectableField()
                        this} {}
 
 void SimpleArrayConnectableField::internal_push(::Smp::UInt64 index) const {
-  for (auto *field : _connectedFields) {
-    dynamic_cast<::Smp::ISimpleArrayField *>(field)->SetValue(
-        index, this->GetValue(index));
+  // a connected field can push back to this one: propagate the value only once
+  if (_pushing) {
+    return;
   }
+  _pushing = true;
+  try {
+    for (auto *field : _connectedFields) {
+      dynamic_cast<::Smp::ISimpleArrayField *>(field)->SetValue(
+          index, this->GetValue(index));
+    }
+  } catch (...) {
+    _pushing = false;
+    throw;
+  }
+  _pushing = false;
 }
 
 const ::Smp::FieldCollection *

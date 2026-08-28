@@ -13,18 +13,16 @@ This is a sample project that demonstrate the use of the xsmp-sdk framework
 
 ## How to Build
 
-Both CMake and Python (pip) builds are supported.
-
-### Build with CMake
-
 ```bash
 cmake -B ./build -DCMAKE_BUILD_TYPE=Release
 cmake --build ./build --config Release
 ```
 
-### Build with Python (pip)
+## How to Test
+
+The Python tests under `python/` are discovered by CTest:
 
 ```bash
-python -m pip install .[test] -v
+ctest --test-dir ./build
 ```
 

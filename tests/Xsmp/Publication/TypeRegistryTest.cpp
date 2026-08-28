@@ -282,6 +282,32 @@ TEST(TypeRegistry, SelfContainedStructure) {
                Smp::Exception);
 }
 
+TEST(TypeRegistry, IndirectlySelfContainedStructure) {
+
+  TypeRegistry registry;
+
+  const Smp::Uuid first{0, 0, 0, 0, 51};
+  const Smp::Uuid second{0, 0, 0, 0, 52};
+  const Smp::Uuid array{0, 0, 0, 0, 53};
+
+  auto *outer = registry.AddStructureType("outer", "", first);
+  auto *inner = registry.AddStructureType("inner", "", second);
+  ASSERT_TRUE(outer);
+  ASSERT_TRUE(inner);
+
+  outer->AddField("inner", "", second, 0);
+
+  // the cycle closes through an intermediate structure
+  EXPECT_THROW(inner->AddField("outer", "", first, 0), Smp::Exception);
+
+  // and through an array of the containing structure
+  registry.AddArrayType("array", "", array, first, 4, 2, false);
+  EXPECT_THROW(inner->AddField("array", "", array, 0), Smp::Exception);
+
+  // a type that is not part of a cycle is still accepted
+  EXPECT_NO_THROW(inner->AddField("value", "", Smp::Uuids::Uuid_Int32, 0));
+}
+
 TEST(TypeRegistry, ClassType) {
 
   TypeRegistry registry;

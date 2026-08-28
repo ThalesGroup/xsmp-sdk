@@ -18,6 +18,7 @@
 #include <date/date.h>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -32,16 +33,19 @@ static_assert(std::is_standard_layout_v<::Xsmp::DateTime>,
 DateTime DateTime::now() { return DateTime{std::chrono::system_clock::now()}; }
 
 namespace {
-inline DateTime::time_point parse(std::string_view date, const char *fmt) {
-  std::istringstream iss{std::string(date)};
-  DateTime::time_point timePoint;
-  iss >> date::parse(fmt, timePoint);
-  return timePoint;
-}
 inline DateTime::time_point parse(std::istream &inputStream, const char *fmt) {
   DateTime::time_point timePoint;
   inputStream >> date::parse(fmt, timePoint);
+  if (inputStream.fail()) {
+    throw std::invalid_argument(
+        std::string("Could not parse a DateTime with the format '") + fmt +
+        "'.");
+  }
   return timePoint;
+}
+inline DateTime::time_point parse(std::string_view date, const char *fmt) {
+  std::istringstream iss{std::string(date)};
+  return parse(iss, fmt);
 }
 } // namespace
 

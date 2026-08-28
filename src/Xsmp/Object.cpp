@@ -21,8 +21,10 @@ namespace Xsmp {
 
 Object::Object(::Smp::String8 name, ::Smp::String8 description,
                ::Smp::IObject *parent)
-    : _name(::Xsmp::Helper::checkName(name, parent)), _description(description),
-      _parent(parent) {}
+    : _name(::Xsmp::Helper::checkName(name, parent)),
+      // the description is external input, like the name: an object without
+      // one still has to return a valid string
+      _description(description ? description : ""), _parent(parent) {}
 
 ::Smp::String8 Object::GetName() const { return _name.c_str(); }
 

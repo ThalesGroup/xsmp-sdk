@@ -598,9 +598,10 @@ void SimpleArrayField::SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) {
     if (!stringType) {
       ::Xsmp::Exception::throwInvalidFieldType(this, _itemType);
     }
+    // the buffer of a string field holds its length plus the null terminator
     ::Xsmp::Helper::CopyString(
         static_cast<char *>(address),
-        static_cast<std::size_t>(stringType->GetLength()), value);
+        static_cast<std::size_t>(stringType->GetLength()) + 1, value);
     break;
   }
   default:
@@ -793,9 +794,10 @@ void SimpleField::SetValue(::Smp::AnySimple value) {
     if (!stringType) {
       ::Xsmp::Exception::throwInvalidFieldType(this, GetType());
     }
+    // the buffer of a string field holds its length plus the null terminator
     ::Xsmp::Helper::CopyString(
         static_cast<char *>(GetAddress()),
-        static_cast<std::size_t>(stringType->GetLength()), value);
+        static_cast<std::size_t>(stringType->GetLength()) + 1, value);
     break;
   }
   default:

@@ -19,6 +19,7 @@
 #include <iostream>
 #include <limits>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -42,9 +43,21 @@ static_assert(std::is_standard_layout_v<::Xsmp::Duration>,
 
 namespace {
 ::Smp::Duration from(std::istream &inputStream, const char *fmt) {
-  std::chrono::nanoseconds timePoint;
-  inputStream >> date::parse(fmt, timePoint);
-  return timePoint.count();
+  // the duration formats carry no sign: a leading '-' is consumed here and
+  // applied to the magnitude that follows
+  inputStream >> std::ws;
+  const bool negative = inputStream.peek() == '-';
+  if (negative) {
+    inputStream.get();
+  }
+  std::chrono::nanoseconds duration;
+  inputStream >> date::parse(fmt, duration);
+  if (inputStream.fail()) {
+    throw std::invalid_argument(
+        std::string("Could not parse a Duration with the format '") + fmt +
+        "'.");
+  }
+  return negative ? -duration.count() : duration.count();
 }
 ::Smp::Duration from(std::string_view date, const char *fmt) {
   std::istringstream inputStream{std::string(date)};

@@ -473,15 +473,17 @@ std::string TypeName(const ::Smp::IObject *object) {
 
 void CopyString(::Smp::Char8 *destination, std::size_t size,
                 const ::Smp::AnySimple &value) {
-  const auto *str = static_cast<::Smp::String8>(value);
-  if (str) {
-    const std::size_t length =
-        std::min(size, std::char_traits<char>::length(str));
-    std::char_traits<char>::copy(destination, str, length);
-    destination[length] = '\0';
-  } else {
-    destination[0] = '\0';
+  if (size == 0) {
+    return;
   }
+  const auto *str = static_cast<::Smp::String8>(value);
+  // one character of the buffer is reserved for the null terminator
+  const std::size_t length =
+      str ? std::min(size - 1, std::char_traits<char>::length(str)) : 0;
+  if (length != 0) {
+    std::char_traits<char>::copy(destination, str, length);
+  }
+  destination[length] = '\0';
 }
 
 [[nodiscard]] bool IsAncestor(const ::Smp::IObject *ancestorObject,

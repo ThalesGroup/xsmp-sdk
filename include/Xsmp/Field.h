@@ -235,6 +235,9 @@ protected:
 
 private:
   InputFieldCollection _connectedFields;
+  /// Set while this field is pushing its value, so that a cycle in the
+  /// connections stops instead of propagating for ever.
+  mutable bool _pushing = false;
   friend class ::Xsmp::detail::FieldHelper;
 };
 class SimpleDataflowField : public virtual SimpleConnectableField,
@@ -261,6 +264,9 @@ protected:
 
 private:
   InputFieldCollection _connectedFields;
+  /// Set while this field is pushing its value, so that a cycle in the
+  /// connections stops instead of propagating for ever.
+  mutable bool _pushing = false;
   friend class ::Xsmp::detail::FieldHelper;
 };
 
@@ -426,6 +432,9 @@ public:
   }
 
   void SetValue(::Smp::AnySimple value) override {
+    if (this->GetPrimitiveTypeKind() != value.type) {
+      ::Xsmp::Exception::throwInvalidFieldValue(this, value);
+    }
     SetValue(::Xsmp::AnySimpleConverter<T>::convert(value));
   }
 

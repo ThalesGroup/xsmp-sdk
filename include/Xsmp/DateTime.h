@@ -73,6 +73,7 @@ struct DateTime final {
   /// @param date the string date
   /// @param fmt the date format
   /// @see https://en.cppreference.com/w/cpp/chrono/duration/formatter
+  /// @throws std::invalid_argument if the input does not match the format.
   explicit DateTime(std::string_view date, const char *fmt = "%F %T");
 
   /// A DateTime initialized from a stream and an optional format
@@ -80,6 +81,7 @@ struct DateTime final {
   /// @param inputStream the input stream
   /// @param fmt the date format
   /// @see https://en.cppreference.com/w/cpp/chrono/duration/formatter
+  /// @throws std::invalid_argument if the input does not match the format.
   explicit DateTime(std::istream &inputStream, const char *fmt = "%F %T");
 
   /// Format the current DateTime

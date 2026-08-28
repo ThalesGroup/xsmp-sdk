@@ -30,6 +30,7 @@
 #include <Xsmp/Services/XsmpEventManager.h>
 #include <Xsmp/Services/XsmpEventManagerGen.h>
 #include <algorithm>
+#include <unordered_map>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -87,6 +88,7 @@ XsmpEventManager::XsmpEventManager(::Smp::String8 name,
   auto idsAccess = _ids.write();
   for (const auto &[eventName, id] : eventsAccess.get()) {
     idsAccess.get().try_emplace(id, eventName);
+    _lastEventId = std::max(_lastEventId, id);
   }
 }
 
@@ -102,8 +104,7 @@ XsmpEventManager::QueryEventId(::Smp::String8 eventName) {
     return it->second;
   }
 
-  auto eventId =
-      static_cast<::Smp::Services::EventId>(eventsAccess.get().size() + 1);
+  auto eventId = ++_lastEventId;
 
   const auto &name =
       eventsAccess.get().try_emplace(eventName, eventId).first->first;
@@ -183,7 +184,10 @@ void XsmpEventManager::Emit(::Smp::Services::EventId event,
                             ::Smp::Bool /*synchronous*/) {
 
   const auto &event_name = GetEventName(event);
-  if (auto *logger = GetSimulator()->GetLogger()) {
+  // the simulator emits its last global events after disconnecting its
+  // services: this one no longer has a simulation to log to
+  auto *simulator = GetSimulator();
+  if (auto *logger = simulator ? simulator->GetLogger() : nullptr) {
     logger->Log(this, event_name.c_str(), ::Smp::Services::ILogger::LMK_Event);
   }
   auto subscriptionAccess = _subscriptions.read();
@@ -193,20 +197,43 @@ void XsmpEventManager::Emit(::Smp::Services::EventId event,
     auto entryPoints = it->second;
     subscriptionAccess.unlock();
     for (const auto *entry_point : entryPoints) {
-      ::Xsmp::Helper::SafeExecute(GetSimulator(), entry_point);
+      ::Xsmp::Helper::SafeExecute(simulator, entry_point);
     }
   }
 }
 
 void XsmpEventManager::Restore(::Smp::IStorageReader *reader) {
+  std::unordered_map<std::string, ::Smp::Services::EventId> restored;
+  ::Xsmp::Persist::Restore(GetSimulator(), this, reader, restored);
+
   // _events is locked first, as the constructor and Store() do
   auto eventsAccess = _events.write();
-  ::Xsmp::Persist::Restore(GetSimulator(), this, reader, eventsAccess.get());
-  // rebuild _ids map from _events
   auto idsAccess = _ids.write();
-  idsAccess.get().clear();
+
+  // querying an identifier for a name always yields the same value, so the
+  // restored identifiers are merged into the known ones rather than replacing
+  // them: a name declared after the state was stored keeps the identifier the
+  // components already hold
+  for (const auto &[name, id] : restored) {
+    if (auto known = eventsAccess.get().find(name);
+        known != eventsAccess.get().end()) {
+      if (known->second != id) {
+        ::Xsmp::Exception::throwCannotRestore(
+            this, "Event '" + name + "' does not have its stored identifier.");
+      }
+      continue;
+    }
+    if (idsAccess.get().count(id) != 0) {
+      ::Xsmp::Exception::throwCannotRestore(
+          this, "The identifier stored for event '" + name +
+                    "' is already used by another event.");
+    }
+    const auto &stored = eventsAccess.get().try_emplace(name, id).first->first;
+    idsAccess.get().try_emplace(id, stored);
+  }
+
   for (const auto &[name, id] : eventsAccess.get()) {
-    idsAccess.get().try_emplace(id, name);
+    _lastEventId = std::max(_lastEventId, id);
   }
 }
 
