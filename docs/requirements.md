@@ -11,9 +11,9 @@ Linux, Windows and MacOS Operating Systems are supported.
 A compiler that support at least C++ 17 is required.
 
 The following compiler are officially supported:
- - GCC 7 to 13
- - Clang 5 to 16
- - MSVC 16 (2019) to 17 (2022)
+ - GCC 9 to 14
+ - Clang 5, 6 and 11 to 19
+ - MSVC 17 (2022)
  
 Others compilers with C++ 17 support may works too.
  
