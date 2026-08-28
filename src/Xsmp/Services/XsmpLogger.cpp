@@ -33,6 +33,7 @@
 #include <atomic>
 #include <cctype>
 #include <condition_variable>
+#include <cstdio>
 #include <fstream>
 #include <functional>
 #include <iostream>
@@ -456,10 +457,12 @@ public:
       // write what was logged after the working thread was stopped
       Drain();
     } catch (const std::exception &e) {
-      std::cerr << "Exception thrown while stopping the logger: " << e.what()
-                << '\n';
+      // the handlers of a destructor must not throw either: std::fputs cannot
+      std::fputs("Exception thrown while stopping the logger: ", stderr);
+      std::fputs(e.what(), stderr);
+      std::fputs("\n", stderr);
     } catch (...) {
-      std::cerr << "Exception thrown while stopping the logger.\n";
+      std::fputs("Exception thrown while stopping the logger.\n", stderr);
     }
   }
 
@@ -523,15 +526,16 @@ private:
   }
 
   void Process() {
-    std::unique_lock lck(_mutex);
-    while (running) {
-      _cv.wait(lck, [this] { return !running || !_logs.empty(); });
-      lck.unlock();
+    while (true) {
+      {
+        std::unique_lock lck{_mutex};
+        _cv.wait(lck, [this] { return !running || !_logs.empty(); });
+        if (!running && _logs.empty()) {
+          break;
+        }
+      }
       Drain();
-      lck.lock();
     }
-    lck.unlock();
-
     // process the entries pushed while stopping
     Drain();
   }
