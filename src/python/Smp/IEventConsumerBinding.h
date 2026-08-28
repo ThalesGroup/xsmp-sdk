@@ -22,6 +22,10 @@ inline void RegisterIEventConsumer(const py::module_ &m) {
   py::class_<::Smp::IEventConsumer, ::Smp::IComponent>(
       m, "IEventConsumer", py::multiple_inheritance())
 
+      .def("GetEventSinks", &::Smp::IEventConsumer::GetEventSinks,
+           py::return_value_policy::reference_internal,
+           "Get the collection of all published event sinks.")
+
       .def("GetEventSink", &::Smp::IEventConsumer::GetEventSink,
            py::arg("name"), py::return_value_policy::reference_internal,
            R"(Query for an event sink of this component by its name.

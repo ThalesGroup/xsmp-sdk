@@ -1,3 +1,5 @@
+import typing
+
 import ecss_smp
 
 
@@ -40,13 +42,17 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
     _Models: ecss_smp.Smp.IContainer
 
     class __counter(ecss_smp.Smp.IModel, ecss_smp.Smp.IDynamicInvocation, ecss_smp.Smp.IEventConsumer, ecss_smp.Smp.ILinkingComponent, ecss_smp.Smp.IEntryPointPublisher, ):
-        def ResetCount(self, ): ...
+        def ResetCount(self) -> typing.Any: ...
         Add: ecss_smp.Smp.IEventSink
 
         class __count(ecss_smp.Smp.ISimpleField, ):
             pass
 
-        count: __count
+        @property
+        def count(self) -> __count:
+            ...
+        @count.setter
+        def count(self, value: typing.Any) -> None: ...
 
         IncrementCount: ecss_smp.Smp.IEntryPoint
 
@@ -54,3 +60,4 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
 
 
 
+sim: Simulator

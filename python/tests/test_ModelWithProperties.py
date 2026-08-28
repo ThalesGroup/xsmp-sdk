@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import typing
 import unittest
 import ecss_smp
 import xsmp_tests
 import xsmp
-import tests
 
 import sys
 
@@ -24,12 +24,9 @@ import sys
 SmpException = RuntimeError if sys.platform.startswith("darwin") else ecss_smp.Smp.Exception
 
 class TestModelWithProperties(xsmp.unittest.TestCase):
-    try:
-        sim: tests._test_ModelWithProperties.Simulator
-    except AttributeError:
-        pass
-    
-    
+    if typing.TYPE_CHECKING:
+        from ._TestModelWithProperties import sim
+
     def loadAssembly(self, sim:ecss_smp.Smp.ISimulator):
         sim.LoadLibrary("xsmp_tests")
         # create an Instance of M1 in Models

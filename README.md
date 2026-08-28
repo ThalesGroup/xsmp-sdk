@@ -69,6 +69,33 @@ Python interpreter found at configuration time (e.g. `lib/python3.12/site-packag
 Building with `-DXSMP_BUILD_PYTHON_BINDINGS=OFF` installs no Python module at all; only the C++
 libraries, the headers and the CMake configuration files are installed.
 
+### Auto-completion
+
+Install [`pybind11-stubgen`](https://github.com/pybind/pybind11-stubgen) before building the
+bindings: the build then generates the `ecss_smp-stubs/*.pyi` stubs next to the module. Without
+them, editors that do not import compiled modules - VS Code/Pylance, mypy - offer no completion
+on `ecss_smp`. The build succeeds without the tool and warns.
+
+Completion on your own assembly comes from a dump of the simulator tree that
+`xsmp.unittest.TestCase` writes next to the test module, as `_<test case>.py`, on every run.
+Import it under `typing.TYPE_CHECKING`, as it does not exist before the first run:
+
+```python
+import typing
+import xsmp
+
+
+class TestMyModel(xsmp.unittest.TestCase):
+    if typing.TYPE_CHECKING:
+        from ._TestMyModel import sim
+
+    def loadAssembly(self, sim):
+        ...
+```
+
+`self.sim` then completes on the whole tree: models, fields, containers, operations and event
+sinks.
+
 ## Documentation
 
 Comprehensive documentation is available [here](https://ThalesGroup.github.io/xsmp-sdk/). We encourage you to read it to get the most out of the XSMP SDK.

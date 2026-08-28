@@ -30,6 +30,7 @@
 #include <Smp/FieldAlreadyConnected.h>
 #include <Smp/IAggregate.h>
 #include <Smp/IArrayField.h>
+#include <Smp/ICollection.h>
 #include <Smp/IComponent.h>
 #include <Smp/IComposite.h>
 #include <Smp/IContainer.h>
@@ -241,9 +242,30 @@ static inline const TypeHierarchy IObjectHierarchy =
 
         TypeHierarchy::template of<::Smp::IContainer>(),
 
+        // Smp::ICollection<T> instantiations. They are unrelated template
+        // types, hence siblings: an object matches at most one of them.
+        // Without them a collection is only recognised as an IObject and
+        // loses size(), at(), [] and iteration.
+        TypeHierarchy::template of<::Smp::ICollection<::Smp::IComponent>>(),
+        TypeHierarchy::template of<::Smp::ICollection<::Smp::IContainer>>(),
+        TypeHierarchy::template of<::Smp::ICollection<::Smp::IEntryPoint>>(),
+        TypeHierarchy::template of<::Smp::ICollection<::Smp::IEventSink>>(),
+        TypeHierarchy::template of<::Smp::ICollection<::Smp::IEventSource>>(),
+        TypeHierarchy::template of<::Smp::ICollection<::Smp::IFactory>>(),
+        TypeHierarchy::template of<::Smp::ICollection<::Smp::IFailure>>(),
+        TypeHierarchy::template of<::Smp::ICollection<::Smp::IField>>(),
+        TypeHierarchy::template of<::Smp::ICollection<::Smp::IModel>>(),
+        TypeHierarchy::template of<::Smp::ICollection<::Smp::IOperation>>(),
+        TypeHierarchy::template of<::Smp::ICollection<::Smp::IParameter>>(),
+        TypeHierarchy::template of<::Smp::ICollection<::Smp::IProperty>>(),
+        TypeHierarchy::template of<::Smp::ICollection<::Smp::IReference>>(),
+        TypeHierarchy::template of<::Smp::ICollection<::Smp::IService>>(),
+
         TypeHierarchy::template of<::Smp::IEntryPoint>(),
 
         TypeHierarchy::template of<::Smp::IEntryPointPublisher>(),
+
+        TypeHierarchy::template of<::Smp::IFactory>(),
 
         TypeHierarchy::template of<::Smp::IEventSink>(),
 
@@ -746,24 +768,38 @@ This exception is raised when trying to publish a field with invalid type.
   RegisterTimeKind(services);
 
   // register classes
+  //
+  // NOTE: the registration order is significant. pybind11 renders the
+  // signature of a function when it is defined, so every type used in a
+  // signature must already be registered, otherwise the raw C++ type name
+  // leaks in the docstring (and in the generated stubs).
   RegisterIObject(smp);
 
-  RegisterIFactory(smp);
+  // Register the publication types early: they only derive from IObject, and
+  // IField/IParameter refer to Smp::Publication::IType in their signatures.
+  RegisterIType(publication);
+  RegisterIArrayType(publication);
+  RegisterIEnumerationType(publication);
+  RegisterIStructureType(publication);
+  RegisterIClassType(publication);
 
   RegisterIParameter(smp);
   RegisterICollection<::Smp::IParameter>(smp, "ParameterCollection");
   RegisterIOperation(smp);
   RegisterICollection<::Smp::IOperation>(smp, "OperationCollection");
-  RegisterIEntryPointPublisher(smp);
 
   RegisterIEntryPoint(smp);
   RegisterICollection<::Smp::IEntryPoint>(smp, "EntryPointCollection");
+  RegisterIEntryPointPublisher(smp);
   RegisterIProperty(smp);
   RegisterICollection<::Smp::IProperty>(smp, "PropertyCollection");
-  RegisterIEventSink(smp);
-  RegisterICollection<::Smp::IEventSink>(smp, "EventSinkCollection");
+  // IEventSink and IEventSource refer to each other: declare IEventSink first,
+  // then register IEventSource, then add the IEventSink members.
+  auto eventSink = DeclareIEventSink(smp);
   RegisterIEventSource(smp);
   RegisterICollection<::Smp::IEventSource>(smp, "EventSourceCollection");
+  RegisterIEventSink(eventSink);
+  RegisterICollection<::Smp::IEventSink>(smp, "EventSinkCollection");
 
   RegisterIPersist(smp);
   RegisterIFailure(smp);
@@ -777,13 +813,16 @@ This exception is raised when trying to publish a field with invalid type.
   RegisterISimpleArrayField(smp);
   RegisterIStructureField(smp);
 
+  // IComponent must come before IContainer/IReference: both return and accept
+  // Smp::IComponent in their signatures.
+  RegisterIComponent(smp);
+  RegisterICollection<::Smp::IComponent>(smp, "ComponentCollection");
+
   RegisterIContainer(smp);
   RegisterICollection<::Smp::IContainer>(smp, "ContainerCollection");
   RegisterIReference(smp);
   RegisterICollection<::Smp::IReference>(smp, "ReferenceCollection");
 
-  RegisterIComponent(smp);
-  RegisterICollection<::Smp::IComponent>(smp, "ComponentCollection");
   RegisterIAggregate(smp);
   RegisterIDynamicInvocation(smp);
   RegisterIEventConsumer(smp);
@@ -799,11 +838,10 @@ This exception is raised when trying to publish a field with invalid type.
 
   RegisterIComposite(smp);
 
-  RegisterIType(publication);
-  RegisterIArrayType(publication);
-  RegisterIEnumerationType(publication);
-  RegisterIStructureType(publication);
-  RegisterIClassType(publication);
+  // IFactory::CreateInstance takes a Smp::IComposite parent and returns a
+  // Smp::IComponent, so it must be registered after both.
+  RegisterIFactory(smp);
+  RegisterICollection<::Smp::IFactory>(smp, "FactoryCollection");
 
   RegisterITypeRegistry(publication);
 

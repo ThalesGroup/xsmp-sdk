@@ -22,6 +22,10 @@ inline void RegisterIEventProvider(const py::module_ &m) {
   py::class_<::Smp::IEventProvider, ::Smp::IComponent>(
       m, "IEventProvider", py::multiple_inheritance())
 
+      .def("GetEventSources", &::Smp::IEventProvider::GetEventSources,
+           py::return_value_policy::reference_internal,
+           "Get the collection of all published event sources.")
+
       .def("GetEventSource", &::Smp::IEventProvider::GetEventSource,
            py::arg("name"), py::return_value_policy::reference_internal,
            R"(Query for an event source of this component by its name.

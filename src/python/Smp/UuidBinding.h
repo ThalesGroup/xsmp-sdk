@@ -17,7 +17,19 @@
 
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Uuid.h>
+#include <functional>
+#include <pybind11/operators.h>
+// required to expose Data2/Data3 (std::array) as python lists
+#include <pybind11/stl.h>
 #include <python/ecss_smp.h>
+#include <sstream>
+#include <string>
+
+inline std::string UuidToString(const ::Smp::Uuid &self) {
+  std::ostringstream ss;
+  ss << self;
+  return ss.str();
+}
 
 inline void RegisterUuid(const py::module_ &m) {
   py::class_<::Smp::Uuid>(m, "Uuid")
@@ -32,9 +44,33 @@ inline void RegisterUuid(const py::module_ &m) {
 
       .def_readwrite("Data1", &::Smp::Uuid::Data1, "8 hex nibbles.")
 
-      .def_readwrite("Data2", &::Smp::Uuid::Data2, "3x4 hex nibbles.")
+      .def_readwrite("Data2", &::Smp::Uuid::Data2,
+                     "3x4 hex nibbles. Reading returns a copy: assign a whole "
+                     "list of 3 elements to modify it.")
 
-      .def_readwrite("Data3", &::Smp::Uuid::Data3, "6x2 hex nibbles.")
+      .def_readwrite("Data3", &::Smp::Uuid::Data3,
+                     "6x2 hex nibbles. Reading returns a copy: assign a whole "
+                     "list of 6 elements to modify it.")
+
+      .def(py::self == py::self, py::arg("other"))
+
+      .def(py::self != py::self, py::arg("other"))
+
+      .def(py::self < py::self, py::arg("other"))
+
+      // pybind11 does not derive __hash__ from operator<, and defining
+      // __eq__ alone would make the type unhashable
+      .def("__hash__",
+           [](const ::Smp::Uuid &self) {
+             return static_cast<::Smp::Int64>(std::hash<::Smp::Uuid>{}(self));
+           })
+
+      .def("__str__", &UuidToString)
+
+      .def("__repr__",
+           [](const ::Smp::Uuid &self) {
+             return "Uuid('" + UuidToString(self) + "')";
+           })
 
       .doc() =
       R"(Universally Unique Identifier.

@@ -26,6 +26,10 @@ inline void RegisterIComponent(const py::module_ &m) {
            R"(Returns the state the component is currently in.
 The component state can be changed using the Publish(), Configure()and Connect() state transition methods.)")
 
+      .def("GetFields", &::Smp::IComponent::GetFields,
+           py::return_value_policy::reference_internal,
+           "Get the collection of all fields published by the component.")
+
       .def("GetField", &::Smp::IComponent::GetField,
            py::return_value_policy::reference_internal, py::arg("full_name"),
            R"(Get the field of given name.

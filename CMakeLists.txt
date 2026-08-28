@@ -365,6 +365,31 @@ if(XSMP_BUILD_PYTHON_BINDINGS)
     elseif(XSMP_ENABLE_INSTALL)
         install(TARGETS Python DESTINATION "${XSMP_INSTALL_PYTHONDIR}")
     endif()
+
+    # Static analysers (Pylance/pyright, mypy, ...) never import a compiled
+    # module: without stubs they cannot complete anything under `ecss_smp`, so
+    # the stubs are part of building the bindings rather than an option.
+    get_filename_component(_xsmp_python_bindir "${Python_EXECUTABLE}" DIRECTORY)
+    find_program(PYBIND11_STUBGEN_EXECUTABLE pybind11-stubgen
+                 HINTS "${_xsmp_python_bindir}")
+    if(PYBIND11_STUBGEN_EXECUTABLE)
+        include(GeneratePythonStubs)
+        xsmp_generate_python_stubs(Python
+                                   MODULE ecss_smp
+                                   OUTPUT_DIR "$<TARGET_FILE_DIR:Python>")
+        if(SKBUILD STREQUAL "2")
+            install(DIRECTORY "$<TARGET_FILE_DIR:Python>/ecss_smp-stubs"
+                    DESTINATION .)
+        elseif(XSMP_ENABLE_INSTALL)
+            install(DIRECTORY "$<TARGET_FILE_DIR:Python>/ecss_smp-stubs"
+                    DESTINATION "${XSMP_INSTALL_PYTHONDIR}")
+        endif()
+    else()
+        message(WARNING "pybind11-stubgen was not found: the ecss_smp module"
+                        " will be built without its .pyi stubs, and editors"
+                        " will not be able to complete anything in it."
+                        " Install it with `pip install pybind11-stubgen`.")
+    endif()
 endif(XSMP_BUILD_PYTHON_BINDINGS)
 
 
@@ -694,6 +719,10 @@ if(XSMP_ENABLE_INSTALL)
                 DESTINATION "${XSMP_INSTALL_PYTHONDIR}"
                 FILES_MATCHING
                 PATTERN "*.py"
+                # PEP 561: without these, type checkers ignore the annotations
+                # of the installed packages and the generated assembly stubs
+                PATTERN "*.pyi"
+                PATTERN "py.typed"
         )
     endif()
 

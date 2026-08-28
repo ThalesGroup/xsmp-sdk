@@ -22,6 +22,10 @@ inline void RegisterIComposite(const py::module_ &m) {
   py::class_<::Smp::IComposite, ::Smp::IObject>(m, "IComposite",
                                                 py::multiple_inheritance())
 
+      .def("GetContainers", &::Smp::IComposite::GetContainers,
+           py::return_value_policy::reference_internal,
+           "Get the collection of all contained containers.")
+
       .def("GetContainer", &::Smp::IComposite::GetContainer, py::arg("name"),
            py::return_value_policy::reference_internal,
            R"(Query for a container of this composite by its name.

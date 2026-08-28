@@ -22,6 +22,10 @@ inline void RegisterIAggregate(const py::module_ &m) {
   py::class_<::Smp::IAggregate, ::Smp::IComponent>(m, "IAggregate",
                                                    py::multiple_inheritance())
 
+      .def("GetReferences", &::Smp::IAggregate::GetReferences,
+           py::return_value_policy::reference_internal,
+           "Get the collection of all references.")
+
       .def("GetReference", &::Smp::IAggregate::GetReference, py::arg("name"),
            py::return_value_policy::reference_internal,
            R"(Query for a reference of this aggregate component by its name.

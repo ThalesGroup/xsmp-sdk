@@ -22,6 +22,10 @@ inline void RegisterIEntryPointPublisher(const py::module_ &m) {
   py::class_<::Smp::IEntryPointPublisher, ::Smp::IObject>(
       m, "IEntryPointPublisher", py::multiple_inheritance())
 
+      .def("GetEntryPoints", &::Smp::IEntryPointPublisher::GetEntryPoints,
+           py::return_value_policy::reference_internal,
+           "Get the collection of all published entry points.")
+
       .def("GetEntryPoint", &::Smp::IEntryPointPublisher::GetEntryPoint,
            py::arg("name"), py::return_value_policy::reference_internal,
            R"(Query for an entry point of this component by its name.

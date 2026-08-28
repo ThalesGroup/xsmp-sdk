@@ -77,6 +77,10 @@ A return value of -1 indicates that the collection has no upper limit.)")
           },
           py::arg("name"))
 
+      .def("GetComponents", &::Smp::IContainer::GetComponents,
+           py::return_value_policy::reference_internal,
+           "Get the collection of all contained components.")
+
       .def("GetComponent", &::Smp::IContainer::GetComponent, py::arg("name"),
            py::return_value_policy::reference_internal,
            R"(Query for a component contained in the container by name.

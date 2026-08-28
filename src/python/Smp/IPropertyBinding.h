@@ -28,6 +28,10 @@ inline void RegisterIProperty(const py::module_ &m) {
   py::class_<::Smp::IProperty, ::Smp::IObject>(m, "IProperty",
                                                py::multiple_inheritance())
 
+      .def("GetType", &::Smp::IProperty::GetType,
+           py::return_value_policy::reference,
+           "Provides the type of the property.")
+
       .def("GetAccess", &::Smp::IProperty::GetAccess,
            "Provides the access kind of the property.")
 

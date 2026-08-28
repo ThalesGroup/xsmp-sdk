@@ -1,13 +1,13 @@
+import typing
+
 import ecss_smp
 import xsmp
 import xsmp_example_project1
 
 
 class TestCounter(xsmp.unittest.TestCase):
-    try:
-        sim: xsmp_example_project1._test_Counter.Simulator
-    except AttributeError:
-        pass
+    if typing.TYPE_CHECKING:
+        from ._TestCounter import sim
     
     def loadAssembly(self, sim: ecss_smp.Smp.ISimulator):
         sim.LoadLibrary("xsmp_example_project1")

@@ -31,6 +31,10 @@ inline void RegisterIFallibleModel(const py::module_ &m) {
            R"(Get a failure by name.
 The returned failure may be null if no child with the given name could be found.)")
 
+      .def("GetFailures", &::Smp::IFallibleModel::GetFailures,
+           py::return_value_policy::reference_internal,
+           "Get the collection of all failures of the model.")
+
       .doc() =
       R"(Interface for a fallible model that exposes its failure state and a collection of failures.
 A fallible model allows querying for its failures by name.)";

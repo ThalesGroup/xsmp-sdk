@@ -22,6 +22,14 @@ inline void RegisterIDynamicInvocation(const py::module_ &m) {
   py::class_<::Smp::IDynamicInvocation, ::Smp::IComponent>(
       m, "IDynamicInvocation", py::multiple_inheritance())
 
+      .def("GetOperations", &::Smp::IDynamicInvocation::GetOperations,
+           py::return_value_policy::reference_internal,
+           "Get the collection of all operations published by the component.")
+
+      .def("GetProperties", &::Smp::IDynamicInvocation::GetProperties,
+           py::return_value_policy::reference_internal,
+           "Get the collection of all properties published by the component.")
+
       .doc() = "Interface for a component that supports dynamic invocation of "
                "operations.";
 }

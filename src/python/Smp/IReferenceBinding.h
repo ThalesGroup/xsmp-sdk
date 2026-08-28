@@ -77,6 +77,10 @@ A return value of -1 indicates that the collection has no upper limit.)")
           },
           py::arg("name"))
 
+      .def("GetComponents", &::Smp::IReference::GetComponents,
+           py::return_value_policy::reference_internal,
+           "Get the collection of all referenced components.")
+
       .def("GetComponent", &::Smp::IReference::GetComponent, py::arg("name"),
            py::return_value_policy::reference_internal,
            R"(Query for a referenced component by its name.

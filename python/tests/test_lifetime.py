@@ -25,6 +25,10 @@ _kept = []
 
 class TestLifetime(xsmp.unittest.TestCase):
 
+    def generateTypeHints(self, sim):
+        # this test never walks the assembly, so it needs no dump beside it
+        pass
+
     def testKeptAfterTheSimulatorIsReleased(self):
         sim = self.createSimulator()
         self.loadServices(sim)

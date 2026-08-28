@@ -1,0 +1,11 @@
+{
+  "extraPaths": [
+    "build/lib",
+    "python",
+    "examples/project1/python"
+  ],
+  "include": [
+    "python",
+    "examples/project1/python"
+  ]
+}

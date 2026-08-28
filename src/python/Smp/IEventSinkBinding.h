@@ -34,9 +34,19 @@ void NotifyEventSink(::Smp::IEventSink &self, ::Smp::IObject *sender,
   self.Notify(sender, convert(arg, self.GetEventArgType()));
 }
 
-inline void RegisterIEventSink(const py::module_ &m) {
-  py::class_<::Smp::IEventSink, ::Smp::IObject>(m, "IEventSink",
-                                                py::multiple_inheritance())
+using IEventSinkClass = py::class_<::Smp::IEventSink, ::Smp::IObject>;
+
+/// IEventSink and IEventSource refer to each other in their signatures.
+/// Declaring IEventSink before IEventSource is registered breaks the cycle:
+/// the type is known to pybind11 as soon as the class is declared, while its
+/// members - and therefore their rendered signatures - are added afterwards by
+/// RegisterIEventSink().
+inline IEventSinkClass DeclareIEventSink(const py::module_ &m) {
+  return IEventSinkClass(m, "IEventSink", py::multiple_inheritance());
+}
+
+inline void RegisterIEventSink(IEventSinkClass cls) {
+  cls
 
       .def("Subscribe", &SubscribeEventSink, py::arg("event_source"),
            R"(Subscribe to the event source, i.e. request notifications.

@@ -54,9 +54,36 @@ class TestCase(unittest.TestCase):
     def loadAssembly(self, sim:ecss_smp.Smp.ISimulator) -> None: ...
     
     def generateTypeHints(self, sim:ecss_smp.Smp.ISimulator):
-        directory_path, file_name = os.path.split(sys.modules[self.__class__.__module__].__file__)
-        sim.generate_python_type_hints(os.path.join(directory_path, "_" + file_name))
-    
+        """Dump the type hints of the current assembly next to the test module.
+
+        The dump is written next to the test module, as `_<test case>.py`. It
+        is named after the test case rather than the module because that is
+        what defines the assembly: two test cases in one module build two
+        different trees.
+
+        Reference it from the test case behind a `typing.TYPE_CHECKING` guard,
+        so that IDEs and type checkers resolve the simulator hierarchy without
+        importing the dump at runtime:
+
+            class MyTest(xsmp.unittest.TestCase):
+                if typing.TYPE_CHECKING:
+                    from ._MyTest import sim
+
+        Import `sim`, not the `Simulator` class: an import binds a value, so
+        the class would type `self.sim` as `type[Simulator]` and every instance
+        method would then ask for an explicit `self`.
+
+        Override this method with an empty body in a test case that never walks
+        the assembly, so that no dump is written beside it.
+        """
+        module_path = sys.modules[self.__class__.__module__].__file__
+        if module_path is None:
+            return
+        directory_path = os.path.dirname(module_path)
+        sim.generate_python_type_hints(
+            os.path.join(directory_path,
+                         "_" + self.__class__.__name__ + ".py"))
+
     def setUp(self):
         try:
             # create the simulator

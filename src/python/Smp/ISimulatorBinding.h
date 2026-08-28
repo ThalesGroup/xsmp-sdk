@@ -30,6 +30,7 @@
 #include <Smp/ILinkingComponent.h>
 #include <Smp/IModel.h>
 #include <Smp/IOperation.h>
+#include <Smp/IParameter.h>
 #include <Smp/IProperty.h>
 #include <Smp/IReference.h>
 #include <Smp/ISimpleArrayField.h>
@@ -50,7 +51,6 @@
 #include <fstream>
 #include <memory>
 #include <python/ecss_smp.h>
-#include <sstream>
 #include <string>
 #include <thread>
 
@@ -128,6 +128,26 @@ void Run(::Smp::ISimulator &self, double ns, double us, double ms, double s,
 
 constexpr const char *INDENT = "    ";
 
+/// Emit a member that is read as `type` but can be assigned any python value.
+///
+/// Reading a field or a property yields the corresponding SMP object, while
+/// assigning to it goes through IObject.__setattr__ and accepts a plain python
+/// value. A bare `name: type` annotation would make every assignment a type
+/// error, hence the property/setter pair.
+void generateAssignableMember(std::ostream &fs, const std::string &indent,
+                              const std::string &name, const std::string &type,
+                              ::Smp::String8 description) {
+  fs << indent << "@property\n";
+  fs << indent << "def " << name << "(self) -> " << type << ":\n";
+  if (description && description[0] != 0)
+    fs << indent << INDENT << R"(""")" << description << R"(""")"
+       << "\n";
+  // the dump is a regular module, so a docstring alone is not a valid body
+  fs << indent << INDENT << "...\n";
+  fs << indent << "@" << name << ".setter\n";
+  fs << indent << "def " << name << "(self, value: typing.Any) -> None: ...\n";
+}
+
 void generate(std::ostream &fs, const std::string &indent,
               const ::Smp::IObject *obj) {
 
@@ -172,13 +192,17 @@ void generate(std::ostream &fs, const std::string &indent,
       bases << "ecss_smp.Smp.IDynamicInvocation, ";
 
       for (const auto *operation : *dynamiqueInvocation->GetOperations()) {
-        body << indent + INDENT << "def " << operation->GetName() << "(self, "
-             << "): ...\n";
+        body << indent + INDENT << "def " << operation->GetName() << "(self";
+        // parameters are converted from/to python values, their SMP type
+        // gives no usable python annotation
+        for (const auto *parameter : *operation->GetParameters())
+          body << ", " << parameter->GetName() << ": typing.Any";
+        body << ") -> typing.Any: ...\n";
       }
-      for (const auto *property : *dynamiqueInvocation->GetProperties()) {
-        body << indent + INDENT << property->GetName()
-             << ": ecss_smp.Smp.IProperty\n";
-      }
+      for (const auto *property : *dynamiqueInvocation->GetProperties())
+        generateAssignableMember(body, indent + INDENT, property->GetName(),
+                                 "ecss_smp.Smp.IProperty",
+                                 property->GetDescription());
     }
     if (const auto *eventConsumer =
             dynamic_cast<const ::Smp::IEventConsumer *>(component)) {
@@ -283,10 +307,16 @@ void generate(std::ostream &fs, const std::string &indent,
 
     fs << body.str();
     fs << "\n";
-    fs << indent << obj->GetName() << ": __" << obj->GetName() << "\n";
-    if (obj->GetDescription()[0] != 0)
-      fs << indent << R"(""")" << obj->GetDescription() << R"("""
+    if (dynamic_cast<const ::Smp::IField *>(obj)) {
+      generateAssignableMember(fs, indent, obj->GetName(),
+                               std::string("__") + obj->GetName(),
+                               obj->GetDescription());
+    } else {
+      fs << indent << obj->GetName() << ": __" << obj->GetName() << "\n";
+      if (obj->GetDescription()[0] != 0)
+        fs << indent << R"(""")" << obj->GetDescription() << R"("""
 )";
+    }
     fs << "\n";
   }
 }
@@ -296,6 +326,8 @@ void generatePythonTypeHints(const ::Smp::ISimulator &self,
 
   std::ofstream fs{path};
 
+  fs << "import typing\n";
+  fs << "\n";
   fs << "import ecss_smp\n";
   fs << "\n";
   fs << "\n";
@@ -303,15 +335,15 @@ void generatePythonTypeHints(const ::Smp::ISimulator &self,
   generate(fs, "", &self);
 
   fs << "\n";
+  // importing the class would bind `type[Simulator]`, and every instance
+  // method would then ask for an explicit `self`; importing this value binds
+  // the instance, and its name is the one the test case uses
+  fs << "sim: Simulator\n";
 
   fs.close();
 }
 
 inline void RegisterISimulator(py::module_ &m) {
-  m.def("createSimulator", &createSimulator, py::arg("library_name"),
-        py::arg("factory_name"), py::arg("name") = "Simulator",
-        py::arg("description") = "", py::return_value_policy::take_ownership);
-
   py::class_<::Smp::ISimulator, ::Smp::IComposite>(m, "ISimulator",
                                                    py::multiple_inheritance())
 
@@ -425,11 +457,26 @@ The method will never throw the InvalidObjectType exception either, as it gets a
            py::return_value_policy::reference_internal,
            "Return interface to link registry service.")
 
-      .def("CreateInstance", &::Smp::ISimulator::CreateInstance,
-           py::arg("uuid"), py::arg("name"), py::arg("description") = "",
-           py::arg("parent"), py::return_value_policy::reference_internal,
-           "This method creates an instance of the component with the given "
-           "unique identifier.")
+      // The created component is returned as a py::object rather than as a
+      // Smp::IComponent*: the interfaces it really implements (IModel,
+      // IComposite, IAggregate, ...) are only known at runtime, and reporting
+      // the base interface would make every `AddModel(CreateInstance(...))` or
+      // `parent=CreateInstance(...)` a static type error.
+      .def(
+          "CreateInstance",
+          [](::Smp::ISimulator &self, ::Smp::Uuid uuid, ::Smp::String8 name,
+             ::Smp::String8 description,
+             ::Smp::IComposite *parent) -> py::object {
+            return py::cast(
+                self.CreateInstance(uuid, name, description, parent),
+                py::return_value_policy::reference);
+          },
+          py::arg("uuid"), py::arg("name"), py::arg("description") = "",
+          py::arg("parent") = nullptr,
+          // keep_alive<0, 1> reproduces return_value_policy::reference_internal
+          py::keep_alive<0, 1>(),
+          "This method creates an instance of the component with the given "
+          "unique identifier.")
 
       .def("GetFactory", &::Smp::ISimulator::GetFactory, py::arg("uuid"),
            py::return_value_policy::reference_internal,
@@ -462,11 +509,15 @@ At exiting or aborting time, the Finalise() function of this library will be cal
 
       .def("generate_python_type_hints", &generatePythonTypeHints,
            py::arg("path"),
-           "Generate a python files with current simulator types.")
+           "Generate a python file describing the current simulator tree.")
 
       .doc() =
       R"(This interface gives access to the simulation environment state and state transitions. Further, it provides convenience methods to add models, and to add and retrieve simulation services.
 This is a mandatory interface that every SMP compliant simulation environment has to implement.)";
+
+  m.def("createSimulator", &createSimulator, py::arg("library_name"),
+        py::arg("factory_name"), py::arg("name") = "Simulator",
+        py::arg("description") = "", py::return_value_policy::take_ownership);
 }
 
 #endif // PYTHON_SMP_ISIMULATOR_H_

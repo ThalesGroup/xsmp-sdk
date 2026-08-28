@@ -21,6 +21,10 @@
 inline void RegisterIStructureField(const py::module_ &m) {
   py::class_<::Smp::IStructureField, ::Smp::IField>(m, "IStructureField",
                                                     py::multiple_inheritance())
+      .def("GetFields", &::Smp::IStructureField::GetFields,
+           py::return_value_policy::reference_internal,
+           "Get the collection of the nested fields.")
+
       .def("GetField", &::Smp::IStructureField::GetField,
            py::return_value_policy::reference_internal, py::arg("name"),
            "Return a field by name.")

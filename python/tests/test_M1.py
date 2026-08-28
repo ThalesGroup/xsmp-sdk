@@ -13,13 +13,11 @@
 # limitations under the License.
 
 
+import typing
 import unittest
 import ecss_smp
 import xsmp_tests
 import xsmp
-
-
-import tests
 
 
 def create_assembly(sim:ecss_smp.Smp.ISimulator):
@@ -31,11 +29,9 @@ def create_assembly(sim:ecss_smp.Smp.ISimulator):
 
 
 class TestM1(xsmp.unittest.TestCase):
-    try:
-        sim: tests._test_M1.Simulator
-    except AttributeError:
-        pass
-    
+    if typing.TYPE_CHECKING:
+        from ._TestM1 import sim
+
     def loadAssembly(self, sim:ecss_smp.Smp.ISimulator):
         sim.LoadLibrary("xsmp_tests")
         # create an Instance of M1 in Models
@@ -50,6 +46,19 @@ class TestM1(xsmp.unittest.TestCase):
         self.assertEqual(sim.XsmpResolver, sim.GetResolver())
         self.assertEqual(sim.XsmpScheduler, sim.GetScheduler())
         self.assertEqual(sim.XsmpTimeKeeper, sim.GetTimeKeeper())
+
+    def testFactoryCollection(self):
+        # Smp::ICollection<T> is a template: unless every instantiation is
+        # listed in the polymorphic type hook, a collection is only recognised
+        # as an IObject and loses size(), at(), [] and iteration
+        factories = self.sim.GetFactories()
+        self.assertGreater(len(factories), 0)
+        self.assertEqual(factories[0].GetName(), factories.at(0).GetName())
+        names = [factory.GetName() for factory in factories]
+        self.assertEqual(len(names), len(factories))
+        # a factory is only usable if IFactory is known to the type hook too
+        self.assertEqual(factories["ModelWithSimpleFields"].GetUuid(),
+                         xsmp_tests.Xsmp.Tests.ModelWithSimpleFields.uuid)
 
     def testCollectionIndex(self):
         services = self.sim._Services
@@ -193,3 +202,34 @@ class TestM1(xsmp.unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TestUuid(unittest.TestCase):
+    """Smp::Uuid is a value: it must compare, hash and print like one."""
+
+    TEXT = "df6ddf61-c676-47f5-8764-fc6d889318ff"
+
+    def testEquality(self):
+        uuid = ecss_smp.Smp.Uuid(self.TEXT)
+        other = ecss_smp.Smp.Uuid(self.TEXT)
+        self.assertIsNot(uuid, other)
+        self.assertEqual(uuid, other)
+        self.assertNotEqual(uuid, ecss_smp.Smp.Uuids.Uuid_Bool)
+
+    def testOrdering(self):
+        low = ecss_smp.Smp.Uuid("120f3848-02d8-4cec-a0c2-32e3e5714e1a")
+        high = ecss_smp.Smp.Uuid(self.TEXT)
+        self.assertLess(low, high)
+        self.assertEqual(sorted([high, low]), [low, high])
+
+    def testHashable(self):
+        uuid = ecss_smp.Smp.Uuid(self.TEXT)
+        other = ecss_smp.Smp.Uuid(self.TEXT)
+        self.assertEqual(hash(uuid), hash(other))
+        self.assertEqual({uuid: "value"}[other], "value")
+        self.assertEqual(len({uuid, other}), 1)
+
+    def testString(self):
+        uuid = ecss_smp.Smp.Uuid(self.TEXT)
+        self.assertEqual(str(uuid), self.TEXT)
+        self.assertEqual(repr(uuid), f"Uuid('{self.TEXT}')")
