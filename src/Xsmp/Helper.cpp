@@ -185,6 +185,42 @@ Resolve(const ::Smp::IDynamicInvocation *dynamicInvocation, ::Smp::String8 name,
   }
   return nullptr;
 }
+/// Resolve one path segment against a field: a member of a structure by its
+/// name, an item of an array written "[i]".
+::Smp::IObject *ResolveFieldSegment(const ::Smp::IField *parent,
+                                    const std::string &segment) {
+  if (auto const *structureField =
+          dynamic_cast<const ::Smp::IStructureField *>(parent)) {
+    if (auto *nestedField = structureField->GetField(segment.c_str())) {
+      return nestedField;
+    }
+  }
+  if (auto const *arrayField =
+          dynamic_cast<const ::Smp::IArrayField *>(parent)) {
+    if (segment.front() == '[' && segment.back() == ']') {
+      try {
+        auto size = arrayField->GetSize();
+        std::size_t pos = 0;
+        auto value = std::stoll(&segment[1], &pos);
+        if (pos + 2 != segment.length()) {
+          return nullptr;
+        }
+        // handle negative index (similar to python arrays)
+        auto index = static_cast<::Smp::UInt64>(
+            value < 0 ? static_cast<::Smp::Int64>(size) + value : value);
+
+        if (index < size) {
+          return arrayField->GetItem(index);
+        }
+      } catch (std::exception &) {
+        // ignore stoll conversion errors & Smp::InvalidArrayIndex
+        return nullptr;
+      }
+    }
+  }
+  return nullptr;
+}
+
 inline ::Smp::IObject *Resolve(::Smp::IObject *object, ::Smp::String8 name,
                                ::Smp::String8 path) {
 
@@ -229,7 +265,9 @@ inline ::Smp::IObject *Resolve(::Smp::IObject *object, ::Smp::String8 name,
   }
 
   if (auto *field = dynamic_cast<::Smp::IField *>(object)) {
-    return ::Xsmp::Helper::Resolve(field, path);
+    if (auto *child = ResolveFieldSegment(field, name)) {
+      return ::Xsmp::Helper::Resolve(child, path);
+    }
   }
   return nullptr;
 }
@@ -355,33 +393,8 @@ std::string GetPath(const ::Smp::IObject *obj) {
   if (segment == "..") {
     return Resolve(parent->GetParent(), path);
   }
-  if (auto const *structureField =
-          dynamic_cast<::Smp::IStructureField *>(parent)) {
-    if (auto *nestedField = structureField->GetField(segment.c_str())) {
-      return Resolve(nestedField, path);
-    }
-  }
-  if (auto const *arrayField = dynamic_cast<::Smp::IArrayField *>(parent)) {
-    if (segment.front() == '[' && segment.back() == ']') {
-      try {
-        auto size = arrayField->GetSize();
-        std::size_t pos = 0;
-        auto value = std::stoll(&segment[1], &pos);
-        if (pos + 2 != segment.length()) {
-          return nullptr;
-        }
-        // handle negative index (similar to python arrays)
-        auto index = static_cast<::Smp::UInt64>(
-            value < 0 ? static_cast<::Smp::Int64>(size) + value : value);
-
-        if (index < size) {
-          return Resolve(arrayField->GetItem(index), path);
-        }
-      } catch (std::exception &) {
-        // ignore stoll conversion errors & Smp::InvalidArrayIndex
-        return nullptr;
-      }
-    }
+  if (auto *child = ResolveFieldSegment(parent, segment)) {
+    return Resolve(child, path);
   }
   return nullptr;
 }

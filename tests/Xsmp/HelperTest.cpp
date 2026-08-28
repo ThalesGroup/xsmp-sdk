@@ -140,6 +140,17 @@ TEST(Helper, ResolveFields) {
   EXPECT_FALSE(resolver->ResolveAbsolute("/publisher.point.z"));
   EXPECT_FALSE(resolver->ResolveAbsolute("/unknown"));
 
+  // resolving relative to a field itself
+  auto *point = publisher->GetField("point");
+  ASSERT_TRUE(point);
+  EXPECT_EQ(::Xsmp::Helper::Resolve(static_cast<::Smp::IObject *>(point), "x"),
+            resolver->ResolveAbsolute("/publisher.point.x"));
+  auto *array = publisher->GetField("array");
+  ASSERT_TRUE(array);
+  EXPECT_EQ(
+      ::Xsmp::Helper::Resolve(static_cast<::Smp::IObject *>(array), "[1]"),
+      resolver->ResolveAbsolute("/publisher.array[1]"));
+
   // '.' and '..' segments
   EXPECT_EQ(resolver->ResolveRelative("../publisher", publisher), publisher);
   EXPECT_EQ(resolver->ResolveRelative("./simple", publisher),
