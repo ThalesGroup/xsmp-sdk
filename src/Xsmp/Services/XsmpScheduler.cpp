@@ -134,13 +134,11 @@ void XsmpScheduler::DoConnect(const ::Smp::ISimulator *simulator) {
 }
 
 void XsmpScheduler::DoDisconnect() {
-  // stop the zulu thread
+  // stop the zulu thread. The destructor calls this again, so the thread is
+  // joined whether or not this call is the one that requested the termination:
+  // destroying a joinable thread terminates the process.
   {
     const std::scoped_lock lck{_zuluEventsTableMutex};
-    // if already terminated do nothing
-    if (_terminate) {
-      return;
-    }
     _terminate = true;
   }
   _zuluCv.notify_one();

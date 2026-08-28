@@ -474,9 +474,12 @@ public:
     if (_workerRunning.exchange(false)) {
       Stop();
       _cv.notify_one();
-      if (workingThread.joinable()) {
-        workingThread.join();
-      }
+    }
+    // joined outside the guard, so that the destructor joins a thread that a
+    // previous call signalled but did not join: destroying a joinable thread
+    // terminates the process
+    if (workingThread.joinable()) {
+      workingThread.join();
     }
   }
 
