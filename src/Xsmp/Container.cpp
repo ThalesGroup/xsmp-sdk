@@ -107,7 +107,9 @@ inline void CheckComposite(::Smp::IContainer const *container,
 
 inline void CheckComponent(::Smp::IContainer const *container,
                            ::Smp::IComponent const *cmp, ::Smp::String8 name) {
-  if (cmp->GetField(name)) {
+  // the field collection is looked up directly: GetField() throws when there
+  // is no such field, instead of returning nullptr
+  if (const auto *fields = cmp->GetFields(); fields && fields->at(name)) {
     ::Xsmp::Exception::throwDuplicateName(container, name,
                                           container->GetComponents());
   }

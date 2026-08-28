@@ -647,6 +647,9 @@ if(XSMP_ENABLE_CODECOVERAGE)
         COMMAND ${GCOVR_PATH} --root . --html-nested ${CMAKE_BINARY_DIR}/report/index.html --html-title \"xsmp-sdk Code Coverage Report\"
             -f \"include/\" -f \"src/\"
             -e \"src/python/\" -e \"src/Xsmp/Tests/\"
+            # without --merge-lines, every line of a template is counted once
+            # per instantiation
+            --merge-lines
             --delete --sort-uncovered --print-summary --calls --decisions ${GCOVR_OPTIONS}
             ${CMAKE_BINARY_DIR}
         COMMAND echo Generated report: ${CMAKE_BINARY_DIR}/report/index.html

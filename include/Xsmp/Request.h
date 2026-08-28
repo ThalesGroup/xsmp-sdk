@@ -17,6 +17,7 @@
 
 #include <Smp/AnySimple.h>
 #include <Smp/IRequest.h>
+#include <Smp/ISimulator.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Uuid.h>
 #include <Xsmp/AnySimpleConverter.h>

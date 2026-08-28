@@ -593,12 +593,14 @@ void SimpleArrayField::SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) {
     *static_cast<::Smp::Float64 *>(address) = value;
     break;
   case ::Smp::PrimitiveTypeKind::PTK_String8: {
+    const auto *stringType =
+        dynamic_cast<const ::Xsmp::Publication::StringType *>(_itemType);
+    if (!stringType) {
+      ::Xsmp::Exception::throwInvalidFieldType(this, _itemType);
+    }
     ::Xsmp::Helper::CopyString(
         static_cast<char *>(address),
-        static_cast<std::size_t>(
-            dynamic_cast<const ::Xsmp::Publication::StringType *>(_itemType)
-                ->GetLength()),
-        value);
+        static_cast<std::size_t>(stringType->GetLength()), value);
     break;
   }
   default:
@@ -785,14 +787,17 @@ void SimpleField::SetValue(::Smp::AnySimple value) {
   case ::Smp::PrimitiveTypeKind::PTK_Float64:
     *static_cast<::Smp::Float64 *>(GetAddress()) = value;
     break;
-  case ::Smp::PrimitiveTypeKind::PTK_String8:
+  case ::Smp::PrimitiveTypeKind::PTK_String8: {
+    const auto *stringType =
+        dynamic_cast<const ::Xsmp::Publication::StringType *>(GetType());
+    if (!stringType) {
+      ::Xsmp::Exception::throwInvalidFieldType(this, GetType());
+    }
     ::Xsmp::Helper::CopyString(
         static_cast<char *>(GetAddress()),
-        static_cast<std::size_t>(
-            dynamic_cast<const ::Xsmp::Publication::StringType *>(GetType())
-                ->GetLength()),
-        value);
+        static_cast<std::size_t>(stringType->GetLength()), value);
     break;
+  }
   default:
     ::Xsmp::Exception::throwInvalidPrimitiveType(this, "void", kind);
   }

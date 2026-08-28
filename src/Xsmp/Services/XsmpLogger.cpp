@@ -136,14 +136,14 @@ inline std::vector<std::string> split(std::string_view str, char delimiter) {
   while (end != std::string::npos) {
     auto token = std::string(str.substr(start, end - start));
     trim(token);
-    result.push_back(token);
+    result.push_back(std::move(token));
     start = end + 1;
     end = str.find(delimiter, start);
   }
   auto token = std::string(str.substr(start, str.size() - start));
   trim(token);
   if (!token.empty()) {
-    result.push_back(token);
+    result.push_back(std::move(token));
   }
   return result;
 }

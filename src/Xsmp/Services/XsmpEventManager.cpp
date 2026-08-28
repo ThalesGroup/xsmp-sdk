@@ -199,18 +199,21 @@ void XsmpEventManager::Emit(::Smp::Services::EventId event,
 }
 
 void XsmpEventManager::Restore(::Smp::IStorageReader *reader) {
-  ::Xsmp::Persist::Restore(GetSimulator(), this, reader, _events.write().get(),
+  // _events is locked first, as the constructor and Store() do
+  auto eventsAccess = _events.write();
+  ::Xsmp::Persist::Restore(GetSimulator(), this, reader, eventsAccess.get(),
                            _subscriptions.write().get());
   // rebuild _ids map from _events
   auto idsAccess = _ids.write();
   idsAccess.get().clear();
-  for (const auto &[name, id] : _events.read().get()) {
+  for (const auto &[name, id] : eventsAccess.get()) {
     idsAccess.get().try_emplace(id, name);
   }
 }
 
 void XsmpEventManager::Store(::Smp::IStorageWriter *writer) {
-  ::Xsmp::Persist::Store(GetSimulator(), this, writer, _events.read().get(),
+  auto eventsAccess = _events.read();
+  ::Xsmp::Persist::Store(GetSimulator(), this, writer, eventsAccess.get(),
                          _subscriptions.read().get());
 }
 

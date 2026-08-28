@@ -121,6 +121,14 @@ TEST(String, Create) {
   str.remove_suffix(2);
   EXPECT_STREQ(str.c_str(), "234567");
 
+  // removing more than the current length empties the string
+  str.remove_prefix(str.length() + 10);
+  EXPECT_STREQ(str.c_str(), "");
+  str.assign("0123");
+  str.remove_suffix(str.length() + 10);
+  EXPECT_STREQ(str.c_str(), "");
+  str.assign("0123456789");
+
   str.clear();
   EXPECT_STREQ(str.c_str(), "");
 

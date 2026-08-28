@@ -18,6 +18,7 @@
 #include <Xsmp/Services/XsmpLinkRegistry.h>
 #include <mutex>
 #include <utility>
+#include <vector>
 
 namespace Xsmp::Services {
 
@@ -106,15 +107,22 @@ XsmpLinkRegistry::GetLinkSources(const ::Smp::IComponent *target) const {
 }
 
 void XsmpLinkRegistry::RemoveLinks(const ::Smp::IComponent *target) {
-  auto targetAccess = _targets.read();
-  if (auto it = targetAccess.get().find(target);
-      it != targetAccess.get().end()) {
-    for (auto *source : it->second) {
-      if (auto *cmp = dynamic_cast<::Smp::ILinkingComponent *>(source)) {
-        targetAccess.unlock();
-        cmp->RemoveLinks(target);
-        targetAccess.lock();
+  // the sources are collected first: a source removing its links mutates the
+  // collection being iterated
+  std::vector<::Smp::IComponent *> sources;
+  {
+    auto targetAccess = _targets.read();
+    if (auto it = targetAccess.get().find(target);
+        it != targetAccess.get().end()) {
+      for (auto *source : it->second) {
+        sources.emplace_back(source);
       }
+    }
+  }
+
+  for (auto *source : sources) {
+    if (auto *cmp = dynamic_cast<::Smp::ILinkingComponent *>(source)) {
+      cmp->RemoveLinks(target);
     }
   }
 }

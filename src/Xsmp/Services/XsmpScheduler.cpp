@@ -121,6 +121,14 @@ void XsmpScheduler::DoConnect(const ::Smp::ISimulator *simulator) {
       ::Smp::Services::IEventManager::SMP_EnterExecutingId, &EnterExecuting);
   simulator->GetEventManager()->Subscribe(
       ::Smp::Services::IEventManager::SMP_LeaveExecutingId, &LeaveExecuting);
+  simulator->GetEventManager()->Subscribe(
+      ::Smp::Services::IEventManager::SMP_EnterAbortingId, &_abort);
+  simulator->GetEventManager()->Subscribe(
+      ::Smp::Services::IEventManager::SMP_EpochTimeChangedId,
+      &_epochTimeChanged);
+  simulator->GetEventManager()->Subscribe(
+      ::Smp::Services::IEventManager::SMP_MissionTimeChangedId,
+      &_missionTimeChanged);
 
   _zuluThread = std::thread(&XsmpScheduler::InternalZuluRun, this);
 }
@@ -244,7 +252,9 @@ XsmpScheduler::AddEvent(const ::Smp::IEntryPoint *entryPoint,
   ::Smp::Services::EventId eventId = -1;
   {
     // create the event
-    const std::scoped_lock lck{_eventsMutex, _zuluEventsTableMutex};
+    // taken in the order documented in the header, as RemoveEvent() does
+    const std::scoped_lock eventsLck{_eventsMutex};
+    const std::scoped_lock zuluLck{_zuluEventsTableMutex};
     eventId = ++_lastEventId;
     _events.try_emplace(eventId,
                         Event{entryPoint, zuluTime, zuluTime, cycleTime, repeat,
@@ -325,7 +335,9 @@ void XsmpScheduler::SetEventZuluTime(::Smp::Services::EventId event,
                                      ::Smp::DateTime zuluTime) {
   {
     auto currentZulu = GetSimulator()->GetTimeKeeper()->GetZuluTime();
-    const std::scoped_lock lck{_eventsMutex, _zuluEventsTableMutex};
+    // taken in the order documented in the header, as RemoveEvent() does
+    const std::scoped_lock eventsLck{_eventsMutex};
+    const std::scoped_lock zuluLck{_zuluEventsTableMutex};
     auto it = _events.find(event);
 
     if (it == _events.end() ||
@@ -366,7 +378,8 @@ void XsmpScheduler::SetEventCycleTime(::Smp::Services::EventId event,
   if (it == _events.end()) {
     ::Xsmp::Exception::throwInvalidEventId(this, event);
   }
-  if (it->second.repeat > 0 && cycleTime <= 0) {
+  // an event is cyclic as soon as its repeat is not 0, -1 included
+  if (it->second.repeat != 0 && cycleTime <= 0) {
     ::Xsmp::Exception::throwInvalidCycleTime(this, cycleTime);
   }
   it->second.cycleTime = cycleTime;
@@ -447,32 +460,25 @@ void XsmpScheduler::Execute(::Smp::Services::EventId eventId) {
     return;
   }
 
-  // skip event if epoch/mission time has changed and event is in the past
-  bool skip = false;
-  switch (it->second.kind) {
-  case ::Smp::Services::TimeKind::TK_EpochTime:
-    skip = it->second.time < GetSimulator()->GetTimeKeeper()->GetEpochTime();
-    break;
-  case ::Smp::Services::TimeKind::TK_MissionTime:
-    skip = it->second.time < GetSimulator()->GetTimeKeeper()->GetMissionTime();
-    break;
-  default:
-    break;
+  // the event may have been rescheduled to a later simulation time while the
+  // events of the current time were being executed, by a change of the epoch or
+  // mission time: it is already posted in the scheduling table at its new time
+  if (it->second.nextScheduleSimulationTime >
+      GetSimulator()->GetTimeKeeper()->GetSimulationTime()) {
+    return;
   }
 
-  if (!skip) {
-    const auto *entryPoint = it->second.entryPoint;
-    _currentEventId = eventId;
-    lck.unlock();
-    ::Xsmp::Helper::SafeExecute(GetSimulator(), entryPoint);
-    lck.lock();
-    _currentEventId = -1;
+  const auto *entryPoint = it->second.entryPoint;
+  _currentEventId = eventId;
+  lck.unlock();
+  ::Xsmp::Helper::SafeExecute(GetSimulator(), entryPoint);
+  lck.lock();
+  _currentEventId = -1;
 
-    // the entry point may have modified the scheduling table
-    it = _events.find(eventId);
-    if (it == _events.end()) {
-      return;
-    }
+  // the entry point may have modified the scheduling table
+  it = _events.find(eventId);
+  if (it == _events.end()) {
+    return;
   }
   auto &event = it->second;
 
@@ -552,21 +558,24 @@ bool XsmpScheduler::ExecuteEvents(::Smp::Duration time) {
     EventList current;
     {
       const std::scoped_lock lck{_eventsMutex};
-      auto entry = _events_table.find(time);
-      if (entry == _events_table.end() || entry->second.empty()) {
+      // the entry is taken out of the table: an event posted at the same time
+      // while executing these ones creates a new entry
+      auto node = _events_table.extract(time);
+      if (!node || node.mapped().empty()) {
         return true;
       }
-      // swap the current list of events
-      current.swap(entry->second);
+      current = std::move(node.mapped());
     }
 
     for (auto it = current.begin(); it != current.end(); ++it) {
       Execute(*it);
       // process immediate events posted by this event
       if (_simulationStatus == Status::Hold || !ExecuteImmediateEvents()) {
-        // store un-executed events and exit
-        const std::scoped_lock lck{_eventsMutex};
-        _events_table[time].insert(std::next(it), current.end());
+        // put the events that have not been executed back in the table
+        if (auto next = std::next(it); next != current.end()) {
+          const std::scoped_lock lck{_eventsMutex};
+          _events_table[time].insert(next, current.end());
+        }
         return false;
       }
     }
@@ -641,32 +650,97 @@ void XsmpScheduler::InternalZuluRun() {
       _zuluCv.wait(
           lck, [this]() { return _terminate || !_zulu_events_table.empty(); });
     } else {
+      // no predicate here: an event posted while waiting can be due before the
+      // one this delay was computed from, and the loop recomputes the delay
       _zuluCv.wait_for(
-          lck,
-          std::chrono::nanoseconds{
-              std::max(static_cast<::Smp::Duration>(0),
-                       _zulu_events_table.begin()->first -
-                           GetSimulator()->GetTimeKeeper()->GetZuluTime())},
-          [this] {
-            return _terminate ||
-                   (!_zulu_events_table.empty() &&
-                    _zulu_events_table.begin()->first <=
-                        GetSimulator()->GetTimeKeeper()->GetZuluTime());
-          });
+          lck, std::chrono::nanoseconds{std::max(
+                   static_cast<::Smp::Duration>(0),
+                   _zulu_events_table.begin()->first -
+                       GetSimulator()->GetTimeKeeper()->GetZuluTime())});
     }
   }
 }
 
 void XsmpScheduler::Restore(::Smp::IStorageReader *reader) {
   const std::scoped_lock lck{_eventsMutex};
-  ::Xsmp::Persist::Restore(GetSimulator(), this, reader, _events, _events_table,
-                           _immediate_events, _lastEventId);
+  std::map<::Smp::Services::EventId, Event> events;
+  ::Smp::Services::EventId lastEventId = -1;
+  ::Xsmp::Persist::Restore(GetSimulator(), this, reader, events, _events_table,
+                           _immediate_events, lastEventId);
+
+  // the events scheduled on zulu time are not part of the persisted state:
+  // they are kept as they are, and the identifiers they use stay allocated
+  for (const auto &[eventId, event] : _events) {
+    if (event.kind == ::Smp::Services::TimeKind::TK_ZuluTime) {
+      events.insert_or_assign(eventId, event);
+      lastEventId = std::max(lastEventId, eventId);
+    }
+  }
+  _events = std::move(events);
+  _lastEventId = lastEventId;
 }
 
 void XsmpScheduler::Store(::Smp::IStorageWriter *writer) {
   const std::scoped_lock lck{_eventsMutex};
-  ::Xsmp::Persist::Store(GetSimulator(), this, writer, _events, _events_table,
+  std::map<::Smp::Services::EventId, Event> events;
+  for (const auto &[eventId, event] : _events) {
+    if (event.kind != ::Smp::Services::TimeKind::TK_ZuluTime) {
+      events.emplace(eventId, event);
+    }
+  }
+  ::Xsmp::Persist::Store(GetSimulator(), this, writer, events, _events_table,
                          _immediate_events, _lastEventId);
+}
+
+void XsmpScheduler::RescheduleEvents(::Smp::Services::TimeKind kind,
+                                     ::Smp::Duration newTime) {
+
+  const std::scoped_lock lck{_eventsMutex};
+  const auto offset =
+      subtract(newTime, GetSimulator()->GetTimeKeeper()->GetSimulationTime());
+
+  for (auto it = _events.begin(); it != _events.end();) {
+    auto &event = it->second;
+    if (event.kind != kind) {
+      ++it;
+      continue;
+    }
+    // an occurrence before the new time is not executed and consumes a repeat
+    while (event.time < newTime && event.repeat != 0) {
+      if (event.repeat > 0) {
+        --event.repeat;
+      }
+      event.time = add(event.time, event.cycleTime);
+    }
+    // the event is posted again below, at the simulation time matching the new
+    // offset; the event being executed is posted again by Execute() instead
+    const auto isCurrent = _currentEventId == it->first;
+    if (auto entry = _events_table.find(event.nextScheduleSimulationTime);
+        entry != _events_table.end()) {
+      entry->second.erase(it->first);
+      if (entry->second.empty()) {
+        _events_table.erase(entry);
+      }
+    }
+
+    if (event.time < newTime) {
+      // every remaining occurrence is in the past
+      if (isCurrent) {
+        event.repeat = 0;
+        ++it;
+      } else {
+        it = _events.erase(it);
+      }
+      continue;
+    }
+
+    event.nextScheduleSimulationTime = subtract(event.time, offset);
+    if (!isCurrent) {
+      _events_table.try_emplace(event.nextScheduleSimulationTime)
+          .first->second.emplace(it->first);
+    }
+    ++it;
+  }
 }
 
 void XsmpScheduler::_LeaveExecuting() {
@@ -744,19 +818,13 @@ void XsmpScheduler::_EnterExecuting() {
     timeKeeper->SetSimulationTime(time);
 
     // notify that simulation time has changed
-    eventManager->Emit(::Smp::Services::IEventManager::SMP_PostSimTimeChangeId);
+    eventManager->Emit(::Smp::Services::IEventManager::SMP_PostSimTimeChangeId,
+                       false);
 
     // process all events (check for eventually events added by
     // SMP_PostSimTimeChangeId )
     if (!ExecuteImmediateEvents() || !ExecuteEvents(time)) {
       return; // exit immediately in case of hold
-    }
-
-    // all the events of that time have been executed: drop the entry
-    const std::scoped_lock lck{_eventsMutex};
-    if (auto it = _events_table.find(time);
-        it != _events_table.end() && it->second.empty()) {
-      _events_table.erase(it);
     }
   }
 

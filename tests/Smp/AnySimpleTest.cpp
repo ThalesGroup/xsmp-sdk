@@ -379,6 +379,20 @@ TEST(AnySimple, Float32) {
                           std::numeric_limits<::Smp::UInt64>::max()}),
                ::Smp::InvalidAnyType);
 
+  // negative values: the lowest ones are powers of two, so they are exactly
+  // representable, unlike their immediate successors
+  EXPECT_NO_THROW((AnySimple{PrimitiveTypeKind::PTK_Float32,
+                             std::numeric_limits<::Smp::Int32>::lowest()}));
+  EXPECT_NO_THROW((AnySimple{PrimitiveTypeKind::PTK_Float32,
+                             std::numeric_limits<::Smp::Int64>::lowest()}));
+  EXPECT_NO_THROW((AnySimple{PrimitiveTypeKind::PTK_Float32,
+                             static_cast<::Smp::Int32>(-8)}));
+  EXPECT_THROW(
+      (AnySimple{PrimitiveTypeKind::PTK_Float32,
+                 static_cast<::Smp::Int32>(
+                     std::numeric_limits<::Smp::Int32>::lowest() + 1)}),
+      ::Smp::InvalidAnyType);
+
   EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_Int8, 3.14159F}),
                ::Smp::InvalidAnyType);
   EXPECT_THROW((AnySimple{PrimitiveTypeKind::PTK_Int16, 3.14159F}),

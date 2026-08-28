@@ -39,6 +39,8 @@ class ILogger;
 /// XSMP standard types and interfaces.
 namespace Xsmp {
 
+struct Request;
+
 /// @class Component
 /// XSMP implementation of ::Smp::ILinkingComponent and
 /// ::Smp::IDynamicInvocation.
@@ -235,6 +237,10 @@ protected:
   /// Helper class that provides functionalities to call user-defined methods in
   /// derived classes.
   class Helper;
+
+  /// Builds the temporary fields of the operation parameters published by
+  /// uuid, which requires the type registry of the simulator.
+  friend struct ::Xsmp::Request;
 
 private:
   static void

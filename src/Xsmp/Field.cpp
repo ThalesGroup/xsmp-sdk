@@ -366,11 +366,11 @@ const ::Smp::FieldCollection *SimpleConnectableField::GetInputFields() const {
 }
 
 void SimpleDataflowField::Connect(::Smp::IField *target) {
+  auto *simpleInput = dynamic_cast<::Smp::ISimpleField *>(target);
   if (!this->IsOutput() || !target->IsInput() || target == this ||
-      !::Xsmp::Helper::AreEquivalent(this, target)) {
+      !simpleInput || !::Xsmp::Helper::AreEquivalent(this, target)) {
     ::Xsmp::Exception::throwInvalidTarget(this, this, target);
   }
-  auto *simpleInput = dynamic_cast<::Smp::ISimpleField *>(target);
   if (!FieldHelper::CanConnect(this, simpleInput)) {
     ::Xsmp::Exception::throwFieldAlreadyConnected(this, this, target);
   }
@@ -392,11 +392,11 @@ const ::Smp::FieldCollection *SimpleDataflowField::GetInputFields() const {
 void SimpleArrayDataflowField::Push() { FieldHelper::Push(this); }
 
 void SimpleArrayDataflowField::Connect(::Smp::IField *target) {
+  auto *simpleArrayInput = dynamic_cast<::Smp::ISimpleArrayField *>(target);
   if (!this->IsOutput() || !target->IsInput() || target == this ||
-      !::Xsmp::Helper::AreEquivalent(this, target)) {
+      !simpleArrayInput || !::Xsmp::Helper::AreEquivalent(this, target)) {
     ::Xsmp::Exception::throwInvalidTarget(this, this, target);
   }
-  auto *simpleArrayInput = dynamic_cast<::Smp::ISimpleArrayField *>(target);
   if (!FieldHelper::CanConnect(this, simpleArrayInput)) {
     ::Xsmp::Exception::throwFieldAlreadyConnected(this, this, target);
   }
@@ -463,11 +463,11 @@ ArrayDataflowField::ArrayDataflowField()
 void ArrayDataflowField::Push() { FieldHelper::Push(this); }
 
 void ArrayDataflowField::Connect(::Smp::IField *target) {
+  auto *arrayInput = dynamic_cast<::Smp::IArrayField *>(target);
   if (!this->IsOutput() || !target->IsInput() || target == this ||
-      !::Xsmp::Helper::AreEquivalent(this, target)) {
+      !arrayInput || !::Xsmp::Helper::AreEquivalent(this, target)) {
     ::Xsmp::Exception::throwInvalidTarget(this, this, target);
   }
-  auto *arrayInput = dynamic_cast<::Smp::IArrayField *>(target);
   if (!FieldHelper::CanConnect(this, arrayInput)) {
     ::Xsmp::Exception::throwFieldAlreadyConnected(this, this, target);
   }
@@ -491,11 +491,11 @@ StructureDataflowField::StructureDataflowField()
 
 void StructureDataflowField::Push() { FieldHelper::Push(this); }
 void StructureDataflowField::Connect(::Smp::IField *target) {
+  auto *structInput = dynamic_cast<::Smp::IStructureField *>(target);
   if (!this->IsOutput() || !target->IsInput() || target == this ||
-      !::Xsmp::Helper::AreEquivalent(this, target)) {
+      !structInput || !::Xsmp::Helper::AreEquivalent(this, target)) {
     ::Xsmp::Exception::throwInvalidTarget(this, this, target);
   }
-  auto *structInput = dynamic_cast<::Smp::IStructureField *>(target);
   if (!FieldHelper::CanConnect(this, structInput)) {
     ::Xsmp::Exception::throwFieldAlreadyConnected(this, this, target);
   }

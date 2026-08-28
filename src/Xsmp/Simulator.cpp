@@ -35,11 +35,11 @@
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
 #include <Xsmp/LibraryHelper.h>
-#include <exception>
 #include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Simulator.h>
 #include <Xsmp/StorageReader.h>
 #include <Xsmp/StorageWriter.h>
+#include <exception>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -348,13 +348,24 @@ void Simulator::Run(::Smp::Duration duration) {
     return;
   }
 
+  ::Smp::Services::EventId holdId = -1;
   ::Xsmp::EntryPoint hold{"hold",
                           "call simulator hold after the specified duration",
-                          this, [this] { this->Hold(false); }};
+                          this, [this, &holdId] {
+                            holdId = -1;
+                            this->Hold(false);
+                          }};
   if (_scheduler) {
-    _scheduler->AddSimulationTimeEvent(&hold, duration);
+    holdId = _scheduler->AddSimulationTimeEvent(&hold, duration);
   }
+
   Run();
+
+  // `hold` lives on the stack: an event that has not been executed must be
+  // removed, otherwise a later Run() executes a destroyed entry point
+  if (_scheduler && holdId != -1) {
+    _scheduler->RemoveEvent(holdId);
+  }
 }
 
 void Simulator::Hold(::Smp::Bool immediate) {
@@ -387,39 +398,63 @@ void Simulator::Hold(::Smp::Bool immediate) {
   }
 }
 
-enum class PersistKind { PERSIST, COMPONENT, COMPOSITE, CONTAINER, FIELD };
+enum class PersistKind { PERSIST, FIELD };
 namespace {
-void Store(::Smp::IObject *obj, ::Smp::IStorageWriter *writer) {
-  if (auto *persist = dynamic_cast<::Smp::IPersist *>(obj)) {
-    PersistKind kind = PersistKind::PERSIST;
-    writer->Store(&kind, sizeof(PersistKind));
+/// Self persistence of a component: the state it stores itself through the
+/// ::Smp::IPersist interface.
+void storeSelf(::Smp::IComponent *component, ::Smp::IStorageWriter *writer) {
+  if (auto *persist = dynamic_cast<::Smp::IPersist *>(component)) {
+    auto kind = PersistKind::PERSIST;
+    writer->Store(&kind, sizeof(kind));
     persist->Store(writer);
   }
-  if (auto const *component = dynamic_cast<::Smp::IComponent *>(obj)) {
-    PersistKind kind = PersistKind::COMPONENT;
-    writer->Store(&kind, sizeof(PersistKind));
-    kind = PersistKind::FIELD;
-    if (const auto *fields = component->GetFields()) {
-      for (auto *field : *fields) {
-        writer->Store(&kind, sizeof(PersistKind));
-        field->Store(writer);
-      }
+}
+
+/// External persistence of a component: the state fields it published to the
+/// simulation environment. A field that is not part of the state vector stores
+/// nothing.
+void storeFields(::Smp::IComponent *component, ::Smp::IStorageWriter *writer) {
+  if (const auto *fields = component->GetFields()) {
+    for (auto *field : *fields) {
+      auto kind = PersistKind::FIELD;
+      writer->Store(&kind, sizeof(kind));
+      field->Store(writer);
     }
   }
-  if (auto const *composite = dynamic_cast<::Smp::IComposite *>(obj)) {
-    PersistKind kind = PersistKind::COMPOSITE;
-    writer->Store(&kind, sizeof(PersistKind));
-    kind = PersistKind::CONTAINER;
-    if (composite->GetContainers()) {
-      for (auto *container : *composite->GetContainers()) {
-        writer->Store(&kind, sizeof(PersistKind));
-        Store(container, writer);
-      }
+}
+
+void check(const ::Smp::IObject *obj, ::Smp::IStorageReader *reader,
+           PersistKind expectedKind) {
+  PersistKind kind;
+  reader->Restore(&kind, sizeof(kind));
+
+  if (kind != expectedKind) {
+    ::Xsmp::Exception::throwCannotRestore(obj, "Wrong check");
+  }
+}
+
+void restoreSelf(::Smp::IComponent *component, ::Smp::IStorageReader *reader) {
+  if (auto *persist = dynamic_cast<::Smp::IPersist *>(component)) {
+    check(component, reader, PersistKind::PERSIST);
+    persist->Restore(reader);
+  }
+}
+
+void restoreFields(::Smp::IComponent *component,
+                   ::Smp::IStorageReader *reader) {
+  if (const auto *fields = component->GetFields()) {
+    for (auto *field : *fields) {
+      check(field, reader, PersistKind::FIELD);
+      field->Restore(reader);
     }
   }
 }
 } // namespace
+// the state vector holds the published fields; the components that persist
+// themselves write in a separate file, as the two are not stored in the same
+// order as they are restored
 static constexpr ::Smp::String8 PERSIST_FILENAME = "simulator.bin";
+static constexpr ::Smp::String8 SELF_PERSIST_FILENAME = "components.bin";
 void Simulator::Store(::Smp::String8 filename) {
 
   if (_state != ::Smp::SimulatorStateKind::SSK_Standby ||
@@ -440,50 +475,21 @@ void Simulator::Store(::Smp::String8 filename) {
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_EnterStoringId);
 
   StorageWriter writer{filename, PERSIST_FILENAME, this};
+  StorageWriter selfWriter{filename, SELF_PERSIST_FILENAME, this};
 
-  ::Xsmp::Store(this, &writer);
+  // self persistence is performed first, so that a component can update its
+  // published fields before they are stored
+  recursive_action(this, [&selfWriter](::Smp::IComponent *cmp) {
+    storeSelf(cmp, &selfWriter);
+  });
+  recursive_action(
+      this, [&writer](::Smp::IComponent *cmp) { storeFields(cmp, &writer); });
 
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveStoringId);
   _state = ::Smp::SimulatorStateKind::SSK_Standby;
 
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_EnterStandbyId);
 }
-namespace {
-void check(const ::Smp::IObject *obj, ::Smp::IStorageReader *reader,
-           PersistKind expectedKind) {
-  PersistKind kind;
-  reader->Restore(&kind, sizeof(PersistKind));
-
-  if (kind != expectedKind) {
-    ::Xsmp::Exception::throwCannotRestore(obj, "Wrong check");
-  }
-}
-void Restore(::Smp::IObject *obj, ::Smp::IStorageReader *reader) {
-  if (auto *persist = dynamic_cast<::Smp::IPersist *>(obj)) {
-    check(obj, reader, PersistKind::PERSIST);
-    persist->Restore(reader);
-  }
-  if (auto const *component = dynamic_cast<::Smp::IComponent *>(obj)) {
-    check(obj, reader, PersistKind::COMPONENT);
-    if (const auto *fields = component->GetFields()) {
-      for (auto *field : *fields) {
-        check(obj, reader, PersistKind::FIELD);
-        field->Restore(reader);
-      }
-    }
-  }
-
-  if (auto const *composite = dynamic_cast<::Smp::IComposite *>(obj)) {
-    check(obj, reader, PersistKind::COMPOSITE);
-    if (composite->GetContainers()) {
-      for (auto *container : *composite->GetContainers()) {
-        check(obj, reader, PersistKind::CONTAINER);
-        Restore(container, reader);
-      }
-    }
-  }
-}
-} // namespace
 void Simulator::Restore(::Smp::String8 filename) {
 
   if (_state != ::Smp::SimulatorStateKind::SSK_Standby ||
@@ -502,8 +508,15 @@ void Simulator::Restore(::Smp::String8 filename) {
   _state = ::Smp::SimulatorStateKind::SSK_Restoring;
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_EnterRestoringId);
   StorageReader reader{filename, PERSIST_FILENAME, this};
+  StorageReader selfReader{filename, SELF_PERSIST_FILENAME, this};
 
-  ::Xsmp::Restore(this, &reader);
+  // the published fields are restored first, so that a component can use them
+  // while restoring itself
+  recursive_action(
+      this, [&reader](::Smp::IComponent *cmp) { restoreFields(cmp, &reader); });
+  recursive_action(this, [&selfReader](::Smp::IComponent *cmp) {
+    restoreSelf(cmp, &selfReader);
+  });
 
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveRestoringId);
   _state = ::Smp::SimulatorStateKind::SSK_Standby;
@@ -602,6 +615,7 @@ void Simulator::AddModel(::Smp::IModel *model) {
   switch (_state) {
   case ::Smp::SimulatorStateKind::SSK_Building:
   case ::Smp::SimulatorStateKind::SSK_Connecting:
+  case ::Smp::SimulatorStateKind::SSK_Initialising:
   case ::Smp::SimulatorStateKind::SSK_Standby:
     _models.AddComponent(model);
     break;
@@ -613,8 +627,6 @@ void Simulator::AddModel(::Smp::IModel *model) {
 void Simulator::AddService(::Smp::IService *service) {
   switch (_state) {
   case ::Smp::SimulatorStateKind::SSK_Building:
-  case ::Smp::SimulatorStateKind::SSK_Connecting:
-  case ::Smp::SimulatorStateKind::SSK_Standby:
     _services.AddComponent(service);
     break;
   default:

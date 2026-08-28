@@ -17,12 +17,24 @@
 #include <chrono>
 #include <date/date.h>
 #include <iostream>
+#include <limits>
 #include <sstream>
 #include <string>
 #include <string_view>
 #include <type_traits>
 
 namespace Xsmp {
+namespace {
+/// The date library negates a negative duration to format it, which is
+/// undefined for the lowest value of the type: format the closest one instead.
+std::chrono::nanoseconds formattable(const Duration &duration) {
+  auto value = static_cast<::Smp::Duration>(duration);
+  if (value == std::numeric_limits<::Smp::Duration>::lowest()) {
+    ++value;
+  }
+  return std::chrono::nanoseconds{value};
+}
+} // namespace
 static_assert(sizeof(::Smp::Duration) == sizeof(::Xsmp::Duration),
               "Size of ::Xsmp::Duration shall be identical to ::Smp::Duration");
 static_assert(std::is_standard_layout_v<::Xsmp::Duration>,
@@ -47,17 +59,16 @@ Duration::Duration(std::istream &inputStream, const char *fmt)
     : _value{from(inputStream, fmt)} {}
 
 std::string Duration::format(const char *fmt) const {
-  return date::format(fmt, static_cast<std::chrono::nanoseconds>(*this));
+  return date::format(fmt, formattable(*this));
 }
 
 std::string Duration::format(const std::string &fmt) const {
-  return date::format(fmt, static_cast<std::chrono::nanoseconds>(*this));
+  return date::format(fmt, formattable(*this));
 }
 
 std::ostream &Duration::to_stream(std::ostream &outputStream,
                                   const char *fmt) const {
-  return date::to_stream(outputStream, fmt,
-                         static_cast<std::chrono::nanoseconds>(*this));
+  return date::to_stream(outputStream, fmt, formattable(*this));
 }
 
 std::ostream &Duration::to_stream(std::ostream &outputStream,
@@ -66,7 +77,6 @@ std::ostream &Duration::to_stream(std::ostream &outputStream,
 }
 
 std::ostream &operator<<(std::ostream &outputStream, const Duration &duration) {
-  return date::to_stream(outputStream, "%T",
-                         static_cast<std::chrono::nanoseconds>(duration));
+  return date::to_stream(outputStream, "%T", formattable(duration));
 }
 } // namespace Xsmp

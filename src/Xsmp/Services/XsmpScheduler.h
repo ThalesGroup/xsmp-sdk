@@ -15,9 +15,12 @@
 #ifndef XSMP_SERVICES_XSMPSCHEDULER_H_
 #define XSMP_SERVICES_XSMPSCHEDULER_H_
 
+#include <Smp/ISimulator.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Services/EventId.h>
+#include <Smp/Services/ITimeKeeper.h>
 #include <Smp/Services/TimeKind.h>
+#include <Xsmp/EntryPoint.h>
 #include <Xsmp/Persist.h>
 #include <Xsmp/Services/XsmpSchedulerGen.h>
 #include <atomic>
@@ -443,6 +446,37 @@ private:
 
   MovingAverage _load;
   MovingAverage _speed;
+
+  /// Leaves the execution loop when the simulation is aborted. Not published:
+  /// it only exists to receive the SMP_EnterAborting global event.
+  ::Xsmp::EntryPoint _abort{
+      "Abort", "Stop the scheduler when the simulation is aborted",
+      static_cast<::Smp::IObject *>(this), [this] { _LeaveExecuting(); }};
+
+  /// Reschedule the epoch time events. Not published, it only exists to
+  /// receive the SMP_EpochTimeChanged global event.
+  ::Xsmp::EntryPoint _epochTimeChanged{
+      "EpochTimeChanged", "Reschedule the events scheduled on epoch time",
+      static_cast<::Smp::IObject *>(this), [this] {
+        RescheduleEvents(::Smp::Services::TimeKind::TK_EpochTime,
+                         GetSimulator()->GetTimeKeeper()->GetEpochTime());
+      }};
+
+  /// Reschedule the mission time events. Not published, it only exists to
+  /// receive the SMP_MissionTimeChanged global event.
+  ::Xsmp::EntryPoint _missionTimeChanged{
+      "MissionTimeChanged", "Reschedule the events scheduled on mission time",
+      static_cast<::Smp::IObject *>(this), [this] {
+        RescheduleEvents(::Smp::Services::TimeKind::TK_MissionTime,
+                         GetSimulator()->GetTimeKeeper()->GetMissionTime());
+      }};
+
+  /// Reschedule all the events of the given time kind after a change of the
+  /// epoch or mission time offset.
+  /// @param kind the time kind of the events to reschedule
+  /// @param newTime the new epoch or mission time
+  void RescheduleEvents(::Smp::Services::TimeKind kind,
+                        ::Smp::Duration newTime);
 
   /// Run the scheduler
   void InternalZuluRun();

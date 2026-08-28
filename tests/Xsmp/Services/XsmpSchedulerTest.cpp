@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "../Storage.h"
 #include "Xsmp/Component.h"
+#include <Smp/IPersist.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Services/EventId.h>
 #include <Smp/Services/ITimeKeeper.h>
@@ -24,7 +26,9 @@
 #include <Xsmp/EntryPoint.h>
 #include <Xsmp/Services/XsmpScheduler.h>
 #include <Xsmp/Simulator.h>
+#include <atomic>
 #include <chrono>
+#include <limits>
 #include <thread>
 #include <vector>
 
@@ -266,6 +270,300 @@ TEST(XsmpScheduler, RemoveEvent) {
   auto id = scheduler.AddSimulationTimeEvent(&ep1, 1_ms, 0, 0);
 
   EXPECT_NO_THROW(scheduler.RemoveEvent(id));
+}
+
+TEST(XsmpScheduler, RemoveZuluTimeEvent) {
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.Connect();
+
+  TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
+  ::Xsmp::EntryPoint ep{"ep", "", &entryPoints, [] {}};
+
+  // far enough in the future for the zulu thread not to execute it
+  auto zuluTime = sim.GetTimeKeeper()->GetZuluTime() + 1_h;
+  auto eventId = sim.GetScheduler()->AddZuluTimeEvent(&ep, zuluTime);
+
+  sim.GetScheduler()->RemoveEvent(eventId);
+
+  // the event is gone from both the event map and the zulu table
+  EXPECT_THROW(sim.GetScheduler()->RemoveEvent(eventId),
+               ::Smp::Services::InvalidEventId);
+  EXPECT_THROW(sim.GetScheduler()->SetEventZuluTime(eventId, zuluTime),
+               ::Smp::Services::InvalidEventId);
+
+  // a simulation time event is not affected by the removal
+  auto simEventId = sim.GetScheduler()->AddSimulationTimeEvent(&ep, 1_ms);
+  EXPECT_EQ(sim.GetScheduler()->GetNextScheduledEventTime(), 1_ms);
+  sim.GetScheduler()->RemoveEvent(simEventId);
+  sim.Exit();
+}
+
+TEST(XsmpScheduler, EpochTimeChanged) {
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.Connect();
+  auto &scheduler =
+      *dynamic_cast<Services::XsmpScheduler *>(sim.GetScheduler());
+  scheduler.SetTargetSpeed(100.0);
+
+  TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
+  std::vector<::Smp::Duration> times;
+  ::Xsmp::EntryPoint ep{
+      "ep", "", &entryPoints,
+      [&] { times.push_back(sim.GetTimeKeeper()->GetSimulationTime()); }};
+
+  const auto epochTime = sim.GetTimeKeeper()->GetEpochTime();
+  scheduler.AddEpochTimeEvent(&ep, epochTime + 10_ms);
+  EXPECT_EQ(scheduler.GetNextScheduledEventTime(), 10_ms);
+
+  // the event keeps the epoch time it was scheduled with: moving the epoch
+  // time forward makes it due at an earlier simulation time
+  sim.GetTimeKeeper()->SetEpochTime(epochTime + 6_ms);
+  EXPECT_EQ(scheduler.GetNextScheduledEventTime(), 4_ms);
+
+  // an event whose epoch time is now in the past is removed
+  scheduler.AddEpochTimeEvent(&ep, epochTime + 8_ms);
+  sim.GetTimeKeeper()->SetEpochTime(epochTime + 9_ms);
+  EXPECT_EQ(scheduler.GetNextScheduledEventTime(), 1_ms);
+
+  sim.Run(20_ms);
+  ASSERT_EQ(times.size(), 1U);
+  EXPECT_EQ(times[0], 1_ms);
+  sim.Exit();
+}
+
+TEST(XsmpScheduler, MissionTimeChanged) {
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.Connect();
+  auto &scheduler =
+      *dynamic_cast<Services::XsmpScheduler *>(sim.GetScheduler());
+  scheduler.SetTargetSpeed(100.0);
+
+  TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
+  std::vector<::Smp::Duration> times;
+  ::Xsmp::EntryPoint ep{
+      "ep", "", &entryPoints,
+      [&] { times.push_back(sim.GetTimeKeeper()->GetSimulationTime()); }};
+
+  const auto missionTime = sim.GetTimeKeeper()->GetMissionTime();
+  // 4 executions at mission time 10ms, 15ms, 20ms and 25ms
+  scheduler.AddMissionTimeEvent(&ep, missionTime + 10_ms, 5_ms, 3);
+
+  // the first two executions fall before the new mission time: they are not
+  // executed and the repeat count is reduced accordingly
+  sim.GetTimeKeeper()->SetMissionTime(missionTime + 18_ms);
+  EXPECT_EQ(scheduler.GetNextScheduledEventTime(), 2_ms);
+
+  sim.Run(20_ms);
+  ASSERT_EQ(times.size(), 2U);
+  EXPECT_EQ(times[0], 2_ms);
+  EXPECT_EQ(times[1], 7_ms);
+  sim.Exit();
+}
+
+TEST(XsmpScheduler, StoreRestoreKeepsZuluEvents) {
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.Connect();
+  auto *scheduler = sim.GetScheduler();
+  auto *persist = dynamic_cast<::Smp::IPersist *>(scheduler);
+  ASSERT_TRUE(persist);
+
+  TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
+  ::Xsmp::EntryPoint ep{"ep", "", &entryPoints, [] {}};
+
+  // far enough in the future for the zulu thread not to execute them
+  const auto zuluTime = sim.GetTimeKeeper()->GetZuluTime();
+  auto storedZulu = scheduler->AddZuluTimeEvent(&ep, zuluTime + 1_h);
+
+  Storage storage;
+  persist->Store(&storage);
+
+  auto laterZulu = scheduler->AddZuluTimeEvent(&ep, zuluTime + 2_h);
+  auto laterEvent = scheduler->AddSimulationTimeEvent(&ep, 1_ms);
+
+  persist->Restore(&storage);
+
+  // the state of the scheduler is restored, except for the zulu time events
+  EXPECT_THROW(scheduler->RemoveEvent(laterEvent),
+               ::Smp::Services::InvalidEventId);
+  EXPECT_NO_THROW(scheduler->SetEventZuluTime(storedZulu, zuluTime + 3_h));
+  EXPECT_NO_THROW(scheduler->SetEventZuluTime(laterZulu, zuluTime + 3_h));
+
+  // the identifier of a zulu event posted after the store is not handed out
+  // again
+  EXPECT_NE(scheduler->AddSimulationTimeEvent(&ep, 1_ms), laterZulu);
+  sim.Exit();
+}
+
+TEST(XsmpScheduler, ZuluEventPostedBeforeAPendingOne) {
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.Connect();
+
+  TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
+  std::atomic_int count{0};
+  ::Xsmp::EntryPoint ep{"ep", "", &entryPoints, [&] { ++count; }};
+
+  const auto zuluTime = sim.GetTimeKeeper()->GetZuluTime();
+  // the event due first is posted last: it must not wait for the pending one
+  sim.GetScheduler()->AddZuluTimeEvent(&ep, zuluTime + 1_h);
+  sim.GetScheduler()->AddZuluTimeEvent(&ep, zuluTime + 20_ms);
+
+  for (int i = 0; i < 1000 && count == 0; ++i) {
+    std::this_thread::sleep_for(std::chrono::milliseconds{1});
+  }
+  EXPECT_EQ(count, 1);
+  sim.Exit();
+}
+
+TEST(XsmpScheduler, EventTimeOverflow) {
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.Connect();
+
+  TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
+  ::Xsmp::EntryPoint ep{"ep", "", &entryPoints, [] {}};
+
+  constexpr auto max = std::numeric_limits<::Smp::Duration>::max();
+  constexpr auto min = std::numeric_limits<::Smp::Duration>::lowest();
+
+  // the time arithmetic saturates instead of overflowing, which would wrap
+  // around to a time in the past
+  EXPECT_NO_THROW(sim.GetScheduler()->AddSimulationTimeEvent(&ep, max));
+  EXPECT_NO_THROW(sim.GetScheduler()->AddMissionTimeEvent(&ep, max));
+  EXPECT_NO_THROW(sim.GetScheduler()->AddEpochTimeEvent(&ep, max));
+
+  // a time in the past is still rejected
+  EXPECT_THROW(sim.GetScheduler()->AddMissionTimeEvent(&ep, min),
+               ::Smp::Services::InvalidEventTime);
+
+  // a cyclic event whose next occurrence saturates stays scheduled
+  auto eventId = sim.GetScheduler()->AddSimulationTimeEvent(&ep, 0, max, -1);
+  EXPECT_NO_THROW(sim.GetScheduler()->SetEventSimulationTime(eventId, max));
+  sim.Exit();
+}
+
+TEST(XsmpScheduler, InfiniteEventWithoutCycleTime) {
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.Connect();
+  auto &scheduler =
+      *dynamic_cast<Services::XsmpScheduler *>(sim.GetScheduler());
+  scheduler.SetTargetSpeed(100.0);
+
+  TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
+  ::Smp::Int32 count = 0;
+  ::Xsmp::EntryPoint ep{"ep", "", &entryPoints, [&] { ++count; }};
+
+  auto eventId =
+      sim.GetScheduler()->AddSimulationTimeEvent(&ep, 1_ms, 1_ms, -1);
+
+  // an event repeated for ever is cyclic: it needs a positive cycle time,
+  // otherwise it would be rescheduled at the very same time, for ever
+  EXPECT_THROW(sim.GetScheduler()->SetEventCycleTime(eventId, 0),
+               ::Smp::Services::InvalidCycleTime);
+  EXPECT_THROW(sim.GetScheduler()->SetEventCycleTime(eventId, -1_ms),
+               ::Smp::Services::InvalidCycleTime);
+
+  sim.Run(10_ms);
+  EXPECT_GT(count, 0);
+  sim.Exit();
+}
+
+TEST(XsmpScheduler, HoldDuringEvents) {
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.Connect();
+  auto &scheduler =
+      *dynamic_cast<Services::XsmpScheduler *>(sim.GetScheduler());
+  scheduler.SetTargetSpeed(100.0);
+
+  TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
+  std::vector<int> results;
+  ::Xsmp::EntryPoint ep1{"ep1", "", &entryPoints,
+                         [&] { results.push_back(1); }};
+  ::Xsmp::EntryPoint ep2{"ep2", "", &entryPoints, [&] {
+                           results.push_back(2);
+                           sim.Hold(true);
+                         }};
+  ::Xsmp::EntryPoint ep3{"ep3", "", &entryPoints,
+                         [&] { results.push_back(3); }};
+
+  // three events scheduled at the same time, the second one holds
+  sim.GetScheduler()->AddSimulationTimeEvent(&ep1, 1_ms);
+  sim.GetScheduler()->AddSimulationTimeEvent(&ep2, 1_ms);
+  sim.GetScheduler()->AddSimulationTimeEvent(&ep3, 1_ms);
+
+  sim.Run(10_ms);
+  EXPECT_EQ(results, (std::vector<int>{1, 2}));
+
+  // the events left un-executed are kept and run on the next Run
+  sim.Run(10_ms);
+  EXPECT_EQ(results, (std::vector<int>{1, 2, 3}));
+  sim.Exit();
+}
+
+TEST(XsmpScheduler, RunDurationHoldEvent) {
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.Connect();
+  auto &scheduler =
+      *dynamic_cast<Services::XsmpScheduler *>(sim.GetScheduler());
+  scheduler.SetTargetSpeed(100.0);
+
+  TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
+  ::Xsmp::EntryPoint ep{"ep", "", &entryPoints, [&] { sim.Hold(true); }};
+
+  sim.GetScheduler()->AddSimulationTimeEvent(&ep, 1_ms);
+
+  // the run is interrupted by the model, before its own hold event at 10 ms
+  sim.Run(10_ms);
+  EXPECT_EQ(sim.GetState(), ::Smp::SimulatorStateKind::SSK_Standby);
+
+  // Run() posts an entry point living on its stack: it must not stay in the
+  // scheduler once it returns
+  EXPECT_EQ(sim.GetScheduler()->GetNextScheduledEventTime(),
+            std::numeric_limits<::Smp::Duration>::max());
+  sim.Exit();
+}
+
+TEST(XsmpScheduler, StoreRestore) {
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.Connect();
+  auto *scheduler = dynamic_cast<::Smp::IPersist *>(sim.GetScheduler());
+  ASSERT_TRUE(scheduler);
+
+  TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
+  ::Xsmp::EntryPoint ep{"ep", "", &entryPoints, [] {}};
+
+  sim.GetScheduler()->AddSimulationTimeEvent(&ep, 2_ms);
+  auto removedId = sim.GetScheduler()->AddSimulationTimeEvent(&ep, 1_ms);
+  EXPECT_EQ(sim.GetScheduler()->GetNextScheduledEventTime(), 1_ms);
+
+  Storage storage;
+  scheduler->Store(&storage);
+
+  // the state of the scheduler changes, then is restored
+  sim.GetScheduler()->RemoveEvent(removedId);
+  EXPECT_EQ(sim.GetScheduler()->GetNextScheduledEventTime(), 2_ms);
+
+  scheduler->Restore(&storage);
+  EXPECT_EQ(sim.GetScheduler()->GetNextScheduledEventTime(), 1_ms);
+  sim.Exit();
 }
 
 } // namespace Xsmp::Services
