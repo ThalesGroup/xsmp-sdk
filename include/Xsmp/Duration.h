@@ -93,7 +93,6 @@ struct Duration final {
     return std::chrono::duration_cast<std::chrono::duration<Rep, Period>>(
         std::chrono::nanoseconds(_value));
   }
-  // TODO handle operator +,-,*,/,+=,-=,*=,/=, ...
 
   template <typename T> Duration &operator=(T _i) noexcept {
     _value = _i;

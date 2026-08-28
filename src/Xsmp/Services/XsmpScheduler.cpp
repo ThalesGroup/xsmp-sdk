@@ -37,6 +37,7 @@
 #include <Xsmp/Services/XsmpSchedulerGen.h>
 #include <algorithm>
 #include <chrono>
+#include <iterator>
 #include <limits>
 #include <mutex>
 #include <thread>
@@ -565,7 +566,7 @@ bool XsmpScheduler::ExecuteEvents(::Smp::Duration time) {
       if (_simulationStatus == Status::Hold || !ExecuteImmediateEvents()) {
         // store un-executed events and exit
         const std::scoped_lock lck{_eventsMutex};
-        _events_table[time].insert(++it, current.end());
+        _events_table[time].insert(std::next(it), current.end());
         return false;
       }
     }
@@ -591,7 +592,7 @@ bool XsmpScheduler::ExecuteImmediateEvents() {
       if (_simulationStatus == Status::Hold) {
         // store un-executed events and exit
         const std::scoped_lock lck{_eventsMutex};
-        _immediate_events.insert(++it, events.end());
+        _immediate_events.insert(std::next(it), events.end());
         return false;
       }
     }
@@ -727,8 +728,7 @@ void XsmpScheduler::_EnterExecuting() {
     }
     startZuluTime = endZuluTime;
 
-    // TODO handle free running
-    //  keep synchronized with zulu time
+    // keep synchronized with zulu time
     if (delay > 0) {
 
       if (std::unique_lock lck2{_holdMutex};

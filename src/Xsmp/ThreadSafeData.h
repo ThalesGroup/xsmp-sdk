@@ -18,12 +18,18 @@
 #include <mutex>
 #include <optional>
 #include <shared_mutex>
+#include <type_traits>
+#include <utility>
 
 namespace Xsmp {
 template <typename T> class ThreadSafeData {
 public:
-  // Constructor to initialize the data with the provided arguments
-  template <typename... Args>
+  // Constructor to initialize the data with the provided arguments.
+  // Constrained so that it never competes with the copy/move constructors.
+  template <typename... Args,
+            typename = std::enable_if_t<!std::conjunction_v<
+                std::bool_constant<sizeof...(Args) == 1>,
+                std::is_same<ThreadSafeData, std::decay_t<Args>>...>>>
   explicit ThreadSafeData(Args &&...args)
       : _data(std::forward<Args>(args)...) {}
 
@@ -43,8 +49,9 @@ public:
       _lock = std::shared_lock<std::shared_mutex>(_wrapper._mutex);
     }
 
-    // Unlock the read lock
-    void unlock() { _lock.unlock(); }
+    // Release the read lock: assigning an empty lock unlocks the mutex, and
+    // leaves the lock in a state where unlock() can be called again
+    void unlock() { _lock = std::shared_lock<std::shared_mutex>{}; }
 
   private:
     const ThreadSafeData &_wrapper;            // Reference to the wrapper
@@ -67,8 +74,9 @@ public:
       _lock = std::unique_lock<std::shared_mutex>(_wrapper._mutex);
     }
 
-    // Unlock the write lock
-    void unlock() { _lock.unlock(); }
+    // Release the write lock: assigning an empty lock unlocks the mutex, and
+    // leaves the lock in a state where unlock() can be called again
+    void unlock() { _lock = std::unique_lock<std::shared_mutex>{}; }
 
   private:
     ThreadSafeData &_wrapper;                  // Reference to the wrapper

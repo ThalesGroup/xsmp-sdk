@@ -47,9 +47,10 @@ public:
     }
     auto it = std::find_if(
         _vector.begin(), _vector.end(),
-        [name](typename std::vector<T *>::const_reference it) {
-          return std::strcmp(name, ::Xsmp::Helper::auto_cast<::Smp::IObject>(it)
-                                       ->GetName()) == 0;
+        [name](typename std::vector<T *>::const_reference element) {
+          return std::strcmp(name,
+                             ::Xsmp::Helper::auto_cast<::Smp::IObject>(element)
+                                 ->GetName()) == 0;
         });
     return it == _vector.cend() ? nullptr : *it;
   }
@@ -163,10 +164,12 @@ public:
       return nullptr;
     }
     auto it = std::find_if(
-        _vector.begin(), _vector.end(), [name](const std::unique_ptr<T> &it) {
-          return std::strcmp(name,
-                             ::Xsmp::Helper::auto_cast<::Smp::IObject>(it.get())
-                                 ->GetName()) == 0;
+        _vector.begin(), _vector.end(),
+        [name](const std::unique_ptr<T> &element) {
+          return std::strcmp(
+                     name, ::Xsmp::Helper::auto_cast<::Smp::IObject>(
+                               element.get())
+                               ->GetName()) == 0;
         });
     return it == _vector.cend() ? nullptr : it->get();
   }
@@ -222,11 +225,11 @@ public:
   /// Remove an element from the collection.
   /// @param element The element to be removed from the collection.
   bool Remove(T *element) {
-    auto it = std::find_if(_vector.begin(), _vector.end(),
-                           [element](const std::unique_ptr<T> &it) {
-                             return element == it.get();
-                           });
-    if (it != _vector.end()) {
+    if (auto it = std::find_if(_vector.begin(), _vector.end(),
+                               [element](const std::unique_ptr<T> &candidate) {
+                                 return element == candidate.get();
+                               });
+        it != _vector.end()) {
       _vector.erase(it);
       return true;
     }
