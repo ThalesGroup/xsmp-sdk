@@ -14,6 +14,7 @@
 
 #include <Smp/InvalidObjectName.h>
 #include <Xsmp/Helper.h>
+#include <Xsmp/Simulator.h>
 #include <gtest/gtest.h>
 
 namespace Xsmp {
@@ -55,3 +56,15 @@ TEST(Helper, checkName) {
 }
 
 } // namespace Xsmp
+
+TEST(Helper, SafeExecuteWithoutEntryPoint) {
+
+  // a null entry point is reported, with or without a simulator, instead of
+  // being called
+  EXPECT_NO_THROW(::Xsmp::Helper::SafeExecute(nullptr, nullptr));
+
+  ::Xsmp::Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  EXPECT_NO_THROW(::Xsmp::Helper::SafeExecute(&sim, nullptr));
+  sim.Exit();
+}

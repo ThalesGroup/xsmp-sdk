@@ -484,8 +484,9 @@ void Simulator::Store(::Smp::String8 filename) {
   recursive_action(this, [&selfWriter](::Smp::IComponent *cmp) {
     storeSelf(cmp, &selfWriter);
   });
-  recursive_action(
-      this, [&writer](::Smp::IComponent *cmp) { storeFields(cmp, &writer); });
+  recursive_action(this, [&writer](const ::Smp::IComponent *cmp) {
+    storeFields(cmp, &writer);
+  });
 
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveStoringId);
   _state = ::Smp::SimulatorStateKind::SSK_Standby;
@@ -514,8 +515,9 @@ void Simulator::Restore(::Smp::String8 filename) {
 
   // the published fields are restored first, so that a component can use them
   // while restoring itself
-  recursive_action(
-      this, [&reader](::Smp::IComponent *cmp) { restoreFields(cmp, &reader); });
+  recursive_action(this, [&reader](const ::Smp::IComponent *cmp) {
+    restoreFields(cmp, &reader);
+  });
   recursive_action(this, [&selfReader](::Smp::IComponent *cmp) {
     restoreSelf(cmp, &selfReader);
   });

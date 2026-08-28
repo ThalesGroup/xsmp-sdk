@@ -55,7 +55,15 @@ namespace Xsmp::Helper {
 void SafeExecute(::Smp::ISimulator *simulator,
                  const ::Smp::IEntryPoint *entryPoint) {
 
-  if (simulator && entryPoint) {
+  if (!entryPoint) {
+    if (simulator) {
+      simulator->GetLogger()->Log(nullptr, "Cannot execute a null entry point.",
+                                  ::Smp::Services::ILogger::LMK_Error);
+    }
+    return;
+  }
+
+  if (simulator) {
     try {
       simulator->GetLogger()->Log(entryPoint, "Execute()",
                                   ::Smp::Services::ILogger::LMK_Debug);
