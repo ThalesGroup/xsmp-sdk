@@ -39,7 +39,7 @@ class FieldHelper {
 public:
   static bool CanConnect(const SimpleConnectableField *output,
                          const ::Smp::ISimpleField *input) {
-    return output->_connectedFields.contains(input);
+    return !output->_connectedFields.contains(input);
   }
   static void Connect(SimpleConnectableField *output,
                       ::Smp::ISimpleField *input) {
@@ -58,7 +58,7 @@ public:
 
   static bool CanConnect(const SimpleArrayConnectableField *output,
                          const ::Smp::ISimpleArrayField *input) {
-    return output->_connectedFields.contains(input);
+    return !output->_connectedFields.contains(input);
   }
   static void Connect(SimpleArrayConnectableField *output,
                       ::Smp::ISimpleArrayField *input) {
@@ -113,7 +113,7 @@ public:
 
   static bool CanConnect(const ArrayDataflowField *output,
                          const ::Smp::IArrayField *input) {
-    return output->_connectedFields.contains(input) &&
+    return !output->_connectedFields.contains(input) &&
            CanConnect(static_cast<const ::Smp::IArrayField *>(output), input);
   }
   static void Connect(ArrayDataflowField *output, ::Smp::IArrayField *input) {
@@ -178,7 +178,7 @@ public:
   }
   static bool CanConnect(const StructureDataflowField *output,
                          const ::Smp::IStructureField *input) {
-    return output->_connectedFields.contains(input) &&
+    return !output->_connectedFields.contains(input) &&
            CanConnect(static_cast<const ::Smp::IStructureField *>(output),
                       input);
   }
@@ -441,7 +441,7 @@ InputFieldCollection::const_iterator InputFieldCollection::end() const {
 }
 
 bool InputFieldCollection::contains(const ::Smp::IField *input) const {
-  return std::find(_fields.begin(), _fields.end(), input) == _fields.end();
+  return std::find(_fields.begin(), _fields.end(), input) != _fields.end();
 }
 
 void InputFieldCollection::add(::Smp::IField *input) {
