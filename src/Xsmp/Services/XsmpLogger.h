@@ -74,13 +74,15 @@ public:
   void Store(::Smp::IStorageWriter *writer) override;
 
 private:
-  friend class ::Xsmp::Component::Helper;
-
   // init pre-defined kinds: keep ordered
   Xsmp::ThreadSafeData<std::vector<std::string>> _logMessageKinds{
       std::vector<std::string>{LMK_InformationName, LMK_EventName,
                                LMK_WarningName, LMK_ErrorName, LMK_DebugName}};
   std::mutex _mutex;
+  /// Stop the working thread when the service is disconnected, so that the
+  /// destruction of the logger has no thread left to join.
+  void DoDisconnect();
+
   std::unique_ptr<LoggerProcessor> _processor;
 };
 } // namespace Xsmp::Services

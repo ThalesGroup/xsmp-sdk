@@ -30,6 +30,7 @@
 #include <Xsmp/Services/XsmpLogger.h>
 #include <Xsmp/Services/XsmpLoggerGen.h>
 #include <algorithm>
+#include <atomic>
 #include <cctype>
 #include <condition_variable>
 #include <fstream>
@@ -448,19 +449,35 @@ public:
   LoggerProcessor(LoggerProcessor &&) = delete;
   LoggerProcessor &operator=(LoggerProcessor &&) = delete;
   ~LoggerProcessor() {
-    // terminate the working thread
-    Stop();
-    _cv.notify_one();
-    if (workingThread.joinable()) {
-      workingThread.join();
+    Terminate();
+    // write what was logged after the working thread was stopped
+    Drain();
+  }
+
+  /// Stop the working thread. Called when the service is disconnected, so that
+  /// the destruction of the logger, which may happen at a point where the
+  /// process has already terminated its secondary threads, has no thread to
+  /// join. The messages logged afterwards are written by the calling thread.
+  void Terminate() {
+    if (_workerRunning.exchange(false)) {
+      Stop();
+      _cv.notify_one();
+      if (workingThread.joinable()) {
+        workingThread.join();
+      }
     }
   }
+
   void Log(const ::Smp::IObject *sender, ::Smp::String8 msg,
            const std::string &kind, ::Smp::DateTime zuluTime,
            ::Smp::Duration simulationTime, ::Smp::DateTime epochTime,
            ::Smp::Duration missionTime) {
     Push(sender, msg, kind, zuluTime, simulationTime, epochTime, missionTime);
-    _cv.notify_one();
+    if (_workerRunning) {
+      _cv.notify_one();
+    } else {
+      Drain();
+    }
   }
 
 private:
@@ -477,31 +494,34 @@ private:
                 Xsmp::DateTime{zuluTime}, Xsmp::Duration{simulationTime},
                 Xsmp::DateTime{epochTime}, Xsmp::Duration{missionTime}});
   }
-  void Process() {
+  /// Write the pending entries. The appenders are called without the mutex
+  /// held; a std::queue never invalidates the reference to its front element
+  /// when another entry is pushed.
+  void Drain() {
     std::unique_lock lck(_mutex);
-    while (running) {
-      while (!_logs.empty()) {
-
-        const auto &log = _logs.front();
-        lck.unlock();
-
-        for (auto const &appender : _appenders) {
-          appender->Append(log);
-        }
-        lck.lock();
-        _logs.pop();
-      }
-      _cv.wait(lck, [this] { return !running || !_logs.empty(); });
-    }
-
-    // process remaining logs if any
     while (!_logs.empty()) {
       const auto &log = _logs.front();
+      lck.unlock();
       for (auto const &appender : _appenders) {
         appender->Append(log);
       }
+      lck.lock();
       _logs.pop();
     }
+  }
+
+  void Process() {
+    std::unique_lock lck(_mutex);
+    while (running) {
+      _cv.wait(lck, [this] { return !running || !_logs.empty(); });
+      lck.unlock();
+      Drain();
+      lck.lock();
+    }
+    lck.unlock();
+
+    // process the entries pushed while stopping
+    Drain();
   }
   [[nodiscard]] static std::map<std::string, std::string, std::less<>>
   parseProperties() {
@@ -559,6 +579,7 @@ private:
           << path << "=FileAppender' to create a File appender." << '\n';
     }
   }
+  std::atomic_bool _workerRunning{true};
   std::mutex _mutex;
   std::condition_variable _cv;
   std::queue<LogEntry> _logs;
@@ -622,6 +643,8 @@ void XsmpLogger::Log(const ::Smp::IObject *sender, ::Smp::String8 message,
                     0);
   }
 }
+
+void XsmpLogger::DoDisconnect() { _processor->Terminate(); }
 
 void XsmpLogger::Restore(::Smp::IStorageReader *reader) {
   ::Xsmp::Persist::Restore(GetSimulator(), this, reader,

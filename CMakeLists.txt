@@ -689,8 +689,20 @@ if(XSMP_ENABLE_INSTALL)
         )
     endif()
 
+    # On Windows the DLL of a shared library is its RUNTIME artefact, installed
+    # in the bin directory by default. In the wheel the module sits at the root
+    # and the loader does not search bin: the DLLs go next to the module.
+    # On other systems the shared library is a LIBRARY artefact, unaffected.
+    if(SKBUILD STREQUAL "2")
+        # the wheel root, where install(TARGETS Python) puts the module
+        set(_xsmp_runtimedir ".")
+    else()
+        set(_xsmp_runtimedir "${CMAKE_INSTALL_BINDIR}")
+    endif()
+
     install(TARGETS Smp Cdk LibraryHelper Simulator EventManager LinkRegistry Logger Resolver Scheduler TimeKeeper
         EXPORT ${PROJECT_NAME}-config
+        RUNTIME DESTINATION "${_xsmp_runtimedir}"
     )
     install(EXPORT ${PROJECT_NAME}-config
         NAMESPACE Xsmp::
