@@ -54,7 +54,25 @@ extern "C" {
 /// Global Finalise function of Package xsmp_services.
 /// @param simulator Simulator.
 /// @return True if finalisation was successful, false otherwise.
-DLL_EXPORT bool Finalise(::Smp::ISimulator *) {
+DLL_EXPORT bool Finalise([[maybe_unused]] ::Smp::ISimulator *simulator) {
+#if ECSS_SMP_VERSION >= 202503L
+  return Finalise_xsmp_services(simulator);
+#else
   return Finalise_xsmp_services();
+#endif
 }
 }
+
+// -----------------------------------------------------------------------------
+// ------------------------- GetSmpVersion Function ----------------------------
+// -----------------------------------------------------------------------------
+
+#if ECSS_SMP_VERSION >= 202503L
+extern "C" {
+/// Global GetSmpVersion function of Package xsmp_services.
+/// @return The revision of the SMP standard this package was built against.
+DLL_EXPORT ::Smp::UInt64 GetSmpVersion() {
+  return GetSmpVersion_xsmp_services();
+}
+}
+#endif

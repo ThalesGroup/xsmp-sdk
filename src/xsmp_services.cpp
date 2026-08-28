@@ -79,6 +79,25 @@ bool Initialise_xsmp_services(
 extern "C" {
 /// Finalise Package xsmp_services.
 /// @return True if finalisation was successful, false otherwise.
+#if ECSS_SMP_VERSION >= 202503L
+bool Finalise_xsmp_services(::Smp::ISimulator *simulator) {
+  // avoid double finalisation of that simulator
+  if (::simulators.erase(simulator) == 0) {
+    return true;
+  }
+
+  auto finalised = Finalise_xsmp_scheduler(simulator);
+  finalised &= Finalise_xsmp_link_registry(simulator);
+  finalised &= Finalise_xsmp_event_manager(simulator);
+  finalised &= Finalise_xsmp_resolver(simulator);
+  finalised &= Finalise_xsmp_time_keeper(simulator);
+  finalised &= Finalise_xsmp_logger(simulator);
+
+  return finalised;
+}
+
+::Smp::UInt64 GetSmpVersion_xsmp_services() { return ECSS_SMP_VERSION; }
+#else
 bool Finalise_xsmp_services() {
   // avoid double finalisation
   if (::simulators.empty()) {
@@ -95,4 +114,5 @@ bool Finalise_xsmp_services() {
 
   return finalised;
 }
+#endif
 }
