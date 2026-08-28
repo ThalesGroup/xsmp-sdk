@@ -40,7 +40,7 @@ If the type of the event argument of the event sink is not the type the event so
 An event sink can only be subscribed once to each event source. Event sinks will be called in the order they have been subscribed to the event source.)")
 
       .def("__iadd__", &SubscribeEventSource, py::arg("event_sink"),
-           py::return_value_policy::reference)
+           py::return_value_policy::reference_internal)
 
       .def("Unsubscribe", &::Smp::IEventSource::Unsubscribe,
            py::arg("event_sink"),
@@ -49,7 +49,7 @@ This method raises the EventSinkNotSubscribed exception if the given event sink 
 An event sink can only be unsubscribed if it has been subscribed before.)")
 
       .def("__isub__", &UnsubscribeEventSource, py::arg("event_sink"),
-           py::return_value_policy::reference)
+           py::return_value_policy::reference_internal)
 
       .doc() =
       R"(Interface of an event source that event sinks (IEventSink) can subscribe to.

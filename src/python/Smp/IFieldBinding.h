@@ -35,7 +35,7 @@ inline void RegisterIField(const py::module_ &m) {
 
       .def("GetType", &::Smp::IField::GetType,
            "Returns the type of this field.",
-           py::return_value_policy::reference)
+           py::return_value_policy::reference_internal)
 
       .doc() = "Interface of a field.";
 }

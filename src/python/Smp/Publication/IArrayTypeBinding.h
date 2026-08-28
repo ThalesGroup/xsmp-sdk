@@ -27,7 +27,7 @@ inline void RegisterIArrayType(const py::module_ &m) {
 
       .def("GetItemType", &::Smp::Publication::IArrayType::GetItemType,
            "Get the type of each array item.",
-           py::return_value_policy::reference)
+           py::return_value_policy::reference_internal)
 
       .doc() = "This interface defines a user defined array type.";
 }

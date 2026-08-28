@@ -51,6 +51,18 @@ class TestM1(xsmp.unittest.TestCase):
         self.assertEqual(sim.XsmpScheduler, sim.GetScheduler())
         self.assertEqual(sim.XsmpTimeKeeper, sim.GetTimeKeeper())
 
+    def testCollectionIndex(self):
+        services = self.sim._Services
+        count = len(services)
+        self.assertGreater(count, 0)
+        # a negative index counts from the end, as everywhere else in Python
+        self.assertEqual(services[-1].GetName(), services[count - 1].GetName())
+        self.assertEqual(services[-count].GetName(), services[0].GetName())
+        with self.assertRaises(IndexError):
+            services[count]
+        with self.assertRaises(IndexError):
+            services[-count - 1]
+
     def testMultiSimulator(self):
         # create a 2nd simulator
         sim2 = self.createSimulator()

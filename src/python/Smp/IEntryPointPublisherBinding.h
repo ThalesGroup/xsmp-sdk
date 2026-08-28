@@ -23,7 +23,7 @@ inline void RegisterIEntryPointPublisher(const py::module_ &m) {
       m, "IEntryPointPublisher", py::multiple_inheritance())
 
       .def("GetEntryPoint", &::Smp::IEntryPointPublisher::GetEntryPoint,
-           py::arg("name"), py::return_value_policy::reference,
+           py::arg("name"), py::return_value_policy::reference_internal,
            R"(Query for an entry point of this component by its name.
 The returned entry point may be null if no entry point with the given name could be found.)")
 

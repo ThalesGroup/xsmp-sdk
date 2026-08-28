@@ -31,6 +31,7 @@
 #include <Xsmp/Field.h>
 #include <Xsmp/Helper.h>
 #include <Xsmp/Reference.h>
+#include <vector>
 
 namespace Xsmp {
 Component::Component(::Smp::String8 name, ::Smp::String8 description,
@@ -156,10 +157,16 @@ void Component::RemoveFieldLinks(::Smp::IField *field,
   if (auto *dataflowField =
           dynamic_cast<::Xsmp::detail::IDataflowFieldExtension *>(field)) {
     if (const auto *inputFields = dataflowField->GetInputFields()) {
+      // the fields are collected first: disconnecting one removes it from the
+      // collection being iterated
+      std::vector<const ::Smp::IField *> connectedToTarget;
       for (const auto *inputField : *inputFields) {
         if (::Xsmp::Helper::IsAncestor(target, inputField)) {
-          dataflowField->Disconnect(inputField);
+          connectedToTarget.emplace_back(inputField);
         }
+      }
+      for (const auto *inputField : connectedToTarget) {
+        dataflowField->Disconnect(inputField);
       }
     }
   }

@@ -61,7 +61,7 @@ inline void RegisterIObject(const py::module_ &m) {
             }
             throw py::attribute_error(name);
           },
-          py::arg("name"), py::return_value_policy::reference)
+          py::arg("name"), py::return_value_policy::reference_internal)
 
       .def(
           "__setattr__",
@@ -80,7 +80,7 @@ inline void RegisterIObject(const py::module_ &m) {
             }
             throw py::key_error(name);
           },
-          py::arg("name"), py::return_value_policy::reference)
+          py::arg("name"), py::return_value_policy::reference_internal)
 
       .def(
           "__setitem__",
@@ -99,7 +99,7 @@ inline void RegisterIObject(const py::module_ &m) {
 
       .def("GetParent", &::Smp::IObject::GetParent,
            "Returns the parent object of the object.",
-           py::return_value_policy::reference)
+           py::return_value_policy::reference_internal)
 
       .def("__repr__",
            [](const ::Smp::IObject &self) {

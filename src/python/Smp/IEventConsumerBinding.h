@@ -23,7 +23,7 @@ inline void RegisterIEventConsumer(const py::module_ &m) {
       m, "IEventConsumer", py::multiple_inheritance())
 
       .def("GetEventSink", &::Smp::IEventConsumer::GetEventSink,
-           py::arg("name"), py::return_value_policy::reference,
+           py::arg("name"), py::return_value_policy::reference_internal,
            R"(Query for an event sink of this component by its name.
 The returned event sink may be null if no event sink with the given name could be found.)")
 

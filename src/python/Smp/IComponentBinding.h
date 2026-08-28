@@ -27,7 +27,7 @@ inline void RegisterIComponent(const py::module_ &m) {
 The component state can be changed using the Publish(), Configure()and Connect() state transition methods.)")
 
       .def("GetField", &::Smp::IComponent::GetField,
-           py::return_value_policy::reference, py::arg("full_name"),
+           py::return_value_policy::reference_internal, py::arg("full_name"),
            R"(Get the field of given name.
 This method raises an exception of type InvalidFieldName if called with a field name for which no corresponding field exists.
 This method can be used both for fields of simple types (when it returns an instance of ISimpleField), and for complex fields (when it returns IArrayField or IStructureField).)")

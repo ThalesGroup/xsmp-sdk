@@ -24,6 +24,7 @@
 #include <Smp/SimulatorStateKind.h>
 #include <Xsmp/Duration.h>
 #include <Xsmp/EntryPoint.h>
+#include <Xsmp/Model.h>
 #include <Xsmp/Services/XsmpScheduler.h>
 #include <Xsmp/Simulator.h>
 #include <atomic>
@@ -40,6 +41,15 @@ class TestEntryPointPublisher : public Xsmp::Component,
                                 public virtual Xsmp::EntryPointPublisher {
 public:
   using Xsmp::Component::Component;
+};
+
+/// A model owning its entry point, so that the scheduler can resolve it by
+/// path when restoring its state.
+class TestModel final : public Xsmp::Model,
+                        public virtual Xsmp::EntryPointPublisher {
+public:
+  using Xsmp::Model::Model;
+  ::Xsmp::EntryPoint ep{"ep", "", this, [] {}};
 };
 } // namespace
 TEST(XsmpScheduler, run) {
@@ -375,18 +385,19 @@ TEST(XsmpScheduler, StoreRestoreKeepsZuluEvents) {
   auto *persist = dynamic_cast<::Smp::IPersist *>(scheduler);
   ASSERT_TRUE(persist);
 
-  TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
-  ::Xsmp::EntryPoint ep{"ep", "", &entryPoints, [] {}};
+  auto *model = new TestModel("model", "", &sim, &sim);
+  sim.AddModel(model);
+  auto *ep = &model->ep;
 
   // far enough in the future for the zulu thread not to execute them
   const auto zuluTime = sim.GetTimeKeeper()->GetZuluTime();
-  auto storedZulu = scheduler->AddZuluTimeEvent(&ep, zuluTime + 1_h);
+  auto storedZulu = scheduler->AddZuluTimeEvent(ep, zuluTime + 1_h);
 
   Storage storage;
   persist->Store(&storage);
 
-  auto laterZulu = scheduler->AddZuluTimeEvent(&ep, zuluTime + 2_h);
-  auto laterEvent = scheduler->AddSimulationTimeEvent(&ep, 1_ms);
+  auto laterZulu = scheduler->AddZuluTimeEvent(ep, zuluTime + 2_h);
+  auto laterEvent = scheduler->AddSimulationTimeEvent(ep, 1_ms);
 
   persist->Restore(&storage);
 
@@ -398,7 +409,7 @@ TEST(XsmpScheduler, StoreRestoreKeepsZuluEvents) {
 
   // the identifier of a zulu event posted after the store is not handed out
   // again
-  EXPECT_NE(scheduler->AddSimulationTimeEvent(&ep, 1_ms), laterZulu);
+  EXPECT_NE(scheduler->AddSimulationTimeEvent(ep, 1_ms), laterZulu);
   sim.Exit();
 }
 
@@ -547,11 +558,14 @@ TEST(XsmpScheduler, StoreRestore) {
   auto *scheduler = dynamic_cast<::Smp::IPersist *>(sim.GetScheduler());
   ASSERT_TRUE(scheduler);
 
-  TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
-  ::Xsmp::EntryPoint ep{"ep", "", &entryPoints, [] {}};
+  // the entry point is owned by a model of the simulation: the scheduler
+  // persists it by path
+  auto *model = new TestModel("model", "", &sim, &sim);
+  sim.AddModel(model);
+  auto *ep = &model->ep;
 
-  sim.GetScheduler()->AddSimulationTimeEvent(&ep, 2_ms);
-  auto removedId = sim.GetScheduler()->AddSimulationTimeEvent(&ep, 1_ms);
+  sim.GetScheduler()->AddSimulationTimeEvent(ep, 2_ms);
+  auto removedId = sim.GetScheduler()->AddSimulationTimeEvent(ep, 1_ms);
   EXPECT_EQ(sim.GetScheduler()->GetNextScheduledEventTime(), 1_ms);
 
   Storage storage;

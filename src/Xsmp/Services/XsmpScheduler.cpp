@@ -252,9 +252,7 @@ XsmpScheduler::AddEvent(const ::Smp::IEntryPoint *entryPoint,
   ::Smp::Services::EventId eventId = -1;
   {
     // create the event
-    // taken in the order documented in the header, as RemoveEvent() does
-    const std::scoped_lock eventsLck{_eventsMutex};
-    const std::scoped_lock zuluLck{_zuluEventsTableMutex};
+    const std::scoped_lock lck{_eventsMutex, _zuluEventsTableMutex};
     eventId = ++_lastEventId;
     _events.try_emplace(eventId,
                         Event{entryPoint, zuluTime, zuluTime, cycleTime, repeat,
@@ -335,9 +333,7 @@ void XsmpScheduler::SetEventZuluTime(::Smp::Services::EventId event,
                                      ::Smp::DateTime zuluTime) {
   {
     auto currentZulu = GetSimulator()->GetTimeKeeper()->GetZuluTime();
-    // taken in the order documented in the header, as RemoveEvent() does
-    const std::scoped_lock eventsLck{_eventsMutex};
-    const std::scoped_lock zuluLck{_zuluEventsTableMutex};
+    const std::scoped_lock lck{_eventsMutex, _zuluEventsTableMutex};
     auto it = _events.find(event);
 
     if (it == _events.end() ||
@@ -685,7 +681,7 @@ void XsmpScheduler::Store(::Smp::IStorageWriter *writer) {
   std::map<::Smp::Services::EventId, Event> events;
   for (const auto &[eventId, event] : _events) {
     if (event.kind != ::Smp::Services::TimeKind::TK_ZuluTime) {
-      events.emplace(eventId, event);
+      events.try_emplace(eventId, event);
     }
   }
   ::Xsmp::Persist::Store(GetSimulator(), this, writer, events, _events_table,

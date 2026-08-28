@@ -31,7 +31,7 @@ inline void RegisterIFactory(const py::module_ &m) {
 
       .def("CreateInstance", &::Smp::IFactory::CreateInstance, py::arg("name"),
            py::arg("description"), py::arg("parent"),
-           py::return_value_policy::reference,
+           py::return_value_policy::reference_internal,
            "Create a new instance with given name, description and parent.")
 
       .def("DeleteInstance", &::Smp::IFactory::DeleteInstance,

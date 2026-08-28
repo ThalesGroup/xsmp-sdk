@@ -537,7 +537,7 @@ py::object convert(const ::Smp::AnySimple &value) {
 ::Smp::UInt64 GetIndex(::Smp::Int64 index, ::Smp::UInt64 size) {
   const ::Smp::Int64 result =
       index < 0 ? static_cast<::Smp::Int64>(size) + index : index;
-  if (result < 0 || static_cast<::Smp::UInt64>(index) >= size) {
+  if (result < 0 || static_cast<::Smp::UInt64>(result) >= size) {
     throw py::index_error(std::to_string(index));
   }
   return static_cast<::Smp::UInt64>(result);

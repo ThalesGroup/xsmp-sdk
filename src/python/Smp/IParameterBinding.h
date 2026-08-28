@@ -23,7 +23,7 @@ inline void RegisterIParameter(const py::module_ &m) {
                                                 py::multiple_inheritance())
 
       .def("GetType", &::Smp::IParameter::GetType,
-           py::return_value_policy::reference,
+           py::return_value_policy::reference_internal,
            "Provides the type of the parameter.")
 
       .def("GetDirection", &::Smp::IParameter::GetDirection,

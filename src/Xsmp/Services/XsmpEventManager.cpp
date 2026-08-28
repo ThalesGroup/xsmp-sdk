@@ -201,8 +201,7 @@ void XsmpEventManager::Emit(::Smp::Services::EventId event,
 void XsmpEventManager::Restore(::Smp::IStorageReader *reader) {
   // _events is locked first, as the constructor and Store() do
   auto eventsAccess = _events.write();
-  ::Xsmp::Persist::Restore(GetSimulator(), this, reader, eventsAccess.get(),
-                           _subscriptions.write().get());
+  ::Xsmp::Persist::Restore(GetSimulator(), this, reader, eventsAccess.get());
   // rebuild _ids map from _events
   auto idsAccess = _ids.write();
   idsAccess.get().clear();
@@ -213,8 +212,7 @@ void XsmpEventManager::Restore(::Smp::IStorageReader *reader) {
 
 void XsmpEventManager::Store(::Smp::IStorageWriter *writer) {
   auto eventsAccess = _events.read();
-  ::Xsmp::Persist::Store(GetSimulator(), this, writer, eventsAccess.get(),
-                         _subscriptions.read().get());
+  ::Xsmp::Persist::Store(GetSimulator(), this, writer, eventsAccess.get());
 }
 
 } // namespace Xsmp::Services

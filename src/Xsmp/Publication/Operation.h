@@ -35,10 +35,10 @@ class Publication;
 class Operation final : public ::Smp::Publication::IPublishOperation,
                         public ::Smp::IOperation {
 public:
-  Operation(::Smp::String8 name, ::Smp::String8 description = "",
-            ::Smp::IObject *parent = nullptr,
-            ::Smp::ViewKind view = ::Smp::ViewKind::VK_None,
-            ::Smp::Publication::ITypeRegistry *typeRegistry = nullptr);
+  explicit Operation(::Smp::String8 name, ::Smp::String8 description = "",
+                     ::Smp::IObject *parent = nullptr,
+                     ::Smp::ViewKind view = ::Smp::ViewKind::VK_None,
+                     ::Smp::Publication::ITypeRegistry *typeRegistry = nullptr);
   ~Operation() noexcept override = default;
   /// Operation cannot be copied
   Operation(const Operation &) = delete;

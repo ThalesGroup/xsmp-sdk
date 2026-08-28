@@ -17,12 +17,16 @@
 // clang-format off
 #include <Smp/FieldAlreadyConnected.h>
 // clang-format on
+#include <Smp/IPublication.h>
 #include <Smp/InvalidTarget.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Uuid.h>
 #include <Xsmp/Array.h>
+#include <Xsmp/Component.h>
 #include <Xsmp/Field.h>
+#include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Publication/TypeRegistry.h>
+#include <Xsmp/Simulator.h>
 #include <gtest/gtest.h>
 
 namespace Xsmp {
@@ -108,6 +112,60 @@ TEST(DataflowField, ArrayConnectAndDisconnect) {
   output.Disconnect(&input);
   output[0] = 7;
   EXPECT_EQ(input[0], 42);
+}
+
+namespace {
+/// A component owning and publishing one input field, so that the field
+/// belongs to the component whose links are removed.
+class Sink final : public Component {
+public:
+  Sink(::Smp::String8 name, ::Smp::IComposite *parent,
+       ::Smp::Publication::ITypeRegistry *registry)
+      : Component(name, "", parent),
+        first{registry, ::Smp::Uuids::Uuid_Int32, "first", "", this},
+        second{registry, ::Smp::Uuids::Uuid_Int32, "second", "", this} {}
+  Field<::Smp::Int32>::input first;
+  Field<::Smp::Int32>::input second;
+};
+
+/// A component owning and publishing one output field.
+class Source final : public Component {
+public:
+  Source(::Smp::String8 name, ::Smp::IComposite *parent,
+         ::Smp::Publication::ITypeRegistry *registry)
+      : Component(name, "", parent),
+        output{registry, ::Smp::Uuids::Uuid_Int32, "output", "", this} {}
+  void Publish(::Smp::IPublication *receiver) override {
+    Component::Publish(receiver);
+    receiver->PublishField(&output);
+  }
+  Field<::Smp::Int32>::output output;
+};
+} // namespace
+
+TEST(DataflowField, RemoveLinksOfSeveralFields) {
+
+  Simulator sim;
+  Xsmp::Publication::TypeRegistry registry;
+
+  Source source{"source", &sim, &registry};
+  Publication::Publication publication{&source, &registry};
+  source.Publish(&publication);
+
+  // both inputs of one component, plus one of another, on the same output
+  Sink sink{"sink", &sim, &registry};
+  Sink other{"other", &sim, &registry};
+  source.output.Connect(&sink.first);
+  source.output.Connect(&sink.second);
+  source.output.Connect(&other.first);
+  EXPECT_EQ(source.output.GetInputFields()->size(), 3U);
+
+  // the two fields of the same component are disconnected by a single call
+  source.RemoveLinks(&sink);
+  EXPECT_EQ(source.output.GetInputFields()->size(), 1U);
+
+  source.RemoveLinks(&other);
+  EXPECT_EQ(source.output.GetInputFields()->size(), 0U);
 }
 
 TEST(DataflowField, IncompatibleTarget) {

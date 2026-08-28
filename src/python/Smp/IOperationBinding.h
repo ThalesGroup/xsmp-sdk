@@ -108,13 +108,13 @@ inline void RegisterIOperation(const py::module_ &m) {
            "Provides the view kind of the operation.")
 
       .def("GetParameter", &::Smp::IOperation::GetParameter, py::arg("name"),
-           py::return_value_policy::reference,
+           py::return_value_policy::reference_internal,
            "Return a parameter by name. This works both for parameters in the "
            "collection of GetParameters(), and for the optional return "
            "parameter.")
 
       .def("GetReturnParameter", &::Smp::IOperation::GetReturnParameter,
-           py::return_value_policy::reference,
+           py::return_value_policy::reference_internal,
            "This operation returns the return parameter, or nullptr if no "
            "return parameter exists (for a void operation).")
 

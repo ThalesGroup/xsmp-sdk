@@ -33,13 +33,13 @@ inline void RegisterIArrayField(const py::module_ &m) {
               return result;
             throw py::index_error(std::to_string(index));
           },
-          py::return_value_policy::reference)
+          py::return_value_policy::reference_internal)
 
       .def("GetSize", &::Smp::IArrayField::GetSize,
            "Get the size (number of array items) of the field.")
 
       .def("GetItem", &::Smp::IArrayField::GetItem,
-           py::return_value_policy::reference, py::arg("index"),
+           py::return_value_policy::reference_internal, py::arg("index"),
            "Get an array item by index.")
 
       .doc() = "Interface of a field which is of array type.";

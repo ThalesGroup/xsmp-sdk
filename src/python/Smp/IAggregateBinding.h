@@ -23,7 +23,7 @@ inline void RegisterIAggregate(const py::module_ &m) {
                                                    py::multiple_inheritance())
 
       .def("GetReference", &::Smp::IAggregate::GetReference, py::arg("name"),
-           py::return_value_policy::reference,
+           py::return_value_policy::reference_internal,
            R"(Query for a reference of this aggregate component by its name.
 The returned reference may be null if no reference with the given name could be found. If more than one reference with this name exists, it is not defined which one is returned.)")
 

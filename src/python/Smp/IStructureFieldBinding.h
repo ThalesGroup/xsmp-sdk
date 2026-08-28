@@ -22,7 +22,7 @@ inline void RegisterIStructureField(const py::module_ &m) {
   py::class_<::Smp::IStructureField, ::Smp::IField>(m, "IStructureField",
                                                     py::multiple_inheritance())
       .def("GetField", &::Smp::IStructureField::GetField,
-           py::return_value_policy::reference, py::arg("name"),
+           py::return_value_policy::reference_internal, py::arg("name"),
            "Return a field by name.")
 
       .doc() = "Interface of a structure field.";

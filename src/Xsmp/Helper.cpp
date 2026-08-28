@@ -55,7 +55,7 @@ namespace Xsmp::Helper {
 void SafeExecute(::Smp::ISimulator *simulator,
                  const ::Smp::IEntryPoint *entryPoint) {
 
-  if (simulator) {
+  if (simulator && entryPoint) {
     try {
       simulator->GetLogger()->Log(entryPoint, "Execute()",
                                   ::Smp::Services::ILogger::LMK_Debug);

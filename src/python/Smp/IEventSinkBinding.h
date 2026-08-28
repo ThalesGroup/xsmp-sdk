@@ -45,7 +45,7 @@ If the type of the event argument of the event sink is not the type the event so
 An event sink can only be subscribed once to each event source. Event sinks will be called in the order they have been subscribed to the event source.)")
 
       .def("__iadd__", &SubscribeEventSink, py::arg("event_source"),
-           py::return_value_policy::reference)
+           py::return_value_policy::reference_internal)
 
       .def("Unsubscribe", &UnsubscribeEventSink, py::arg("event_source"),
            R"(Unsubscribe from the event source, i.e. cancel notifications.
@@ -53,7 +53,7 @@ This method raises the EventSinkNotSubscribed exception if the given event sink 
 An event sink can only be unsubscribed if it has been subscribed before.)")
 
       .def("__isub__", &UnsubscribeEventSink, py::arg("event_source"),
-           py::return_value_policy::reference)
+           py::return_value_policy::reference_internal)
 
       .def("GetEventArgType", &::Smp::IEventSink::GetEventArgType,
            R"(Get the primitive type kind of the event argument.

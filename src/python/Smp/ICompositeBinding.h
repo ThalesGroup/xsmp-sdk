@@ -23,7 +23,7 @@ inline void RegisterIComposite(const py::module_ &m) {
                                                 py::multiple_inheritance())
 
       .def("GetContainer", &::Smp::IComposite::GetContainer, py::arg("name"),
-           py::return_value_policy::reference,
+           py::return_value_policy::reference_internal,
            R"(Query for a container of this composite by its name.
 The returned container may be null if no container with the given name could be found.)")
 

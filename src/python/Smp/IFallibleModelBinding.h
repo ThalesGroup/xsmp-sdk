@@ -27,7 +27,7 @@ inline void RegisterIFallibleModel(const py::module_ &m) {
            "least one of its failures is failed.")
 
       .def("GetFailure", &::Smp::IFallibleModel::GetFailure, py::arg("name"),
-           py::return_value_policy::reference,
+           py::return_value_policy::reference_internal,
            R"(Get a failure by name.
 The returned failure may be null if no child with the given name could be found.)")
 

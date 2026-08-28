@@ -57,7 +57,7 @@ inline void RegisterIProperty(const py::module_ &m) {
              return convert(self.GetValue()).equal(other);
            })
 
-      .def("__nq__",
+      .def("__ne__",
            [](const ::Smp::IProperty &self, const py::handle &other) {
              return convert(self.GetValue()).not_equal(other);
            })

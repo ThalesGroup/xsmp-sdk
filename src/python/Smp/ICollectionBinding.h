@@ -33,14 +33,14 @@ inline void RegisterICollection(const py::module_ &m, ::Smp::String8 name) {
 
       .def("at",
            py::overload_cast<size_t>(&::Smp::ICollection<T>::at, py::const_),
-           py::arg("index"), py::return_value_policy::reference,
+           py::arg("index"), py::return_value_policy::reference_internal,
            "Retrieve element by position in the sequence (based on order of "
            "insertion).")
 
       .def("at",
            py::overload_cast<::Smp::String8>(&::Smp::ICollection<T>::at,
                                              py::const_),
-           py::arg("name"), py::return_value_policy::reference,
+           py::arg("name"), py::return_value_policy::reference_internal,
            "Retrieve element by name")
 
       .def(
@@ -50,7 +50,7 @@ inline void RegisterICollection(const py::module_ &m, ::Smp::String8 name) {
               return cmp;
             throw py::index_error(std::to_string(index));
           },
-          py::return_value_policy::reference)
+          py::return_value_policy::reference_internal)
 
       .def(
           "__getitem__",
@@ -59,7 +59,7 @@ inline void RegisterICollection(const py::module_ &m, ::Smp::String8 name) {
               return cmp;
             throw py::key_error(name);
           },
-          py::return_value_policy::reference)
+          py::return_value_policy::reference_internal)
 
       .doc() =
       R"(Interface for a collection.

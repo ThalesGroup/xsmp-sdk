@@ -17,6 +17,7 @@
 
 #include <Smp/ISimulator.h>
 #include <Smp/Services/IResolver.h>
+#include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
 #include <Xsmp/Persist.h>
 #include <string>
@@ -37,6 +38,10 @@ struct Helper<T *, std::enable_if_t<std::is_base_of_v<::Smp::IObject, T>>> {
     ::Xsmp::Persist::Restore(simulator, reader, path);
     value = dynamic_cast<T *>(
         simulator->GetResolver()->ResolveAbsolute(path.c_str()));
+    if (!value && path != ::Xsmp::Helper::GetPath(nullptr)) {
+      ::Xsmp::Exception::throwCannotRestore(
+          simulator, "Could not resolve the object at path " + path);
+    }
   }
 };
 

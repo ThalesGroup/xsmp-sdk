@@ -175,7 +175,7 @@ StringType::StringType(::Smp::String8 name, ::Smp::String8 description,
                        ::Smp::Uuid typeUuid, ::Smp::Int64 length)
     : SimpleType(name, description, parent, typeUuid,
                  ::Smp::PrimitiveTypeKind::PTK_String8),
-      _length(length) {}
+      _length(length >= 0 ? length : 0) {}
 
 ::Smp::Int64 StringType::GetLength() const { return _length; }
 
@@ -189,6 +189,12 @@ void StructureType::AddField(::Smp::String8 name, ::Smp::String8 description,
                              ::Smp::ViewKind view, ::Smp::Bool state,
                              ::Smp::Bool input, ::Smp::Bool output) {
 
+  // a field of the structure's own type makes the publication of a field of
+  // that type, and the creation of a request holding one, recurse forever
+  if (uuid == GetUuid()) {
+    ::Xsmp::Exception::throwIncompatibleType(
+        this, uuid, "A structure cannot contain a field of its own type.");
+  }
   _fields.push_back(
       {name, description, uuid, offset, view, state, input, output});
 }

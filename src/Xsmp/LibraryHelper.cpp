@@ -39,6 +39,31 @@ std::string LibraryFileName(const char *libraryName) {
 #endif
 }
 
+#if (defined(_WIN32) || defined(_WIN64))
+/// Get the directory of the module holding this code, with its trailing
+/// separator. LoadLibrary called with a file name searches the directory of the
+/// executable, not the one of the caller: a library deployed next to the SDK,
+/// as in the Python wheel, is not found without it.
+std::string ModuleDirectory() {
+  HMODULE handle = nullptr;
+  if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                              GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                          reinterpret_cast<LPCSTR>(&LibraryFileName),
+                          &handle)) {
+    return {};
+  }
+  char path[MAX_PATH] = {};
+  const DWORD size = GetModuleFileNameA(handle, path, MAX_PATH);
+  if (size == 0 || size >= MAX_PATH) {
+    return {};
+  }
+  const std::string result{path, size};
+  const auto separator = result.find_last_of("\\/");
+  return separator == std::string::npos ? std::string{}
+                                        : result.substr(0, separator + 1);
+}
+#endif
+
 } // namespace
 
 void *LoadLibrary(const char *libraryName) {
@@ -46,7 +71,15 @@ void *LoadLibrary(const char *libraryName) {
     return nullptr;
   }
 #if (defined(_WIN32) || defined(_WIN64))
-  return LoadLibraryA(LibraryFileName(libraryName).c_str());
+  const auto fileName = LibraryFileName(libraryName);
+  if (auto *handle = LoadLibraryA(fileName.c_str())) {
+    return handle;
+  }
+  const auto directory = ModuleDirectory();
+  if (directory.empty()) {
+    return nullptr;
+  }
+  return LoadLibraryA((directory + fileName).c_str());
 #else
   // On MacOs the default is RTLD_GLOBAL
   // On Linux the default is RTLD_LOCAL

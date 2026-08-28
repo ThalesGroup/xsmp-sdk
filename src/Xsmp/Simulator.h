@@ -47,8 +47,9 @@ namespace Xsmp {
 
 class Simulator final : public ::Xsmp::Composite, public ::Smp::ISimulator {
 public:
-  Simulator(::Smp::String8 name = "XsmpSimulator",
-            ::Smp::String8 description = "Simulator implementation from XSMP.");
+  explicit Simulator(
+      ::Smp::String8 name = "XsmpSimulator",
+      ::Smp::String8 description = "Simulator implementation from XSMP.");
   ~Simulator() override;
   /// Simulator cannot be copied
   Simulator(const Simulator &) = delete;

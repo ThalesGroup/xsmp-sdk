@@ -837,7 +837,7 @@ public:
 
     const T &operator*() const noexcept { return _value; }
 
-    const T &operator->() const noexcept { return &_value; }
+    const T *operator->() const noexcept { return &_value; }
 
     protected_reference &operator=(const value_type &value) noexcept {
       return SetValue(value);

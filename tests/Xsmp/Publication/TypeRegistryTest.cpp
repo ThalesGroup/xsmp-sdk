@@ -18,6 +18,7 @@
 #include <Smp/Publication/TypeAlreadyRegistered.h>
 #include <Smp/Publication/TypeNotRegistered.h>
 #include <Smp/Uuid.h>
+#include <Xsmp/Publication/Type.h>
 #include <Xsmp/Publication/TypeRegistry.h>
 #include <gtest/gtest.h>
 
@@ -241,12 +242,44 @@ TEST(TypeRegistry, FloatType) {
                Smp::Publication::InvalidPrimitiveType);
 }
 
+TEST(TypeRegistry, StringType) {
+
+  TypeRegistry registry;
+
+  const auto *type = dynamic_cast<const ::Xsmp::Publication::StringType *>(
+      registry.AddStringType("string", "", Smp::Uuid{0, 0, 0, 0, 40}, 8));
+  ASSERT_TRUE(type);
+  EXPECT_EQ(type->GetLength(), 8);
+
+  // a negative length would remove the bound used when copying a value into
+  // the field
+  const auto *negative = dynamic_cast<const ::Xsmp::Publication::StringType *>(
+      registry.AddStringType("negative", "", Smp::Uuid{0, 0, 0, 0, 41}, -1));
+  ASSERT_TRUE(negative);
+  EXPECT_EQ(negative->GetLength(), 0);
+}
+
 TEST(TypeRegistry, StructureType) {
 
   TypeRegistry registry;
 
   EXPECT_TRUE(
       registry.AddStructureType("structure", "", Smp::Uuid{0, 0, 0, 0, 32}));
+}
+
+TEST(TypeRegistry, SelfContainedStructure) {
+
+  TypeRegistry registry;
+
+  auto *structure =
+      registry.AddStructureType("structure", "", Smp::Uuid{0, 0, 0, 0, 42});
+  ASSERT_TRUE(structure);
+  structure->AddField("valid", "", Smp::Uuids::Uuid_Int32, 0);
+
+  // publishing a field of that type, or building a request holding one, would
+  // recurse forever
+  EXPECT_THROW(structure->AddField("self", "", Smp::Uuid{0, 0, 0, 0, 42}, 4),
+               Smp::Exception);
 }
 
 TEST(TypeRegistry, ClassType) {

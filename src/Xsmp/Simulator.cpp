@@ -39,6 +39,7 @@
 #include <Xsmp/Simulator.h>
 #include <Xsmp/StorageReader.h>
 #include <Xsmp/StorageWriter.h>
+#include <cstdint>
 #include <exception>
 #include <string>
 #include <type_traits>
@@ -166,10 +167,10 @@ Simulator::~Simulator() {
       }
     } catch (...) {
       if (_logger) {
-        _logger->Log(this,
-                     ("Exception thrown by Finalise() of library " + name + ".")
-                         .c_str(),
-                     ::Smp::Services::ILogger::LMK_Error);
+        _logger->Log(
+            this,
+            ("Exception thrown by Finalise() of library " + name + ".").c_str(),
+            ::Smp::Services::ILogger::LMK_Error);
       }
     }
     // The library stays mapped: the models it created are held by _models and
@@ -398,8 +399,8 @@ void Simulator::Hold(::Smp::Bool immediate) {
   }
 }
 
-enum class PersistKind { PERSIST, FIELD };
 namespace {
+enum class PersistKind : std::uint8_t { PERSIST, FIELD };
 /// Self persistence of a component: the state it stores itself through the
 /// ::Smp::IPersist interface.
 void storeSelf(::Smp::IComponent *component, ::Smp::IStorageWriter *writer) {
@@ -413,7 +414,8 @@ void storeSelf(::Smp::IComponent *component, ::Smp::IStorageWriter *writer) {
 /// External persistence of a component: the state fields it published to the
 /// simulation environment. A field that is not part of the state vector stores
 /// nothing.
-void storeFields(::Smp::IComponent *component, ::Smp::IStorageWriter *writer) {
+void storeFields(const ::Smp::IComponent *component,
+                 ::Smp::IStorageWriter *writer) {
   if (const auto *fields = component->GetFields()) {
     for (auto *field : *fields) {
       auto kind = PersistKind::FIELD;
@@ -425,7 +427,7 @@ void storeFields(::Smp::IComponent *component, ::Smp::IStorageWriter *writer) {
 
 void check(const ::Smp::IObject *obj, ::Smp::IStorageReader *reader,
            PersistKind expectedKind) {
-  PersistKind kind;
+  PersistKind kind{};
   reader->Restore(&kind, sizeof(kind));
 
   if (kind != expectedKind) {
@@ -440,7 +442,7 @@ void restoreSelf(::Smp::IComponent *component, ::Smp::IStorageReader *reader) {
   }
 }
 
-void restoreFields(::Smp::IComponent *component,
+void restoreFields(const ::Smp::IComponent *component,
                    ::Smp::IStorageReader *reader) {
   if (const auto *fields = component->GetFields()) {
     for (auto *field : *fields) {
@@ -625,13 +627,10 @@ void Simulator::AddModel(::Smp::IModel *model) {
 }
 
 void Simulator::AddService(::Smp::IService *service) {
-  switch (_state) {
-  case ::Smp::SimulatorStateKind::SSK_Building:
-    _services.AddComponent(service);
-    break;
-  default:
+  if (_state != ::Smp::SimulatorStateKind::SSK_Building) {
     ::Xsmp::Exception::throwInvalidSimulatorState(this, _state);
   }
+  _services.AddComponent(service);
   /// Helper that register a standard service in the simulator
   auto RegisterService = [service, this](auto *&value) {
     if (value) {
@@ -744,7 +743,7 @@ void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
 
   // check that Finalise exist
   if (!::Xsmp::GetSymbol<bool (*)(::Smp::ISimulator *)>(handle,
-                                                       finaliseSymbol)) {
+                                                        finaliseSymbol)) {
     const std::string msg = std::string("Library '") + libraryPath +
                             "' does not provide function 'bool Finalise()': " +
                             ::Xsmp::GetLastError();

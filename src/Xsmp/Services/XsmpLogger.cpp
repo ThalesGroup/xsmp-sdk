@@ -199,9 +199,9 @@ public:
   void Append(std::ostream &stream, const LogEntry &entry) const override {
     using namespace std::chrono;
 
-    auto format = [&stream](std::string::const_iterator &it,
-                            const auto &value) {
-      if (auto fmt = GetFormatting(it); fmt.empty()) {
+    auto format = [&stream, end = _pattern.end()](
+                      std::string::const_iterator &it, const auto &value) {
+      if (auto fmt = GetFormatting(it, end); fmt.empty()) {
         stream << static_cast<::Smp::Int64>(value);
       } else {
         value.to_stream(stream, fmt);
@@ -210,7 +210,7 @@ public:
 
     auto it = _pattern.begin();
     while (it != _pattern.end()) {
-      if (*it == '%') {
+      if (*it == '%' && std::next(it) != _pattern.end()) {
         ++it;
         switch (*it) {
         case 'p':
@@ -284,14 +284,23 @@ private:
     // use default pattern
     return "%d{%F %T}%t%S%t%p%t%k%t%m%n";
   }
-  static std::string GetFormatting(std::string::const_iterator &it) noexcept {
+  /// Read the {...} formatting that follows a conversion character. On return,
+  /// `it` points to the last character read.
+  static std::string GetFormatting(std::string::const_iterator &it,
+                                   std::string::const_iterator end) noexcept {
     std::string formatting;
-    if (it[1] == '{') {
-      it += 2;
-      while (*it != '}') {
-        formatting.push_back(*it);
-        ++it;
-      }
+    if (std::distance(it, end) < 2 || it[1] != '{') {
+      return formatting;
+    }
+    it += 2;
+    while (it != end && *it != '}') {
+      formatting.push_back(*it);
+      ++it;
+    }
+    if (it == end) {
+      // no closing brace: the formatting is not usable
+      --it;
+      formatting.clear();
     }
     return formatting;
   }
@@ -386,7 +395,12 @@ public:
   FileAppender(
       const std::string &path,
       const std::map<std::string, std::string, std::less<>> &properties)
-      : Appender(path, properties), _stream{GetFileName(path, properties)} {}
+      : Appender(path, properties), _stream{GetFileName(path, properties)} {
+    if (!_stream.is_open()) {
+      std::cerr << "Could not open the log file "
+                << GetFileName(path, properties) << '\n';
+    }
+  }
   ~FileAppender() noexcept override = default;
   FileAppender(const FileAppender &) = delete;
   FileAppender &operator=(const FileAppender &) = delete;

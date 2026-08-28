@@ -45,7 +45,7 @@ A return value of -1 indicates that the collection has no upper limit.)")
               return cmp;
             throw py::index_error(std::to_string(index));
           },
-          py::arg("index"), py::return_value_policy::reference)
+          py::arg("index"), py::return_value_policy::reference_internal)
 
       .def(
           "__getitem__",
@@ -54,7 +54,7 @@ A return value of -1 indicates that the collection has no upper limit.)")
               return cmp;
             throw py::key_error(name);
           },
-          py::arg("name"), py::return_value_policy::reference)
+          py::arg("name"), py::return_value_policy::reference_internal)
 
       .def(
           "__delitem__",
@@ -78,6 +78,7 @@ A return value of -1 indicates that the collection has no upper limit.)")
           py::arg("name"))
 
       .def("GetComponent", &::Smp::IContainer::GetComponent, py::arg("name"),
+           py::return_value_policy::reference_internal,
            R"(Query for a component contained in the container by name.
 The returned component may be null if no child with the given name could be found.)")
 

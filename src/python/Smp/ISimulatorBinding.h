@@ -402,47 +402,47 @@ The container for the services has no upper limit and thus the ContainerFull exc
 The method will never throw the InvalidObjectType exception either, as it gets a component implementing the IService interface.)")
 
       .def("GetLogger", &::Smp::ISimulator::GetLogger,
-           py::return_value_policy::reference,
+           py::return_value_policy::reference_internal,
            "Return interface to logger service.")
 
       .def("GetTimeKeeper", &::Smp::ISimulator::GetTimeKeeper,
-           py::return_value_policy::reference,
+           py::return_value_policy::reference_internal,
            "Return interface to time keeper service.")
 
       .def("GetScheduler", &::Smp::ISimulator::GetScheduler,
-           py::return_value_policy::reference,
+           py::return_value_policy::reference_internal,
            "Return interface to scheduler service.")
 
       .def("GetEventManager", &::Smp::ISimulator::GetEventManager,
-           py::return_value_policy::reference,
+           py::return_value_policy::reference_internal,
            "Return interface to event manager service.")
 
       .def("GetResolver", &::Smp::ISimulator::GetResolver,
-           py::return_value_policy::reference,
+           py::return_value_policy::reference_internal,
            "Return interface to resolver service.")
 
       .def("GetLinkRegistry", &::Smp::ISimulator::GetLinkRegistry,
-           py::return_value_policy::reference,
+           py::return_value_policy::reference_internal,
            "Return interface to link registry service.")
 
       .def("CreateInstance", &::Smp::ISimulator::CreateInstance,
            py::arg("uuid"), py::arg("name"), py::arg("description") = "",
-           py::arg("parent"), py::return_value_policy::reference,
+           py::arg("parent"), py::return_value_policy::reference_internal,
            "This method creates an instance of the component with the given "
            "unique identifier.")
 
       .def("GetFactory", &::Smp::ISimulator::GetFactory, py::arg("uuid"),
-           py::return_value_policy::reference,
+           py::return_value_policy::reference_internal,
            "This method returns the factory of the component with the given "
            "implementation identifier.")
 
       .def("GetFactories", &::Smp::ISimulator::GetFactories,
-           py::return_value_policy::reference,
+           py::return_value_policy::reference_internal,
            "This method returns all factories that have been registered with "
            "the simulator.")
 
       .def("GetTypeRegistry", &::Smp::ISimulator::GetTypeRegistry,
-           py::return_value_policy::reference,
+           py::return_value_policy::reference_internal,
            R"(Give access to the global type registry.
 The type registry is typically a singleton, and must not be null, to allow use of existing types, and registration of new types.)")
 
