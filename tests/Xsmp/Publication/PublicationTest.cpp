@@ -583,4 +583,35 @@ TEST(Publication, Request) {
   publication.DeleteRequest(request);
 }
 
+TEST(Publication, PropertyRequest) {
+
+  TypeRegistry registry;
+  Component component{"component"};
+  Publication publication{&component, &registry};
+
+  publication.PublishProperty("value", "", Smp::Uuids::Uuid_Int32,
+                              ::Smp::AccessKind::AK_ReadWrite,
+                              Smp::ViewKind::VK_None);
+
+  // a property is invoked through the get_ and set_ operations
+  auto *setter = publication.CreateRequest("set_value");
+  ASSERT_TRUE(setter);
+  EXPECT_STREQ(setter->GetOperationName(), "set_value");
+  EXPECT_EQ(setter->GetParameterCount(), 1);
+  EXPECT_EQ(setter->GetParameterIndex("value"), 0);
+  setter->SetParameterValue(0, {::Smp::PrimitiveTypeKind::PTK_Int32, 42});
+  EXPECT_EQ(static_cast<::Smp::Int32>(setter->GetParameterValue(0)), 42);
+  publication.DeleteRequest(setter);
+
+  auto *getter = publication.CreateRequest("get_value");
+  ASSERT_TRUE(getter);
+  EXPECT_STREQ(getter->GetOperationName(), "get_value");
+  EXPECT_EQ(getter->GetParameterCount(), 0);
+  publication.DeleteRequest(getter);
+
+  // an unknown property has no request
+  EXPECT_FALSE(publication.CreateRequest("get_unknown"));
+  EXPECT_FALSE(publication.CreateRequest("set_unknown"));
+}
+
 } // namespace Xsmp::Publication

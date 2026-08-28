@@ -209,4 +209,42 @@ TEST(SimulatorLifecycle, Reconnect) {
   sim.Reconnect(assembly);
 }
 
+TEST(SimulatorLifecycle, OperationsRefusedOutsideTheirState) {
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.Connect();
+  ASSERT_EQ(sim.GetState(), ::Smp::SimulatorStateKind::SSK_Standby);
+
+  // the operations of the building phase are refused once connected
+  sim.Publish();
+  sim.Configure();
+  sim.Connect();
+  EXPECT_EQ(sim.GetState(), ::Smp::SimulatorStateKind::SSK_Standby);
+
+  // holding is refused outside the executing state
+  sim.Hold(true);
+  sim.Hold(false);
+  EXPECT_EQ(sim.GetState(), ::Smp::SimulatorStateKind::SSK_Standby);
+
+  sim.Exit();
+  ASSERT_EQ(sim.GetState(), ::Smp::SimulatorStateKind::SSK_Exiting);
+
+  // and everything is refused once the simulation has exited
+  const auto directory =
+      (std::filesystem::temp_directory_path() / "xsmp-refused").string();
+  sim.Publish();
+  sim.Configure();
+  sim.Connect();
+  sim.Initialise();
+  sim.Run();
+  sim.Hold(true);
+  sim.Store(directory.c_str());
+  sim.Restore(directory.c_str());
+  sim.Reconnect(nullptr);
+  sim.Exit();
+  EXPECT_EQ(sim.GetState(), ::Smp::SimulatorStateKind::SSK_Exiting);
+  EXPECT_FALSE(std::filesystem::exists(directory));
+}
+
 } // namespace Xsmp

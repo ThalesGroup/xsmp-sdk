@@ -643,13 +643,17 @@ if(XSMP_ENABLE_CODECOVERAGE)
         COMMAND ${CMAKE_CTEST_COMMAND} -T Test --output-on-failure #-R PublicationTest
         # generate report
         COMMAND mkdir -p ${CMAKE_BINARY_DIR}/report
-        COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMAND ${GCOVR_PATH} --root . --html-nested ${CMAKE_BINARY_DIR}/report/index.html --html-title \"xsmp-sdk Code Coverage Report\"
-            -f \"include/\" -f \"src/\"
-            -e \"src/python/\" -e \"src/Xsmp/Tests/\"
+        COMMAND ${GCOVR_PATH} --root ${CMAKE_CURRENT_SOURCE_DIR} --html-nested ${CMAKE_BINARY_DIR}/report/index.html --html-title \"xsmp-sdk Code Coverage Report\"
+            # gcovr resolves a relative filter against the working directory,
+            # which is the build tree here
+            -f \"${CMAKE_CURRENT_SOURCE_DIR}/include/\"
+            -f \"${CMAKE_CURRENT_SOURCE_DIR}/src/\"
+            -e \"${CMAKE_CURRENT_SOURCE_DIR}/src/python/\"
+            -e \"${CMAKE_CURRENT_SOURCE_DIR}/src/Xsmp/Tests/\"
             # without --merge-lines, every line of a template is counted once
-            # per instantiation
-            --merge-lines
+            # per instantiation; the branches gcov emits for the calls that may
+            # throw are not conditions of the source
+            --merge-lines --exclude-throw-branches --exclude-unreachable-branches
             --delete --sort-uncovered --print-summary --calls --decisions ${GCOVR_OPTIONS}
             ${CMAKE_BINARY_DIR}
         COMMAND echo Generated report: ${CMAKE_BINARY_DIR}/report/index.html

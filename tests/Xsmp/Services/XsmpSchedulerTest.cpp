@@ -435,6 +435,65 @@ TEST(XsmpScheduler, ZuluEventPostedBeforeAPendingOne) {
   sim.Exit();
 }
 
+TEST(XsmpScheduler, SetEventTime) {
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.Connect();
+  auto *scheduler = sim.GetScheduler();
+  auto *timeKeeper = sim.GetTimeKeeper();
+
+  TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
+  ::Xsmp::EntryPoint ep{"ep", "", &entryPoints, [] {}};
+
+  // an event moved to a later time is rescheduled
+  auto simulationEvent = scheduler->AddSimulationTimeEvent(&ep, 10_ms);
+  scheduler->SetEventSimulationTime(simulationEvent, 5_ms);
+  EXPECT_EQ(scheduler->GetNextScheduledEventTime(), 5_ms);
+
+  // the time of an event can only be changed with its own time kind
+  EXPECT_THROW(scheduler->SetEventMissionTime(simulationEvent, 1_ms),
+               ::Smp::Services::InvalidEventId);
+  EXPECT_THROW(scheduler->SetEventEpochTime(simulationEvent, 1_ms),
+               ::Smp::Services::InvalidEventId);
+  EXPECT_THROW(scheduler->SetEventZuluTime(simulationEvent, 1_ms),
+               ::Smp::Services::InvalidEventId);
+
+  // an event moved to a time in the past is removed
+  scheduler->SetEventSimulationTime(simulationEvent, -1_ms);
+  EXPECT_THROW(scheduler->RemoveEvent(simulationEvent),
+               ::Smp::Services::InvalidEventId);
+
+  // the same for the mission and epoch time kinds
+  auto missionEvent =
+      scheduler->AddMissionTimeEvent(&ep, timeKeeper->GetMissionTime() + 10_ms);
+  scheduler->SetEventMissionTime(missionEvent,
+                                 timeKeeper->GetMissionTime() + 5_ms);
+  EXPECT_EQ(scheduler->GetNextScheduledEventTime(), 5_ms);
+  scheduler->SetEventMissionTime(missionEvent,
+                                 timeKeeper->GetMissionTime() - 1_ms);
+  EXPECT_THROW(scheduler->RemoveEvent(missionEvent),
+               ::Smp::Services::InvalidEventId);
+
+  auto epochEvent =
+      scheduler->AddEpochTimeEvent(&ep, timeKeeper->GetEpochTime() + 10_ms);
+  scheduler->SetEventEpochTime(epochEvent, timeKeeper->GetEpochTime() + 5_ms);
+  EXPECT_EQ(scheduler->GetNextScheduledEventTime(), 5_ms);
+  scheduler->SetEventEpochTime(epochEvent, timeKeeper->GetEpochTime() - 1_ms);
+  EXPECT_THROW(scheduler->RemoveEvent(epochEvent),
+               ::Smp::Services::InvalidEventId);
+
+  // a zulu event moved to the past is removed as well
+  auto zuluEvent =
+      scheduler->AddZuluTimeEvent(&ep, timeKeeper->GetZuluTime() + 1_h);
+  scheduler->SetEventZuluTime(zuluEvent, timeKeeper->GetZuluTime() + 2_h);
+  scheduler->SetEventZuluTime(zuluEvent, timeKeeper->GetZuluTime() - 1_h);
+  EXPECT_THROW(scheduler->RemoveEvent(zuluEvent),
+               ::Smp::Services::InvalidEventId);
+
+  sim.Exit();
+}
+
 TEST(XsmpScheduler, EventTimeOverflow) {
 
   Simulator sim;

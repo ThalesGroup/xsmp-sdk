@@ -531,4 +531,59 @@ TEST(AnySimple, AssignmentOperator) {
   EXPECT_EQ(static_cast<Smp::Float64>(first),
             static_cast<Smp::Float64>(second));
 }
+/// A conversion is either refused, or it yields the value: it never yields
+/// another one. Which pairs of types are allowed is defined by AnySimple
+/// itself.
+template <typename Target, typename T>
+void checkConversion(const AnySimple &any, T value) {
+  try {
+    const auto converted = static_cast<Target>(any);
+    EXPECT_EQ(converted, static_cast<Target>(value));
+  } catch (const ::Smp::InvalidAnyType &) {
+    // this conversion is not supported
+  }
+}
+
+template <typename T>
+void testNumericConversions(::Smp::PrimitiveTypeKind kind, T value) {
+  const AnySimple any{kind, value};
+  EXPECT_EQ(any.GetType(), kind);
+
+  // the conversion to its own type always succeeds
+  EXPECT_EQ(static_cast<T>(any), value);
+
+  checkConversion<::Smp::Int8>(any, value);
+  checkConversion<::Smp::Int16>(any, value);
+  checkConversion<::Smp::Int32>(any, value);
+  checkConversion<::Smp::Int64>(any, value);
+  checkConversion<::Smp::UInt8>(any, value);
+  checkConversion<::Smp::UInt16>(any, value);
+  checkConversion<::Smp::UInt32>(any, value);
+  checkConversion<::Smp::UInt64>(any, value);
+  checkConversion<::Smp::Float32>(any, value);
+  checkConversion<::Smp::Float64>(any, value);
+  checkConversion<::Smp::Bool>(any, value != T{});
+
+  // a numeric value is never a string
+  EXPECT_THROW(static_cast<void>(static_cast<::Smp::String8>(any)),
+               ::Smp::InvalidAnyType);
+}
+
+TEST(AnySimple, NumericConversions) {
+
+  testNumericConversions<::Smp::Int8>(PrimitiveTypeKind::PTK_Int8, 42);
+  testNumericConversions<::Smp::Int16>(PrimitiveTypeKind::PTK_Int16, 42);
+  testNumericConversions<::Smp::Int32>(PrimitiveTypeKind::PTK_Int32, 42);
+  testNumericConversions<::Smp::Int64>(PrimitiveTypeKind::PTK_Int64, 42);
+  testNumericConversions<::Smp::UInt8>(PrimitiveTypeKind::PTK_UInt8, 42);
+  testNumericConversions<::Smp::UInt16>(PrimitiveTypeKind::PTK_UInt16, 42);
+  testNumericConversions<::Smp::UInt32>(PrimitiveTypeKind::PTK_UInt32, 42);
+  testNumericConversions<::Smp::UInt64>(PrimitiveTypeKind::PTK_UInt64, 42);
+  testNumericConversions<::Smp::Float32>(PrimitiveTypeKind::PTK_Float32, 42.F);
+  testNumericConversions<::Smp::Float64>(PrimitiveTypeKind::PTK_Float64, 42.);
+  testNumericConversions<::Smp::Duration>(PrimitiveTypeKind::PTK_Duration, 42);
+  testNumericConversions<::Smp::DateTime>(PrimitiveTypeKind::PTK_DateTime, 42);
+  testNumericConversions<::Smp::Char8>(PrimitiveTypeKind::PTK_Char8, 42);
+}
+
 } // namespace Smp

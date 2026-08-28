@@ -16,6 +16,7 @@
 #include <Smp/IDynamicInvocation.h>
 #include <Smp/IParameter.h>
 #include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/IArrayType.h>
 #include <Smp/Publication/IType.h>
 #include <Smp/Publication/ITypeRegistry.h>
 #include <Smp/Publication/ParameterDirectionKind.h>
@@ -27,6 +28,7 @@
 #include <Xsmp/Publication/Operation.h>
 #include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Publication/Request.h>
+#include <Xsmp/Publication/Type.h>
 #include <cstddef>
 #include <cstring>
 #include <memory>
@@ -125,16 +127,24 @@ const ::Smp::ParameterCollection *Operation::GetParameters() const {
 
 ::Smp::ViewKind Operation::GetView() const { return _view; }
 
+namespace {
+/// A parameter can be part of a request if Request can decompose its type: a
+/// simple type, an array or a structure.
+bool isInvokable(const ::Smp::Publication::IType *type) {
+  return type->GetPrimitiveTypeKind() != ::Smp::PrimitiveTypeKind::PTK_None ||
+         dynamic_cast<const ::Smp::Publication::IArrayType *>(type) ||
+         dynamic_cast<const StructureType *>(type);
+}
+} // namespace
+
 ::Smp::IRequest *Operation::CreateRequest() {
   // create the request only if the operation is invokable
   for (auto const *param : _parameters) {
-    if (param->GetType()->GetPrimitiveTypeKind() ==
-        ::Smp::PrimitiveTypeKind::PTK_None) {
+    if (!isInvokable(param->GetType())) {
       return nullptr;
     }
   }
-  if (_returnParameter && _returnParameter->GetType()->GetPrimitiveTypeKind() ==
-                              ::Smp::PrimitiveTypeKind::PTK_None) {
+  if (_returnParameter && !isInvokable(_returnParameter->GetType())) {
     return nullptr;
   }
   return new ::Xsmp::Publication::Request(this, _typeRegistry);

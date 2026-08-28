@@ -42,10 +42,14 @@ jobs:
          run: |
             cd build && ctest -C Debug --output-on-failure
       -  name: Collect coverage into one XML report
-         # without --merge-lines, every line of a template is counted once per
-         # instantiation
+         # --merge-lines: without it, every line of a template is counted once
+         # per instantiation
+         # --exclude-throw-branches: gcov emits a branch pair for every call
+         # that may throw, which no test can cover and which is not a condition
+         # of the source
          run: |
-            gcovr --merge-lines --sonarqube coverage.xml
+            gcovr --merge-lines --exclude-throw-branches \
+                  --exclude-unreachable-branches --sonarqube coverage.xml
       -  name: Run sonar-scanner
          uses: SonarSource/sonarqube-scan-action@v8
          env:

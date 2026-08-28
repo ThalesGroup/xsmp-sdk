@@ -24,13 +24,17 @@
 #include <Smp/InvalidArrayIndex.h>
 #include <Smp/InvalidArraySize.h>
 #include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/IStructureType.h>
 #include <Smp/Uuid.h>
 #include <Smp/ViewKind.h>
 #include <Xsmp/Array.h>
 #include <Xsmp/Component.h>
 #include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Publication/TypeRegistry.h>
+#include <Xsmp/String.h>
+#include <cstddef>
 #include <gtest/gtest.h>
+#include <string>
 
 namespace Xsmp::Publication {
 namespace {
@@ -260,6 +264,175 @@ TEST(PublishedField, StoreRestore) {
   EXPECT_EQ(point.y, 2);
   // the transient field keeps its current value
   EXPECT_EQ(transientValue, 100);
+}
+
+TEST(PublishedField, StringField) {
+
+  constexpr ::Smp::Uuid uuidString{0x03, 0, 0, 0, 0};
+  constexpr ::Smp::Uuid uuidStringArray{0x04, 0, 0, 0, 0};
+  constexpr std::size_t length = 7;
+
+  TypeRegistry registry;
+  Component component{"component"};
+  Publication publication{&component, &registry};
+
+  registry.AddStringType("String", "", uuidString, length);
+  registry.AddArrayType("StringArray", "", uuidStringArray, uuidString,
+                        length + 1, 2, true);
+
+  ::Xsmp::String<length> text{"hello"};
+  ::Xsmp::Array<::Xsmp::String<length>, 2> texts = {"one", "two"};
+  publication.PublishField("text", "", &text, uuidString);
+  publication.PublishField("texts", "", &texts, uuidStringArray);
+
+  auto *field =
+      dynamic_cast<::Smp::ISimpleField *>(publication.GetField("text"));
+  ASSERT_TRUE(field);
+  EXPECT_EQ(field->GetPrimitiveTypeKind(),
+            ::Smp::PrimitiveTypeKind::PTK_String8);
+  EXPECT_STREQ(static_cast<::Smp::String8>(field->GetValue()), "hello");
+
+  field->SetValue({::Smp::PrimitiveTypeKind::PTK_String8, "world"});
+  EXPECT_STREQ(text.c_str(), "world");
+
+  // a value longer than the field is truncated to its length
+  field->SetValue({::Smp::PrimitiveTypeKind::PTK_String8, "0123456789"});
+  EXPECT_EQ(std::char_traits<char>::length(text.c_str()), length);
+
+  auto *arrayField =
+      dynamic_cast<::Smp::ISimpleArrayField *>(publication.GetField("texts"));
+  ASSERT_TRUE(arrayField);
+  EXPECT_EQ(arrayField->GetSize(), 2U);
+  EXPECT_STREQ(static_cast<::Smp::String8>(arrayField->GetValue(1)), "two");
+  arrayField->SetValue(1, {::Smp::PrimitiveTypeKind::PTK_String8, "three"});
+  EXPECT_STREQ(texts[1].c_str(), "three");
+
+  // both are part of the state vector
+  Storage storage;
+  for (auto *published : *publication.GetFields()) {
+    if (auto *persist = dynamic_cast<::Smp::IPersist *>(published)) {
+      persist->Store(&storage);
+    }
+  }
+  text = "changed";
+  texts[1] = "changed";
+  for (auto *published : *publication.GetFields()) {
+    if (auto *persist = dynamic_cast<::Smp::IPersist *>(published)) {
+      persist->Restore(&storage);
+    }
+  }
+  EXPECT_STREQ(text.c_str(), "0123456");
+  EXPECT_STREQ(texts[1].c_str(), "three");
+}
+
+TEST(PublishedField, StructureAndArrayFields) {
+
+  TypeRegistry registry;
+  Component component{"component"};
+  Publication publication{&component, &registry};
+
+  registry.AddArrayType("Int32Array", "", uuidSimpleArray,
+                        ::Smp::Uuids::Uuid_Int32, sizeof(::Smp::Int32), 2);
+  auto *structure = registry.AddStructureType("Point", "", uuidStructure);
+  structure->AddField("x", "", ::Smp::Uuids::Uuid_Int32, offsetof(Point, x));
+  structure->AddField("y", "", ::Smp::Uuids::Uuid_Int32, offsetof(Point, y));
+
+  ::Xsmp::Array<::Smp::Int32, 2> array = {1, 2};
+  Point point{3, 4};
+  publication.PublishField("array", "", &array, uuidSimpleArray);
+  publication.PublishField("point", "", &point, uuidStructure);
+
+  // an array field gives access to its items
+  auto *arrayField =
+      dynamic_cast<::Smp::IArrayField *>(publication.GetField("array"));
+  ASSERT_TRUE(arrayField);
+  EXPECT_EQ(arrayField->GetSize(), 2U);
+  auto *item = dynamic_cast<::Smp::ISimpleField *>(arrayField->GetItem(1));
+  ASSERT_TRUE(item);
+  EXPECT_EQ(static_cast<::Smp::Int32>(item->GetValue()), 2);
+  EXPECT_THROW(static_cast<void>(arrayField->GetItem(2)),
+               ::Smp::InvalidArrayIndex);
+
+  // a structure field gives access to its members, by name and by path
+  auto *structureField =
+      dynamic_cast<::Smp::IStructureField *>(publication.GetField("point"));
+  ASSERT_TRUE(structureField);
+  ASSERT_TRUE(structureField->GetFields());
+  EXPECT_EQ(structureField->GetFields()->size(), 2U);
+  EXPECT_TRUE(structureField->GetField("x"));
+  EXPECT_FALSE(structureField->GetField("z"));
+  EXPECT_EQ(publication.GetField("point.y"), structureField->GetField("y"));
+  EXPECT_EQ(publication.GetField("array[0]"), arrayField->GetItem(0));
+
+  // the state of both is stored and restored
+  Storage storage;
+  for (auto *field : *publication.GetFields()) {
+    if (auto *persist = dynamic_cast<::Smp::IPersist *>(field)) {
+      persist->Store(&storage);
+    }
+  }
+  array[0] = 100;
+  point.y = 100;
+  for (auto *field : *publication.GetFields()) {
+    if (auto *persist = dynamic_cast<::Smp::IPersist *>(field)) {
+      persist->Restore(&storage);
+    }
+  }
+  EXPECT_EQ(array[0], 1);
+  EXPECT_EQ(point.y, 4);
+}
+
+TEST(PublishedField, AnonymousStructureAndArray) {
+
+  TypeRegistry registry;
+  Component component{"component"};
+  Publication publication{&component, &registry};
+
+  // a structure published field by field, without a registered type
+  ::Smp::Int32 x = 1;
+  ::Smp::Int32 y = 2;
+  auto *structure = publication.PublishStructure("point", "");
+  ASSERT_TRUE(structure);
+  structure->PublishField("x", "", &x);
+  structure->PublishField("y", "", &y);
+
+  auto *structureField =
+      dynamic_cast<::Smp::IStructureField *>(publication.GetField("point"));
+  ASSERT_TRUE(structureField);
+  EXPECT_EQ(structureField->GetFields()->size(), 2U);
+  EXPECT_EQ(publication.GetField("point.x"), structureField->GetField("x"));
+
+  // an array published item by item
+  ::Smp::Int32 first = 3;
+  ::Smp::Int32 second = 4;
+  auto *array = publication.PublishArray("values", "");
+  ASSERT_TRUE(array);
+  array->PublishField("[0]", "", &first);
+  array->PublishField("[1]", "", &second);
+
+  auto *arrayField =
+      dynamic_cast<::Smp::IArrayField *>(publication.GetField("values"));
+  ASSERT_TRUE(arrayField);
+  EXPECT_EQ(arrayField->GetSize(), 2U);
+  EXPECT_THROW(static_cast<void>(arrayField->GetItem(2)),
+               ::Smp::InvalidArrayIndex);
+
+  // both are part of the state vector
+  Storage storage;
+  for (auto *field : *publication.GetFields()) {
+    if (auto *persist = dynamic_cast<::Smp::IPersist *>(field)) {
+      persist->Store(&storage);
+    }
+  }
+  x = 100;
+  first = 100;
+  for (auto *field : *publication.GetFields()) {
+    if (auto *persist = dynamic_cast<::Smp::IPersist *>(field)) {
+      persist->Restore(&storage);
+    }
+  }
+  EXPECT_EQ(x, 1);
+  EXPECT_EQ(first, 3);
 }
 
 } // namespace Xsmp::Publication

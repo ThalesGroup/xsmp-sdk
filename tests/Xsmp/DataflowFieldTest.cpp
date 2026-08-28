@@ -20,6 +20,8 @@
 #include <Smp/IPublication.h>
 #include <Smp/InvalidTarget.h>
 #include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/IStructureType.h>
+#include <Smp/Publication/ITypeRegistry.h>
 #include <Smp/Uuid.h>
 #include <Xsmp/Array.h>
 #include <Xsmp/Component.h>
@@ -27,6 +29,7 @@
 #include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Publication/TypeRegistry.h>
 #include <Xsmp/Simulator.h>
+#include <cstddef>
 #include <gtest/gtest.h>
 
 namespace Xsmp {
@@ -166,6 +169,176 @@ TEST(DataflowField, RemoveLinksOfSeveralFields) {
 
   source.RemoveLinks(&other);
   EXPECT_EQ(source.output.GetInputFields()->size(), 0U);
+}
+
+namespace {
+/// A structure usable as a field type, following the shape the code generator
+/// produces.
+struct Pair {
+  ::Smp::Int32 x;
+  ::Smp::Int32 y;
+
+  template <typename _BASE> struct _Field : public _BASE {
+    _Field(::Smp::Publication::ITypeRegistry *typeRegistry,
+           ::Smp::Uuid typeUuid, ::Smp::String8 name,
+           ::Smp::String8 description = "", ::Smp::IObject *parent = nullptr,
+           ::Smp::ViewKind view = ::Smp::ViewKind::VK_None,
+           const Pair &value = {})
+        : _BASE(typeRegistry, typeUuid, name, description, parent, view),
+          x{typeRegistry, ::Smp::Uuids::Uuid_Int32, "x", "", this, view,
+            value.x},
+          y{typeRegistry, ::Smp::Uuids::Uuid_Int32, "y", "", this, view,
+            value.y} {}
+    typename _BASE::template Field<::Smp::Int32> x;
+    typename _BASE::template Field<::Smp::Int32> y;
+  };
+};
+
+/// A structure whose members are not of the same types as Pair.
+struct Mixed {
+  ::Smp::Int32 x;
+  ::Smp::Bool flag;
+
+  template <typename _BASE> struct _Field : public _BASE {
+    _Field(::Smp::Publication::ITypeRegistry *typeRegistry,
+           ::Smp::Uuid typeUuid, ::Smp::String8 name,
+           ::Smp::String8 description = "", ::Smp::IObject *parent = nullptr,
+           ::Smp::ViewKind view = ::Smp::ViewKind::VK_None,
+           const Mixed &value = {})
+        : _BASE(typeRegistry, typeUuid, name, description, parent, view),
+          x{typeRegistry, ::Smp::Uuids::Uuid_Int32, "x", "", this, view,
+            value.x},
+          flag{typeRegistry, ::Smp::Uuids::Uuid_Bool, "flag", "", this, view,
+               value.flag} {}
+    typename _BASE::template Field<::Smp::Int32> x;
+    typename _BASE::template Field<::Smp::Bool> flag;
+  };
+};
+
+/// A structure holding a structure and an array, so that connecting it walks
+/// into its members.
+struct Nested {
+  Pair pair;
+  ::Xsmp::Array<::Smp::Int32, 2> values;
+
+  template <typename _BASE> struct _Field : public _BASE {
+    _Field(::Smp::Publication::ITypeRegistry *typeRegistry,
+           ::Smp::Uuid typeUuid, ::Smp::String8 name,
+           ::Smp::String8 description = "", ::Smp::IObject *parent = nullptr,
+           ::Smp::ViewKind view = ::Smp::ViewKind::VK_None,
+           const Nested &value = {})
+        : _BASE(typeRegistry, typeUuid, name, description, parent, view),
+          pair{typeRegistry, ::Smp::Uuid{0x20, 0, 0, 0, 0},
+               "pair",       "",
+               this,         view,
+               value.pair},
+          values{typeRegistry, ::Smp::Uuid{0x22, 0, 0, 0, 0},
+                 "values",     "",
+                 this,         view,
+                 value.values} {}
+    typename _BASE::template Field<Pair> pair;
+    typename _BASE::template Field<::Xsmp::Array<::Smp::Int32, 2>> values;
+  };
+};
+
+constexpr ::Smp::Uuid uuidPair{0x20, 0, 0, 0, 0};
+constexpr ::Smp::Uuid uuidValues{0x22, 0, 0, 0, 0};
+constexpr ::Smp::Uuid uuidNested{0x23, 0, 0, 0, 0};
+
+void registerPair(Xsmp::Publication::TypeRegistry &registry) {
+  auto *type = registry.AddStructureType("Pair", "", uuidPair);
+  type->AddField("x", "", ::Smp::Uuids::Uuid_Int32, offsetof(Pair, x));
+  type->AddField("y", "", ::Smp::Uuids::Uuid_Int32, offsetof(Pair, y));
+}
+} // namespace
+
+TEST(DataflowField, StructureConnectAndDisconnect) {
+
+  Xsmp::Publication::TypeRegistry registry;
+  registerPair(registry);
+
+  Field<Pair>::output output{&registry, uuidPair, "output"};
+  Field<Pair>::input input{&registry, uuidPair, "input"};
+
+  ASSERT_TRUE(output.GetInputFields());
+  output.Connect(&input);
+  EXPECT_EQ(output.GetInputFields()->size(), 1U);
+  EXPECT_THROW(output.Connect(&input), ::Smp::FieldAlreadyConnected);
+
+  // a member is pushed when it is assigned
+  output.x = 42;
+  EXPECT_EQ(input.x, 42);
+
+  // and the whole structure on demand
+  input.y = 0;
+  output.y = 7;
+  EXPECT_EQ(input.y, 7);
+  input.x = 0;
+  output.Push();
+  EXPECT_EQ(input.x, 42);
+
+  output.Disconnect(&input);
+  EXPECT_EQ(output.GetInputFields()->size(), 0U);
+  output.x = 1;
+  EXPECT_EQ(input.x, 42);
+  EXPECT_NO_THROW(output.Disconnect(&input));
+}
+
+TEST(DataflowField, NestedConnectAndDisconnect) {
+
+  Xsmp::Publication::TypeRegistry registry;
+  registerPair(registry);
+  registry.AddArrayType("Values", "", uuidValues, ::Smp::Uuids::Uuid_Int32,
+                        sizeof(::Smp::Int32), 2);
+  auto *nested = registry.AddStructureType("Nested", "", uuidNested);
+  nested->AddField("pair", "", uuidPair, offsetof(Nested, pair));
+  nested->AddField("values", "", uuidValues, offsetof(Nested, values));
+
+  Field<Nested>::output output{&registry, uuidNested, "output"};
+  Field<Nested>::input input{&registry, uuidNested, "input"};
+
+  // connecting walks into the structure and the array members
+  output.Connect(&input);
+  EXPECT_THROW(output.Connect(&input), ::Smp::FieldAlreadyConnected);
+
+  output.pair.x = 42;
+  EXPECT_EQ(input.pair.x, 42);
+  output.values[1] = 7;
+  EXPECT_EQ(input.values[1], 7);
+
+  input.pair.y = 0;
+  input.values[0] = 0;
+  output.pair.y = 5;
+  output.values[0] = 6;
+  output.Push();
+  EXPECT_EQ(input.pair.y, 5);
+  EXPECT_EQ(input.values[0], 6);
+
+  output.Disconnect(&input);
+  output.pair.x = 1;
+  output.values[1] = 1;
+  EXPECT_EQ(input.pair.x, 42);
+  EXPECT_EQ(input.values[1], 7);
+}
+
+TEST(DataflowField, StructureIncompatibleTarget) {
+
+  Xsmp::Publication::TypeRegistry registry;
+  registerPair(registry);
+
+  Field<Pair>::output output{&registry, uuidPair, "output"};
+  Field<::Smp::Int32>::input simpleInput{&registry, ::Smp::Uuids::Uuid_Int32,
+                                         "simpleInput"};
+  EXPECT_THROW(output.Connect(&simpleInput), ::Smp::InvalidTarget);
+
+  // a structure whose members are of other types is not equivalent
+  auto *mixedType =
+      registry.AddStructureType("Mixed", "", ::Smp::Uuid{0x21, 0, 0, 0, 0});
+  mixedType->AddField("x", "", ::Smp::Uuids::Uuid_Int32, offsetof(Mixed, x));
+  mixedType->AddField("flag", "", ::Smp::Uuids::Uuid_Bool,
+                      offsetof(Mixed, flag));
+  Field<Mixed>::input mixed{&registry, ::Smp::Uuid{0x21, 0, 0, 0, 0}, "mixed"};
+  EXPECT_THROW(output.Connect(&mixed), ::Smp::InvalidTarget);
 }
 
 TEST(DataflowField, IncompatibleTarget) {

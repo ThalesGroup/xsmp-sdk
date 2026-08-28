@@ -1177,6 +1177,13 @@ protected:
       using type = typename U::connectable;
     };
 
+    // the members of a connectable field are connectable as well: a structure
+    // or an array is connected by connecting its leaves
+    template <typename U>
+    struct annotation<U, ::Xsmp::Annotation::connectable> {
+      using type = typename U::connectable;
+    };
+
     template <typename U> struct annotation<U, ::Xsmp::Annotation::forcible> {
       using type = typename U::forcible;
     };

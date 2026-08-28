@@ -321,6 +321,9 @@ public:
                   << " does not exist: only SimpleLayout and PatternLayout are "
                      "supported."
                   << '\n';
+        // fall back on the default layout: an appender without one cannot
+        // append anything
+        _layout = std::make_unique<PatternLayout>(key, properties);
       }
     }
     // create a PatternLayout by default
