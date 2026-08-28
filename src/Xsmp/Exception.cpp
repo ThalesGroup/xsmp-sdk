@@ -90,9 +90,11 @@ namespace Xsmp::Exception {
 
 class Exception : public virtual ::Smp::Exception {
 public:
+  // not noexcept: the four strings below are allocated, and an allocation
+  // failure must be reported rather than terminate the process
   template <typename... Args>
   Exception(const ::Smp::IObject *sender, std::string_view name,
-            std::string_view description, Args &&...args) noexcept
+            std::string_view description, Args &&...args)
       : _sender(sender), _name(name), _description(description),
         _message(
             Xsmp::Exception::detail::FormatString(std::forward<Args>(args)...)),
