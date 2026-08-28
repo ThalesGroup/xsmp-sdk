@@ -289,6 +289,46 @@ target_include_directories(
 # --------------------------------------------------------------------
 if(XSMP_BUILD_PYTHON_BINDINGS)
     find_package(Python COMPONENTS Interpreter Development)
+
+    if(SKBUILD STREQUAL "2")
+        # the python modules are at the root of the wheel, the libraries in <root>/${CMAKE_INSTALL_LIBDIR}
+        set(_xsmp_pythondir ".")
+    else()
+        # The default install directory of the python modules is computed as a path
+        # relative to the install prefix, so that
+        # `cmake --install <dir> --prefix <prefix>` is honored.
+        # It can be overridden with an absolute path (e.g. ${Python_SITELIB}) to
+        # install the modules outside of the install prefix.
+        if(NOT DEFINED CACHE{XSMP_INSTALL_PYTHONDIR})
+            execute_process(
+                COMMAND "${Python_EXECUTABLE}" -c
+                        "import os, sysconfig; print(os.path.relpath(sysconfig.get_path('purelib'), sysconfig.get_path('data')).replace(os.sep, '/'))"
+                OUTPUT_VARIABLE _xsmp_default_pythondir
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+                ERROR_QUIET
+            )
+            if(NOT _xsmp_default_pythondir AND Python_VERSION_MAJOR)
+                set(_xsmp_default_pythondir "${CMAKE_INSTALL_LIBDIR}/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages")
+            endif()
+            set(XSMP_INSTALL_PYTHONDIR "${_xsmp_default_pythondir}" CACHE STRING
+                "Directory where the python modules are installed (relative to CMAKE_INSTALL_PREFIX, or absolute)")
+        endif()
+        set(_xsmp_pythondir "${XSMP_INSTALL_PYTHONDIR}")
+    endif()
+
+    # RPATH of the ecss_smp module: the path of the libraries it links, relative
+    # to its own install directory
+    if(IS_ABSOLUTE "${_xsmp_pythondir}" OR IS_ABSOLUTE "${CMAKE_INSTALL_LIBDIR}")
+        set(_xsmp_python_rpath "${CMAKE_INSTALL_FULL_LIBDIR}")
+    else()
+        file(RELATIVE_PATH _xsmp_python_rpath "/${_xsmp_pythondir}" "/${CMAKE_INSTALL_LIBDIR}")
+        if(APPLE)
+            set(_xsmp_python_rpath "@loader_path/${_xsmp_python_rpath}")
+        else()
+            set(_xsmp_python_rpath "$ORIGIN/${_xsmp_python_rpath}")
+        endif()
+    endif()
+
     FetchContent_Declare(
       pybind11
       GIT_REPOSITORY https://github.com/pybind/pybind11.git
@@ -300,10 +340,8 @@ if(XSMP_BUILD_PYTHON_BINDINGS)
     pybind11_add_module(Python src/python/ecss_smp.cpp)
     set_target_properties(Python PROPERTIES OUTPUT_NAME "ecss_smp")
 
-    if(APPLE)
-        set_target_properties(Python PROPERTIES INSTALL_RPATH "@loader_path/${CMAKE_INSTALL_LIBDIR}")
-    elseif(UNIX)
-        set_target_properties(Python PROPERTIES INSTALL_RPATH "$ORIGIN/${CMAKE_INSTALL_LIBDIR}")
+    if(UNIX)
+        set_target_properties(Python PROPERTIES INSTALL_RPATH "${_xsmp_python_rpath}")
     endif()
 
     add_library(Xsmp::Python ALIAS Python)
@@ -316,8 +354,8 @@ if(XSMP_BUILD_PYTHON_BINDINGS)
     target_compile_options(Python PRIVATE ${XSMP_COMPILE_OPTIONS})
     if(SKBUILD STREQUAL "2")
         install(TARGETS Python DESTINATION .)
-    else()
-        install(TARGETS Python DESTINATION ${Python_SITELIB}/)
+    elseif(XSMP_ENABLE_INSTALL)
+        install(TARGETS Python DESTINATION "${XSMP_INSTALL_PYTHONDIR}")
     endif()
 endif(XSMP_BUILD_PYTHON_BINDINGS)
 
@@ -630,7 +668,7 @@ if(XSMP_ENABLE_INSTALL)
             FILES_MATCHING
             PATTERN "*.h"
     )
-    if(NOT SKBUILD STREQUAL "2")
+    if(XSMP_BUILD_PYTHON_BINDINGS AND NOT SKBUILD STREQUAL "2")
         install(DIRECTORY "python/xsmp"
                           "python/xsmp_event_manager"
                           "python/xsmp_link_registry"
@@ -638,7 +676,7 @@ if(XSMP_ENABLE_INSTALL)
                           "python/xsmp_resolver"
                           "python/xsmp_scheduler"
                           "python/xsmp_time_keeper"
-                DESTINATION "${Python_SITELIB}"
+                DESTINATION "${XSMP_INSTALL_PYTHONDIR}"
                 FILES_MATCHING
                 PATTERN "*.py"
         )
