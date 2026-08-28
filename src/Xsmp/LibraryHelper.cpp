@@ -79,7 +79,12 @@ void *LoadLibrary(const char *libraryName) {
   if (directory.empty()) {
     return nullptr;
   }
-  return LoadLibraryA((directory + fileName).c_str());
+  // LOAD_WITH_ALTERED_SEARCH_PATH: the dependencies of the library are resolved
+  // from its own directory, where the other libraries of the SDK are. Without
+  // it they would be searched from the directory of the executable, and the
+  // load would fail even though the library itself was found.
+  return LoadLibraryExA((directory + fileName).c_str(), nullptr,
+                        LOAD_WITH_ALTERED_SEARCH_PATH);
 #else
   // On MacOs the default is RTLD_GLOBAL
   // On Linux the default is RTLD_LOCAL
