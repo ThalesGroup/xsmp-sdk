@@ -144,6 +144,7 @@ if(XSMP_BUILD_WITH_WARNINGS)
         add_compiler_flags(-Wextra)
         add_compiler_flags(-fdiagnostics-show-option)
         add_compiler_flags(-Wconversion)
+        add_compiler_flags(-Wshadow)
         add_compiler_flags(-Wold-style-cast)
         add_compiler_flags(-Wfloat-equal)
         add_compiler_flags(-Wlogical-op)
@@ -226,6 +227,7 @@ target_compile_features(Smp INTERFACE cxx_std_14)
 
 target_include_directories(
     Smp
+    SYSTEM
     INTERFACE $<BUILD_INTERFACE:${ecss_smp_SOURCE_DIR}>
               $<INSTALL_INTERFACE:include>
 )

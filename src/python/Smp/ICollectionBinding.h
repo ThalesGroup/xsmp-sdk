@@ -22,8 +22,8 @@
 #include <string>
 
 template <typename T>
-inline void RegisterICollection(const py::module_ &m, ::Smp::String8 name) {
-  py::class_<::Smp::ICollection<T>, ::Smp::IObject>(m, name,
+inline void RegisterICollection(const py::module_ &m, ::Smp::String8 typeName) {
+  py::class_<::Smp::ICollection<T>, ::Smp::IObject>(m, typeName,
                                                     py::multiple_inheritance())
 
       .def("__len__", &::Smp::ICollection<T>::size)
