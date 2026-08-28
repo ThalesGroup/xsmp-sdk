@@ -30,10 +30,15 @@ class EntryPointPublisher;
 class EntryPoint final : public ::Smp::IEntryPoint {
 public:
   /// Constructs a new entry point object with the specified name,
-  /// description, parent, and callback.
+  /// description, parent, and callback, and publishes it to its parent.
+  ///
+  /// The entry point is added to the collection its parent exposes through
+  /// ::Smp::IEntryPointPublisher, which holds it until the parent is
+  /// destroyed. It must therefore not outlive the entry point: declare the
+  /// entry point as a member of its parent, or use the overload below.
   /// @param name The name of the entry point.
   /// @param description The description of the entry point.
-  /// @param parent The parent object of the entry point.
+  /// @param parent The parent object of the entry point, which publishes it.
   /// @param callback A function object representing the action to be executed
   /// when this entry point is invoked.
   EntryPoint(::Smp::String8 name, ::Smp::String8 description,
@@ -41,7 +46,12 @@ public:
              std::function<void()> &&callback);
 
   /// Constructs a new entry point object with the specified name,
-  /// description, parent, and callback.
+  /// description, parent, and callback, without publishing it.
+  ///
+  /// Use it for an entry point that is an implementation detail of its parent,
+  /// or whose lifetime is shorter than its parent's. A parent that is itself
+  /// an entry point publisher selects this overload by passing
+  /// `static_cast<::Smp::IObject *>(this)`.
   /// @param name The name of the entry point.
   /// @param description The description of the entry point.
   /// @param parent The parent object of the entry point.
