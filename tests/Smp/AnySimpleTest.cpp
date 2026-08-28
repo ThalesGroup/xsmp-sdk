@@ -586,4 +586,29 @@ TEST(AnySimple, NumericConversions) {
   testNumericConversions<::Smp::Char8>(PrimitiveTypeKind::PTK_Char8, 42);
 }
 
+TEST(AnySimple, NarrowingReportsTheRightTypes) {
+
+  AnySimple value;
+
+  // storing a UInt8 of 200 into an Int8 does not fit: the expected type is the
+  // one being stored into, the invalid one is the type of the given value
+  try {
+    value.SetValue(PrimitiveTypeKind::PTK_Int8, ::Smp::UInt8{200});
+    FAIL();
+  } catch (const InvalidAnyType &e) {
+    EXPECT_EQ(e.GetExpectedType(), PrimitiveTypeKind::PTK_Int8);
+    EXPECT_EQ(e.GetInvalidType(), PrimitiveTypeKind::PTK_UInt8);
+  }
+
+  // a conversion out of an AnySimple reports the same way round
+  value.SetValue(PrimitiveTypeKind::PTK_Int16, ::Smp::Int16{300});
+  try {
+    static_cast<void>(static_cast<::Smp::Int8>(value));
+    FAIL();
+  } catch (const InvalidAnyType &e) {
+    EXPECT_EQ(e.GetExpectedType(), PrimitiveTypeKind::PTK_Int8);
+    EXPECT_EQ(e.GetInvalidType(), PrimitiveTypeKind::PTK_Int16);
+  }
+}
+
 } // namespace Smp

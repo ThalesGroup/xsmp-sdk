@@ -215,7 +215,7 @@ void AnySimple::SetValue(::Smp::PrimitiveTypeKind kind, ::Smp::UInt8 newValue) {
     break;
   case PrimitiveTypeKind::PTK_Int8:
     this->value.int8Value = convertIntegral<::Smp::Int8>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt8);
+        newValue, PrimitiveTypeKind::PTK_UInt8, kind);
     break;
   case PrimitiveTypeKind::PTK_Int16:
     this->value.int16Value = newValue;
@@ -254,7 +254,7 @@ void AnySimple::SetValue(::Smp::PrimitiveTypeKind kind,
   switch (kind) {
   case PrimitiveTypeKind::PTK_UInt8:
     this->value.uInt8Value = convertIntegral<::Smp::UInt8>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt16);
+        newValue, PrimitiveTypeKind::PTK_UInt16, kind);
     break;
   case PrimitiveTypeKind::PTK_UInt16:
     this->value.uInt16Value = newValue;
@@ -267,11 +267,11 @@ void AnySimple::SetValue(::Smp::PrimitiveTypeKind kind,
     break;
   case PrimitiveTypeKind::PTK_Int8:
     this->value.int8Value = convertIntegral<::Smp::Int8>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt16);
+        newValue, PrimitiveTypeKind::PTK_UInt16, kind);
     break;
   case PrimitiveTypeKind::PTK_Int16:
     this->value.int16Value = convertIntegral<::Smp::Int16>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt16);
+        newValue, PrimitiveTypeKind::PTK_UInt16, kind);
     break;
   case PrimitiveTypeKind::PTK_Int32:
     this->value.int32Value = newValue;
@@ -307,11 +307,11 @@ void AnySimple::SetValue(::Smp::PrimitiveTypeKind kind,
   switch (kind) {
   case PrimitiveTypeKind::PTK_UInt8:
     this->value.uInt8Value = convertIntegral<::Smp::UInt8>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt32);
+        newValue, PrimitiveTypeKind::PTK_UInt32, kind);
     break;
   case PrimitiveTypeKind::PTK_UInt16:
     this->value.uInt16Value = convertIntegral<::Smp::UInt16>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt32);
+        newValue, PrimitiveTypeKind::PTK_UInt32, kind);
     break;
   case PrimitiveTypeKind::PTK_UInt32:
     this->value.uInt32Value = newValue;
@@ -321,15 +321,15 @@ void AnySimple::SetValue(::Smp::PrimitiveTypeKind kind,
     break;
   case PrimitiveTypeKind::PTK_Int8:
     this->value.int8Value = convertIntegral<::Smp::Int8>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt32);
+        newValue, PrimitiveTypeKind::PTK_UInt32, kind);
     break;
   case PrimitiveTypeKind::PTK_Int16:
     this->value.int16Value = convertIntegral<::Smp::Int16>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt32);
+        newValue, PrimitiveTypeKind::PTK_UInt32, kind);
     break;
   case PrimitiveTypeKind::PTK_Int32:
     this->value.int32Value = convertIntegral<::Smp::Int32>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt32);
+        newValue, PrimitiveTypeKind::PTK_UInt32, kind);
     break;
   case PrimitiveTypeKind::PTK_Int64:
     this->value.int64Value = newValue;
@@ -342,7 +342,7 @@ void AnySimple::SetValue(::Smp::PrimitiveTypeKind kind,
     break;
   case PrimitiveTypeKind::PTK_Float32:
     this->value.float32Value = convertFloat<::Smp::Float32>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt32);
+        newValue, PrimitiveTypeKind::PTK_UInt32, kind);
     break;
   case PrimitiveTypeKind::PTK_Float64:
     this->value.float64Value = newValue;
@@ -363,50 +363,50 @@ void AnySimple::SetValue(::Smp::PrimitiveTypeKind kind,
   switch (kind) {
   case PrimitiveTypeKind::PTK_UInt8:
     this->value.uInt8Value = convertIntegral<::Smp::UInt8>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt64);
+        newValue, PrimitiveTypeKind::PTK_UInt64, kind);
     break;
   case PrimitiveTypeKind::PTK_UInt16:
     this->value.uInt16Value = convertIntegral<::Smp::UInt16>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt64);
+        newValue, PrimitiveTypeKind::PTK_UInt64, kind);
     break;
   case PrimitiveTypeKind::PTK_UInt32:
     this->value.uInt32Value = convertIntegral<::Smp::UInt32>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt64);
+        newValue, PrimitiveTypeKind::PTK_UInt64, kind);
     break;
   case PrimitiveTypeKind::PTK_UInt64:
     this->value.uInt64Value = newValue;
     break;
   case PrimitiveTypeKind::PTK_Int8:
     this->value.int8Value = convertIntegral<::Smp::Int8>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt64);
+        newValue, PrimitiveTypeKind::PTK_UInt64, kind);
     break;
   case PrimitiveTypeKind::PTK_Int16:
     this->value.int16Value = convertIntegral<::Smp::Int16>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt64);
+        newValue, PrimitiveTypeKind::PTK_UInt64, kind);
     break;
   case PrimitiveTypeKind::PTK_Int32:
     this->value.int32Value = convertIntegral<::Smp::Int32>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt64);
+        newValue, PrimitiveTypeKind::PTK_UInt64, kind);
     break;
   case PrimitiveTypeKind::PTK_Int64:
     this->value.int64Value = convertIntegral<::Smp::Int64>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt64);
+        newValue, PrimitiveTypeKind::PTK_UInt64, kind);
     break;
   case PrimitiveTypeKind::PTK_DateTime:
     this->value.dateTimeValue = convertIntegral<::Smp::DateTime>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt64);
+        newValue, PrimitiveTypeKind::PTK_UInt64, kind);
     break;
   case PrimitiveTypeKind::PTK_Duration:
     this->value.durationValue = convertIntegral<::Smp::Duration>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt64);
+        newValue, PrimitiveTypeKind::PTK_UInt64, kind);
     break;
   case PrimitiveTypeKind::PTK_Float32:
     this->value.float32Value = convertFloat<::Smp::Float32>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt64);
+        newValue, PrimitiveTypeKind::PTK_UInt64, kind);
     break;
   case PrimitiveTypeKind::PTK_Float64:
     this->value.float64Value = convertFloat<::Smp::Float64>(
-        newValue, kind, PrimitiveTypeKind::PTK_UInt64);
+        newValue, PrimitiveTypeKind::PTK_UInt64, kind);
     break;
   default:
     ::Xsmp::Exception::throwInvalidAnyType(nullptr, kind,
@@ -423,19 +423,19 @@ void AnySimple::SetValue(::Smp::PrimitiveTypeKind kind, ::Smp::Int8 newValue) {
   switch (kind) {
   case PrimitiveTypeKind::PTK_UInt8:
     this->value.uInt8Value = convertIntegral<::Smp::UInt8>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int8);
+        newValue, PrimitiveTypeKind::PTK_Int8, kind);
     break;
   case PrimitiveTypeKind::PTK_UInt16:
     this->value.uInt16Value = convertIntegral<::Smp::UInt16>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int8);
+        newValue, PrimitiveTypeKind::PTK_Int8, kind);
     break;
   case PrimitiveTypeKind::PTK_UInt32:
     this->value.uInt32Value = convertIntegral<::Smp::UInt32>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int8);
+        newValue, PrimitiveTypeKind::PTK_Int8, kind);
     break;
   case PrimitiveTypeKind::PTK_UInt64:
     this->value.uInt64Value = convertIntegral<::Smp::UInt64>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int8);
+        newValue, PrimitiveTypeKind::PTK_Int8, kind);
     break;
   case PrimitiveTypeKind::PTK_Int8:
     this->value.int8Value = newValue;
@@ -476,23 +476,23 @@ void AnySimple::SetValue(::Smp::PrimitiveTypeKind kind, ::Smp::Int16 newValue) {
   switch (kind) {
   case PrimitiveTypeKind::PTK_UInt8:
     this->value.uInt8Value = convertIntegral<::Smp::UInt8>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int16);
+        newValue, PrimitiveTypeKind::PTK_Int16, kind);
     break;
   case PrimitiveTypeKind::PTK_UInt16:
     this->value.uInt16Value = convertIntegral<::Smp::UInt16>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int16);
+        newValue, PrimitiveTypeKind::PTK_Int16, kind);
     break;
   case PrimitiveTypeKind::PTK_UInt32:
     this->value.uInt32Value = convertIntegral<::Smp::UInt32>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int16);
+        newValue, PrimitiveTypeKind::PTK_Int16, kind);
     break;
   case PrimitiveTypeKind::PTK_UInt64:
     this->value.uInt64Value = convertIntegral<::Smp::UInt64>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int16);
+        newValue, PrimitiveTypeKind::PTK_Int16, kind);
     break;
   case PrimitiveTypeKind::PTK_Int8:
     this->value.int8Value = convertIntegral<::Smp::Int8>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int16);
+        newValue, PrimitiveTypeKind::PTK_Int16, kind);
     break;
   case PrimitiveTypeKind::PTK_Int16:
     this->value.int16Value = newValue;
@@ -530,27 +530,27 @@ void AnySimple::SetValue(::Smp::PrimitiveTypeKind kind, ::Smp::Int32 newValue) {
   switch (kind) {
   case PrimitiveTypeKind::PTK_UInt8:
     this->value.uInt8Value = convertIntegral<::Smp::UInt8>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int32);
+        newValue, PrimitiveTypeKind::PTK_Int32, kind);
     break;
   case PrimitiveTypeKind::PTK_UInt16:
     this->value.uInt16Value = convertIntegral<::Smp::UInt16>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int32);
+        newValue, PrimitiveTypeKind::PTK_Int32, kind);
     break;
   case PrimitiveTypeKind::PTK_UInt32:
     this->value.uInt32Value = convertIntegral<::Smp::UInt32>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int32);
+        newValue, PrimitiveTypeKind::PTK_Int32, kind);
     break;
   case PrimitiveTypeKind::PTK_UInt64:
     this->value.uInt64Value = convertIntegral<::Smp::UInt64>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int32);
+        newValue, PrimitiveTypeKind::PTK_Int32, kind);
     break;
   case PrimitiveTypeKind::PTK_Int8:
     this->value.int8Value = convertIntegral<::Smp::Int8>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int32);
+        newValue, PrimitiveTypeKind::PTK_Int32, kind);
     break;
   case PrimitiveTypeKind::PTK_Int16:
     this->value.int16Value = convertIntegral<::Smp::Int16>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int32);
+        newValue, PrimitiveTypeKind::PTK_Int32, kind);
     break;
   case PrimitiveTypeKind::PTK_Int32:
     this->value.int32Value = newValue;
@@ -566,7 +566,7 @@ void AnySimple::SetValue(::Smp::PrimitiveTypeKind kind, ::Smp::Int32 newValue) {
     break;
   case PrimitiveTypeKind::PTK_Float32:
     this->value.float32Value = convertFloat<::Smp::Float32>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int32);
+        newValue, PrimitiveTypeKind::PTK_Int32, kind);
     break;
   case PrimitiveTypeKind::PTK_Float64:
     this->value.float64Value = newValue;
@@ -586,31 +586,31 @@ void AnySimple::SetValue(::Smp::PrimitiveTypeKind kind, ::Smp::Int64 newValue) {
   switch (kind) {
   case PrimitiveTypeKind::PTK_UInt8:
     this->value.uInt8Value = convertIntegral<::Smp::UInt8>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int64);
+        newValue, PrimitiveTypeKind::PTK_Int64, kind);
     break;
   case PrimitiveTypeKind::PTK_UInt16:
     this->value.uInt16Value = convertIntegral<::Smp::UInt16>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int64);
+        newValue, PrimitiveTypeKind::PTK_Int64, kind);
     break;
   case PrimitiveTypeKind::PTK_UInt32:
     this->value.uInt32Value = convertIntegral<::Smp::UInt32>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int64);
+        newValue, PrimitiveTypeKind::PTK_Int64, kind);
     break;
   case PrimitiveTypeKind::PTK_UInt64:
     this->value.uInt64Value = convertIntegral<::Smp::UInt64>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int64);
+        newValue, PrimitiveTypeKind::PTK_Int64, kind);
     break;
   case PrimitiveTypeKind::PTK_Int8:
     this->value.int8Value = convertIntegral<::Smp::Int8>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int64);
+        newValue, PrimitiveTypeKind::PTK_Int64, kind);
     break;
   case PrimitiveTypeKind::PTK_Int16:
     this->value.int16Value = convertIntegral<::Smp::Int16>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int64);
+        newValue, PrimitiveTypeKind::PTK_Int64, kind);
     break;
   case PrimitiveTypeKind::PTK_Int32:
     this->value.int32Value = convertIntegral<::Smp::Int32>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int64);
+        newValue, PrimitiveTypeKind::PTK_Int64, kind);
     break;
   case PrimitiveTypeKind::PTK_Int64:
     this->value.int64Value = newValue;
@@ -623,11 +623,11 @@ void AnySimple::SetValue(::Smp::PrimitiveTypeKind kind, ::Smp::Int64 newValue) {
     break;
   case PrimitiveTypeKind::PTK_Float32:
     this->value.float32Value = convertFloat<::Smp::Float32>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int64);
+        newValue, PrimitiveTypeKind::PTK_Int64, kind);
     break;
   case PrimitiveTypeKind::PTK_Float64:
     this->value.float64Value = convertFloat<::Smp::Float64>(
-        newValue, kind, PrimitiveTypeKind::PTK_Int64);
+        newValue, PrimitiveTypeKind::PTK_Int64, kind);
     break;
   default:
     ::Xsmp::Exception::throwInvalidAnyType(nullptr, kind,
@@ -665,7 +665,7 @@ void AnySimple::SetValue(::Smp::PrimitiveTypeKind kind,
   switch (kind) {
   case PrimitiveTypeKind::PTK_Float32:
     this->value.float32Value = convertFloat<::Smp::Float32>(
-        newValue, kind, PrimitiveTypeKind::PTK_Float64);
+        newValue, PrimitiveTypeKind::PTK_Float64, kind);
     break;
   case PrimitiveTypeKind::PTK_Float64:
     this->value.float64Value = newValue;
