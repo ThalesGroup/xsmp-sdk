@@ -104,8 +104,8 @@ TEST(Factory, Collection) {
   auto *m2 = ::Xsmp::Factory::Create<M2>("M2", "M2 model", nullptr, M2::uuid);
   collection.Add(m2);
 
-  EXPECT_STREQ(collection.GetName(), "Factories");
-  EXPECT_STREQ(collection.GetDescription(), "");
+  // since SMP 2025 a collection is not an ::Smp::IObject
+  EXPECT_FALSE(collection.empty());
 
   EXPECT_EQ(collection.at(nullptr), nullptr);
   EXPECT_EQ(collection.at("M1"), m1);

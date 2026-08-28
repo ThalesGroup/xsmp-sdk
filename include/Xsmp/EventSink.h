@@ -42,6 +42,12 @@ public:
   ::Smp::String8 GetDescription() const final;
   ::Smp::IObject *GetParent() const final;
 
+  /// Returns the child object with the given name.
+  /// An event sink has no child.
+  /// @param   name The name of the child to look for.
+  /// @return  Always null.
+  ::Smp::IObject *GetChild(::Smp::String8 name) const final;
+
 private:
   ::Xsmp::cstring _name;
   ::Xsmp::cstring _description;
@@ -151,9 +157,10 @@ private:
 };
 
 // deduction guide
-EventSink(
-    ::Smp::String8 name, ::Smp::String8 description, ::Smp::IObject *parent,
-    std::function<void(::Smp::IObject *sender)> callback) -> EventSink<void>;
+EventSink(::Smp::String8 name, ::Smp::String8 description,
+          ::Smp::IObject *parent,
+          std::function<void(::Smp::IObject *sender)> callback)
+    -> EventSink<void>;
 
 } // namespace Xsmp
 

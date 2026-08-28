@@ -35,6 +35,10 @@ inline void RegisterIProperty(const py::module_ &m) {
       .def("GetAccess", &::Smp::IProperty::GetAccess,
            "Provides the access kind of the property.")
 
+      .def("GetPrimitiveTypeKind", &::Smp::IProperty::GetPrimitiveTypeKind,
+           "Provides the primitive type kind of the property type, or "
+           "PTK_None when the property is not of a simple type.")
+
       .def("GetView", &::Smp::IProperty::GetView,
            "Provides the view kind of the property.")
 

@@ -19,6 +19,8 @@
 #include <Smp/Publication/IArrayType.h>
 #include <Smp/Publication/IClassType.h>
 #include <Smp/Publication/IEnumerationType.h>
+#include <Smp/Publication/IStringType.h>
+#include <Smp/Publication/IStructureType.h>
 #include <Smp/Uuid.h>
 #include <Smp/ViewKind.h>
 #include <Xsmp/cstring.h>
@@ -44,15 +46,22 @@ public:
   ::Smp::String8 GetName() const final;
   ::Smp::String8 GetDescription() const final;
   ::Smp::IObject *GetParent() const final;
+
+  /// Returns the child object with the given name.
+  /// A published type has no named child.
+  /// @param   name The name of the child to look for.
+  /// @return  Always null.
+  ::Smp::IObject *GetChild(::Smp::String8 name) const override;
   ::Smp::PrimitiveTypeKind GetPrimitiveTypeKind() const override;
 
   ::Smp::Uuid GetUuid() const final;
 
-  void Publish(::Smp::IPublication *receiver, ::Smp::String8 name,
-               ::Smp::String8 description, void *address,
-               ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
-               ::Smp::Bool state = true, ::Smp::Bool input = false,
-               ::Smp::Bool output = false) final;
+  ::Smp::IField *Publish(::Smp::Publication::IPublishField *receiver,
+                         ::Smp::String8 name, ::Smp::String8 description,
+                         void *address,
+                         ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
+                         ::Smp::Bool state = true, ::Smp::Bool input = false,
+                         ::Smp::Bool output = false) final;
   ::Xsmp::Publication::TypeRegistry *GetTypeRegistry() const noexcept;
 
 private:
@@ -68,7 +77,7 @@ public:
   ArrayType(::Smp::String8 name, ::Smp::String8 description,
             ::Xsmp::Publication::TypeRegistry *typeRegistry,
             ::Smp::Uuid typeUuid, ::Smp::Uuid itemTypeUuid,
-            ::Smp::Int64 itemSize, ::Smp::Int64 arrayCount,
+            ::Smp::UInt64 itemSize, ::Smp::UInt64 arrayCount,
             ::Smp::Bool simpleArray);
   ~ArrayType() noexcept override = default;
   ArrayType(const ArrayType &) = delete;
@@ -172,17 +181,18 @@ public:
   ~PrimitiveType() noexcept override = default;
 };
 
-class StringType final : public SimpleType {
+class StringType final : public SimpleType,
+                         public virtual ::Smp::Publication::IStringType {
 public:
   StringType(::Smp::String8 name, ::Smp::String8 description,
              ::Xsmp::Publication::TypeRegistry *parent, ::Smp::Uuid typeUuid,
-             ::Smp::Int64 length);
+             ::Smp::UInt64 length);
   ~StringType() noexcept override = default;
 
-  ::Smp::Int64 GetLength() const;
+  ::Smp::UInt64 GetMaxLength() const override;
 
 private:
-  ::Smp::Int64 _length;
+  ::Smp::UInt64 _length;
 };
 
 class StructureType : public Type,
@@ -197,7 +207,7 @@ public:
   StructureType &operator=(const StructureType &) = delete;
 
   void AddField(::Smp::String8 name, ::Smp::String8 description,
-                ::Smp::Uuid uuid, ::Smp::Int64 offset,
+                ::Smp::Uuid uuid, ::Smp::UInt64 offset,
                 ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
                 ::Smp::Bool state = true, ::Smp::Bool input = false,
                 ::Smp::Bool output = false) final;
@@ -206,7 +216,7 @@ public:
     ::Xsmp::cstring name;
     ::Xsmp::cstring description;
     ::Smp::Uuid uuid;
-    ::Smp::Int64 offset;
+    ::Smp::UInt64 offset;
     ::Smp::ViewKind view;
     ::Smp::Bool state;
     ::Smp::Bool input;

@@ -14,7 +14,7 @@
 
 #include <Smp/Exception.h>
 #include <Smp/IRequest.h>
-#include <Smp/InvalidParameterType.h>
+#include <Smp/InvalidParameterValue.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Publication/IPublishOperation.h>
 #include <Smp/Publication/IStructureType.h>
@@ -216,7 +216,7 @@ TEST(Request, GetAndSetValue) {
   EXPECT_THROW(
       static_cast<void>(Request::get<::Smp::Bool>(
           &component, request, "input", ::Smp::PrimitiveTypeKind::PTK_Bool)),
-      ::Smp::InvalidParameterType);
+      ::Smp::InvalidParameterValue);
 
   component.DeleteRequest(request);
   sim.Exit();

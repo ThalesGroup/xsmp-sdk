@@ -50,8 +50,9 @@ StorageWriter::StorageWriter(::Smp::String8 path, ::Smp::String8 filename,
     : _path(path ? path : ""), _filename(filename ? filename : ""),
       _object{object}, _os{createOutputStream(path, filename, object)} {}
 
-void StorageWriter::Store(void *address, ::Smp::UInt64 size) {
-  _os.write(static_cast<char *>(address), static_cast<std::streamsize>(size));
+void StorageWriter::Store(const void *address, ::Smp::UInt64 size) {
+  _os.write(static_cast<const char *>(address),
+            static_cast<std::streamsize>(size));
   if (_os.bad()) {
     ::Xsmp::Exception::throwCannotStore(_object,
                                         "Writing error on output operation");

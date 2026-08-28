@@ -36,6 +36,8 @@ Type::Type(::Smp::String8 name, ::Smp::String8 description,
 ::Smp::String8 Type::GetDescription() const { return _description.c_str(); }
 
 ::Smp::IObject *Type::GetParent() const { return _parent; }
+
+::Smp::IObject *Type::GetChild(::Smp::String8) const { return nullptr; }
 ::Smp::PrimitiveTypeKind Type::GetPrimitiveTypeKind() const {
   return ::Smp::PrimitiveTypeKind::PTK_None;
 }
@@ -45,24 +47,23 @@ Type::Type(::Smp::String8 name, ::Smp::String8 description,
   return _parent;
 }
 
-void Type::Publish(::Smp::IPublication *receiver, ::Smp::String8 name,
-                   ::Smp::String8 description, void *address,
-                   ::Smp::ViewKind view, ::Smp::Bool state, ::Smp::Bool input,
-                   ::Smp::Bool output) {
-  receiver->PublishField(name, description, address, _uuid, view, state, input,
-                         output);
+::Smp::IField *Type::Publish(::Smp::Publication::IPublishField *receiver,
+                             ::Smp::String8 name, ::Smp::String8 description,
+                             void *address, ::Smp::ViewKind view,
+                             ::Smp::Bool state, ::Smp::Bool input,
+                             ::Smp::Bool output) {
+  return receiver->PublishField(name, description, address, _uuid, view, state,
+                                input, output);
 }
 
 ArrayType::ArrayType(::Smp::String8 name, ::Smp::String8 description,
                      ::Xsmp::Publication::TypeRegistry *typeRegistry,
                      ::Smp::Uuid typeUuid, ::Smp::Uuid itemTypeUuid,
-                     ::Smp::Int64 itemSize, ::Smp::Int64 arrayCount,
+                     ::Smp::UInt64 itemSize, ::Smp::UInt64 arrayCount,
                      ::Smp::Bool simpleArray)
     : Type(name, description, typeRegistry, typeUuid),
-      _itemType(typeRegistry->GetType(itemTypeUuid)),
-      _itemSize(itemSize >= 0 ? static_cast<::Smp::UInt64>(itemSize) : 0),
-      _arrayCount(arrayCount >= 0 ? static_cast<::Smp::UInt64>(arrayCount) : 0),
-      _simpleArray(simpleArray) {
+      _itemType(typeRegistry->GetType(itemTypeUuid)), _itemSize(itemSize),
+      _arrayCount(arrayCount), _simpleArray(simpleArray) {
 
   if (!_itemType) {
     ::Xsmp::Exception::throwTypeNotRegistered(this, itemTypeUuid);
@@ -72,6 +73,12 @@ ArrayType::ArrayType(::Smp::String8 name, ::Smp::String8 description,
     ::Xsmp::Exception::throwIncompatibleType(
         this, itemTypeUuid,
         "ArrayType does not support String8 and Void item type.");
+  }
+  // a simple array holds its items as values, so they must be of a simple type
+  if (_simpleArray &&
+      _itemType->GetPrimitiveTypeKind() == ::Smp::PrimitiveTypeKind::PTK_None) {
+    ::Xsmp::Exception::throwInvalidArrayItemType(
+        this, _itemType->GetName(), _itemType->GetPrimitiveTypeKind());
   }
 }
 
@@ -174,12 +181,12 @@ PrimitiveType::PrimitiveType(::Smp::String8 name, ::Smp::String8 description,
 
 StringType::StringType(::Smp::String8 name, ::Smp::String8 description,
                        ::Xsmp::Publication::TypeRegistry *parent,
-                       ::Smp::Uuid typeUuid, ::Smp::Int64 length)
+                       ::Smp::Uuid typeUuid, ::Smp::UInt64 length)
     : SimpleType(name, description, parent, typeUuid,
                  ::Smp::PrimitiveTypeKind::PTK_String8),
-      _length(length >= 0 ? length : 0) {}
+      _length(length) {}
 
-::Smp::Int64 StringType::GetLength() const { return _length; }
+::Smp::UInt64 StringType::GetMaxLength() const { return _length; }
 
 StructureType::StructureType(::Smp::String8 name, ::Smp::String8 description,
                              ::Xsmp::Publication::TypeRegistry *typeRegistry,
@@ -218,7 +225,7 @@ bool contains(const ::Xsmp::Publication::TypeRegistry *typeRegistry,
 } // namespace
 
 void StructureType::AddField(::Smp::String8 name, ::Smp::String8 description,
-                             ::Smp::Uuid uuid, ::Smp::Int64 offset,
+                             ::Smp::Uuid uuid, ::Smp::UInt64 offset,
                              ::Smp::ViewKind view, ::Smp::Bool state,
                              ::Smp::Bool input, ::Smp::Bool output) {
 

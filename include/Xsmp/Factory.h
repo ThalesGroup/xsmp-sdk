@@ -94,6 +94,12 @@ public:
   /// @return  the parent of the factory.
   ::Smp::IObject *GetParent() const override;
 
+  /// Returns the child object with the given name.
+  /// A factory has no child.
+  /// @param name The name of the child to look for.
+  /// @return  Always null.
+  ::Smp::IObject *GetChild(::Smp::String8 name) const override;
+
   /// Get Universally unique identifier of the type instantiated by the
   /// factory.
   /// @return  Universally unique identifier of component.

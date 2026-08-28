@@ -16,13 +16,13 @@
 #include <Smp/IComposite.h>
 #include <Smp/IFactory.h>
 #include <Smp/IField.h>
-#include <Smp/Publication/IType.h>
 #include <Smp/IModel.h>
 #include <Smp/IPersist.h>
 #include <Smp/IService.h>
 #include <Smp/IStorageReader.h>
 #include <Smp/IStorageWriter.h>
 #include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/IType.h>
 #include <Smp/Publication/ITypeRegistry.h>
 #include <Smp/Services/EventId.h>
 #include <Smp/Services/IEventManager.h>
@@ -30,8 +30,10 @@
 #include <Smp/Services/ILogger.h>
 #include <Smp/Services/IResolver.h>
 #include <Smp/Services/IScheduler.h>
+#include <Smp/Services/ITimeKeeper.h>
 #include <Smp/SimulatorStateKind.h>
 #include <Smp/Uuid.h>
+#include <Smp/Version.h>
 #include <Xsmp/EntryPoint.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
@@ -117,6 +119,7 @@ void recursive_action(::Smp::IComposite const *composite, Callable &&func) {
 
 constexpr ::Smp::String8 initialiseSymbol = "Initialise";
 constexpr ::Smp::String8 finaliseSymbol = "Finalise";
+constexpr ::Smp::String8 smpVersionSymbol = "GetSmpVersion";
 } // namespace
 Simulator::~Simulator() {
   // A destructor is implicitly noexcept: an exception thrown by a model in its
@@ -189,22 +192,47 @@ Simulator::~Simulator() {
 
 ::Smp::IObject *Simulator::GetParent() const { return nullptr; }
 
+::Smp::IObject *Simulator::GetChild(::Smp::String8 name) const {
+  const auto *containers = GetContainers();
+  if (!name || name[0] == '\0' || !containers) {
+    return nullptr;
+  }
+  // "Models" and "Services" are children of the simulator, and so are the
+  // components they hold
+  if (auto *container = containers->at(name)) {
+    return container;
+  }
+  for (auto *container : *containers) {
+    if (auto *component = container->GetComponent(name)) {
+      return component;
+    }
+  }
+  return nullptr;
+}
+
 ::Xsmp::Publication::Publication *
 Simulator::CreatePublication(::Smp::IComponent *component) {
   return &_publications.emplace_back(component, &_typeRegistry);
 }
 
+void Simulator::CheckTransition(
+    ::Smp::SimulatorStateKind expected,
+    std::initializer_list<::Smp::Services::EventId> forbiddenEvents) const {
+  if (_state != expected) {
+    ::Xsmp::Exception::throwInvalidSimulatorState(this, _state);
+  }
+  // a transition requested from a global event that is still being emitted
+  // would run nested in the one that is emitting it
+  for (auto eventId : forbiddenEvents) {
+    if (_lastGlobalEventId == eventId) {
+      ::Xsmp::Exception::throwInvalidSimulatorState(this, _state);
+    }
+  }
+}
+
 void Simulator::Publish() {
 
-  if (_state != ::Smp::SimulatorStateKind::SSK_Building) {
-    if (_logger) {
-      _logger->Log(this,
-                   "Could not Publish the Simulation if simulator is not in "
-                   "Building state.",
-                   ::Smp::Services::ILogger::LMK_Warning);
-    }
-    return;
-  }
+  CheckTransition(::Smp::SimulatorStateKind::SSK_Building, {});
 
   recursive_action(this, [this](::Smp::IComponent *cmp) {
     if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Created) {
@@ -215,15 +243,7 @@ void Simulator::Publish() {
 
 void Simulator::Configure() {
 
-  if (_state != ::Smp::SimulatorStateKind::SSK_Building) {
-    if (_logger) {
-      _logger->Log(this,
-                   "Could not Configure the Simulation if simulator is not in "
-                   "Building state.",
-                   ::Smp::Services::ILogger::LMK_Warning);
-    }
-    return;
-  }
+  CheckTransition(::Smp::SimulatorStateKind::SSK_Building, {});
 
   recursive_action(this, [this](::Smp::IComponent *cmp) {
     if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Created) {
@@ -237,15 +257,7 @@ void Simulator::Configure() {
 
 void Simulator::Connect() {
 
-  if (_state != ::Smp::SimulatorStateKind::SSK_Building) {
-    if (_logger) {
-      _logger->Log(this,
-                   "Could not Connect the Simulation if simulator is not in "
-                   "Building state.",
-                   ::Smp::Services::ILogger::LMK_Warning);
-    }
-    return;
-  }
+  CheckTransition(::Smp::SimulatorStateKind::SSK_Building, {});
   _state = ::Smp::SimulatorStateKind::SSK_Connecting;
 
   recursive_action(this, [this](::Smp::IComponent *cmp) {
@@ -287,17 +299,8 @@ void Simulator::EmitGlobalEvent(::Smp::Services::EventId eventId) {
 
 void Simulator::Initialise() {
 
-  if (_state != ::Smp::SimulatorStateKind::SSK_Standby ||
-      _lastGlobalEventId ==
-          ::Smp::Services::IEventManager::SMP_LeaveStandbyId) {
-    if (_logger) {
-      _logger->Log(this,
-                   "Could not Initialise the Simulation if simulator is not in "
-                   "Standby state.",
-                   ::Smp::Services::ILogger::LMK_Warning);
-    }
-    return;
-  }
+  CheckTransition(::Smp::SimulatorStateKind::SSK_Standby,
+                  {::Smp::Services::IEventManager::SMP_LeaveStandbyId});
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveStandbyId);
 
   _state = ::Smp::SimulatorStateKind::SSK_Initialising;
@@ -315,19 +318,9 @@ void Simulator::Initialise() {
 }
 void Simulator::Run() {
 
-  if (_state != ::Smp::SimulatorStateKind::SSK_Standby ||
-      _lastGlobalEventId ==
-          ::Smp::Services::IEventManager::SMP_LeaveStandbyId ||
-      _lastGlobalEventId ==
-          ::Smp::Services::IEventManager::SMP_EnterStandbyId) {
-    if (_logger) {
-      _logger->Log(
-          this,
-          "Could not Run the Simulation if simulator is not in Standby state.",
-          ::Smp::Services::ILogger::LMK_Warning);
-    }
-    return;
-  }
+  CheckTransition(::Smp::SimulatorStateKind::SSK_Standby,
+                  {::Smp::Services::IEventManager::SMP_LeaveStandbyId,
+                   ::Smp::Services::IEventManager::SMP_EnterStandbyId});
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveStandbyId);
 
   _state = ::Smp::SimulatorStateKind::SSK_Executing;
@@ -373,17 +366,13 @@ void Simulator::Run(::Smp::Duration duration) {
 
 void Simulator::Hold(::Smp::Bool immediate) {
 
-  if (_state != ::Smp::SimulatorStateKind::SSK_Executing ||
-      _lastGlobalEventId ==
-          ::Smp::Services::IEventManager::SMP_LeaveExecutingId) {
-    if (_logger) {
-      _logger->Log(this,
-                   "Could not Hold the Simulation if simulator is not in "
-                   "Executing state.",
-                   ::Smp::Services::ILogger::LMK_Warning);
-    }
-    return;
-  }
+  // SMP 2025 also forbids Hold during SMP_EnterExecuting. That guard is not
+  // enforceable here: the scheduler subscribes to that event and runs the
+  // whole event loop from it, so the emission is still on the stack for the
+  // entire Executing phase and the guard would reject every legitimate Hold
+  // made from a scheduled event.
+  CheckTransition(::Smp::SimulatorStateKind::SSK_Executing,
+                  {::Smp::Services::IEventManager::SMP_LeaveExecutingId});
 
   if (immediate) {
 
@@ -508,17 +497,9 @@ void Simulator::BackToStandby(::Smp::Services::EventId leaveEventId) noexcept {
 
 void Simulator::Store(::Smp::String8 filename) {
 
-  if (_state != ::Smp::SimulatorStateKind::SSK_Standby ||
-      _lastGlobalEventId ==
-          ::Smp::Services::IEventManager::SMP_LeaveStandbyId) {
-    if (_logger) {
-      _logger->Log(this,
-                   "Could not Store the Simulation if simulator is not in "
-                   "Standby state.",
-                   ::Smp::Services::ILogger::LMK_Warning);
-    }
-    return;
-  }
+  CheckTransition(::Smp::SimulatorStateKind::SSK_Standby,
+                  {::Smp::Services::IEventManager::SMP_LeaveStandbyId,
+                   ::Smp::Services::IEventManager::SMP_EnterStandbyId});
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveStandbyId);
 
   _state = ::Smp::SimulatorStateKind::SSK_Storing;
@@ -549,9 +530,9 @@ void Simulator::Store(::Smp::String8 filename) {
 }
 void Simulator::Restore(::Smp::String8 filename) {
 
-  if (_state != ::Smp::SimulatorStateKind::SSK_Standby ||
-      _lastGlobalEventId ==
-          ::Smp::Services::IEventManager::SMP_LeaveStandbyId) {
+  // Restore is the one transition that SMP 2025 still lets return without
+  // acting when the state is wrong; only a re-entrant call is rejected
+  if (_state != ::Smp::SimulatorStateKind::SSK_Standby) {
     if (_logger) {
       _logger->Log(this,
                    "Could not Restore the Simulation if simulator is not in "
@@ -560,6 +541,9 @@ void Simulator::Restore(::Smp::String8 filename) {
     }
     return;
   }
+  CheckTransition(::Smp::SimulatorStateKind::SSK_Standby,
+                  {::Smp::Services::IEventManager::SMP_LeaveStandbyId,
+                   ::Smp::Services::IEventManager::SMP_EnterStandbyId});
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveStandbyId);
 
   _state = ::Smp::SimulatorStateKind::SSK_Restoring;
@@ -589,17 +573,9 @@ void Simulator::Restore(::Smp::String8 filename) {
 
 void Simulator::Reconnect(::Smp::IComponent *root) {
 
-  if (_state != ::Smp::SimulatorStateKind::SSK_Standby ||
-      _lastGlobalEventId ==
-          ::Smp::Services::IEventManager::SMP_LeaveStandbyId) {
-    if (_logger) {
-      _logger->Log(this,
-                   "Could not Reconnect the Simulation if simulator is not in "
-                   "Standby state.",
-                   ::Smp::Services::ILogger::LMK_Warning);
-    }
-    return;
-  }
+  CheckTransition(::Smp::SimulatorStateKind::SSK_Standby,
+                  {::Smp::Services::IEventManager::SMP_LeaveStandbyId,
+                   ::Smp::Services::IEventManager::SMP_EnterStandbyId});
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveStandbyId);
   _state = ::Smp::SimulatorStateKind::SSK_Reconnecting;
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_EnterReconnectingId);
@@ -628,17 +604,9 @@ void Simulator::Reconnect(::Smp::IComponent *root) {
 
 void Simulator::Exit() {
 
-  if (_state != ::Smp::SimulatorStateKind::SSK_Standby ||
-      _lastGlobalEventId ==
-          ::Smp::Services::IEventManager::SMP_LeaveStandbyId) {
-    if (_logger) {
-      _logger->Log(this,
-                   "Could not Exit from Simulation while simulator is not in "
-                   "Standby state.",
-                   ::Smp::Services::ILogger::LMK_Warning);
-    }
-    return;
-  }
+  CheckTransition(::Smp::SimulatorStateKind::SSK_Standby,
+                  {::Smp::Services::IEventManager::SMP_LeaveStandbyId,
+                   ::Smp::Services::IEventManager::SMP_EnterStandbyId});
 
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveStandbyId);
   _state = ::Smp::SimulatorStateKind::SSK_Exiting;
@@ -753,8 +721,21 @@ void Simulator::RegisterFactory(::Smp::IFactory *componentFactory) {
                                              ::Smp::String8 description,
                                              ::Smp::IComposite *parent) {
   auto *factory = GetFactory(uuid);
-
-  return factory ? factory->CreateInstance(name, description, parent) : nullptr;
+  if (!factory) {
+    return nullptr;
+  }
+  // the new component is inserted in a container of its parent, so the parent
+  // has to belong to this simulation
+  if (parent) {
+    const ::Smp::IObject *root = parent;
+    while (auto *up = root->GetParent()) {
+      root = up;
+    }
+    if (root != this) {
+      ::Xsmp::Exception::throwInvalidParent(this, parent, this);
+    }
+  }
+  return factory->CreateInstance(name, description, parent);
 }
 
 ::Smp::IFactory *Simulator::GetFactory(::Smp::Uuid uuid) const {
@@ -769,10 +750,10 @@ const ::Smp::FactoryCollection *Simulator::GetFactories() const {
   return &_typeRegistry;
 }
 
-void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
-
+void Simulator::LoadLibrary(::Smp::String8 libraryPath,
+                            ::Smp::LibraryLoadingFlag flag) {
   if (!libraryPath) {
-    ::Xsmp::Exception::throwLibraryNotFound(this, "", "No library name given.");
+    ::Xsmp::Exception::throwFileNotFound(this, "", "No library name given.");
   }
   if (_logger) {
     _logger->Log(
@@ -780,14 +761,30 @@ void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
         ("Loading '" + std::string(libraryPath) + "' library ...").c_str(),
         ::Smp::Services::ILogger::LMK_Debug);
   }
-  void *handle = ::Xsmp::LoadLibrary(libraryPath);
+  void *handle = ::Xsmp::LoadLibrary(libraryPath, flag);
 
   if (!handle) {
     auto error = ::Xsmp::GetLastError();
     if (_logger) {
       _logger->Log(this, error.c_str(), ::Smp::Services::ILogger::LMK_Error);
     }
-    ::Xsmp::Exception::throwLibraryNotFound(this, libraryPath, error);
+    ::Xsmp::Exception::throwFileNotFound(this, libraryPath, error);
+  }
+
+  auto getSmpVersion =
+      ::Xsmp::GetSymbol<::Smp::UInt64 (*)()>(handle, smpVersionSymbol);
+
+  if (!getSmpVersion) {
+    const std::string msg =
+        std::string("Library '") + libraryPath +
+        "' does not provide function 'Smp::UInt64 GetSmpVersion()': " +
+        ::Xsmp::GetLastError();
+    if (_logger) {
+      _logger->Log(this, msg.c_str(), ::Smp::Services::ILogger::LMK_Error);
+    }
+    ::Xsmp::CloseLibrary(handle);
+    // a library that cannot report its version cannot be trusted to match
+    ::Xsmp::Exception::throwInvalidSmpVersion(this, libraryPath, 0);
   }
 
   auto initialise = ::Xsmp::GetSymbol<bool (*)(
@@ -804,7 +801,7 @@ void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
       _logger->Log(this, msg.c_str(), ::Smp::Services::ILogger::LMK_Error);
     }
     ::Xsmp::CloseLibrary(handle);
-    ::Xsmp::Exception::throwInvalidLibrary(this, libraryPath, msg);
+    ::Xsmp::Exception::throwInvalidFile(this, libraryPath, msg);
   }
 
   // check that Finalise exist
@@ -817,7 +814,21 @@ void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
       _logger->Log(this, msg.c_str(), ::Smp::Services::ILogger::LMK_Error);
     }
     ::Xsmp::CloseLibrary(handle);
-    ::Xsmp::Exception::throwInvalidLibrary(this, libraryPath, msg);
+    ::Xsmp::Exception::throwInvalidFile(this, libraryPath, msg);
+  }
+
+  if (const auto librarySmpVersion = (*getSmpVersion)();
+      librarySmpVersion != ECSS_SMP_VERSION) {
+    const std::string msg = std::string("Library '") + libraryPath +
+                            "' was built against SMP " +
+                            std::to_string(librarySmpVersion) + " instead of " +
+                            std::to_string(ECSS_SMP_VERSION) + ".";
+    if (_logger) {
+      _logger->Log(this, msg.c_str(), ::Smp::Services::ILogger::LMK_Error);
+    }
+    ::Xsmp::CloseLibrary(handle);
+    ::Xsmp::Exception::throwInvalidSmpVersion(this, libraryPath,
+                                              librarySmpVersion);
   }
 
   bool initialised = false;
@@ -832,7 +843,7 @@ void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
       _logger->Log(this, msg.c_str(), ::Smp::Services::ILogger::LMK_Error);
     }
     ::Xsmp::CloseLibrary(handle);
-    ::Xsmp::Exception::throwInvalidLibrary(this, libraryPath, msg);
+    ::Xsmp::Exception::throwInvalidFile(this, libraryPath, msg);
   } catch (...) {
     const std::string msg = std::string("Initialise() of library '") +
                             libraryPath + "' threw an unknown exception.";
@@ -840,7 +851,7 @@ void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
       _logger->Log(this, msg.c_str(), ::Smp::Services::ILogger::LMK_Error);
     }
     ::Xsmp::CloseLibrary(handle);
-    ::Xsmp::Exception::throwInvalidLibrary(this, libraryPath, msg);
+    ::Xsmp::Exception::throwInvalidFile(this, libraryPath, msg);
   }
 
   if (initialised) {
@@ -858,7 +869,7 @@ void Simulator::LoadLibrary(::Smp::String8 libraryPath) {
       _logger->Log(this, msg.c_str(), ::Smp::Services::ILogger::LMK_Error);
     }
     ::Xsmp::CloseLibrary(handle);
-    ::Xsmp::Exception::throwInvalidLibrary(this, libraryPath, msg);
+    ::Xsmp::Exception::throwInvalidFile(this, libraryPath, msg);
   }
   _libraries.emplace_back(libraryPath, handle);
 }

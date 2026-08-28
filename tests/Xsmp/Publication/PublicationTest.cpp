@@ -18,29 +18,36 @@
 
 #include <Smp/AccessKind.h>
 #include <Smp/AnySimple.h>
+#include <Smp/DuplicateName.h>
 #include <Smp/FieldAlreadyConnected.h>
 #include <Smp/IArrayField.h>
-#include <Smp/IDataflowField.h>
 #include <Smp/IOperation.h>
+#include <Smp/IOutputField.h>
 #include <Smp/IParameter.h>
 #include <Smp/IProperty.h>
 #include <Smp/IRequest.h>
 #include <Smp/ISimpleArrayField.h>
 #include <Smp/ISimpleField.h>
+#include <Smp/InvalidAccess.h>
 #include <Smp/InvalidArrayIndex.h>
 #include <Smp/InvalidArraySize.h>
 #include <Smp/InvalidFieldName.h>
 #include <Smp/InvalidFieldValue.h>
+#include <Smp/InvalidPropertyValue.h>
 #include <Smp/InvalidTarget.h>
+#include <Smp/InvalidType.h>
+#include <Smp/NoDynamicInvocation.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Publication/IEnumerationType.h>
 #include <Smp/Publication/IPublishOperation.h>
+#include <Smp/Publication/InvalidParameterDirection.h>
 #include <Smp/Publication/ParameterDirectionKind.h>
 #include <Smp/Publication/TypeNotRegistered.h>
 #include <Smp/Uuid.h>
 #include <Smp/ViewKind.h>
 #include <Xsmp/Array.h>
 #include <Xsmp/Component.h>
+#include <Xsmp/Object.h>
 #include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Publication/TypeRegistry.h>
 #include <gtest/gtest.h>
@@ -67,8 +74,7 @@ TEST(Publication, PublishField) {
   Publication publication{&component, &registry};
 
   auto EnumUuid = Smp::Uuid{0, 1, 2, 3, 4};
-  auto *EnumType =
-      registry.AddEnumerationType("Enum", "", EnumUuid, sizeof(Smp::Int32));
+  auto *EnumType = registry.AddEnumerationType("Enum", "", EnumUuid);
   EnumType->AddLiteral("L1", "", 0);
   EnumType->AddLiteral("L2", "", 1);
   Smp::Int32 Enum = 0;
@@ -166,7 +172,7 @@ void TestPublishSimpleField(Smp::PrimitiveTypeKind kind, Smp::ViewKind view,
   ASSERT_TRUE(outputField);
   EXPECT_TRUE(outputField->IsOutput());
 
-  auto *dataflowField = dynamic_cast<Smp::IDataflowField *>(outputField);
+  auto *dataflowField = dynamic_cast<Smp::IOutputField *>(outputField);
   ASSERT_TRUE(dataflowField);
 
   dataflowField->Connect(inputField);
@@ -225,7 +231,8 @@ TEST(Publication, PublishSimpleField) {
                                         false),
                Smp::Publication::TypeNotRegistered);
 
-  EXPECT_THROW(publication.GetField("invalid"), Smp::InvalidFieldName);
+  // SMP 2025: an unknown field name returns nullptr
+  EXPECT_EQ(publication.GetField("invalid"), nullptr);
 }
 
 template <typename T>
@@ -277,8 +284,11 @@ void TestPublishSimpleArray(Smp::PrimitiveTypeKind kind, Smp::ViewKind view,
 
   EXPECT_THROW(stateField->GetValues(3, values), Smp::InvalidArraySize);
   EXPECT_THROW(stateField->SetValues(3, values), Smp::InvalidArraySize);
-  EXPECT_THROW(stateField->GetValues(1, values), Smp::InvalidArraySize);
-  EXPECT_THROW(stateField->SetValues(1, values), Smp::InvalidArraySize);
+  // since SMP 2025 a partial access is legal within the bounds of the field
+  stateField->GetValues(1, values);
+  stateField->SetValues(1, values);
+  EXPECT_THROW(stateField->GetValues(2, values, 1), Smp::InvalidArraySize);
+  EXPECT_THROW(stateField->SetValues(2, values, 1), Smp::InvalidArraySize);
 
   EXPECT_THROW(stateField->GetValue(3), Smp::InvalidArrayIndex);
 
@@ -307,7 +317,7 @@ void TestPublishSimpleArray(Smp::PrimitiveTypeKind kind, Smp::ViewKind view,
   ASSERT_TRUE(outputField);
   EXPECT_TRUE(outputField->IsOutput());
 
-  auto *dataflowField = dynamic_cast<Smp::IDataflowField *>(outputField);
+  auto *dataflowField = dynamic_cast<Smp::IOutputField *>(outputField);
 
   ASSERT_TRUE(dataflowField);
   dataflowField->Connect(inputField);
@@ -395,7 +405,8 @@ TEST(Publication, PublishArray) {
 
   EXPECT_EQ(arrayField->GetParent(), &component);
   EXPECT_EQ(arrayField->GetSize(), 0);
-  EXPECT_THROW(arrayField->GetItem(0), Smp::InvalidArrayIndex);
+  // SMP 2025: an index outside the array returns nullptr
+  EXPECT_EQ(arrayField->GetItem(0), nullptr);
 
   bool item = false;
   publishedField->PublishField("item", "item desc", &item,
@@ -439,6 +450,28 @@ TEST(Publication, PublishStructure) {
             dynamic_cast<Smp::IObject *>(structureField));
 }
 
+TEST(Publication, DuplicateNameAcrossKinds) {
+
+  TypeRegistry registry;
+  Component component{"component"};
+  Publication publication{&component, &registry};
+
+  publication.PublishProperty("x", "", Smp::Uuids::Uuid_Int32,
+                              Smp::AccessKind::AK_ReadWrite);
+
+  // SMP 2025 shares one name space between the fields, the operations and the
+  // properties of a component
+  Smp::Int32 value{};
+  EXPECT_THROW(publication.PublishField("x", "", &value), Smp::DuplicateName);
+  EXPECT_THROW(publication.PublishOperation("x", ""), Smp::DuplicateName);
+
+  // the rejected field must not be left behind in the collection
+  EXPECT_EQ(publication.GetField("x"), nullptr);
+  EXPECT_EQ(publication.GetFields()->size(), 0);
+  EXPECT_EQ(publication.GetOperations()->size(), 0);
+  EXPECT_TRUE(publication.GetProperty("x"));
+}
+
 TEST(Publication, PublishOperation) {
 
   TypeRegistry registry;
@@ -478,12 +511,18 @@ TEST(Publication, PublishOperation) {
 
   EXPECT_FALSE(op->GetParameter("invalid"));
 
+  // the parameters are children of the operation: the resolver reaches them
+  // through GetChild
+  EXPECT_EQ(op->GetChild("param1"), param1);
+  EXPECT_EQ(op->GetChild("invalid"), nullptr);
+
   operation->PublishParameter(
       "returnValue", "bool", Smp::Uuids::Uuid_Bool,
       Smp::Publication::ParameterDirectionKind::PDK_Return);
   auto *returnParameter = op->GetReturnParameter();
   ASSERT_TRUE(returnParameter);
   EXPECT_TRUE(op->GetParameter("returnValue"));
+  EXPECT_EQ(op->GetChild("returnValue"), returnParameter);
   EXPECT_STREQ(returnParameter->GetName(), "returnValue");
   EXPECT_STREQ(returnParameter->GetDescription(), "bool");
   EXPECT_EQ(returnParameter->GetDirection(),
@@ -577,7 +616,7 @@ TEST(Publication, Request) {
   ASSERT_FALSE(publication.CreateRequest("invalid"));
   auto *request = publication.CreateRequest("operation");
   ASSERT_TRUE(request);
-  EXPECT_STREQ(request->GetOperationName(), "operation");
+  EXPECT_STREQ(request->GetName(), "operation");
   EXPECT_EQ(request->GetParameterCount(), 0);
 
   publication.DeleteRequest(request);
@@ -596,7 +635,9 @@ TEST(Publication, PropertyRequest) {
   // a property is invoked through the get_ and set_ operations
   auto *setter = publication.CreateRequest("set_value");
   ASSERT_TRUE(setter);
-  EXPECT_STREQ(setter->GetOperationName(), "set_value");
+  // the request carries the bare property name, its type says set
+  EXPECT_STREQ(setter->GetName(), "value");
+  EXPECT_EQ(setter->GetType(), ::Smp::RequestType::RT_Set);
   EXPECT_EQ(setter->GetParameterCount(), 1);
   EXPECT_EQ(setter->GetParameterIndex("value"), 0);
   setter->SetParameterValue(0, {::Smp::PrimitiveTypeKind::PTK_Int32, 42});
@@ -605,13 +646,100 @@ TEST(Publication, PropertyRequest) {
 
   auto *getter = publication.CreateRequest("get_value");
   ASSERT_TRUE(getter);
-  EXPECT_STREQ(getter->GetOperationName(), "get_value");
+  EXPECT_STREQ(getter->GetName(), "value");
+  EXPECT_EQ(getter->GetType(), ::Smp::RequestType::RT_Get);
   EXPECT_EQ(getter->GetParameterCount(), 0);
   publication.DeleteRequest(getter);
 
   // an unknown property has no request
   EXPECT_FALSE(publication.CreateRequest("get_unknown"));
   EXPECT_FALSE(publication.CreateRequest("set_unknown"));
+}
+
+TEST(Publication, DynamicInvocationRequired) {
+  TypeRegistry registry;
+
+  // an object that is not a component cannot be invoked dynamically, so
+  // SMP 2025 refuses to publish operations and properties for it
+  ::Xsmp::Object object{"object"};
+  Publication publication{&object, &registry};
+
+  EXPECT_THROW(
+      publication.PublishOperation("operation", "", Smp::ViewKind::VK_None),
+      Smp::NoDynamicInvocation);
+
+  EXPECT_THROW(publication.PublishProperty(
+                   "property", "", Smp::Uuids::Uuid_Bool,
+                   ::Smp::AccessKind::AK_ReadOnly, Smp::ViewKind::VK_None),
+               Smp::NoDynamicInvocation);
+}
+
+TEST(Publication, PublishPropertyOfComplexType) {
+  TypeRegistry registry;
+  Component component{"component"};
+  Publication publication{&component, &registry};
+
+  const auto structure = Smp::Uuid{0, 0, 0, 0, 50};
+  registry.AddStructureType("structure", "", structure);
+
+  // a property is read and written through an AnySimple, so a complex type
+  // cannot back one
+  EXPECT_THROW(publication.PublishProperty("property", "", structure,
+                                           ::Smp::AccessKind::AK_ReadWrite,
+                                           Smp::ViewKind::VK_None),
+               Smp::InvalidType);
+}
+
+TEST(Publication, PropertyAccessKind) {
+  TypeRegistry registry;
+  Component component{"component"};
+  Publication publication{&component, &registry};
+
+  auto *readOnly = publication.PublishProperty(
+      "readOnly", "", Smp::Uuids::Uuid_Int32, ::Smp::AccessKind::AK_ReadOnly,
+      Smp::ViewKind::VK_None);
+  ASSERT_TRUE(readOnly);
+  EXPECT_THROW(readOnly->SetValue({::Smp::PrimitiveTypeKind::PTK_Int32, 1}),
+               Smp::InvalidAccess);
+
+  auto *writeOnly = publication.PublishProperty(
+      "writeOnly", "", Smp::Uuids::Uuid_Int32, ::Smp::AccessKind::AK_WriteOnly,
+      Smp::ViewKind::VK_None);
+  ASSERT_TRUE(writeOnly);
+  EXPECT_THROW(writeOnly->GetValue(), Smp::InvalidAccess);
+  try {
+    writeOnly->GetValue();
+    FAIL();
+  } catch (const Smp::InvalidAccess &e) {
+    EXPECT_STREQ(e.GetPropertyName(), "writeOnly");
+  }
+
+  auto *readWrite = publication.PublishProperty(
+      "readWrite", "", Smp::Uuids::Uuid_Int32, ::Smp::AccessKind::AK_ReadWrite,
+      Smp::ViewKind::VK_None);
+  ASSERT_TRUE(readWrite);
+  // assigning a value of another type is an InvalidPropertyValue since 2025
+  EXPECT_THROW(readWrite->SetValue({::Smp::PrimitiveTypeKind::PTK_Bool, true}),
+               Smp::InvalidPropertyValue);
+}
+
+TEST(Publication, SingleReturnParameter) {
+  TypeRegistry registry;
+  Component component{"component"};
+  Publication publication{&component, &registry};
+
+  auto *operation =
+      publication.PublishOperation("operation", "", Smp::ViewKind::VK_None);
+  ASSERT_TRUE(operation);
+  operation->PublishParameter(
+      "result", "", Smp::Uuids::Uuid_Int32,
+      ::Smp::Publication::ParameterDirectionKind::PDK_Return);
+
+  // an operation returns at most one value
+  EXPECT_THROW(operation->PublishParameter(
+                   "second", "", Smp::Uuids::Uuid_Int32,
+                   ::Smp::Publication::ParameterDirectionKind::PDK_Return),
+               Smp::Publication::InvalidParameterDirection);
 }
 
 } // namespace Xsmp::Publication

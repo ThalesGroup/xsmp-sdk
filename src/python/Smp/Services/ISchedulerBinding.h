@@ -74,6 +74,15 @@ For a cyclic event, the cycleTime needs to be positive. Otherwise, an InvalidCyc
 The zuluTime must not be before the current Zulu time of the ITimeKeeper service. Otherwise, an InvalidEventTime exception is thrown.)")
 
       .def(
+          "AddRelativeZuluTimeEvent",
+          &::Smp::Services::IScheduler::AddRelativeZuluTimeEvent,
+          py::arg("entry_point"), py::arg("zulu_time_delay"),
+          py::arg("cycle_time") = 0, py::arg("repeat") = 0,
+          R"(Add event to scheduler that is called relative to the current Zulu time.
+The zuluTimeDelay must not be negative. Otherwise, an InvalidEventTime exception is thrown.
+For a cyclic event, the cycleTime needs to be positive. Otherwise, an InvalidCycleTime exception is thrown. For non-cyclic events, it is stored but not used.)")
+
+      .def(
           "SetEventSimulationTime",
           &::Smp::Services::IScheduler::SetEventSimulationTime,
           py::arg("event"), py::arg("simulation_time"),
@@ -139,6 +148,11 @@ The operation returns -1 when no event is being executed.)")
 This function can only provide the time of the next event at the time of invocation.
 There is no guarantee that no events will be inserted between the method invocation and the (currently) next event.
 Events scheduled in Zulu Time are not considered, as these Events do not have a fixed defined Simulation Time.)")
+
+      .def("IsEventScheduled", &::Smp::Services::IScheduler::IsEventScheduled,
+           py::arg("event_id"),
+           R"(Tell whether an event is currently held by the scheduler.
+It returns True while the event has not elapsed, has not been removed, is executing, or has repetitions left. An event identifier for which it returns True is safe to pass to the other methods taking one.)")
 
       .doc() =
       R"(This interface gives access to the Scheduler Service.

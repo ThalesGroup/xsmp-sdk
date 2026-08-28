@@ -26,6 +26,7 @@
 #include <Smp/EventSinkNotSubscribed.h>
 #include <Smp/Exception.h>
 #include <Smp/FieldAlreadyConnected.h>
+#include <Smp/FileNotFound.h>
 #include <Smp/InvalidAnyType.h>
 #include <Smp/InvalidArrayIndex.h>
 #include <Smp/InvalidArraySize.h>
@@ -33,20 +34,17 @@
 #include <Smp/InvalidComponentState.h>
 #include <Smp/InvalidEventSink.h>
 #include <Smp/InvalidFieldName.h>
-#include <Smp/InvalidFieldType.h>
 #include <Smp/InvalidFieldValue.h>
-#include <Smp/InvalidLibrary.h>
+#include <Smp/InvalidFile.h>
 #include <Smp/InvalidObjectName.h>
 #include <Smp/InvalidObjectType.h>
 #include <Smp/InvalidOperationName.h>
 #include <Smp/InvalidParameterCount.h>
 #include <Smp/InvalidParameterIndex.h>
-#include <Smp/InvalidParameterType.h>
 #include <Smp/InvalidParameterValue.h>
-#include <Smp/InvalidReturnValue.h>
 #include <Smp/InvalidSimulatorState.h>
 #include <Smp/InvalidTarget.h>
-#include <Smp/LibraryNotFound.h>
+#include <Smp/InvalidType.h>
 #include <Smp/NotContained.h>
 #include <Smp/NotReferenced.h>
 #include <Smp/PrimitiveTypes.h>
@@ -586,17 +584,18 @@ TEST(Exception, InvalidParameterCount) {
   }
 }
 
-TEST(Exception, InvalidParameterType) {
+TEST(Exception, InvalidParameterValueOnInvoke) {
 
   Xsmp::Object sender{"sender"};
 
   try {
-    throwInvalidParameterType(&sender, "op", "parameter",
-                              ::Smp::PrimitiveTypeKind::PTK_Bool,
-                              ::Smp::PrimitiveTypeKind::PTK_Float32);
+    throwInvalidParameterValue(
+        &sender, "op", "parameter",
+        ::Smp::AnySimple{::Smp::PrimitiveTypeKind::PTK_Bool, true},
+        ::Smp::PrimitiveTypeKind::PTK_Float32);
     FAIL();
-  } catch (const Smp::InvalidParameterType &e) {
-    EXPECT_STREQ(e.GetName(), "InvalidParameterType");
+  } catch (const Smp::InvalidParameterValue &e) {
+    EXPECT_STREQ(e.GetName(), "InvalidParameterValue");
     EXPECT_STREQ(e.GetDescription(),
                  "This exception is raised by the Invoke() method when trying "
                  "to invoke a method passing a parameter of wrong type");
@@ -608,7 +607,8 @@ TEST(Exception, InvalidParameterType) {
     EXPECT_STREQ(e.GetOperationName(), "op");
     EXPECT_STREQ(e.GetParameterName(), "parameter");
     EXPECT_EQ(e.GetExpectedType(), ::Smp::PrimitiveTypeKind::PTK_Float32);
-    EXPECT_EQ(e.GetInvalidType(), ::Smp::PrimitiveTypeKind::PTK_Bool);
+    EXPECT_EQ(e.GetInvalidValue(),
+              (::Smp::AnySimple{::Smp::PrimitiveTypeKind::PTK_Bool, true}));
   } catch (...) {
     FAIL();
   }
@@ -684,7 +684,7 @@ TEST(Exception, InvalidFieldValue) {
     EXPECT_STREQ(e.GetMessage(), "Cannot assign value '42f32' to the field "
                                  "<null>.field of Bool's type.");
 
-    EXPECT_EQ(e.GetInvalidFieldValue(), invalidValue);
+    EXPECT_EQ(e.GetInvalidValue(), invalidValue);
   } catch (...) {
     FAIL();
   }
@@ -1020,32 +1020,8 @@ TEST(Exception, InvalidAnyType) {
     EXPECT_STREQ(e.GetMessage(),
                  "The AnySimple type 'Bool' is invalid: expected 'Char8'.");
 
-    EXPECT_EQ(e.GetInvalidType(), Smp::PrimitiveTypeKind::PTK_Bool);
+    EXPECT_EQ(e.GetInvalidValue().GetType(), Smp::PrimitiveTypeKind::PTK_Bool);
     EXPECT_EQ(e.GetExpectedType(), Smp::PrimitiveTypeKind::PTK_Char8);
-  } catch (...) {
-    FAIL();
-  }
-}
-
-TEST(Exception, InvalidReturnValue) {
-
-  Xsmp::Publication::Operation parent{"op"};
-  const Smp::AnySimple invalidValue{Smp::PrimitiveTypeKind::PTK_Bool, true};
-  try {
-    throwInvalidReturnValue(&parent, invalidValue);
-    FAIL();
-  } catch (const Smp::InvalidReturnValue &e) {
-    EXPECT_STREQ(e.GetName(), "InvalidReturnValue");
-    EXPECT_STREQ(e.GetDescription(),
-                 "Cannot assign an invalid return value of an operation in a "
-                 "request using SetReturnValue()");
-    EXPECT_EQ(e.GetSender(), &parent);
-    EXPECT_STREQ(
-        e.GetMessage(),
-        "The return value 'true' is invalid for Operation '<null>.op'.");
-
-    EXPECT_STREQ(e.GetOperationName(), "op");
-    EXPECT_EQ(e.GetValue(), invalidValue);
   } catch (...) {
     FAIL();
   }
@@ -1056,7 +1032,8 @@ TEST(Exception, InvalidParameterValue) {
   Xsmp::Publication::Operation parent{"op"};
   const Smp::AnySimple invalidValue{Smp::PrimitiveTypeKind::PTK_Bool, true};
   try {
-    throwInvalidParameterValue(&parent, "param", invalidValue);
+    throwInvalidParameterValue(&parent, "param", invalidValue,
+                               ::Smp::PrimitiveTypeKind::PTK_Float64);
     FAIL();
   } catch (const Smp::InvalidParameterValue &e) {
     EXPECT_STREQ(e.GetName(), "InvalidParameterValue");
@@ -1067,21 +1044,23 @@ TEST(Exception, InvalidParameterValue) {
     EXPECT_STREQ(e.GetMessage(), "The value 'true' is invalid for parameter "
                                  "'param' in Operation '<null>.op'.");
 
+    EXPECT_STREQ(e.GetOperationName(), "op");
     EXPECT_STREQ(e.GetParameterName(), "param");
-    EXPECT_EQ(e.GetValue(), invalidValue);
+    EXPECT_EQ(e.GetInvalidValue(), invalidValue);
+    EXPECT_EQ(e.GetExpectedType(), ::Smp::PrimitiveTypeKind::PTK_Float64);
   } catch (...) {
     FAIL();
   }
 }
 
-TEST(Exception, InvalidFieldType) {
+TEST(Exception, InvalidType) {
 
   Xsmp::Object parent{"op"};
   try {
-    throwInvalidFieldType(&parent, ::Smp::PrimitiveTypeKind::PTK_String8);
+    throwInvalidType(&parent, ::Smp::PrimitiveTypeKind::PTK_String8);
     FAIL();
-  } catch (const Smp::InvalidFieldType &e) {
-    EXPECT_STREQ(e.GetName(), "InvalidFieldType");
+  } catch (const Smp::InvalidType &e) {
+    EXPECT_STREQ(e.GetName(), "InvalidType");
     EXPECT_STREQ(e.GetDescription(),
                  "Cannot publish a field with invalid type");
     EXPECT_EQ(e.GetSender(), &parent);
@@ -1092,10 +1071,10 @@ TEST(Exception, InvalidFieldType) {
     FAIL();
   }
   try {
-    throwInvalidFieldType(&parent, ::Smp::Uuid{});
+    throwInvalidType(&parent, ::Smp::Uuid{});
     FAIL();
-  } catch (const Smp::InvalidFieldType &e) {
-    EXPECT_STREQ(e.GetName(), "InvalidFieldType");
+  } catch (const Smp::InvalidType &e) {
+    EXPECT_STREQ(e.GetName(), "InvalidType");
     EXPECT_STREQ(e.GetDescription(),
                  "Cannot publish a field with invalid type");
     EXPECT_EQ(e.GetSender(), &parent);
@@ -1107,11 +1086,11 @@ TEST(Exception, InvalidFieldType) {
   }
   const Xsmp::Publication::TypeRegistry registry;
   try {
-    throwInvalidFieldType(
-        &parent, registry.GetType(::Smp::PrimitiveTypeKind::PTK_String8));
+    throwInvalidType(&parent,
+                     registry.GetType(::Smp::PrimitiveTypeKind::PTK_String8));
     FAIL();
-  } catch (const Smp::InvalidFieldType &e) {
-    EXPECT_STREQ(e.GetName(), "InvalidFieldType");
+  } catch (const Smp::InvalidType &e) {
+    EXPECT_STREQ(e.GetName(), "InvalidType");
     EXPECT_STREQ(e.GetDescription(),
                  "Cannot publish a field with invalid type");
     EXPECT_EQ(e.GetSender(), &parent);
@@ -1154,37 +1133,37 @@ TEST(Exception, DuplicateUuid) {
   }
 }
 
-TEST(Exception, LibraryNotFound) {
+TEST(Exception, FileNotFound) {
   Xsmp::Object parent{"parent"};
 
   try {
-    throwLibraryNotFound(&parent, "library", "error");
+    throwFileNotFound(&parent, "library", "error");
     FAIL();
-  } catch (const Smp::LibraryNotFound &e) {
-    EXPECT_STREQ(e.GetName(), "LibraryNotFound");
+  } catch (const Smp::FileNotFound &e) {
+    EXPECT_STREQ(e.GetName(), "FileNotFound");
     EXPECT_STREQ(e.GetDescription(),
                  "Cannot load a library that does not exist");
     EXPECT_EQ(e.GetSender(), &parent);
     EXPECT_STREQ(e.GetMessage(), "error");
-    EXPECT_STREQ(e.GetLibraryName(), "library");
+    EXPECT_STREQ(e.GetFileName(), "library");
   } catch (...) {
     FAIL();
   }
 }
 
-TEST(Exception, InvalidLibrary) {
+TEST(Exception, InvalidFile) {
   Xsmp::Object parent{"parent"};
 
   try {
-    throwInvalidLibrary(&parent, "library", "error");
+    throwInvalidFile(&parent, "library", "error");
     FAIL();
-  } catch (const Smp::InvalidLibrary &e) {
-    EXPECT_STREQ(e.GetName(), "InvalidLibrary");
+  } catch (const Smp::InvalidFile &e) {
+    EXPECT_STREQ(e.GetName(), "InvalidFile");
     EXPECT_STREQ(e.GetDescription(),
                  "Cannot load an undefined symbol from a library");
     EXPECT_EQ(e.GetSender(), &parent);
     EXPECT_STREQ(e.GetMessage(), "error");
-    EXPECT_STREQ(e.GetLibraryName(), "library");
+    EXPECT_STREQ(e.GetFileName(), "library");
   } catch (...) {
     FAIL();
   }
@@ -1218,7 +1197,7 @@ TEST(Exception, TypeAlreadyRegistered) {
   Xsmp::Object parent{"parent"};
 
   Xsmp::Publication::TypeRegistry registry;
-  auto *type = registry.AddEnumerationType("Enum", "", {}, sizeof(Smp::Int32));
+  auto *type = registry.AddEnumerationType("Enum", "", {});
 
   try {
     throwTypeAlreadyRegistered(&parent, "OtherType", type);

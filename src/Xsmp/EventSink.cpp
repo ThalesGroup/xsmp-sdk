@@ -41,6 +41,10 @@ AbstractEventSink::AbstractEventSink(::Smp::String8 name,
 }
 
 ::Smp::IObject *AbstractEventSink::GetParent() const { return _parent; }
+
+::Smp::IObject *AbstractEventSink::GetChild(::Smp::String8) const {
+  return nullptr;
+}
 } // namespace detail
 
 ::Smp::PrimitiveTypeKind EventSink<void>::GetEventArgType() const {

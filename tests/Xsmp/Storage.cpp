@@ -21,8 +21,9 @@ namespace Xsmp {
 void Storage::Restore(void *address, ::Smp::UInt64 size) {
   _ss.read(static_cast<char *>(address), static_cast<std::streamsize>(size));
 }
-void Storage::Store(void *address, ::Smp::UInt64 size) {
-  _ss.write(static_cast<char *>(address), static_cast<std::streamsize>(size));
+void Storage::Store(const void *address, ::Smp::UInt64 size) {
+  _ss.write(static_cast<const char *>(address),
+            static_cast<std::streamsize>(size));
 }
 ::Smp::String8 Storage::GetStateVectorFileName() const { return nullptr; }
 ::Smp::String8 Storage::GetStateVectorFilePath() const { return nullptr; }

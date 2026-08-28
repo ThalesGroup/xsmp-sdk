@@ -15,6 +15,8 @@
 #ifndef XSMP_COMPONENT_H_
 #define XSMP_COMPONENT_H_
 
+#include <Smp/AnySimple.h>
+#include <Smp/AnySimpleArray.h>
 #include <Smp/ComponentStateKind.h>
 #include <Smp/IDynamicInvocation.h>
 #include <Smp/IField.h>
@@ -23,9 +25,14 @@
 #include <Smp/IProperty.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/cstring.h>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 namespace Smp {
 class IAggregate;
+class ICollectionBase;
 class IComposite;
 class IEventProvider;
 class IPublication;
@@ -105,6 +112,80 @@ public:
   ///          component.
   const ::Smp::FieldCollection *GetFields() const override;
 
+  /// Get the value of a field of simple type.
+  /// @param   fullName Fully qualified field name (relative to the
+  ///          component).
+  /// @return  Value of the field.
+  /// @throws  Smp::InvalidFieldName
+  ::Smp::AnySimple GetSimpleValue(::Smp::String8 fullName) const override;
+
+  /// Set the value of a field of simple type.
+  /// @param   fullName Fully qualified field name (relative to the
+  ///          component).
+  /// @param   value New value for the field.
+  /// @throws  Smp::InvalidFieldName
+  /// @throws  Smp::InvalidFieldValue
+  void SetSimpleValue(::Smp::String8 fullName, ::Smp::AnySimple value) override;
+
+  /// Get the values of a simple array field.
+  /// @param   fullName Fully qualified field name (relative to the
+  ///          component).
+  /// @param   length Size of the preallocated values array.
+  /// @param   values Preallocated array of values to store the result to.
+  /// @param   startIndex Start index within the simple array.
+  /// @throws  Smp::InvalidArraySize
+  /// @throws  Smp::InvalidFieldName
+  void GetSimpleArrayValue(::Smp::String8 fullName, ::Smp::UInt64 length,
+                           ::Smp::AnySimple *values,
+                           ::Smp::UInt64 startIndex = 0) const override;
+
+  /// Set the values of a simple array field.
+  /// @param   fullName Fully qualified field name (relative to the
+  ///          component).
+  /// @param   length Size of the values array.
+  /// @param   values Array of values to store in the array field.
+  /// @param   startIndex Start index within the simple array.
+  /// @throws  Smp::InvalidArraySize
+  /// @throws  Smp::InvalidArrayValue
+  /// @throws  Smp::InvalidFieldName
+  void SetSimpleArrayValue(::Smp::String8 fullName, ::Smp::UInt64 length,
+                           ::Smp::AnySimpleArray values,
+                           ::Smp::UInt64 startIndex = 0) override;
+
+  /// Register a new child object under the component.
+  /// Called by the collections of the component that take part in name
+  /// resolution, before an object is inserted.
+  /// @param   child The child being added to the collection.
+  /// @param   collection The collection the object is inserted in.
+  /// @return  True if the child was registered, false if its name is
+  ///          already taken.
+  ::Smp::Bool AddChild(::Smp::IObject *child,
+                       const ::Smp::ICollectionBase *collection) override;
+
+  /// Unregister a child object from the component.
+  /// @param   child The child being removed from the collection.
+  /// @param   collection The collection the object is removed from. It must
+  ///          be the one it was registered with.
+  /// @return  True if the child was unregistered, false otherwise.
+  ::Smp::Bool RemoveChild(::Smp::IObject *child,
+                          const ::Smp::ICollectionBase *collection) override;
+
+  /// Look a name up among the children registered for a given collection.
+  /// @param   child The name of the child being requested.
+  /// @param   collection The collection the object was inserted in.
+  /// @return  The child object, or null if that name is not registered for
+  ///          that collection.
+  ::Smp::IObject *
+  IsChildInCollection(::Smp::String8 child,
+                      const ::Smp::ICollectionBase *collection) const override;
+
+  /// Returns the child object with the given name.
+  /// The children registered through AddChild() are looked up first, then
+  /// the published fields.
+  /// @param   name The name of the child to look for.
+  /// @return  The child with that name, or null if there is no such child.
+  ::Smp::IObject *GetChild(::Smp::String8 name) const override;
+
   /// Request the component to publish its fields, properties and
   /// operations against the provided publication receiver.
   /// This method can only be called once for each component, and only
@@ -177,7 +258,7 @@ public:
   ///          operation with the given name could be found, or the
   ///          operation with the given name does not support dynamic
   ///          invocation.
-  ::Smp::IRequest *CreateRequest(::Smp::String8 operationName) override;
+  ::Smp::IRequest *CreateRequest(::Smp::String8 operationName);
 
   /// Dynamically invoke an operation using a request object that has
   /// been created and filled with parameter values by the caller.
@@ -188,11 +269,11 @@ public:
   ///          allows dynamic invocation. When calling invoke with a
   ///          wrong number of parameters, the InvalidParameterCount
   ///          exception is raised. When passing a parameter of wrong
-  ///          type, the InvalidParameterType exception is raised.
+  ///          type, the InvalidParameterValue exception is raised.
   /// @param   request Request object to invoke.
   /// @throws  Smp::InvalidOperationName
   /// @throws  Smp::InvalidParameterCount
-  /// @throws  Smp::InvalidParameterType
+  /// @throws  Smp::InvalidParameterValue
   [[noreturn]] void Invoke(::Smp::IRequest *request) override;
 
   /// Destroy a request object that has been created with the
@@ -200,7 +281,17 @@ public:
   /// The request object must not be used anymore after DeleteRequest()
   /// has been called for it.
   /// @param   request Request object to destroy.
-  void DeleteRequest(::Smp::IRequest *request) override;
+  void DeleteRequest(::Smp::IRequest *request);
+
+  /// Get a published property by name.
+  /// @param   name Name of the property.
+  /// @return  The property, or null if there is no such property.
+  ::Smp::IProperty *GetProperty(::Smp::String8 name) const override;
+
+  /// Get a published operation by name.
+  /// @param   name Name of the operation.
+  /// @return  The operation, or null if there is no such operation.
+  ::Smp::IOperation *GetOperation(::Smp::String8 name) const override;
 
   /// Provides the collection of properties that have been published.
   /// @return  Collection of properties that have been published, which
@@ -256,6 +347,15 @@ private:
   ::Smp::IComposite *_parent;
   ::Smp::ISimulator *_simulator;
   ::Smp::IPublication *_publication = nullptr;
+  /// Names registered through AddChild(), with the collections they belong
+  /// to. One object can legitimately sit in two collections of the same
+  /// component -- a failure is both an ::Smp::IFailure and a published field
+  /// -- so a name maps to one object and to every collection that registered
+  /// it.
+  std::unordered_map<
+      std::string,
+      std::pair<::Smp::IObject *, std::vector<const ::Smp::ICollectionBase *>>>
+      _children;
   ::Smp::ComponentStateKind _state = ::Smp::ComponentStateKind::CSK_Created;
 };
 

@@ -19,6 +19,8 @@
 #include <Smp/IStorageWriter.h>
 #include <Smp/InvalidSimulatorState.h>
 #include <Smp/PrimitiveTypes.h>
+#include <Smp/Services/IEventManager.h>
+#include <Smp/Services/IScheduler.h>
 #include <Smp/Services/ITimeKeeper.h>
 #include <Smp/SimulatorStateKind.h>
 #include <Xsmp/Composite.h>
@@ -141,7 +143,7 @@ TEST(SimulatorLifecycle, StoreAndRestore) {
 
   sim.Exit();
   // storing is refused outside of the Standby state
-  sim.Store(directory.c_str());
+  EXPECT_THROW(sim.Store(directory.c_str()), ::Smp::InvalidSimulatorState);
   std::filesystem::remove_all(directory);
 }
 
@@ -159,7 +161,7 @@ TEST(SimulatorLifecycle, InitEntryPointsAndHold) {
   EXPECT_EQ(initialised, 1);
 
   // holding outside of the Executing state is refused and does not change it
-  sim.Hold(true);
+  EXPECT_THROW(sim.Hold(true), ::Smp::InvalidSimulatorState);
   EXPECT_EQ(sim.GetState(), ::Smp::SimulatorStateKind::SSK_Standby);
 
   // a non immediate hold only takes effect at the next simulation time change
@@ -237,7 +239,7 @@ TEST(SimulatorLifecycle, Reconnect) {
 
   sim.Exit();
   // reconnecting is refused outside of the Standby state
-  sim.Reconnect(assembly);
+  EXPECT_THROW(sim.Reconnect(assembly), ::Smp::InvalidSimulatorState);
 }
 
 TEST(SimulatorLifecycle, OperationsRefusedOutsideTheirState) {
@@ -247,15 +249,16 @@ TEST(SimulatorLifecycle, OperationsRefusedOutsideTheirState) {
   sim.Connect();
   ASSERT_EQ(sim.GetState(), ::Smp::SimulatorStateKind::SSK_Standby);
 
-  // the operations of the building phase are refused once connected
-  sim.Publish();
-  sim.Configure();
-  sim.Connect();
+  // SMP 2025 raises InvalidSimulatorState where SMP 2020 returned without
+  // acting: the operations of the building phase are refused once connected
+  EXPECT_THROW(sim.Publish(), ::Smp::InvalidSimulatorState);
+  EXPECT_THROW(sim.Configure(), ::Smp::InvalidSimulatorState);
+  EXPECT_THROW(sim.Connect(), ::Smp::InvalidSimulatorState);
   EXPECT_EQ(sim.GetState(), ::Smp::SimulatorStateKind::SSK_Standby);
 
   // holding is refused outside the executing state
-  sim.Hold(true);
-  sim.Hold(false);
+  EXPECT_THROW(sim.Hold(true), ::Smp::InvalidSimulatorState);
+  EXPECT_THROW(sim.Hold(false), ::Smp::InvalidSimulatorState);
   EXPECT_EQ(sim.GetState(), ::Smp::SimulatorStateKind::SSK_Standby);
 
   sim.Exit();
@@ -264,16 +267,19 @@ TEST(SimulatorLifecycle, OperationsRefusedOutsideTheirState) {
   // and everything is refused once the simulation has exited
   const auto directory =
       (std::filesystem::temp_directory_path() / "xsmp-refused").string();
-  sim.Publish();
-  sim.Configure();
-  sim.Connect();
-  sim.Initialise();
-  sim.Run();
-  sim.Hold(true);
-  sim.Store(directory.c_str());
-  sim.Restore(directory.c_str());
-  sim.Reconnect(nullptr);
-  sim.Exit();
+  EXPECT_THROW(sim.Publish(), ::Smp::InvalidSimulatorState);
+  EXPECT_THROW(sim.Configure(), ::Smp::InvalidSimulatorState);
+  EXPECT_THROW(sim.Connect(), ::Smp::InvalidSimulatorState);
+  EXPECT_THROW(sim.Initialise(), ::Smp::InvalidSimulatorState);
+  EXPECT_THROW(sim.Run(), ::Smp::InvalidSimulatorState);
+  EXPECT_THROW(sim.Hold(true), ::Smp::InvalidSimulatorState);
+  EXPECT_THROW(sim.Store(directory.c_str()), ::Smp::InvalidSimulatorState);
+  EXPECT_THROW(sim.Reconnect(nullptr), ::Smp::InvalidSimulatorState);
+  EXPECT_THROW(sim.Exit(), ::Smp::InvalidSimulatorState);
+
+  // Restore is the exception: it still returns without acting
+  EXPECT_NO_THROW(sim.Restore(directory.c_str()));
+
   EXPECT_EQ(sim.GetState(), ::Smp::SimulatorStateKind::SSK_Exiting);
   EXPECT_FALSE(std::filesystem::exists(directory));
 }
@@ -360,6 +366,32 @@ TEST(SimulatorLifecycle, AbortAfterExit) {
   // disconnected
   sim.Abort();
   EXPECT_EQ(sim.GetState(), ::Smp::SimulatorStateKind::SSK_Aborting);
+}
+
+TEST(SimulatorLifecycle, TransitionRefusedDuringItsOwnGlobalEvent) {
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.Connect();
+  ASSERT_EQ(sim.GetState(), ::Smp::SimulatorStateKind::SSK_Standby);
+
+  // Exit() announces itself with SMP_LeaveStandby; a transition requested
+  // from a subscriber of that event would run nested inside it, which SMP
+  // 2025 rejects
+  ::Smp::Int32 caught = 0;
+  ::Xsmp::EntryPoint reentrant{
+      "reentrant", "", &sim, [&sim, &caught] {
+        EXPECT_THROW(sim.Run(), ::Smp::InvalidSimulatorState);
+        EXPECT_THROW(sim.Exit(), ::Smp::InvalidSimulatorState);
+        EXPECT_THROW(sim.Initialise(), ::Smp::InvalidSimulatorState);
+        ++caught;
+      }};
+  sim.GetEventManager()->Subscribe(
+      ::Smp::Services::IEventManager::SMP_LeaveStandbyId, &reentrant);
+
+  sim.Exit();
+  EXPECT_EQ(caught, 1);
+  EXPECT_EQ(sim.GetState(), ::Smp::SimulatorStateKind::SSK_Exiting);
 }
 
 } // namespace Xsmp

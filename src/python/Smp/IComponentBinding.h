@@ -15,8 +15,15 @@
 #ifndef PYTHON_SMP_ICOMPONENT_H_
 #define PYTHON_SMP_ICOMPONENT_H_
 
+#include <Smp/AnySimple.h>
+#include <Smp/ICollectionBase.h>
 #include <Smp/IComponent.h>
+#include <Smp/IField.h>
+#include <Smp/ISimpleArrayField.h>
+#include <Smp/ISimpleField.h>
+#include <Smp/Publication/IType.h>
 #include <python/ecss_smp.h>
+#include <vector>
 
 inline void RegisterIComponent(const py::module_ &m) {
   py::class_<::Smp::IComponent, ::Smp::IObject>(m, "IComponent",
@@ -38,6 +45,88 @@ This method can be used both for fields of simple types (when it returns an inst
 
       .def("GetUuid", &::Smp::IComponent::GetUuid,
            "Get Universally Unique Identifier of Component Type.")
+
+      .def("GetFields", &::Smp::IComponent::GetFields,
+           "Returns the collection of the fields of the component.",
+           py::return_value_policy::reference_internal)
+
+      .def(
+          "GetSimpleValue",
+          [](const ::Smp::IComponent &self, ::Smp::String8 fullName) {
+            return convert(self.GetSimpleValue(fullName));
+          },
+          py::arg("full_name"),
+          R"(Get the value of a field of simple type.
+This method raises an exception of type InvalidFieldName when there is no such field, or when it is not of a simple type.)")
+
+      .def(
+          "SetSimpleValue",
+          [](::Smp::IComponent &self, ::Smp::String8 fullName,
+             const py::handle &value) {
+            auto *field =
+                dynamic_cast<::Smp::ISimpleField *>(self.GetField(fullName));
+            if (!field) {
+              throw py::key_error(fullName);
+            }
+            self.SetSimpleValue(fullName,
+                                convert(value, field->GetPrimitiveTypeKind()));
+          },
+          py::arg("full_name"), py::arg("value"),
+          "Set the value of a field of simple type.")
+
+      .def(
+          "GetSimpleArrayValue",
+          [](const ::Smp::IComponent &self, ::Smp::String8 fullName,
+             ::Smp::UInt64 length, ::Smp::UInt64 startIndex) {
+            std::vector<::Smp::AnySimple> values(length);
+            self.GetSimpleArrayValue(fullName, length, values.data(),
+                                     startIndex);
+            py::list result;
+            for (const auto &value : values) {
+              result.append(convert(value));
+            }
+            return result;
+          },
+          py::arg("full_name"), py::arg("length"), py::arg("start_index") = 0,
+          "Get the values of a simple array field, as a list of length items "
+          "read from start_index.")
+
+      .def(
+          "SetSimpleArrayValue",
+          [](::Smp::IComponent &self, ::Smp::String8 fullName,
+             const py::sequence &values, ::Smp::UInt64 startIndex) {
+            auto *field = dynamic_cast<::Smp::ISimpleArrayField *>(
+                self.GetField(fullName));
+            if (!field) {
+              throw py::key_error(fullName);
+            }
+            const auto kind = field->GetType()->GetPrimitiveTypeKind();
+            std::vector<::Smp::AnySimple> converted;
+            converted.reserve(values.size());
+            for (const auto &value : values) {
+              converted.emplace_back(convert(value, kind));
+            }
+            self.SetSimpleArrayValue(fullName, converted.size(),
+                                     converted.data(), startIndex);
+          },
+          py::arg("full_name"), py::arg("values"), py::arg("start_index") = 0,
+          "Set the values of a simple array field from a sequence, starting at "
+          "start_index.")
+
+      .def("AddChild", &::Smp::IComponent::AddChild, py::arg("child"),
+           py::arg("collection"),
+           "Register a new child object under the component. Returns False "
+           "when its name is already taken.")
+
+      .def("RemoveChild", &::Smp::IComponent::RemoveChild, py::arg("child"),
+           py::arg("collection"),
+           "Unregister a child object from the component. Returns False when "
+           "it was not registered with that collection.")
+
+      .def("IsChildInCollection", &::Smp::IComponent::IsChildInCollection,
+           py::arg("child"), py::arg("collection"),
+           py::return_value_policy::reference_internal,
+           "Look a name up among the children registered for a collection.")
 
       .doc() =
       R"(This is the base interface for all SMP components.

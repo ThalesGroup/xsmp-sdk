@@ -74,6 +74,7 @@ TEST(Helper, SafeExecuteWithoutEntryPoint) {
   ::Xsmp::Simulator sim;
   sim.LoadLibrary("xsmp_services");
   EXPECT_NO_THROW(::Xsmp::Helper::SafeExecute(&sim, nullptr));
+  sim.Connect();
   sim.Exit();
 }
 

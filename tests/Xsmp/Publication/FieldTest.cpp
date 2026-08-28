@@ -23,6 +23,8 @@
 #include <Smp/InvalidAnyType.h>
 #include <Smp/InvalidArrayIndex.h>
 #include <Smp/InvalidArraySize.h>
+#include <Smp/InvalidArrayValue.h>
+#include <Smp/InvalidFieldValue.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Publication/IStructureType.h>
 #include <Smp/Uuid.h>
@@ -87,8 +89,16 @@ void testSimpleArray(::Smp::PrimitiveTypeKind kind, T first, T second) {
   field->SetValues(3, written);
   EXPECT_EQ(values[0], second);
 
-  EXPECT_THROW(field->GetValues(2, read), ::Smp::InvalidArraySize);
-  EXPECT_THROW(field->SetValues(2, written), ::Smp::InvalidArraySize);
+  // since SMP 2025 a partial access is legal, as long as it stays within the
+  // bounds of the field
+  field->GetValues(2, read, 1);
+  EXPECT_EQ(static_cast<T>(read[1]), second);
+  field->SetValues(2, written, 1);
+
+  EXPECT_THROW(field->GetValues(4, read), ::Smp::InvalidArraySize);
+  EXPECT_THROW(field->SetValues(4, written), ::Smp::InvalidArraySize);
+  EXPECT_THROW(field->GetValues(3, read, 1), ::Smp::InvalidArraySize);
+  EXPECT_THROW(field->SetValues(3, written, 1), ::Smp::InvalidArraySize);
 
   // store and restore the state of the field
   Storage storage;
@@ -350,8 +360,8 @@ TEST(PublishedField, StructureAndArrayFields) {
   auto *item = dynamic_cast<::Smp::ISimpleField *>(arrayField->GetItem(1));
   ASSERT_TRUE(item);
   EXPECT_EQ(static_cast<::Smp::Int32>(item->GetValue()), 2);
-  EXPECT_THROW(static_cast<void>(arrayField->GetItem(2)),
-               ::Smp::InvalidArrayIndex);
+  // SMP 2025: an index outside the array returns nullptr
+  EXPECT_EQ(arrayField->GetItem(2), nullptr);
 
   // a structure field gives access to its members, by name and by path
   auto *structureField =
@@ -414,8 +424,8 @@ TEST(PublishedField, AnonymousStructureAndArray) {
       dynamic_cast<::Smp::IArrayField *>(publication.GetField("values"));
   ASSERT_TRUE(arrayField);
   EXPECT_EQ(arrayField->GetSize(), 2U);
-  EXPECT_THROW(static_cast<void>(arrayField->GetItem(2)),
-               ::Smp::InvalidArrayIndex);
+  // SMP 2025: an index outside the array returns nullptr
+  EXPECT_EQ(arrayField->GetItem(2), nullptr);
 
   // both are part of the state vector
   Storage storage;
@@ -433,6 +443,37 @@ TEST(PublishedField, AnonymousStructureAndArray) {
   }
   EXPECT_EQ(x, 1);
   EXPECT_EQ(first, 3);
+}
+
+TEST(Field, SetValueWrongKind) {
+
+  TypeRegistry registry;
+  Component component{"component"};
+  Publication publication{&component, &registry};
+
+  Smp::Int32 scalar{};
+  auto *field = dynamic_cast<::Smp::ISimpleField *>(
+      publication.PublishField("scalar", "", &scalar));
+  ASSERT_TRUE(field);
+
+  // SMP 2025 asks for InvalidFieldValue on a kind mismatch, not for the
+  // InvalidAnyType the AnySimple conversion would raise
+  EXPECT_THROW(field->SetValue({::Smp::PrimitiveTypeKind::PTK_Bool, true}),
+               ::Smp::InvalidFieldValue);
+
+  Smp::Int32 items[2]{};
+  auto *array = publication.PublishArray("array", "", 2, items,
+                                         ::Smp::PrimitiveTypeKind::PTK_Int32);
+  ASSERT_TRUE(array);
+
+  try {
+    array->SetValue(0, {::Smp::PrimitiveTypeKind::PTK_Bool, true});
+    FAIL();
+  } catch (const ::Smp::InvalidArrayValue &e) {
+    // the expected kind is the one of the items, the array type has none
+    EXPECT_EQ(e.GetExpectedType(), ::Smp::PrimitiveTypeKind::PTK_Int32);
+    EXPECT_EQ(e.GetInvalidValueIndex(), 0);
+  }
 }
 
 } // namespace Xsmp::Publication

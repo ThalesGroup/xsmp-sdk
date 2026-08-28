@@ -31,12 +31,14 @@
 
 namespace Xsmp::Publication {
 
-bool Request::isValid(const ::Smp::IObject *sender,
-                      const ::Smp::Publication::IType *type,
+bool Request::isValid(const ::Smp::Publication::IType *type,
                       const ::Smp::AnySimple &value) {
+  // a mismatching kind is reported by the caller, which knows whether the
+  // value belongs to a parameter, a return value or a property: SMP 2025 asks
+  // for InvalidParameterValue and InvalidPropertyValue there, not for the
+  // generic InvalidAnyType
   if (type->GetPrimitiveTypeKind() != value.type) {
-    ::Xsmp::Exception::throwInvalidAnyType(sender, value.type,
-                                           type->GetPrimitiveTypeKind());
+    return false;
   }
   // integer types
   if (const auto *integerType = dynamic_cast<const IntegerType *>(type)) {
@@ -60,8 +62,9 @@ bool Request::isValid(const ::Smp::IObject *sender,
   // string types
   else if (const auto *stringType = dynamic_cast<const StringType *>(type)) {
     const auto *stringValue = static_cast<::Smp::String8>(value);
-    if (stringValue && std::char_traits<char>::length(stringValue) >
-                           static_cast<std::size_t>(stringType->GetLength())) {
+    if (stringValue &&
+        std::char_traits<char>::length(stringValue) >
+            static_cast<std::size_t>(stringType->GetMaxLength())) {
       return false;
     }
   }
@@ -124,8 +127,10 @@ void Request::init(const std::string &name,
   }
 }
 
-::Smp::String8 Request::GetOperationName() const {
-  return _operation->GetName();
+::Smp::String8 Request::GetName() const { return _operation->GetName(); }
+
+::Smp::RequestType Request::GetType() const {
+  return ::Smp::RequestType::RT_Invoke;
 }
 
 ::Smp::Int32 Request::GetParameterCount() const {
@@ -147,15 +152,18 @@ void Request::SetParameterValue(::Smp::Int32 index, ::Smp::AnySimple value) {
     ::Xsmp::Exception::throwInvalidParameterIndex(
         _operation, index, static_cast<::Smp::Int32>(_values.size()));
   }
-  if (!isValid(_operation, _values[static_cast<std::size_t>(index)].second,
-               value)) {
+  if (!isValid(_values[static_cast<std::size_t>(index)].second, value)) {
     auto it = std::find_if(
         _indexes.begin(), _indexes.end(),
         [index](std::map<std::string, ::Smp::Int32>::const_reference entry) {
           return entry.second == index;
         });
 
-    ::Xsmp::Exception::throwInvalidParameterValue(_operation, it->first, value);
+    const auto *expected = _values[static_cast<std::size_t>(index)].second;
+    ::Xsmp::Exception::throwInvalidParameterValue(
+        _operation, it->first, value,
+        expected ? expected->GetPrimitiveTypeKind()
+                 : ::Smp::PrimitiveTypeKind::PTK_None);
   }
   _values[static_cast<std::size_t>(index)].first = std::move(value);
 }
@@ -169,12 +177,17 @@ void Request::SetParameterValue(::Smp::Int32 index, ::Smp::AnySimple value) {
 }
 
 void Request::SetReturnValue(::Smp::AnySimple value) {
-  if (!_operation->GetReturnParameter()) {
+  const auto *returnParameter = _operation->GetReturnParameter();
+  if (!returnParameter) {
     ::Xsmp::Exception::throwVoidOperation(_operation);
   }
-  if (!isValid(_operation, _operation->GetReturnParameter()->GetType(),
-               value)) {
-    ::Xsmp::Exception::throwInvalidReturnValue(_operation, value);
+  const auto *type = returnParameter->GetType();
+  if (!isValid(type, value)) {
+    // SMP 2025 made the return value a parameter of direction PDK_Return
+    ::Xsmp::Exception::throwInvalidParameterValue(
+        _operation, returnParameter->GetName(), value,
+        type ? type->GetPrimitiveTypeKind()
+             : ::Smp::PrimitiveTypeKind::PTK_None);
   }
   _returnValue = std::move(value);
 }

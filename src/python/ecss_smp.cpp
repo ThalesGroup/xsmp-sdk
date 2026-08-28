@@ -28,13 +28,14 @@
 #include <Smp/EventSinkNotSubscribed.h>
 #include <Smp/Exception.h>
 #include <Smp/FieldAlreadyConnected.h>
+#include <Smp/FieldNotConnected.h>
+#include <Smp/FileNotFound.h>
 #include <Smp/IAggregate.h>
 #include <Smp/IArrayField.h>
 #include <Smp/ICollection.h>
 #include <Smp/IComponent.h>
 #include <Smp/IComposite.h>
 #include <Smp/IContainer.h>
-#include <Smp/IDataflowField.h>
 #include <Smp/IDynamicInvocation.h>
 #include <Smp/IEntryPoint.h>
 #include <Smp/IEntryPointPublisher.h>
@@ -49,6 +50,7 @@
 #include <Smp/IModel.h>
 #include <Smp/IObject.h>
 #include <Smp/IOperation.h>
+#include <Smp/IOutputField.h>
 #include <Smp/IParameter.h>
 #include <Smp/IPersist.h>
 #include <Smp/IProperty.h>
@@ -58,6 +60,7 @@
 #include <Smp/ISimpleField.h>
 #include <Smp/ISimulator.h>
 #include <Smp/IStructureField.h>
+#include <Smp/InvalidAccess.h>
 #include <Smp/InvalidAnyType.h>
 #include <Smp/InvalidArrayIndex.h>
 #include <Smp/InvalidArraySize.h>
@@ -65,20 +68,21 @@
 #include <Smp/InvalidComponentState.h>
 #include <Smp/InvalidEventSink.h>
 #include <Smp/InvalidFieldName.h>
-#include <Smp/InvalidFieldType.h>
 #include <Smp/InvalidFieldValue.h>
-#include <Smp/InvalidLibrary.h>
+#include <Smp/InvalidFile.h>
 #include <Smp/InvalidObjectName.h>
 #include <Smp/InvalidObjectType.h>
 #include <Smp/InvalidOperationName.h>
 #include <Smp/InvalidParameterCount.h>
 #include <Smp/InvalidParameterIndex.h>
-#include <Smp/InvalidParameterType.h>
 #include <Smp/InvalidParameterValue.h>
-#include <Smp/InvalidReturnValue.h>
+#include <Smp/InvalidParent.h>
+#include <Smp/InvalidPropertyValue.h>
 #include <Smp/InvalidSimulatorState.h>
+#include <Smp/InvalidSmpVersion.h>
 #include <Smp/InvalidTarget.h>
-#include <Smp/LibraryNotFound.h>
+#include <Smp/InvalidType.h>
+#include <Smp/NoDynamicInvocation.h>
 #include <Smp/NotContained.h>
 #include <Smp/NotReferenced.h>
 #include <Smp/PrimitiveTypes.h>
@@ -86,7 +90,10 @@
 #include <Smp/Publication/IArrayType.h>
 #include <Smp/Publication/IClassType.h>
 #include <Smp/Publication/IEnumerationType.h>
+#include <Smp/Publication/IStringType.h>
 #include <Smp/Publication/IStructureType.h>
+#include <Smp/Publication/InvalidArrayItemType.h>
+#include <Smp/Publication/InvalidParameterDirection.h>
 #include <Smp/Publication/InvalidPrimitiveType.h>
 #include <Smp/Publication/TypeAlreadyRegistered.h>
 #include <Smp/Publication/TypeNotRegistered.h>
@@ -116,7 +123,6 @@
 #include <python/Smp/IComponentBinding.h>
 #include <python/Smp/ICompositeBinding.h>
 #include <python/Smp/IContainerBinding.h>
-#include <python/Smp/IDataflowFieldBinding.h>
 #include <python/Smp/IDynamicInvocationBinding.h>
 #include <python/Smp/IEntryPointBinding.h>
 #include <python/Smp/IEntryPointPublisherBinding.h>
@@ -133,6 +139,7 @@
 #include <python/Smp/IModelBinding.h>
 #include <python/Smp/IObjectBinding.h>
 #include <python/Smp/IOperationBinding.h>
+#include <python/Smp/IOutputFieldBinding.h>
 #include <python/Smp/IParameterBinding.h>
 #include <python/Smp/IPersistBinding.h>
 #include <python/Smp/IPropertyBinding.h>
@@ -142,14 +149,17 @@
 #include <python/Smp/ISimpleFieldBinding.h>
 #include <python/Smp/ISimulatorBinding.h>
 #include <python/Smp/IStructureFieldBinding.h>
+#include <python/Smp/LibraryLoadingFlagBinding.h>
 #include <python/Smp/PrimitiveTypeKindBinding.h>
 #include <python/Smp/Publication/IArrayTypeBinding.h>
 #include <python/Smp/Publication/IClassTypeBinding.h>
 #include <python/Smp/Publication/IEnumerationTypeBinding.h>
+#include <python/Smp/Publication/IStringTypeBinding.h>
 #include <python/Smp/Publication/IStructureTypeBinding.h>
 #include <python/Smp/Publication/ITypeBinding.h>
 #include <python/Smp/Publication/ITypeRegistryBinding.h>
 #include <python/Smp/Publication/ParameterDirectionKindBinding.h>
+#include <python/Smp/RequestTypeBinding.h>
 #include <python/Smp/Services/IEventManagerBinding.h>
 #include <python/Smp/Services/ILinkRegistryBinding.h>
 #include <python/Smp/Services/ILoggerBinding.h>
@@ -290,7 +300,7 @@ static inline const TypeHierarchy IObjectHierarchy =
                 }),
 
                 TypeHierarchy::template of<::Smp::IStructureField>(),
-                TypeHierarchy::template of<::Smp::IDataflowField>(),
+                TypeHierarchy::template of<::Smp::IOutputField>(),
 
             }),
 
@@ -307,6 +317,8 @@ static inline const TypeHierarchy IObjectHierarchy =
             TypeHierarchy::template of<::Smp::Publication::IArrayType>(),
 
             TypeHierarchy::template of<::Smp::Publication::IEnumerationType>(),
+
+            TypeHierarchy::template of<::Smp::Publication::IStringType>(),
 
             TypeHierarchy::template of<::Smp::Publication::IStructureType>({
                 // IStructureType
@@ -673,18 +685,43 @@ This exception is the base class for all other SMP exceptions. It provides Name,
   SMP_EXCEPTION(InvalidFieldName).doc() =
       "This exception is raised when an invalid field name is specified.";
 
-  SMP_EXCEPTION(InvalidFieldType).doc() =
-      R"(Invalid field type.
-This exception is raised when trying to publish a field with invalid type.
+  SMP_EXCEPTION(InvalidType).doc() =
+      R"(Invalid type.
+This exception is raised when trying to publish a field or a parameter with an invalid type.
 @remarks This can happen, for example, when trying to publish a field of the variable-length simple type String8.)";
 
   SMP_EXCEPTION(InvalidFieldValue).doc() =
       "This exception is raised when trying to assign an illegal value to a "
       "field.";
 
-  SMP_EXCEPTION(InvalidLibrary).doc() =
-      "This exception is raised when trying to load a library that does not "
-      "contain an Initialise() function.";
+  SMP_EXCEPTION(InvalidFile).doc() =
+      "This exception is raised when trying to load a file that cannot be "
+      "used, such as a library that does not contain an Initialise() "
+      "function.";
+
+  SMP_EXCEPTION(InvalidAccess).doc() =
+      "This exception is raised when trying to read a write-only property or "
+      "to write a read-only one.";
+
+  SMP_EXCEPTION(InvalidPropertyValue).doc() =
+      "This exception is raised when trying to assign an illegal value to a "
+      "property.";
+
+  SMP_EXCEPTION(InvalidParent).doc() =
+      "This exception is raised when trying to add a component to a container "
+      "whose parent is not the parent of the component.";
+
+  SMP_EXCEPTION(InvalidSmpVersion).doc() =
+      "This exception is raised when trying to load a library that was built "
+      "against another version of the SMP standard.";
+
+  SMP_EXCEPTION(NoDynamicInvocation).doc() =
+      "This exception is raised when trying to publish an operation or a "
+      "property for a component that does not support dynamic invocation.";
+
+  SMP_EXCEPTION(FieldNotConnected).doc() =
+      "This exception is raised when trying to disconnect a target field from "
+      "an output field it is not connected to.";
 
   SMP_EXCEPTION(InvalidObjectName).doc() =
       R"(This exception is raised when trying to set an object's name to an invalid name. Names
@@ -710,17 +747,9 @@ This exception is raised when trying to publish a field with invalid type.
       "(SetParameterValue()) or get (GetParameterValue())"
       " a parameter value of an operation in a request.";
 
-  SMP_EXCEPTION(InvalidParameterType).doc() =
-      R"(This exception is raised by the Invoke() method when trying to invoke a method passing a parameter of wrong type.
-@remarks The index of the parameter of wrong type can be extracted from the request using the method GetParameterIndex().)";
-
   SMP_EXCEPTION(InvalidParameterValue).doc() =
       "This exception is raised when trying to assign an illegal value to a "
       "parameter of an operation in a request using SetParameterValue().";
-
-  SMP_EXCEPTION(InvalidReturnValue).doc() =
-      "This exception is raised when trying to assign an invalid return value "
-      "of an operation in a request using SetReturnValue().";
 
   SMP_EXCEPTION(InvalidSimulatorState).doc() =
       "This exception is raised by the simulator when one of the operations is "
@@ -730,8 +759,8 @@ This exception is raised when trying to publish a field with invalid type.
       "This exception is raised when trying to connect two data flow fields of "
       "incompatible types.";
 
-  SMP_EXCEPTION(LibraryNotFound).doc() =
-      "This exception is raised when trying to load a library that does not "
+  SMP_EXCEPTION(FileNotFound).doc() =
+      "This exception is raised when trying to load a file that does not "
       "exist.";
 
   SMP_EXCEPTION(NotContained).doc() =
@@ -764,6 +793,8 @@ This exception is raised when trying to publish a field with invalid type.
   RegisterSimulatorStateKind(smp);
   RegisterViewKind(smp);
   RegisterPrimitiveTypeKind(smp);
+  RegisterLibraryLoadingFlag(smp);
+  RegisterRequestType(smp);
   RegisterParameterDirectionKind(publication);
   RegisterTimeKind(services);
 
@@ -782,6 +813,7 @@ This exception is raised when trying to publish a field with invalid type.
   RegisterIEnumerationType(publication);
   RegisterIStructureType(publication);
   RegisterIClassType(publication);
+  RegisterIStringType(publication);
 
   RegisterIParameter(smp);
   RegisterICollection<::Smp::IParameter>(smp, "ParameterCollection");
@@ -806,7 +838,7 @@ This exception is raised when trying to publish a field with invalid type.
   RegisterICollection<::Smp::IFailure>(smp, "FailureCollection");
   RegisterIField(smp);
   RegisterICollection<::Smp::IField>(smp, "FieldCollection");
-  RegisterIDataflowField(smp);
+  RegisterIOutputField(smp);
   RegisterISimpleField(smp);
   RegisterIForcibleField(smp);
   RegisterIArrayField(smp);
@@ -856,6 +888,17 @@ This exception is raised when trying to publish a field with invalid type.
       .doc() =
       "This exception is raised when trying to use an invalid primitive type "
       "kind as parameter for a user-defined float or integer type.";
+
+  py::register_exception<::Smp::Publication::InvalidArrayItemType>(
+      publication, "InvalidArrayItemType", Exception)
+      .doc() = "This exception is raised when trying to register a simple "
+               "array type whose item type is not a simple type.";
+
+  py::register_exception<::Smp::Publication::InvalidParameterDirection>(
+      publication, "InvalidParameterDirection", Exception)
+      .doc() = "This exception is raised when trying to publish a parameter "
+               "with an invalid direction, for instance a second return "
+               "parameter for the same operation.";
 
   py::register_exception<::Smp::Publication::TypeAlreadyRegistered>(
       publication, "TypeAlreadyRegistered", Exception)

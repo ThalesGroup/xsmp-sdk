@@ -30,7 +30,7 @@ public:
   ~Storage() noexcept override = default;
 
   void Restore(void *address, ::Smp::UInt64 size) override;
-  void Store(void *address, ::Smp::UInt64 size) override;
+  void Store(const void *address, ::Smp::UInt64 size) override;
   ::Smp::String8 GetStateVectorFileName() const override;
   ::Smp::String8 GetStateVectorFilePath() const override;
 

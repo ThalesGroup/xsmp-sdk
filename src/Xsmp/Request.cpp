@@ -34,7 +34,7 @@ void Request::setValue(::Smp::IComponent const *component,
     ::Xsmp::Exception::throwException(component, name,
                                       "No Parameter named " +
                                           std::string(name) + " in Operation " +
-                                          request->GetOperationName() + ".");
+                                          request->GetName() + ".");
   }
   request->SetParameterValue(index, value);
 }
@@ -52,13 +52,13 @@ void Request::setValue(::Smp::IComponent const *component,
     ::Xsmp::Exception::throwException(component, name,
                                       "No Parameter named " +
                                           std::string(name) + " in Operation " +
-                                          request->GetOperationName() + ".");
+                                          request->GetName() + ".");
   }
   auto value = request->GetParameterValue(index);
 
   if (value.GetType() != kind) {
-    ::Xsmp::Exception::throwInvalidParameterType(
-        component, request->GetOperationName(), name, value.GetType(), kind);
+    ::Xsmp::Exception::throwInvalidParameterValue(component, request->GetName(),
+                                                  name, value, kind);
   }
   return value;
 }
@@ -75,7 +75,7 @@ void Request::extract(::Smp::IRequest *request, ::Smp::IField *field,
       ::Xsmp::Exception::throwException(
           field, name,
           "No Parameter named " + std::string(name) + " in Operation " +
-              request->GetOperationName() + ".");
+              request->GetName() + ".");
     }
     simple->SetValue(request->GetParameterValue(index));
   }
@@ -91,10 +91,10 @@ void Request::extract(::Smp::IRequest *request, ::Smp::IField *field,
       } else if (ignoreMissingParameters) {
         // ignore
       } else {
-        ::Xsmp::Exception::throwException(
-            field, itemName,
-            "No Parameter named " + itemName + " in Operation " +
-                request->GetOperationName() + ".");
+        ::Xsmp::Exception::throwException(field, itemName,
+                                          "No Parameter named " + itemName +
+                                              " in Operation " +
+                                              request->GetName() + ".");
       }
     }
   }
@@ -131,7 +131,7 @@ void Request::inject(::Smp::IRequest *request, ::Smp::IField *field,
       ::Xsmp::Exception::throwException(
           field, name,
           "No Parameter named " + std::string(name) + " in Operation " +
-              request->GetOperationName() + ".");
+              request->GetName() + ".");
     }
     request->SetParameterValue(index, simple->GetValue());
   }
@@ -143,10 +143,10 @@ void Request::inject(::Smp::IRequest *request, ::Smp::IField *field,
           std::string(name) + "[" + std::to_string(i) + "]";
       const auto index = request->GetParameterIndex(itemName.c_str());
       if (index == -1) {
-        ::Xsmp::Exception::throwException(
-            field, itemName,
-            "No Parameter named " + itemName + " in Operation " +
-                request->GetOperationName() + ".");
+        ::Xsmp::Exception::throwException(field, itemName,
+                                          "No Parameter named " + itemName +
+                                              " in Operation " +
+                                              request->GetName() + ".");
       }
       request->SetParameterValue(index, simpleArray->GetValue(i));
     }

@@ -49,10 +49,12 @@ include(GNUInstallDirs)
 
 include(FetchContent)
 
+# ECSS-E-ST-40-07C Rev.1 (5 August 2025) -- SMP Level 1, header issue 1.1
+# (31 March 2025). Defines Smp/Version.h with ECSS_SMP_VERSION == 202503L.
 FetchContent_Declare(
     ecss_smp
-    URL      https://ecss.nl/wp-content/uploads/2020/04/ECSS_SMP_Issue1%282March2020%29.zip
-    URL_HASH MD5=973D4CA21FDAC204A4419CD06CD65185
+    URL      "https://ecss.nl/wp-content/uploads/2025/08/ECSS_SMP_L1_(31March2025).zip"
+    URL_HASH MD5=F9C4512E8891EE2124D11A135580D474
 )
 
 FetchContent_Declare(
@@ -247,7 +249,7 @@ target_include_directories(
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 )
-target_link_libraries(LibraryHelper INTERFACE ${CMAKE_DL_LIBS})
+target_link_libraries(LibraryHelper PUBLIC Xsmp::Smp INTERFACE ${CMAKE_DL_LIBS})
 
 # --------------------------------------------------------------------
 # Create Cdk library

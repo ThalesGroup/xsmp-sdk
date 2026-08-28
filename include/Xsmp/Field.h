@@ -18,10 +18,10 @@
 #include <Smp/AnySimple.h>
 #include <Smp/AnySimpleArray.h>
 #include <Smp/IArrayField.h>
-#include <Smp/IDataflowField.h>
 #include <Smp/IFailure.h>
 #include <Smp/IField.h>
 #include <Smp/IForcibleField.h>
+#include <Smp/IOutputField.h>
 #include <Smp/ISimpleArrayField.h>
 #include <Smp/IStorageReader.h>
 #include <Smp/IStorageWriter.h>
@@ -119,7 +119,7 @@ const T *GetType(const ::Smp::IField *field,
       return type;
     }
   }
-  ::Xsmp::Exception::throwInvalidFieldType(field, typeUuid);
+  ::Xsmp::Exception::throwInvalidType(field, typeUuid);
 }
 
 template <class T, class = void>
@@ -139,7 +139,7 @@ class AbstractForcibleField : public virtual ::Smp::IForcibleField {
 public:
   void Force(::Smp::AnySimple value) final;
   void Unforce() final;
-  ::Smp::Bool IsForced() final;
+  ::Smp::Bool IsForced() const final;
   void Freeze() final;
   void Restore(::Smp::IStorageReader *reader) override;
   void Store(::Smp::IStorageWriter *writer) override;
@@ -174,31 +174,36 @@ protected:
 private:
   bool _failed{};
 };
-class IDataflowFieldExtension : public virtual ::Smp::IDataflowField {
+class IOutputFieldExtension : public virtual ::Smp::IOutputField {
 public:
   /// Virtual destructor to release memory.
-  ~IDataflowFieldExtension() noexcept override = default;
+  ~IOutputFieldExtension() noexcept override = default;
 
   /// Disconnect this field to a target field for direct data flow.
   /// @param   target Target field to connect to. The field type must be
   ///          compatible.
-  virtual void Disconnect(const ::Smp::IField *target) = 0;
+  virtual void Disconnect(::Smp::IField *target) = 0;
 
   virtual const ::Smp::FieldCollection *GetInputFields() const {
     return nullptr;
   };
+
+  /// XSMP output fields are pushed explicitly, never on assignment.
+  /// @return  Always false.
+  ::Smp::Bool IsAutomatic() const override { return false; }
 };
 
-class InputFieldCollection final : public ::Xsmp::Object,
-                                   public ::Smp::FieldCollection {
+/// The input fields an output field is connected to.
+/// Since SMP 2025 a collection is not an ::Smp::IObject, so this one is a
+/// plain default-constructible member.
+class InputFieldCollection final : public ::Smp::FieldCollection {
 public:
-  using ::Xsmp::Object::Object;
   using const_iterator = typename ::Smp::FieldCollection::const_iterator;
   using iterator = typename ::Smp::FieldCollection::iterator;
   ::Smp::IField *at(::Smp::String8 name) const override;
   ::Smp::IField *at(size_t index) const override;
   size_t size() const override;
-  virtual bool empty() const;
+  ::Smp::Bool empty() const override;
   const_iterator begin() const override;
   const_iterator end() const override;
   bool contains(const ::Smp::IField *input) const;
@@ -208,13 +213,13 @@ public:
 private:
   std::vector<::Smp::IField *> _fields;
 };
-class ArrayDataflowField : public virtual IDataflowFieldExtension,
-                           public virtual ::Smp::IArrayField {
+class ArrayOutputField : public virtual IOutputFieldExtension,
+                         public virtual ::Smp::IArrayField {
 public:
-  ArrayDataflowField();
+  ArrayOutputField();
   void Push() final;
   void Connect(::Smp::IField *target) final;
-  void Disconnect(const ::Smp::IField *target) final;
+  void Disconnect(::Smp::IField *target) final;
   const ::Smp::FieldCollection *GetInputFields() const final;
 
 private:
@@ -225,9 +230,17 @@ private:
 template <typename... Annotations>
 using ArrayField = std::conditional_t<
     ::Xsmp::Annotation::any_of<::Xsmp::Annotation::output, Annotations...>,
-    ::Xsmp::detail::ArrayDataflowField, ::Smp::IArrayField>;
+    ::Xsmp::detail::ArrayOutputField, ::Smp::IArrayField>;
 
 class SimpleConnectableField : public virtual ::Smp::ISimpleField {
+public:
+  /// A connectable field owns the collection of the fields it is connected
+  /// to and is held through a virtual base, so it is neither copied nor moved.
+  SimpleConnectableField(const SimpleConnectableField &) = delete;
+  SimpleConnectableField &operator=(const SimpleConnectableField &) = delete;
+  SimpleConnectableField(SimpleConnectableField &&) = delete;
+  SimpleConnectableField &operator=(SimpleConnectableField &&) = delete;
+
 protected:
   SimpleConnectableField();
   void internal_push() const;
@@ -240,23 +253,33 @@ private:
   mutable bool _pushing = false;
   friend class ::Xsmp::detail::FieldHelper;
 };
-class SimpleDataflowField : public virtual SimpleConnectableField,
-                            public virtual IDataflowFieldExtension {
+class SimpleOutputField : public virtual SimpleConnectableField,
+                          public virtual IOutputFieldExtension {
 public:
   void Push() final;
   void Connect(::Smp::IField *target) final;
-  void Disconnect(const ::Smp::IField *target) final;
+  void Disconnect(::Smp::IField *target) final;
   const ::Smp::FieldCollection *GetInputFields() const final;
 };
 template <typename... Annotations>
 using SimpleField = std::conditional_t<
     ::Xsmp::Annotation::any_of<::Xsmp::Annotation::output, Annotations...>,
-    SimpleDataflowField,
+    SimpleOutputField,
     std::conditional_t<::Xsmp::Annotation::any_of<
                            ::Xsmp::Annotation::connectable, Annotations...>,
                        SimpleConnectableField, ::Smp::IField>>;
 
 class SimpleArrayConnectableField : public virtual ::Smp::ISimpleArrayField {
+public:
+  /// A connectable field owns the collection of the fields it is connected
+  /// to and is held through a virtual base, so it is neither copied nor moved.
+  SimpleArrayConnectableField(const SimpleArrayConnectableField &) = delete;
+  SimpleArrayConnectableField &
+  operator=(const SimpleArrayConnectableField &) = delete;
+  SimpleArrayConnectableField(SimpleArrayConnectableField &&) = delete;
+  SimpleArrayConnectableField &
+  operator=(SimpleArrayConnectableField &&) = delete;
+
 protected:
   SimpleArrayConnectableField();
   void internal_push(::Smp::UInt64 index) const;
@@ -270,18 +293,18 @@ private:
   friend class ::Xsmp::detail::FieldHelper;
 };
 
-class SimpleArrayDataflowField : public virtual SimpleArrayConnectableField,
-                                 public virtual IDataflowFieldExtension {
+class SimpleArrayOutputField : public virtual SimpleArrayConnectableField,
+                               public virtual IOutputFieldExtension {
 public:
   void Push() final;
   void Connect(::Smp::IField *target) final;
-  void Disconnect(const ::Smp::IField *target) final;
+  void Disconnect(::Smp::IField *target) final;
   const ::Smp::FieldCollection *GetInputFields() const final;
 };
 template <typename... Annotations>
 using SimpleArrayField = std::conditional_t<
     ::Xsmp::Annotation::any_of<::Xsmp::Annotation::output, Annotations...>,
-    SimpleArrayDataflowField,
+    SimpleArrayOutputField,
     std::conditional_t<::Xsmp::Annotation::any_of<
                            ::Xsmp::Annotation::connectable, Annotations...>,
                        SimpleArrayConnectableField, ::Smp::ISimpleArrayField>>;
@@ -295,6 +318,12 @@ public:
   ::Smp::String8 GetDescription() const final;
   ::Smp::IObject *GetParent() const final;
   ::Smp::ViewKind GetView() const final;
+
+  /// Returns the child object with the given name.
+  /// A simple field has no child: structure and array fields override this.
+  /// @param   name The name of the child to look for.
+  /// @return  The child with that name, or null if there is no such child.
+  ::Smp::IObject *GetChild(::Smp::String8 name) const override;
 
 protected:
   AbstractField(::Smp::String8 name, ::Smp::String8 description,
@@ -326,13 +355,13 @@ private:
   ::Xsmp::Collection<::Smp::IField> _fields;
 };
 
-class StructureDataflowField : public ::Xsmp::detail::AbstractStructureField,
-                               public virtual IDataflowFieldExtension {
+class StructureOutputField : public ::Xsmp::detail::AbstractStructureField,
+                             public virtual IOutputFieldExtension {
 public:
-  StructureDataflowField();
+  StructureOutputField();
   void Push() final;
   void Connect(::Smp::IField *target) final;
-  void Disconnect(const ::Smp::IField *target) final;
+  void Disconnect(::Smp::IField *target) final;
   const ::Smp::FieldCollection *GetInputFields() const final;
 
 private:
@@ -342,7 +371,7 @@ private:
 template <typename... Annotations>
 using StructureField = std::conditional_t<
     ::Xsmp::Annotation::any_of<::Xsmp::Annotation::output, Annotations...>,
-    ::Xsmp::detail::StructureDataflowField,
+    ::Xsmp::detail::StructureOutputField,
     ::Xsmp::detail::AbstractStructureField>;
 
 template <typename T, typename... Annotations>
@@ -598,7 +627,7 @@ public:
 
   ::Smp::IField *GetItem(::Smp::UInt64 index) const override {
     if (index >= _size) {
-      ::Xsmp::Exception::throwInvalidArrayIndex(this, index);
+      return nullptr;
     }
     return const_cast<value_type *>(&internalArray[index]);
   }
@@ -790,28 +819,35 @@ public:
     _value[index] = ::Xsmp::AnySimpleConverter<value_type>::convert(value);
   }
 
-  void GetValues(::Smp::UInt64 length,
-                 ::Smp::AnySimpleArray values) const override {
-    if (length != _size) {
+  void GetValues(::Smp::UInt64 length, ::Smp::AnySimple *values,
+                 ::Smp::UInt64 startIndex = 0) const override {
+    // startIndex + length would wrap around in UInt64 and let the check
+    // pass for an out of bounds range
+    if (startIndex > _size || length > _size - startIndex) {
       ::Xsmp::Exception::throwInvalidArraySize(this, length);
     }
     auto _itemKind = _type->GetItemType()->GetPrimitiveTypeKind();
-    for (size_t i = 0; i < _size; ++i) {
-      values[i] =
-          ::Xsmp::AnySimpleConverter<value_type>::convert(_itemKind, _value[i]);
+    for (::Smp::UInt64 i = 0; i < length; ++i) {
+      values[i] = ::Xsmp::AnySimpleConverter<value_type>::convert(
+          _itemKind, _value[startIndex + i]);
     }
   }
 
-  void SetValues(::Smp::UInt64 length, ::Smp::AnySimpleArray values) override {
-    if (length != _size) {
+  void SetValues(::Smp::UInt64 length, ::Smp::AnySimpleArray values,
+                 ::Smp::UInt64 startIndex = 0) override {
+    // startIndex + length would wrap around in UInt64 and let the check
+    // pass for an out of bounds range
+    if (startIndex > _size || length > _size - startIndex) {
       ::Xsmp::Exception::throwInvalidArraySize(this, length);
     }
     auto _itemKind = _type->GetItemType()->GetPrimitiveTypeKind();
-    for (size_t i = 0; i < _size; ++i) {
+    for (::Smp::UInt64 i = 0; i < length; ++i) {
       if (values[i].type != _itemKind) {
-        ::Xsmp::Exception::throwInvalidArrayValue(this, i, values[i]);
+        ::Xsmp::Exception::throwInvalidArrayValue(this, startIndex + i,
+                                                  values[i]);
       }
-      _value[i] = ::Xsmp::AnySimpleConverter<value_type>::convert(values[i]);
+      _value[startIndex + i] =
+          ::Xsmp::AnySimpleConverter<value_type>::convert(values[i]);
     }
   }
 

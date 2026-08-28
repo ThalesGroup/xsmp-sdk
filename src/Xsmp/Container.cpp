@@ -32,15 +32,6 @@ namespace Xsmp::detail {
 
 AbstractContainer::Collection::Collection(AbstractContainer &parent)
     : _parent(parent) {}
-::Smp::String8 AbstractContainer::Collection::GetName() const {
-  return "Collection";
-}
-::Smp::String8 AbstractContainer::Collection::GetDescription() const {
-  return "Collection of component";
-}
-::Smp::IObject *AbstractContainer::Collection::GetParent() const {
-  return &_parent;
-}
 ::Smp::IComponent *
 AbstractContainer::Collection::at(::Smp::String8 name) const {
   return _parent.GetComponent(name);
@@ -52,7 +43,7 @@ AbstractContainer::Collection::at(::Smp::String8 name) const {
 std::size_t AbstractContainer::Collection::size() const {
   return static_cast<std::size_t>(_parent.GetCount());
 }
-bool AbstractContainer::Collection::empty() const {
+::Smp::Bool AbstractContainer::Collection::empty() const {
   return _parent.GetCount() == 0;
 }
 AbstractContainer::Collection::const_iterator
@@ -85,6 +76,10 @@ AbstractContainer::AbstractContainer(::Smp::String8 name,
 }
 
 ::Smp::IObject *AbstractContainer::GetParent() const { return _parent; }
+
+::Smp::IObject *AbstractContainer::GetChild(::Smp::String8 name) const {
+  return GetComponent(name);
+}
 const ::Smp::ComponentCollection *AbstractContainer::GetComponents() const {
   return &_collection;
 }
@@ -98,8 +93,7 @@ inline void CheckComposite(::Smp::IContainer const *container,
   if (auto const *containers = composite->GetContainers()) {
     for (auto const *ctn : *containers) {
       if (ctn->GetComponent(name)) {
-        ::Xsmp::Exception::throwDuplicateName(container, name,
-                                              container->GetComponents());
+        ::Xsmp::Exception::throwDuplicateName(container, name, container);
       }
     }
   }
@@ -110,14 +104,12 @@ inline void CheckComponent(::Smp::IContainer const *container,
   // the field collection is looked up directly: GetField() throws when there
   // is no such field, instead of returning nullptr
   if (const auto *fields = cmp->GetFields(); fields && fields->at(name)) {
-    ::Xsmp::Exception::throwDuplicateName(container, name,
-                                          container->GetComponents());
+    ::Xsmp::Exception::throwDuplicateName(container, name, container);
   }
   if (auto const *entryPointPublisher =
           dynamic_cast<::Smp::IEntryPointPublisher const *>(cmp)) {
     if (entryPointPublisher->GetEntryPoint(name)) {
-      ::Xsmp::Exception::throwDuplicateName(container, name,
-                                            container->GetComponents());
+      ::Xsmp::Exception::throwDuplicateName(container, name, container);
     }
   }
   if (auto const *dynamicInvocation =
@@ -125,34 +117,29 @@ inline void CheckComponent(::Smp::IContainer const *container,
 
     if (auto const *operations = dynamicInvocation->GetOperations();
         operations && operations->at(name)) {
-      ::Xsmp::Exception::throwDuplicateName(container, name,
-                                            container->GetComponents());
+      ::Xsmp::Exception::throwDuplicateName(container, name, container);
     }
     if (auto const *properties = dynamicInvocation->GetProperties();
         properties && properties->at(name)) {
-      ::Xsmp::Exception::throwDuplicateName(container, name,
-                                            container->GetComponents());
+      ::Xsmp::Exception::throwDuplicateName(container, name, container);
     }
   }
 
   if (auto const *eventProvider =
           dynamic_cast<::Smp::IEventProvider const *>(cmp)) {
     if (eventProvider->GetEventSource(name)) {
-      ::Xsmp::Exception::throwDuplicateName(container, name,
-                                            container->GetComponents());
+      ::Xsmp::Exception::throwDuplicateName(container, name, container);
     }
   }
   if (auto const *eventConsumer =
           dynamic_cast<::Smp::IEventConsumer const *>(cmp)) {
     if (eventConsumer->GetEventSink(name)) {
-      ::Xsmp::Exception::throwDuplicateName(container, name,
-                                            container->GetComponents());
+      ::Xsmp::Exception::throwDuplicateName(container, name, container);
     }
   }
   if (auto const *model = dynamic_cast<::Smp::IFallibleModel const *>(cmp)) {
     if (model->GetFailure(name)) {
-      ::Xsmp::Exception::throwDuplicateName(container, name,
-                                            container->GetComponents());
+      ::Xsmp::Exception::throwDuplicateName(container, name, container);
     }
   }
 }
@@ -173,9 +160,8 @@ void CheckNoDuplicateName(::Smp::IContainer const *container,
 
   // check same parents
   if (parent != component->GetParent()) {
-    ::Xsmp::Exception::throwException(
-        container, "InvalidParent", "The parent's component is invalid",
-        "A Container and its Components shall have the same parent.");
+    ::Xsmp::Exception::throwInvalidParent(container, component->GetParent(),
+                                          parent);
   }
 }
 } // namespace
@@ -187,6 +173,13 @@ void AbstractContainer::AddComponent(::Smp::IComponent *component) {
   }
 
   CheckNoDuplicateName(this, component);
+
+  // a contained component takes part in the name resolution of the composite,
+  // which is its parent: SMP 2025 has the container register it there
+  if (auto *composite = dynamic_cast<::Smp::IComponent *>(GetParent());
+      composite && !composite->AddChild(component, &_collection)) {
+    ::Xsmp::Exception::throwDuplicateName(this, component->GetName(), this);
+  }
 }
 void AbstractContainer::DeleteComponent(::Smp::IComponent *component) {
   if (static_cast<std::size_t>(GetCount()) <=
@@ -195,6 +188,9 @@ void AbstractContainer::DeleteComponent(::Smp::IComponent *component) {
   }
   if (component->GetState() == ::Smp::ComponentStateKind::CSK_Connected) {
     component->Disconnect();
+  }
+  if (auto *composite = dynamic_cast<::Smp::IComponent *>(GetParent())) {
+    composite->RemoveChild(component, &_collection);
   }
   delete component;
 }

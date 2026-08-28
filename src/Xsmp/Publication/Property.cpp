@@ -19,6 +19,7 @@
 #include <Smp/IRequest.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Publication/IType.h>
+#include <Smp/RequestType.h>
 #include <Smp/ViewKind.h>
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
@@ -34,15 +35,21 @@ class Property::Getter final : public ::Smp::IRequest {
 
 public:
   explicit Getter(const ::Smp::IProperty *property)
-      : _property{property}, _name{std::string("get_") + property->GetName()} {}
+      // SMP 2025 has the request carry the bare property name; a getter is
+      // told from a setter by GetType()
+      : _property{property}, _name{property->GetName()} {}
   ~Getter() noexcept override = default;
   Getter(const Getter &) = delete;
   Getter(Getter &&) = delete;
   Getter &operator=(const Getter &) = delete;
   Getter &operator=(Getter &&) = delete;
 
-  [[nodiscard]] ::Smp::String8 GetOperationName() const override {
+  [[nodiscard]] ::Smp::String8 GetName() const override {
     return _name.c_str();
+  }
+
+  [[nodiscard]] ::Smp::RequestType GetType() const override {
+    return ::Smp::RequestType::RT_Get;
   }
 
   [[nodiscard]] ::Smp::Int32 GetParameterCount() const override { return 0; }
@@ -62,9 +69,8 @@ public:
   }
 
   void SetReturnValue(::Smp::AnySimple value) override {
-    if (!::Xsmp::Publication::Request::isValid(_property, _property->GetType(),
-                                               value)) {
-      ::Xsmp::Exception::throwInvalidReturnValue(_property, value);
+    if (!::Xsmp::Publication::Request::isValid(_property->GetType(), value)) {
+      ::Xsmp::Exception::throwInvalidPropertyValue(_property, value);
     }
     _returnValue = std::move(value);
   }
@@ -83,15 +89,21 @@ class Property::Setter final : public ::Smp::IRequest {
 
 public:
   explicit Setter(const ::Smp::IProperty *property)
-      : _property{property}, _name{std::string("set_") + property->GetName()} {}
+      // SMP 2025 has the request carry the bare property name; a getter is
+      // told from a setter by GetType()
+      : _property{property}, _name{property->GetName()} {}
   ~Setter() noexcept override = default;
   Setter(const Setter &) = delete;
   Setter(Setter &&) = delete;
   Setter &operator=(const Setter &) = delete;
   Setter &operator=(Setter &&) = delete;
 
-  [[nodiscard]] ::Smp::String8 GetOperationName() const override {
+  [[nodiscard]] ::Smp::String8 GetName() const override {
     return _name.c_str();
+  }
+
+  [[nodiscard]] ::Smp::RequestType GetType() const override {
+    return ::Smp::RequestType::RT_Set;
   }
 
   [[nodiscard]] ::Smp::Int32 GetParameterCount() const override { return 1; }
@@ -104,10 +116,10 @@ public:
     if (index != 0) {
       ::Xsmp::Exception::throwInvalidParameterIndex(_property, index, 0);
     }
-    if (!::Xsmp::Publication::Request::isValid(_property, _property->GetType(),
-                                               value)) {
+    if (!::Xsmp::Publication::Request::isValid(_property->GetType(), value)) {
       ::Xsmp::Exception::throwInvalidParameterValue(
-          _property, _property->GetName(), value);
+          _property, _property->GetName(), value,
+          _property->GetPrimitiveTypeKind());
     }
     _value = std::move(value);
   }
@@ -144,7 +156,14 @@ Property::Property(::Smp::String8 name, ::Smp::String8 description,
 ::Smp::String8 Property::GetDescription() const { return _description.c_str(); }
 
 ::Smp::IObject *Property::GetParent() const { return _parent; }
-::Smp::Publication::IType *Property::GetType() const { return _type; }
+
+::Smp::IObject *Property::GetChild(::Smp::String8) const { return nullptr; }
+const ::Smp::Publication::IType *Property::GetType() const { return _type; }
+
+::Smp::PrimitiveTypeKind Property::GetPrimitiveTypeKind() const {
+  return _type ? _type->GetPrimitiveTypeKind()
+               : ::Smp::PrimitiveTypeKind::PTK_None;
+}
 
 ::Smp::AccessKind Property::GetAccess() const { return _accessKind; }
 
@@ -154,9 +173,7 @@ Property::Property(::Smp::String8 name, ::Smp::String8 description,
 
   auto *invoker = dynamic_cast<::Smp::IDynamicInvocation *>(_parent);
   if (!invoker || _accessKind == ::Smp::AccessKind::AK_WriteOnly) {
-    ::Xsmp::Exception::throwException(
-        this, "InvalidAccessKind", "",
-        "The property getter is not invokable: ", this);
+    ::Xsmp::Exception::throwInvalidAccess(this, _accessKind, false);
   }
   Getter request{this};
   invoker->Invoke(&request);
@@ -166,9 +183,11 @@ Property::Property(::Smp::String8 name, ::Smp::String8 description,
 void Property::SetValue(::Smp::AnySimple value) {
   auto *invoker = dynamic_cast<::Smp::IDynamicInvocation *>(_parent);
   if (!invoker || _accessKind == ::Smp::AccessKind::AK_ReadOnly) {
-    ::Xsmp::Exception::throwException(
-        this, "InvalidAccessKind", "",
-        "The property setter is not invokable: ", this);
+    ::Xsmp::Exception::throwInvalidAccess(this, _accessKind, true);
+  }
+  // SMP 2025 reports a type mismatch on a property as InvalidPropertyValue
+  if (value.GetType() != GetPrimitiveTypeKind()) {
+    ::Xsmp::Exception::throwInvalidPropertyValue(this, value);
   }
   Setter request{this};
   request.SetParameterValue(0, std::move(value));

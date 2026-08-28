@@ -49,7 +49,11 @@ Operation::Parameter::Parameter(
 }
 
 ::Smp::IObject *Operation::Parameter::GetParent() const { return _parent; }
-::Smp::Publication::IType *Operation::Parameter::GetType() const {
+
+::Smp::IObject *Operation::Parameter::GetChild(::Smp::String8) const {
+  return nullptr;
+}
+const ::Smp::Publication::IType *Operation::Parameter::GetType() const {
   return _type;
 }
 
@@ -71,6 +75,10 @@ Operation::Operation(::Smp::String8 name, ::Smp::String8 description,
 }
 
 ::Smp::IObject *Operation::GetParent() const { return _parent; }
+
+::Smp::IObject *Operation::GetChild(::Smp::String8 name) const {
+  return GetParameter(name);
+}
 void Operation::PublishParameter(
     ::Smp::String8 name, ::Smp::String8 description, ::Smp::Uuid typeUuid,
     ::Smp::Publication::ParameterDirectionKind direction) {
@@ -79,15 +87,15 @@ void Operation::PublishParameter(
   if (!type) {
     ::Xsmp::Exception::throwTypeNotRegistered(this, typeUuid);
   }
+  // SMP 2025 (5.3.9.2b.c) asks for InvalidType when the parameter type is not
+  // simple, because a parameter travels in an AnySimple. The SDK deliberately
+  // extends this: a structure or array parameter is published and exchanged
+  // member by member (see Request.StructureAndArrayParameters), so the check
+  // is not enforced here.
 
   if (direction == ::Smp::Publication::ParameterDirectionKind::PDK_Return) {
     if (_returnParameter) {
-      ::Xsmp::Exception::throwException(
-          this, "InvalidParameterDirection",
-          "This Exception is thrown when trying to publish a parameter with an "
-          "invalid direction.",
-          "The return parameter \'", _returnParameter->GetName(),
-          "` is already published.");
+      ::Xsmp::Exception::throwInvalidParameterDirection(this, name);
     }
     // check do duplicate parameter name
     if (_parameters.at(name)) {
@@ -152,7 +160,7 @@ bool isInvokable(const ::Smp::Publication::IType *type) {
 
 void Operation::Invoke(::Smp::IRequest *request) {
 
-  const auto *operationName = request ? request->GetOperationName() : nullptr;
+  const auto *operationName = request ? request->GetName() : nullptr;
 
   // check operation name
   if (!operationName || std::string_view{GetName()} != operationName) {
@@ -177,12 +185,11 @@ void Operation::Invoke(::Smp::IRequest *request) {
         ::Smp::Publication::ParameterDirectionKind::PDK_Out) {
       continue;
     }
-    auto kind =
-        request->GetParameterValue(request->GetParameterIndex(param->GetName()))
-            .GetType();
-    if (kind != param->GetType()->GetPrimitiveTypeKind()) {
-      ::Xsmp::Exception::throwInvalidParameterType(
-          this, operationName, param->GetName(), kind,
+    auto value = request->GetParameterValue(
+        request->GetParameterIndex(param->GetName()));
+    if (value.GetType() != param->GetType()->GetPrimitiveTypeKind()) {
+      ::Xsmp::Exception::throwInvalidParameterValue(
+          this, operationName, param->GetName(), value,
           param->GetType()->GetPrimitiveTypeKind());
     }
   }

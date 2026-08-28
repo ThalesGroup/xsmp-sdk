@@ -12,16 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/AnySimple.h>
+#include <Smp/AnySimpleArray.h>
 #include <Smp/ComponentStateKind.h>
 #include <Smp/IAggregate.h>
 #include <Smp/IArrayField.h>
+#include <Smp/ICollectionBase.h>
 #include <Smp/IComposite.h>
+#include <Smp/IContainer.h>
+#include <Smp/IEntryPointPublisher.h>
+#include <Smp/IEventConsumer.h>
 #include <Smp/IEventProvider.h>
+#include <Smp/IFailure.h>
+#include <Smp/IFallibleModel.h>
 #include <Smp/IField.h>
 #include <Smp/IOperation.h>
 #include <Smp/IProperty.h>
 #include <Smp/IPublication.h>
 #include <Smp/IRequest.h>
+#include <Smp/ISimpleArrayField.h>
+#include <Smp/ISimpleField.h>
 #include <Smp/IStructureField.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Uuid.h>
@@ -31,6 +41,9 @@
 #include <Xsmp/Field.h>
 #include <Xsmp/Helper.h>
 #include <Xsmp/Reference.h>
+#include <algorithm>
+#include <string>
+#include <utility>
 #include <vector>
 
 namespace Xsmp {
@@ -54,6 +67,177 @@ Component::Component(::Smp::String8 name, ::Smp::String8 description,
 
 const ::Smp::FieldCollection *Component::GetFields() const {
   return _publication ? _publication->GetFields() : nullptr;
+}
+
+namespace {
+/// The field accessors of a component report a bad path as an invalid field
+/// name, whether the field does not exist at all or has the wrong shape.
+template <typename T>
+T *GetFieldAs(const ::Smp::IComponent *component, ::Smp::String8 fullName) {
+  auto *field = dynamic_cast<T *>(component->GetField(fullName));
+  if (!field) {
+    ::Xsmp::Exception::throwInvalidFieldName(component, fullName);
+  }
+  return field;
+}
+} // namespace
+
+::Smp::AnySimple Component::GetSimpleValue(::Smp::String8 fullName) const {
+  return GetFieldAs<::Smp::ISimpleField>(this, fullName)->GetValue();
+}
+
+void Component::SetSimpleValue(::Smp::String8 fullName,
+                               ::Smp::AnySimple value) {
+  GetFieldAs<::Smp::ISimpleField>(this, fullName)->SetValue(value);
+}
+
+void Component::GetSimpleArrayValue(::Smp::String8 fullName,
+                                    ::Smp::UInt64 length,
+                                    ::Smp::AnySimple *values,
+                                    ::Smp::UInt64 startIndex) const {
+  GetFieldAs<::Smp::ISimpleArrayField>(this, fullName)
+      ->GetValues(length, values, startIndex);
+}
+
+void Component::SetSimpleArrayValue(::Smp::String8 fullName,
+                                    ::Smp::UInt64 length,
+                                    ::Smp::AnySimpleArray values,
+                                    ::Smp::UInt64 startIndex) {
+  GetFieldAs<::Smp::ISimpleArrayField>(this, fullName)
+      ->SetValues(length, values, startIndex);
+}
+
+::Smp::Bool Component::AddChild(::Smp::IObject *child,
+                                const ::Smp::ICollectionBase *collection) {
+  if (!child) {
+    return false;
+  }
+  const auto it = _children.find(child->GetName());
+  // the name is taken by another child, whichever collection holds it: the
+  // registration of that child has to survive the rejection
+  if (it != _children.end() && it->second.first != child) {
+    return false;
+  }
+  auto &entry =
+      it == _children.end() ? _children[child->GetName()] : it->second;
+  entry.first = child;
+  if (std::find(entry.second.begin(), entry.second.end(), collection) ==
+      entry.second.end()) {
+    entry.second.push_back(collection);
+  }
+  return true;
+}
+
+::Smp::Bool Component::RemoveChild(::Smp::IObject *child,
+                                   const ::Smp::ICollectionBase *collection) {
+  if (!child) {
+    return false;
+  }
+  const auto it = _children.find(child->GetName());
+  if (it == _children.end() || it->second.first != child) {
+    return false;
+  }
+  // the child is only removed by a collection that registered it, and it
+  // stays as long as another one still holds it
+  auto &collections = it->second.second;
+  const auto found =
+      std::find(collections.begin(), collections.end(), collection);
+  if (found == collections.end()) {
+    return false;
+  }
+  collections.erase(found);
+  if (collections.empty()) {
+    _children.erase(it);
+  }
+  return true;
+}
+
+::Smp::IObject *
+Component::IsChildInCollection(::Smp::String8 child,
+                               const ::Smp::ICollectionBase *collection) const {
+  if (!child) {
+    return nullptr;
+  }
+  const auto it = _children.find(child);
+  if (it == _children.end()) {
+    return nullptr;
+  }
+  const auto &collections = it->second.second;
+  return std::find(collections.begin(), collections.end(), collection) !=
+                 collections.end()
+             ? it->second.first
+             : nullptr;
+}
+
+::Smp::IObject *Component::GetChild(::Smp::String8 name) const {
+  if (!name || name[0] == '\0') {
+    return nullptr;
+  }
+  // the children registered by the collections that take part in name
+  // resolution
+  if (const auto it = _children.find(name); it != _children.end()) {
+    return it->second.first;
+  }
+  // the features the component publishes
+  if (_publication) {
+    if (const auto *fields = _publication->GetFields()) {
+      if (auto *field = fields->at(name)) {
+        return field;
+      }
+    }
+    if (auto *operation = _publication->GetOperation(name)) {
+      return operation;
+    }
+    if (auto *property = _publication->GetProperty(name)) {
+      return property;
+    }
+  }
+  // the features the optional component mechanisms own
+  if (const auto *publisher =
+          dynamic_cast<const ::Smp::IEntryPointPublisher *>(this)) {
+    if (auto *entryPoint = publisher->GetEntryPoint(name)) {
+      return entryPoint;
+    }
+  }
+  if (const auto *consumer =
+          dynamic_cast<const ::Smp::IEventConsumer *>(this)) {
+    if (auto *eventSink = consumer->GetEventSink(name)) {
+      return eventSink;
+    }
+  }
+  if (const auto *provider =
+          dynamic_cast<const ::Smp::IEventProvider *>(this)) {
+    if (auto *eventSource = provider->GetEventSource(name)) {
+      return eventSource;
+    }
+  }
+  if (const auto *fallible =
+          dynamic_cast<const ::Smp::IFallibleModel *>(this)) {
+    if (auto *failure = fallible->GetFailure(name)) {
+      return failure;
+    }
+  }
+  // a container and the components it holds are children of the composite,
+  // a reference is a child of the aggregate but the components it points to
+  // are not
+  if (const auto *composite = dynamic_cast<const ::Smp::IComposite *>(this)) {
+    if (auto *container = composite->GetContainer(name)) {
+      return container;
+    }
+    if (const auto *containers = composite->GetContainers()) {
+      for (auto *container : *containers) {
+        if (auto *component = container->GetComponent(name)) {
+          return component;
+        }
+      }
+    }
+  }
+  if (const auto *aggregate = dynamic_cast<const ::Smp::IAggregate *>(this)) {
+    if (auto *reference = aggregate->GetReference(name)) {
+      return reference;
+    }
+  }
+  return nullptr;
 }
 
 void Component::Publish(::Smp::IPublication *receiver) {
@@ -101,17 +285,29 @@ void Component::Disconnect() {
 
 void Component::Invoke(::Smp::IRequest *request) {
   ::Xsmp::Exception::throwInvalidOperationName(
-      this, request ? request->GetOperationName() : nullptr);
+      this, request ? request->GetName() : nullptr);
 }
 
 ::Smp::IRequest *Component::CreateRequest(::Smp::String8 operationName) {
-  return _publication ? _publication->CreateRequest(operationName) : nullptr;
+  auto *operation =
+      _publication ? _publication->GetOperation(operationName) : nullptr;
+  return operation ? operation->CreateRequest() : nullptr;
 }
 
 void Component::DeleteRequest(::Smp::IRequest *request) {
-  if (_publication) {
-    _publication->DeleteRequest(request);
+  if (auto *operation = request && _publication
+                            ? _publication->GetOperation(request->GetName())
+                            : nullptr) {
+    operation->DeleteRequest(request);
   }
+}
+
+::Smp::IProperty *Component::GetProperty(::Smp::String8 name) const {
+  return _publication ? _publication->GetProperty(name) : nullptr;
+}
+
+::Smp::IOperation *Component::GetOperation(::Smp::String8 name) const {
+  return _publication ? _publication->GetOperation(name) : nullptr;
 }
 
 const ::Smp::PropertyCollection *Component::GetProperties() const {
@@ -155,17 +351,17 @@ void Component::RemoveFieldLinks(::Smp::IField *field,
                                  const ::Smp::IComponent *target) noexcept {
   // disconnect a dataflow field
   if (auto *dataflowField =
-          dynamic_cast<::Xsmp::detail::IDataflowFieldExtension *>(field)) {
+          dynamic_cast<::Xsmp::detail::IOutputFieldExtension *>(field)) {
     if (const auto *inputFields = dataflowField->GetInputFields()) {
       // the fields are collected first: disconnecting one removes it from the
       // collection being iterated
-      std::vector<const ::Smp::IField *> connectedToTarget;
-      for (const auto *inputField : *inputFields) {
+      std::vector<::Smp::IField *> connectedToTarget;
+      for (auto *inputField : *inputFields) {
         if (::Xsmp::Helper::IsAncestor(target, inputField)) {
           connectedToTarget.emplace_back(inputField);
         }
       }
-      for (const auto *inputField : connectedToTarget) {
+      for (auto *inputField : connectedToTarget) {
         dataflowField->Disconnect(inputField);
       }
     }

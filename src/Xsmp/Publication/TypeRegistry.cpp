@@ -24,6 +24,8 @@
 #include <Xsmp/Exception.h>
 #include <Xsmp/Publication/Type.h>
 #include <Xsmp/Publication/TypeRegistry.h>
+#include <algorithm>
+#include <cstring>
 #include <limits>
 
 namespace Xsmp::Publication {
@@ -81,8 +83,7 @@ TypeRegistry::TypeRegistry(::Smp::IObject *parent) : _parent(parent) {
   auto *primitiveTypeKind = AddEnumerationType(
       "PrimitiveTypeKind",                                        // name
       "This is an enumeration of the available primitive types.", // description
-      ::Smp::Uuids::Uuid_PrimitiveTypeKind,                       // UUID
-      sizeof(::Smp::PrimitiveTypeKind));
+      ::Smp::Uuids::Uuid_PrimitiveTypeKind);                      // UUID
 
   // Register the Literals of the Enumeration
   primitiveTypeKind->AddLiteral("PTK_None", "No type, e.g. for void.", 0);
@@ -129,8 +130,7 @@ TypeRegistry::TypeRegistry(::Smp::IObject *parent) : _parent(parent) {
   auto *timeKind =
       AddEnumerationType("TimeKind",                             // name
                          "Enumeration of supported time kinds.", // description
-                         ::Smp::Uuids::Uuid_TimeKind,            // UUID
-                         sizeof(::Smp::Services::TimeKind));
+                         ::Smp::Uuids::Uuid_TimeKind);           // UUID
 
   // Register the Literals of the Enumeration
   timeKind->AddLiteral("TK_SimulationTime", "Simulation time.", 0);
@@ -143,8 +143,7 @@ TypeRegistry::TypeRegistry(::Smp::IObject *parent) : _parent(parent) {
       R"(This enumeration defines possible options for the View attribute, which can be used to control if and how an element is made visible when published to the simulation infrastructure.
 The simulation infrastructure must at least support the "None" and the "All" roles (i.e. hidden or always visible).
 The simulation infrastructure may support the selection of different user roles, in which case the "Debug" and the "Expert" role must also be supported as described.)", // description
-      ::Smp::Uuids::Uuid_ViewKind, // UUID
-      sizeof(::Smp::ViewKind));
+      ::Smp::Uuids::Uuid_ViewKind); // UUID
 
   // Register the Literals of the Enumeration
   viewKind->AddLiteral(
@@ -165,8 +164,7 @@ The element is not visible to end users. If the simulation infrastructure suppor
       AddEnumerationType("ParameterDirectionKind", // name
                          "The Parameter Direction Kind enumeration defines the "
                          "possible parameter directions.", // description
-                         ::Smp::Uuids::Uuid_ParameterDirectionKind, // UUID
-                         sizeof(::Smp::Publication::ParameterDirectionKind));
+                         ::Smp::Uuids::Uuid_ParameterDirectionKind); // UUID
 
   // Register the Literals of the Enumeration
   parameterDirectionKind->AddLiteral(
@@ -191,9 +189,8 @@ The element is not visible to end users. If the simulation infrastructure suppor
       AddEnumerationType("ComponentStateKind", // name
                          "This is an enumeration of the available states of a "
                          "component. Each component is always in one of these "
-                         "four component states.",              // description
-                         ::Smp::Uuids::Uuid_ComponentStateKind, // UUID
-                         sizeof(::Smp::ComponentStateKind));
+                         "four component states.",               // description
+                         ::Smp::Uuids::Uuid_ComponentStateKind); // UUID
 
   // Register the Literals of the Enumeration
   componentStateKind->AddLiteral(
@@ -243,9 +240,8 @@ The element is not visible to end users. If the simulation infrastructure suppor
   auto *accessKind =
       AddEnumerationType("AccessKind", // name
                          "The Access Kind of a property defines whether it has "
-                         "getter and setter.",          // description
-                         ::Smp::Uuids::Uuid_AccessKind, // UUID
-                         sizeof(::Smp::AccessKind));
+                         "getter and setter.",           // description
+                         ::Smp::Uuids::Uuid_AccessKind); // UUID
 
   // Register the Literals of the Enumeration
   accessKind->AddLiteral("AK_ReadWrite",
@@ -260,9 +256,8 @@ The element is not visible to end users. If the simulation infrastructure suppor
       "This is an enumeration of the available states of the simulator. "
       "The Setup phase is split into three different states, the Execution "
       "phase has five different states, and the Termination phase has two "
-      "states.",                             // description
-      ::Smp::Uuids::Uuid_SimulatorStateKind, // UUID
-      sizeof(::Smp::SimulatorStateKind));
+      "states.",                              // description
+      ::Smp::Uuids::Uuid_SimulatorStateKind); // UUID
 
   // Register the Literals of the Enumeration
   simulatorStateKind->AddLiteral(
@@ -372,6 +367,19 @@ The element is not visible to end users. If the simulation infrastructure suppor
 
 ::Smp::IObject *TypeRegistry::GetParent() const { return _parent; }
 
+::Smp::IObject *TypeRegistry::GetChild(::Smp::String8 name) const {
+  if (!name) {
+    return nullptr;
+  }
+  // a registered type has the registry as parent: it has to be resolvable
+  // from it, and the types are only indexed by uuid
+  const auto it =
+      std::find_if(_types.begin(), _types.end(), [name](const auto &entry) {
+        return std::strcmp(entry.second->GetName(), name) == 0;
+      });
+  return it == _types.end() ? nullptr : it->second.get();
+}
+
 ::Smp::Publication::IType *
 TypeRegistry::GetType(::Smp::PrimitiveTypeKind type) const {
 
@@ -475,24 +483,25 @@ TypeRegistry::AddIntegerType(::Smp::String8 name, ::Smp::String8 description,
 }
 
 ::Smp::Publication::IEnumerationType *TypeRegistry::AddEnumerationType(
-    ::Smp::String8 name, ::Smp::String8 description, ::Smp::Uuid typeUuid,
-    ::Smp::Int16 memorySize) {
+    ::Smp::String8 name, ::Smp::String8 description, ::Smp::Uuid typeUuid) {
+  // SMP 2025 dropped the memory size from the signature: an enumeration is
+  // always backed by an Smp::Int32.
   return AddType<EnumerationType>(name, description, this, typeUuid,
-                                  memorySize);
+                                  sizeof(::Smp::Int32));
 }
 
 ::Smp::Publication::IArrayType *
 TypeRegistry::AddArrayType(::Smp::String8 name, ::Smp::String8 description,
                            ::Smp::Uuid typeUuid, ::Smp::Uuid itemTypeUuid,
-                           ::Smp::Int64 itemSize, ::Smp::Int64 arrayCount,
+                           ::Smp::UInt64 itemSize, ::Smp::UInt64 arrayCount,
                            ::Smp::Bool simpleArray) {
   return AddType<ArrayType>(name, description, this, typeUuid, itemTypeUuid,
                             itemSize, arrayCount, simpleArray);
 }
 
-::Smp::Publication::IType *
+::Smp::Publication::IStringType *
 TypeRegistry::AddStringType(::Smp::String8 name, ::Smp::String8 description,
-                            ::Smp::Uuid typeUuid, ::Smp::Int64 length) {
+                            ::Smp::Uuid typeUuid, ::Smp::UInt64 length) {
   return AddType<StringType>(name, description, this, typeUuid, length);
 }
 

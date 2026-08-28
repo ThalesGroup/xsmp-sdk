@@ -53,6 +53,11 @@ public:
   ::Smp::String8 GetName() const override;
   ::Smp::String8 GetDescription() const override;
   ::Smp::IObject *GetParent() const override;
+
+  /// Returns the child object with the given name.
+  /// @param   name The name of the child to look for.
+  /// @return  Always null.
+  ::Smp::IObject *GetChild(::Smp::String8 name) const override;
   /// Publish a parameter of an operation with the given name,
   /// description, type and direction.
   /// If a parameter with the same name has already been published,
@@ -117,12 +122,12 @@ public:
   ///          if the operation allows no dynamic invocation. When
   ///          calling invoke with a wrong number of parameters, the
   ///          InvalidParameterCount exception is raised. When passing a
-  ///          parameter of wrong type, the InvalidParameterType
+  ///          parameter of wrong type, the InvalidParameterValue
   ///          exception is raised.
   /// @param   request Request object to invoke.
   /// @throws  ::Smp::InvalidOperationName
   /// @throws  ::Smp::InvalidParameterCount
-  /// @throws  ::Smp::InvalidParameterType
+  /// @throws  ::Smp::InvalidParameterValue
   void Invoke(::Smp::IRequest *request) override;
 
   /// Destroy a request object that has been created with the
@@ -163,9 +168,14 @@ private:
     ::Smp::String8 GetDescription() const override;
     ::Smp::IObject *GetParent() const override;
 
+    /// Returns the child object with the given name.
+    /// @param   name The name of the child to look for.
+    /// @return  Always null.
+    ::Smp::IObject *GetChild(::Smp::String8 name) const override;
+
     /// Provides the type of the parameter.
     /// @return  Type of the parameter.
-    ::Smp::Publication::IType *GetType() const override;
+    const ::Smp::Publication::IType *GetType() const override;
 
     /// Provides the parameter direction kind of the parameter.
     /// @return  Parameter direction kind of the parameter.

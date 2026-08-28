@@ -43,7 +43,7 @@ AnySimple::AnySimple(const ::Smp::AnySimple &other) : AnySimple() {
   *this = other;
 }
 
-AnySimple::AnySimple(::Smp::AnySimple &&other)
+AnySimple::AnySimple(::Smp::AnySimple &&other) noexcept
     : type{other.type}, value{other.value} {
   other.type = PrimitiveTypeKind::PTK_None;
   other.value.string8Value = nullptr;
@@ -73,7 +73,7 @@ AnySimple &AnySimple::operator=(const ::Smp::AnySimple &other) {
   return *this;
 }
 
-AnySimple &AnySimple::operator=(::Smp::AnySimple &&other) {
+AnySimple &AnySimple::operator=(::Smp::AnySimple &&other) noexcept {
 
   _releaseContent(this);
 

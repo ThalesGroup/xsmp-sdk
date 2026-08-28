@@ -68,7 +68,16 @@ void SafeExecute(::Smp::ISimulator *simulator,
 [[nodiscard]] std::string GetPath(const ::Smp::IObject *obj);
 
 [[nodiscard]] ::Smp::IObject *
-Resolve(const ::Smp::ICollection<Smp::IField> *fields, ::Smp::String8 path);
+Resolve(const ::Smp::ICollection<Smp::IField> *fields, ::Smp::IObject *owner,
+        ::Smp::String8 path);
+/// Return the child of a field that carries the given name: a member of a
+/// structure field by its name, an item of an array field written "[i]".
+/// @param parent The field to look into.
+/// @param name The name of the child.
+/// @return The child with that name, or nullptr if there is no such child.
+[[nodiscard]] ::Smp::IObject *GetFieldChild(const ::Smp::IField *parent,
+                                            ::Smp::String8 name);
+
 [[nodiscard]] ::Smp::IObject *Resolve(::Smp::IObject *parent,
                                       ::Smp::String8 path);
 [[nodiscard]] ::Smp::IObject *Resolve(::Smp::IField *parent,

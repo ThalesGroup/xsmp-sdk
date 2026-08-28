@@ -218,6 +218,22 @@ public:
                    ::Smp::DateTime zuluTime, ::Smp::Duration cycleTime = 0,
                    ::Smp::Int64 repeat = 0) override;
 
+  /// Add an event to the scheduler that is called relative to the current
+  /// Zulu time.
+  /// @param   entryPoint Entry point to call from event.
+  /// @param   zuluTimeDelay Duration from now when to trigger the event for
+  ///          the first time. This must not be negative.
+  /// @param   cycleTime Duration between two triggers of the event.
+  /// @param   repeat Number of times the event shall be repeated, or
+  ///          0 for a single event, or -1 for no limit.
+  /// @return  Event identifier that can be used to change or remove
+  ///          event.
+  /// @throws  ::Smp::Services::InvalidCycleTime
+  /// @throws  ::Smp::Services::InvalidEventTime
+  ::Smp::Services::EventId AddRelativeZuluTimeEvent(
+      const ::Smp::IEntryPoint *entryPoint, ::Smp::Duration zuluTimeDelay,
+      ::Smp::Duration cycleTime = 0, ::Smp::Int64 repeat = 0) override;
+
   /// Update when an existing simulation time event on the scheduler
   /// shall be triggered.
   /// When the given event Id is not a valid identifier of a
@@ -359,6 +375,19 @@ public:
   /// Events do not have a fixed defined Simulation Time.
   /// @return  Time of the next event on the scheduler.
   ::Smp::Duration GetNextScheduledEventTime() const override;
+
+  /// Tell whether an event is currently scheduled.
+  /// @param   eventId Identifier of the event to look for.
+  /// @return  True if the scheduler holds an event with that identifier.
+  ::Smp::Bool IsEventScheduled(::Smp::Services::EventId eventId) const override;
+
+  /// Insert an event in the zulu table, without checking that the date is in
+  /// the future: a date derived from the zulu clock is in the past by the time
+  /// it is checked again.
+  ::Smp::Services::EventId
+  PostZuluTimeEvent(const ::Smp::IEntryPoint *entryPoint,
+                    ::Smp::DateTime zuluTime, ::Smp::Duration cycleTime,
+                    ::Smp::Int64 repeat);
 
   void Restore(::Smp::IStorageReader *reader) override;
 

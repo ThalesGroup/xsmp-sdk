@@ -17,6 +17,7 @@
 
 #include <Smp/IObject.h>
 #include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/IType.h>
 #include <Smp/Publication/ITypeRegistry.h>
 #include <Smp/Uuid.h>
 #include <memory>
@@ -43,6 +44,11 @@ public:
   ::Smp::String8 GetName() const override;
   ::Smp::String8 GetDescription() const override;
   ::Smp::IObject *GetParent() const override;
+
+  /// Returns the child object with the given name.
+  /// @param   name The name of the child to look for.
+  /// @return  The child with that name, or null if there is no such child.
+  ::Smp::IObject *GetChild(::Smp::String8 name) const override;
   /// Returns a type by its primitive type kind.
   /// @remarks This method can be used to map primitive types to the
   ///          IType interface, to treat all types identically.
@@ -119,13 +125,11 @@ public:
   /// @param   name Name of the type.
   /// @param   description Description of the type.
   /// @param   typeUuid Universally unique identifier of the type.
-  /// @param   memorySize Size of an instance of this enumeration in
-  ///          bytes. Valid values are 1, 2, 4 and 8.
   /// @return  Interface to new type.
   /// @throws  ::Smp::Publication::TypeAlreadyRegistered
   ::Smp::Publication::IEnumerationType *
   AddEnumerationType(::Smp::String8 name, ::Smp::String8 description,
-                     ::Smp::Uuid typeUuid, ::Smp::Int16 memorySize) override;
+                     ::Smp::Uuid typeUuid) override;
 
   /// Add an array type to the registry.
   /// @param   name Name of the type.
@@ -146,7 +150,7 @@ public:
   ::Smp::Publication::IArrayType *
   AddArrayType(::Smp::String8 name, ::Smp::String8 description,
                ::Smp::Uuid typeUuid, ::Smp::Uuid itemTypeUuid,
-               ::Smp::Int64 itemSize, ::Smp::Int64 arrayCount,
+               ::Smp::UInt64 itemSize, ::Smp::UInt64 arrayCount,
                ::Smp::Bool simpleArray = false) override;
 
   /// Add a string type to the registry.
@@ -156,10 +160,10 @@ public:
   /// @param   length Maximum length of the string.
   /// @return  Interface to new type.
   /// @throws  ::Smp::Publication::TypeAlreadyRegistered
-  ::Smp::Publication::IType *AddStringType(::Smp::String8 name,
-                                           ::Smp::String8 description,
-                                           ::Smp::Uuid typeUuid,
-                                           ::Smp::Int64 length) override;
+  ::Smp::Publication::IStringType *AddStringType(::Smp::String8 name,
+                                                 ::Smp::String8 description,
+                                                 ::Smp::Uuid typeUuid,
+                                                 ::Smp::UInt64 length) override;
 
   /// Add a structure type to the registry.
   /// @param   name Name of the type.

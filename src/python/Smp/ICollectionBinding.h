@@ -23,13 +23,15 @@
 
 template <typename T>
 inline void RegisterICollection(const py::module_ &m, ::Smp::String8 typeName) {
-  py::class_<::Smp::ICollection<T>, ::Smp::IObject>(m, typeName,
-                                                    py::multiple_inheritance())
+  py::class_<::Smp::ICollection<T>>(m, typeName, py::multiple_inheritance())
 
       .def("__len__", &::Smp::ICollection<T>::size)
 
       .def("size", &::Smp::ICollection<T>::size,
            "Get the number of objects in the sequence.")
+
+      .def("empty", &::Smp::ICollection<T>::empty,
+           "Tell whether the collection contains no element.")
 
       .def("at",
            py::overload_cast<size_t>(&::Smp::ICollection<T>::at, py::const_),

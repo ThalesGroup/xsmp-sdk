@@ -213,7 +213,7 @@ Resolve(const ::Smp::IDynamicInvocation *dynamicInvocation, ::Smp::String8 name,
           return arrayField->GetItem(index);
         }
       } catch (std::exception &) {
-        // ignore stoll conversion errors & Smp::InvalidArrayIndex
+        // ignore stoll conversion errors
         return nullptr;
       }
     }
@@ -365,17 +365,16 @@ std::string GetPath(const ::Smp::IObject *obj) {
 }
 
 ::Smp::IObject *Resolve(const ::Smp::FieldCollection *fields,
-                        ::Smp::String8 path) {
+                        ::Smp::IObject *owner, ::Smp::String8 path) {
   ::Smp::Char8 separator = '\0';
   auto segment = GetNextSegment(&path, &separator);
   if (segment.empty()) {
     return nullptr;
   }
   if (segment == "..") {
-    if (auto const *container = fields->GetParent()) {
-      return Resolve(container->GetParent(), path);
-    }
-    return nullptr;
+    // a collection is not an ::Smp::IObject in SMP 2025: ".." is resolved
+    // from the owner of the collection instead
+    return owner ? Resolve(owner->GetParent(), path) : nullptr;
   }
 
   if (auto *field = fields->at(segment.c_str())) {
@@ -383,6 +382,12 @@ std::string GetPath(const ::Smp::IObject *obj) {
   }
   return nullptr;
 }
+::Smp::IObject *GetFieldChild(const ::Smp::IField *parent,
+                              ::Smp::String8 name) {
+  return parent && name && name[0] != '\0' ? ResolveFieldSegment(parent, name)
+                                           : nullptr;
+}
+
 ::Smp::IObject *Resolve(::Smp::IField *parent, ::Smp::String8 path) {
 
   ::Smp::Char8 separator = '\0';

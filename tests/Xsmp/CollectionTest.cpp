@@ -100,9 +100,6 @@ TEST(Collection, delegate) {
 
   DelegateCollection<Interface> delegate{&c};
 
-  EXPECT_EQ(c.GetName(), delegate.GetName());
-  EXPECT_EQ(c.GetDescription(), delegate.GetDescription());
-  EXPECT_EQ(c.GetParent(), delegate.GetParent());
   EXPECT_EQ(c.size(), delegate.size());
   EXPECT_EQ(&o1, c.at(std::size_t(0)));
   EXPECT_EQ(&o2, c.at(std::size_t(1)));

@@ -54,7 +54,7 @@ protected:
 
 private:
   friend class ::Xsmp::EntryPoint;
-  ::Xsmp::Collection<::Smp::IEntryPoint> _entrypoints;
+  ::Xsmp::ChildCollection<::Smp::IEntryPoint> _entrypoints;
 };
 
 } // namespace Xsmp

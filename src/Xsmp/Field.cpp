@@ -48,9 +48,9 @@ public:
     input->SetValue(output->GetValue());
   }
 
-  static void Disconnect(SimpleConnectableField *output,
+  static bool Disconnect(SimpleConnectableField *output,
                          const ::Smp::ISimpleField *input) {
-    output->_connectedFields.remove(input);
+    return output->_connectedFields.remove(input);
   }
   static void Push(const SimpleConnectableField *output) {
     output->internal_push();
@@ -69,9 +69,9 @@ public:
       input->SetValue(i, output->GetValue(i));
     }
   }
-  static void Disconnect(SimpleArrayConnectableField *output,
+  static bool Disconnect(SimpleArrayConnectableField *output,
                          const ::Smp::ISimpleArrayField *input) {
-    output->_connectedFields.remove(input);
+    return output->_connectedFields.remove(input);
   }
   static void Push(const SimpleArrayConnectableField *output) {
     const auto size = output->GetSize();
@@ -111,21 +111,23 @@ public:
     }
   }
 
-  static bool CanConnect(const ArrayDataflowField *output,
+  static bool CanConnect(const ArrayOutputField *output,
                          const ::Smp::IArrayField *input) {
     return !output->_connectedFields.contains(input) &&
            CanConnect(static_cast<const ::Smp::IArrayField *>(output), input);
   }
-  static void Connect(ArrayDataflowField *output, ::Smp::IArrayField *input) {
+  static void Connect(ArrayOutputField *output, ::Smp::IArrayField *input) {
     output->_connectedFields.add(input);
     Connect(static_cast<const ::Smp::IArrayField *>(output), input);
   }
 
-  static void Disconnect(ArrayDataflowField *output,
+  static bool Disconnect(ArrayOutputField *output,
                          const ::Smp::IArrayField *input) {
-    if (output->_connectedFields.remove(input)) {
-      Disconnect(static_cast<const ::Smp::IArrayField *>(output), input);
+    if (!output->_connectedFields.remove(input)) {
+      return false;
     }
+    Disconnect(static_cast<const ::Smp::IArrayField *>(output), input);
+    return true;
   }
 
   static bool CanConnect(const ::Smp::IStructureField *output,
@@ -176,22 +178,24 @@ public:
       Push(outputFields->at(i));
     }
   }
-  static bool CanConnect(const StructureDataflowField *output,
+  static bool CanConnect(const StructureOutputField *output,
                          const ::Smp::IStructureField *input) {
     return !output->_connectedFields.contains(input) &&
            CanConnect(static_cast<const ::Smp::IStructureField *>(output),
                       input);
   }
-  static void Connect(StructureDataflowField *output,
+  static void Connect(StructureOutputField *output,
                       ::Smp::IStructureField *input) {
     output->_connectedFields.add(input);
     Connect(static_cast<const ::Smp::IStructureField *>(output), input);
   }
-  static void Disconnect(StructureDataflowField *output,
+  static bool Disconnect(StructureOutputField *output,
                          const ::Smp::IStructureField *input) {
-    if (output->_connectedFields.remove(input)) {
-      Disconnect(static_cast<const ::Smp::IStructureField *>(output), input);
+    if (!output->_connectedFields.remove(input)) {
+      return false;
     }
+    Disconnect(static_cast<const ::Smp::IStructureField *>(output), input);
+    return true;
   }
   static bool CanConnect(const ::Smp::IField *output,
                          const ::Smp::IField *input) {
@@ -213,9 +217,9 @@ public:
       if (!arrayInput) {
         return false;
       }
-      if (auto *arrayDataflowOutput =
-              dynamic_cast<const ArrayDataflowField *>(output)) {
-        return CanConnect(arrayDataflowOutput, arrayInput);
+      if (const auto *arrayOutputField =
+              dynamic_cast<const ArrayOutputField *>(output)) {
+        return CanConnect(arrayOutputField, arrayInput);
       }
       return CanConnect(arrayOutput, arrayInput);
     }
@@ -225,9 +229,9 @@ public:
       if (!structInput) {
         return false;
       }
-      if (auto *structDataflowOutput =
-              dynamic_cast<const StructureDataflowField *>(output)) {
-        return CanConnect(structDataflowOutput, structInput);
+      if (const auto *structOutputField =
+              dynamic_cast<const StructureOutputField *>(output)) {
+        return CanConnect(structOutputField, structInput);
       }
       return CanConnect(structOutput, structInput);
     }
@@ -242,17 +246,16 @@ public:
               dynamic_cast<::Smp::ISimpleArrayField *>(input));
     } else if (const auto *arrayOutput =
                    dynamic_cast<const ::Smp::IArrayField *>(output)) {
-      if (auto *arrayDataflowOutput =
-              dynamic_cast<ArrayDataflowField *>(output)) {
-        Connect(arrayDataflowOutput, dynamic_cast<::Smp::IArrayField *>(input));
+      if (auto *arrayOutputField = dynamic_cast<ArrayOutputField *>(output)) {
+        Connect(arrayOutputField, dynamic_cast<::Smp::IArrayField *>(input));
       } else {
         Connect(arrayOutput, dynamic_cast<::Smp::IArrayField *>(input));
       }
     } else if (const auto *structOutput =
                    dynamic_cast<const ::Smp::IStructureField *>(output)) {
-      if (auto *structDataflowOutput =
-              dynamic_cast<StructureDataflowField *>(output)) {
-        Connect(structDataflowOutput,
+      if (auto *structOutputField =
+              dynamic_cast<StructureOutputField *>(output)) {
+        Connect(structOutputField,
                 dynamic_cast<::Smp::IStructureField *>(input));
       } else {
         Connect(structOutput,
@@ -273,9 +276,8 @@ public:
                  dynamic_cast<const ::Smp::ISimpleArrayField *>(input));
     } else if (const auto *arrayOutput =
                    dynamic_cast<const ::Smp::IArrayField *>(output)) {
-      if (auto *arrayDataflowOutput =
-              dynamic_cast<ArrayDataflowField *>(output)) {
-        Disconnect(arrayDataflowOutput,
+      if (auto *arrayOutputField = dynamic_cast<ArrayOutputField *>(output)) {
+        Disconnect(arrayOutputField,
                    dynamic_cast<const ::Smp::IArrayField *>(input));
       } else {
         Disconnect(arrayOutput,
@@ -283,9 +285,9 @@ public:
       }
     } else if (const auto *structOutput =
                    dynamic_cast<const ::Smp::IStructureField *>(output)) {
-      if (auto *structDataflowOutput =
-              dynamic_cast<StructureDataflowField *>(output)) {
-        Disconnect(structDataflowOutput,
+      if (auto *structOutputField =
+              dynamic_cast<StructureOutputField *>(output)) {
+        Disconnect(structOutputField,
                    dynamic_cast<const ::Smp::IStructureField *>(input));
       } else {
         Disconnect(structOutput,
@@ -331,6 +333,10 @@ AbstractField::AbstractField(::Smp::String8 name, ::Smp::String8 description,
 
 ::Smp::IObject *AbstractField::GetParent() const { return _parent; }
 
+::Smp::IObject *AbstractField::GetChild(::Smp::String8 name) const {
+  return ::Xsmp::Helper::GetFieldChild(this, name);
+}
+
 Smp::ViewKind AbstractField::GetView() const { return _view; }
 
 ::Smp::Bool Failure::IsFailed() const { return _failed; }
@@ -352,9 +358,7 @@ void Failure::Restore(::Smp::IStorageReader *reader) {
 void Failure::Store(::Smp::IStorageWriter *writer) {
   writer->Store(&_failed, sizeof(_failed));
 }
-SimpleConnectableField::SimpleConnectableField()
-    : _connectedFields{"InputFields", "Collection of connected input Fields",
-                       this} {}
+SimpleConnectableField::SimpleConnectableField() = default;
 
 void SimpleConnectableField::internal_push() const {
   // a connected field can push back to this one: propagate the value only once
@@ -376,7 +380,7 @@ const ::Smp::FieldCollection *SimpleConnectableField::GetInputFields() const {
   return &_connectedFields;
 }
 
-void SimpleDataflowField::Connect(::Smp::IField *target) {
+void SimpleOutputField::Connect(::Smp::IField *target) {
   auto *simpleInput = dynamic_cast<::Smp::ISimpleField *>(target);
   if (!this->IsOutput() || !target->IsInput() || target == this ||
       !simpleInput || !::Xsmp::Helper::AreEquivalent(this, target)) {
@@ -388,21 +392,21 @@ void SimpleDataflowField::Connect(::Smp::IField *target) {
   FieldHelper::Connect(this, simpleInput);
 }
 
-void SimpleDataflowField::Disconnect(const ::Smp::IField *target) {
-  if (const auto *simpleInput =
-          dynamic_cast<const ::Smp::ISimpleField *>(target)) {
-    FieldHelper::Disconnect(this, simpleInput);
+void SimpleOutputField::Disconnect(::Smp::IField *target) {
+  const auto *simpleInput = dynamic_cast<const ::Smp::ISimpleField *>(target);
+  if (!simpleInput || !FieldHelper::Disconnect(this, simpleInput)) {
+    ::Xsmp::Exception::throwFieldNotConnected(this, this, target);
   }
 }
-void SimpleDataflowField::Push() { FieldHelper::Push(this); }
+void SimpleOutputField::Push() { FieldHelper::Push(this); }
 
-const ::Smp::FieldCollection *SimpleDataflowField::GetInputFields() const {
+const ::Smp::FieldCollection *SimpleOutputField::GetInputFields() const {
   return SimpleConnectableField::GetInputFields();
 }
 
-void SimpleArrayDataflowField::Push() { FieldHelper::Push(this); }
+void SimpleArrayOutputField::Push() { FieldHelper::Push(this); }
 
-void SimpleArrayDataflowField::Connect(::Smp::IField *target) {
+void SimpleArrayOutputField::Connect(::Smp::IField *target) {
   auto *simpleArrayInput = dynamic_cast<::Smp::ISimpleArrayField *>(target);
   if (!this->IsOutput() || !target->IsInput() || target == this ||
       !simpleArrayInput || !::Xsmp::Helper::AreEquivalent(this, target)) {
@@ -414,15 +418,15 @@ void SimpleArrayDataflowField::Connect(::Smp::IField *target) {
   FieldHelper::Connect(this, simpleArrayInput);
 }
 
-void SimpleArrayDataflowField::Disconnect(const ::Smp::IField *target) {
-
-  if (const auto *simpleArrayInput =
-          dynamic_cast<const ::Smp::ISimpleArrayField *>(target)) {
-    FieldHelper::Disconnect(this, simpleArrayInput);
+void SimpleArrayOutputField::Disconnect(::Smp::IField *target) {
+  const auto *simpleArrayInput =
+      dynamic_cast<const ::Smp::ISimpleArrayField *>(target);
+  if (!simpleArrayInput || !FieldHelper::Disconnect(this, simpleArrayInput)) {
+    ::Xsmp::Exception::throwFieldNotConnected(this, this, target);
   }
 }
 
-const ::Smp::FieldCollection *SimpleArrayDataflowField::GetInputFields() const {
+const ::Smp::FieldCollection *SimpleArrayOutputField::GetInputFields() const {
   return SimpleArrayConnectableField::GetInputFields();
 }
 
@@ -441,7 +445,7 @@ const ::Smp::FieldCollection *SimpleArrayDataflowField::GetInputFields() const {
 
 size_t InputFieldCollection::size() const { return _fields.size(); }
 
-bool InputFieldCollection::empty() const { return _fields.empty(); };
+::Smp::Bool InputFieldCollection::empty() const { return _fields.empty(); }
 
 InputFieldCollection::const_iterator InputFieldCollection::begin() const {
   return {*this, 0};
@@ -467,13 +471,11 @@ bool InputFieldCollection::remove(const ::Smp::IField *input) {
   return false;
 }
 
-ArrayDataflowField::ArrayDataflowField()
-    : _connectedFields{"InputFields", "Collection of connected input Fields",
-                       this} {}
+ArrayOutputField::ArrayOutputField() = default;
 
-void ArrayDataflowField::Push() { FieldHelper::Push(this); }
+void ArrayOutputField::Push() { FieldHelper::Push(this); }
 
-void ArrayDataflowField::Connect(::Smp::IField *target) {
+void ArrayOutputField::Connect(::Smp::IField *target) {
   auto *arrayInput = dynamic_cast<::Smp::IArrayField *>(target);
   if (!this->IsOutput() || !target->IsInput() || target == this ||
       !arrayInput || !::Xsmp::Helper::AreEquivalent(this, target)) {
@@ -485,23 +487,21 @@ void ArrayDataflowField::Connect(::Smp::IField *target) {
   FieldHelper::Connect(this, arrayInput);
 }
 
-void ArrayDataflowField::Disconnect(const ::Smp::IField *target) {
-  if (const auto *arrayInput =
-          dynamic_cast<const ::Smp::IArrayField *>(target)) {
-    FieldHelper::Disconnect(this, arrayInput);
+void ArrayOutputField::Disconnect(::Smp::IField *target) {
+  const auto *arrayInput = dynamic_cast<const ::Smp::IArrayField *>(target);
+  if (!arrayInput || !FieldHelper::Disconnect(this, arrayInput)) {
+    ::Xsmp::Exception::throwFieldNotConnected(this, this, target);
   }
 }
 
-const ::Smp::FieldCollection *ArrayDataflowField::GetInputFields() const {
+const ::Smp::FieldCollection *ArrayOutputField::GetInputFields() const {
   return &_connectedFields;
 }
 
-StructureDataflowField::StructureDataflowField()
-    : _connectedFields{"InputFields", "Collection of connected input Fields",
-                       this} {}
+StructureOutputField::StructureOutputField() = default;
 
-void StructureDataflowField::Push() { FieldHelper::Push(this); }
-void StructureDataflowField::Connect(::Smp::IField *target) {
+void StructureOutputField::Push() { FieldHelper::Push(this); }
+void StructureOutputField::Connect(::Smp::IField *target) {
   auto *structInput = dynamic_cast<::Smp::IStructureField *>(target);
   if (!this->IsOutput() || !target->IsInput() || target == this ||
       !structInput || !::Xsmp::Helper::AreEquivalent(this, target)) {
@@ -513,19 +513,18 @@ void StructureDataflowField::Connect(::Smp::IField *target) {
   FieldHelper::Connect(this, structInput);
 }
 
-void StructureDataflowField::Disconnect(const ::Smp::IField *target) {
-  if (const auto *structInput =
-          dynamic_cast<const ::Smp::IStructureField *>(target)) {
-    FieldHelper::Disconnect(this, structInput);
+void StructureOutputField::Disconnect(::Smp::IField *target) {
+  const auto *structInput =
+      dynamic_cast<const ::Smp::IStructureField *>(target);
+  if (!structInput || !FieldHelper::Disconnect(this, structInput)) {
+    ::Xsmp::Exception::throwFieldNotConnected(this, this, target);
   }
 }
-const ::Smp::FieldCollection *StructureDataflowField::GetInputFields() const {
+const ::Smp::FieldCollection *StructureOutputField::GetInputFields() const {
   return &_connectedFields;
 }
 
-SimpleArrayConnectableField::SimpleArrayConnectableField()
-    : _connectedFields{"InputFields", "Collection of connected input Fields",
-                       this} {}
+SimpleArrayConnectableField::SimpleArrayConnectableField() = default;
 
 void SimpleArrayConnectableField::internal_push(::Smp::UInt64 index) const {
   // a connected field can push back to this one: propagate the value only once
@@ -560,7 +559,7 @@ void AbstractForcibleField::Store(::Smp::IStorageWriter *writer) {
   // store of value performed in ForcibleField
 }
 
-::Smp::Bool AbstractForcibleField::IsForced() { return _forced; }
+::Smp::Bool AbstractForcibleField::IsForced() const { return _forced; }
 
 void AbstractForcibleField::Force(::Smp::AnySimple value) {
   _forced = false;

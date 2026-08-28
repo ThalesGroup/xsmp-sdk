@@ -12,9 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <Smp/FileNotFound.h>
 #include <Smp/IModel.h>
-#include <Smp/InvalidLibrary.h>
-#include <Smp/LibraryNotFound.h>
+#include <Smp/InvalidFile.h>
+#include <Smp/InvalidParent.h>
+#include <Smp/InvalidSmpVersion.h>
+#include <Smp/Services/IEventManager.h>
+#include <Smp/Services/ILinkRegistry.h>
+#include <Smp/Services/ILogger.h>
+#include <Smp/Services/IResolver.h>
+#include <Smp/Services/IScheduler.h>
+#include <Smp/Services/ITimeKeeper.h>
 #include <Smp/SimulatorStateKind.h>
 #include <Smp/Uuid.h>
 #include <Xsmp/Simulator.h>
@@ -127,8 +135,32 @@ TEST(Simulator, State) {
 TEST(Simulator, LoadLibrary) {
   Simulator sim;
   sim.LoadLibrary("xsmp_services");
-  EXPECT_THROW(sim.LoadLibrary("invalid_library"), Smp::LibraryNotFound);
-  EXPECT_THROW(sim.LoadLibrary("xsmp_simulator"), Smp::InvalidLibrary);
+  EXPECT_THROW(sim.LoadLibrary("invalid_library"), Smp::FileNotFound);
+  // the simulator library is not a package: since SMP 2025 the version check
+  // comes first, and a library without GetSmpVersion() cannot be trusted
+  EXPECT_THROW(sim.LoadLibrary("xsmp_simulator"), Smp::InvalidSmpVersion);
+  try {
+    sim.LoadLibrary("xsmp_simulator");
+    FAIL();
+  } catch (const Smp::InvalidSmpVersion &e) {
+    EXPECT_EQ(e.GetLibrarySmpVersion(), 0U);
+  }
+}
+
+TEST(Simulator, CreateInstanceInvalidParent) {
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.LoadLibrary("xsmp_tests");
+
+  // an unknown uuid has no factory
+  EXPECT_FALSE(
+      sim.CreateInstance(Smp::Uuid{0, 0, 0, 0, 1}, "instance", "", &sim));
+
+  // the parent has to belong to this simulation
+  Simulator other;
+  EXPECT_THROW(sim.CreateInstance(::Xsmp::Tests::Uuid_ModelWithSimpleFields,
+                                  "instance", "", &other),
+               Smp::InvalidParent);
 }
 
 } // namespace Xsmp

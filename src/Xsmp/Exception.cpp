@@ -25,17 +25,21 @@
 #include <Smp/EventSinkNotSubscribed.h>
 #include <Smp/Exception.h>
 #include <Smp/FieldAlreadyConnected.h>
+#include <Smp/FieldNotConnected.h>
+#include <Smp/FileNotFound.h>
 #include <Smp/IArrayField.h>
 #include <Smp/IComponent.h>
 #include <Smp/IContainer.h>
-#include <Smp/IDataflowField.h>
 #include <Smp/IEntryPoint.h>
 #include <Smp/IEventSink.h>
 #include <Smp/IEventSource.h>
 #include <Smp/IFactory.h>
 #include <Smp/IOperation.h>
+#include <Smp/IOutputField.h>
+#include <Smp/IProperty.h>
 #include <Smp/IReference.h>
 #include <Smp/ISimpleArrayField.h>
+#include <Smp/InvalidAccess.h>
 #include <Smp/InvalidAnyType.h>
 #include <Smp/InvalidArrayIndex.h>
 #include <Smp/InvalidArraySize.h>
@@ -43,25 +47,29 @@
 #include <Smp/InvalidComponentState.h>
 #include <Smp/InvalidEventSink.h>
 #include <Smp/InvalidFieldName.h>
-#include <Smp/InvalidFieldType.h>
 #include <Smp/InvalidFieldValue.h>
-#include <Smp/InvalidLibrary.h>
+#include <Smp/InvalidFile.h>
 #include <Smp/InvalidObjectName.h>
 #include <Smp/InvalidObjectType.h>
 #include <Smp/InvalidOperationName.h>
 #include <Smp/InvalidParameterCount.h>
 #include <Smp/InvalidParameterIndex.h>
-#include <Smp/InvalidParameterType.h>
 #include <Smp/InvalidParameterValue.h>
-#include <Smp/InvalidReturnValue.h>
+#include <Smp/InvalidParent.h>
+#include <Smp/InvalidPropertyValue.h>
 #include <Smp/InvalidSimulatorState.h>
+#include <Smp/InvalidSmpVersion.h>
 #include <Smp/InvalidTarget.h>
-#include <Smp/LibraryNotFound.h>
+#include <Smp/InvalidType.h>
+#include <Smp/NoDynamicInvocation.h>
 #include <Smp/NotContained.h>
 #include <Smp/NotReferenced.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Publication/DuplicateLiteral.h>
+#include <Smp/Publication/IArrayType.h>
 #include <Smp/Publication/IType.h>
+#include <Smp/Publication/InvalidArrayItemType.h>
+#include <Smp/Publication/InvalidParameterDirection.h>
 #include <Smp/Publication/InvalidPrimitiveType.h>
 #include <Smp/Publication/TypeAlreadyRegistered.h>
 #include <Smp/Publication/TypeNotRegistered.h>
@@ -76,6 +84,7 @@
 #include <Smp/Services/InvalidSimulationTime.h>
 #include <Smp/SimulatorStateKind.h>
 #include <Smp/Uuid.h>
+#include <Smp/Version.h>
 #include <Smp/VoidOperation.h>
 #include <Xsmp/Duration.h>
 #include <Xsmp/Exception.h>
@@ -130,7 +139,7 @@ class FieldAlreadyConnected final : public Exception,
                                     public ::Smp::FieldAlreadyConnected {
 public:
   FieldAlreadyConnected(const ::Smp::IObject *sender,
-                        const ::Smp::IDataflowField *source,
+                        const ::Smp::IOutputField *source,
                         const ::Smp::IField *target)
       : Exception(sender, __func__,
                   "Cannot connect a target field to a data flow field that is "
@@ -145,21 +154,20 @@ public:
   FieldAlreadyConnected(const FieldAlreadyConnected &) = default;
   FieldAlreadyConnected &operator=(const FieldAlreadyConnected &) = default;
 
-  const ::Smp::IDataflowField *GetSource() const noexcept override {
+  const ::Smp::IOutputField *GetSource() const noexcept override {
     return _source;
   }
 
   const ::Smp::IField *GetTarget() const noexcept override { return _target; }
 
 private:
-  const ::Smp::IDataflowField *_source;
+  const ::Smp::IOutputField *_source;
   const ::Smp::IField *_target;
 };
 
 class InvalidTarget final : public Exception, public ::Smp::InvalidTarget {
 public:
-  InvalidTarget(const ::Smp::IObject *sender,
-                const ::Smp::IDataflowField *source,
+  InvalidTarget(const ::Smp::IObject *sender, const ::Smp::IOutputField *source,
                 const ::Smp::IField *target)
       : Exception(sender, __func__,
                   "Cannot connect two data flow fields of incompatible types",
@@ -173,14 +181,14 @@ public:
   InvalidTarget(const InvalidTarget &) = default;
   InvalidTarget &operator=(const InvalidTarget &) = default;
 
-  const ::Smp::IDataflowField *GetSource() const noexcept override {
+  const ::Smp::IOutputField *GetSource() const noexcept override {
     return _source;
   }
 
   const ::Smp::IField *GetTarget() const noexcept override { return _target; }
 
 private:
-  const ::Smp::IDataflowField *_source;
+  const ::Smp::IOutputField *_source;
   const ::Smp::IField *_target;
 };
 
@@ -658,26 +666,41 @@ private:
   ::Smp::Int32 _requestedNbParameters;
 };
 
-class InvalidParameterType final : public Exception,
-                                   public ::Smp::InvalidParameterType {
+class InvalidParameterValue final : public Exception,
+                                    public ::Smp::InvalidParameterValue {
 public:
-  InvalidParameterType(const ::Smp::IObject *sender,
-                       std::string_view operationName,
-                       std::string_view parameterName,
-                       ::Smp::PrimitiveTypeKind invalidType,
-                       ::Smp::PrimitiveTypeKind expectedType)
+  InvalidParameterValue(const ::Smp::IObject *sender,
+                        std::string_view operationName,
+                        std::string_view parameterName,
+                        const ::Smp::AnySimple &invalidValue,
+                        ::Smp::PrimitiveTypeKind expectedType)
       : Exception(sender, __func__,
                   "This exception is raised by the Invoke() method when trying "
                   "to invoke a method passing a parameter of wrong type",
                   "In operation ", operationName, ", tried to pass parameter ",
-                  parameterName, " which is of type ", invalidType,
+                  parameterName, " which is of type ", invalidValue.GetType(),
                   " instead of expected type ", expectedType),
 
         _operationName(operationName), _parameterName(parameterName),
-        _invalidType(invalidType), _expectedType(expectedType) {}
-  ~InvalidParameterType() noexcept override = default;
-  InvalidParameterType(const InvalidParameterType &) = default;
-  InvalidParameterType &operator=(const InvalidParameterType &) = default;
+        _invalidValue(invalidValue), _expectedType(expectedType) {}
+
+  /// SetParameterValue() knows the operation only through the sender.
+  InvalidParameterValue(const ::Smp::IObject *sender,
+                        std::string_view parameterName,
+                        const ::Smp::AnySimple &invalidValue, // NOLINT
+                        ::Smp::PrimitiveTypeKind expectedType)
+      : Exception(sender, __func__,
+                  "Cannot assign an illegal value to a parameter of an "
+                  "operation in a request using SetParameterValue()",
+                  "The value '", invalidValue, "' is invalid for parameter '",
+                  parameterName, "' in Operation '", sender, "'."),
+
+        _operationName(sender ? sender->GetName() : ""),
+        _parameterName(parameterName), _invalidValue(invalidValue),
+        _expectedType(expectedType) {}
+  ~InvalidParameterValue() noexcept override = default;
+  InvalidParameterValue(const InvalidParameterValue &) = default;
+  InvalidParameterValue &operator=(const InvalidParameterValue &) = default;
 
   ::Smp::String8 GetOperationName() const noexcept override {
     return _operationName.c_str();
@@ -687,8 +710,8 @@ public:
     return _parameterName.c_str();
   }
 
-  ::Smp::PrimitiveTypeKind GetInvalidType() const noexcept override {
-    return _invalidType;
+  ::Smp::AnySimple GetInvalidValue() const noexcept override {
+    return _invalidValue;
   }
 
   ::Smp::PrimitiveTypeKind GetExpectedType() const noexcept override {
@@ -698,7 +721,7 @@ public:
 private:
   ::Xsmp::cstring _operationName;
   ::Xsmp::cstring _parameterName;
-  ::Smp::PrimitiveTypeKind _invalidType;
+  ::Smp::AnySimple _invalidValue;
   ::Smp::PrimitiveTypeKind _expectedType;
 };
 
@@ -742,16 +765,23 @@ public:
                   "' to the field ", sender, " of ",
                   sender->GetType()->GetName(), "'s type."),
 
-        _invalidFieldValue(invalidFieldValue) {}
+        _field(sender), _invalidFieldValue(invalidFieldValue) {}
   ~InvalidFieldValue() noexcept override = default;
   InvalidFieldValue(const InvalidFieldValue &) = default;
   InvalidFieldValue &operator=(const InvalidFieldValue &) = default;
 
-  ::Smp::AnySimple GetInvalidFieldValue() const noexcept override {
+  const ::Smp::IField *GetField() const noexcept override { return _field; }
+
+  ::Smp::AnySimple GetInvalidValue() const noexcept override {
     return _invalidFieldValue;
   }
 
+  ::Smp::PrimitiveTypeKind GetExpectedType() const noexcept override {
+    return _field->GetType()->GetPrimitiveTypeKind();
+  }
+
 private:
+  const ::Smp::IField *_field;
   ::Smp::AnySimple _invalidFieldValue;
 };
 
@@ -768,17 +798,32 @@ public:
                   sender, "[", index, "] of ", sender->GetType()->GetName(),
                   "'s type."),
 
-        _index(index), _invalidValue(invalidValue) {}
+        _field(sender), _index(index), _invalidValue(invalidValue) {}
   ~InvalidArrayValue() noexcept override = default;
   InvalidArrayValue(const InvalidArrayValue &) = default;
   InvalidArrayValue &operator=(const InvalidArrayValue &) = default;
 
   ::Smp::Int64 GetInvalidValueIndex() const noexcept override { return _index; }
+
+  const ::Smp::IField *GetField() const noexcept override { return _field; }
+
   ::Smp::AnySimple GetInvalidValue() const noexcept override {
     return _invalidValue;
   }
 
+  ::Smp::PrimitiveTypeKind GetExpectedType() const noexcept override {
+    // the field is an array: what is expected is the kind of its items, the
+    // array type itself has no primitive kind
+    if (const auto *arrayType =
+            dynamic_cast<const ::Smp::Publication::IArrayType *>(
+                _field->GetType())) {
+      return arrayType->GetItemType()->GetPrimitiveTypeKind();
+    }
+    return _field->GetType()->GetPrimitiveTypeKind();
+  }
+
 private:
+  const ::Smp::ISimpleArrayField *_field;
   ::Smp::Int64 _index;
   ::Smp::AnySimple _invalidValue;
 };
@@ -1054,13 +1099,23 @@ public:
                   "The AnySimple type '", invalidType,
                   "' is invalid: expected '", expectedType, "'."),
 
-        _expectedType(expectedType), _invalidType(invalidType) {}
+        _expectedType(expectedType), _invalidValue(invalidType) {}
+  InvalidAnyType(const ::Smp::IObject *sender,
+                 ::Smp::PrimitiveTypeKind expectedType,
+                 const ::Smp::AnySimple &invalidValue)
+      : Exception(sender, __func__,
+                  "Cannot use an AnySimple argument of wrong type",
+
+                  "The AnySimple value '", invalidValue,
+                  "' is invalid: expected '", expectedType, "'."),
+
+        _expectedType(expectedType), _invalidValue(invalidValue) {}
   ~InvalidAnyType() noexcept override = default;
   InvalidAnyType(const InvalidAnyType &) = default;
   InvalidAnyType &operator=(const InvalidAnyType &) = default;
 
-  ::Smp::PrimitiveTypeKind GetInvalidType() const noexcept override {
-    return _invalidType;
+  ::Smp::AnySimple GetInvalidValue() const noexcept override {
+    return _invalidValue;
   }
 
   ::Smp::PrimitiveTypeKind GetExpectedType() const noexcept override {
@@ -1069,82 +1124,30 @@ public:
 
 private:
   ::Smp::PrimitiveTypeKind _expectedType;
-  ::Smp::PrimitiveTypeKind _invalidType;
+  /// Only the kind of the offending value is known at most call sites: it is
+  /// then reported as a default value of that kind.
+  ::Smp::AnySimple _invalidValue;
 };
 
-class InvalidReturnValue final : public Exception,
-                                 public ::Smp::InvalidReturnValue {
+class InvalidType final : public Exception, public ::Smp::InvalidType {
 public:
-  InvalidReturnValue(const ::Smp::IObject *sender,
-                     const ::Smp::AnySimple &value)
-      : Exception(sender, __func__,
-                  "Cannot assign an invalid return value of an operation in a "
-                  "request using SetReturnValue()",
-                  "The return value '", value, "' is invalid for Operation '",
-                  sender, "'."),
-        _value(value) {}
-  ~InvalidReturnValue() noexcept override = default;
-  InvalidReturnValue(const InvalidReturnValue &) = default;
-  InvalidReturnValue &operator=(const InvalidReturnValue &) = default;
-
-  ::Smp::String8 GetOperationName() const noexcept override {
-    return GetSender()->GetName();
-  }
-
-  ::Smp::AnySimple GetValue() const noexcept override { return _value; }
-
-private:
-  ::Smp::AnySimple _value;
-};
-
-class InvalidParameterValue final : public Exception,
-                                    public ::Smp::InvalidParameterValue {
-public:
-  InvalidParameterValue(const ::Smp::IObject *sender,
-                        std::string_view parameterName,
-                        const ::Smp::AnySimple &value)
-      : Exception(sender, __func__,
-                  "Cannot assign an illegal value to a parameter of an "
-                  "operation in a request using SetParameterValue()",
-                  "The value '", value, "' is invalid for parameter '",
-                  parameterName, "' in Operation '", sender, "'."),
-
-        _parameterName(parameterName), _value(value) {}
-  ~InvalidParameterValue() noexcept override = default;
-  InvalidParameterValue(const InvalidParameterValue &) = default;
-  InvalidParameterValue &operator=(const InvalidParameterValue &) = default;
-
-  ::Smp::String8 GetParameterName() const noexcept override {
-    return _parameterName.c_str();
-  }
-  ::Smp::AnySimple GetValue() const noexcept override { return _value; }
-
-private:
-  ::Xsmp::cstring _parameterName;
-  ::Smp::AnySimple _value;
-};
-
-class InvalidFieldType final : public Exception,
-                               public ::Smp::InvalidFieldType {
-public:
-  explicit InvalidFieldType(const ::Smp::IObject *sender,
-                            const ::Smp::Uuid &uuid)
+  explicit InvalidType(const ::Smp::IObject *sender, const ::Smp::Uuid &uuid)
       : Exception(sender, __func__, "Cannot publish a field with invalid type",
                   "The type UUID '", uuid, "' is invalid for field '", sender,
                   "'.") {}
-  explicit InvalidFieldType(const ::Smp::IObject *sender,
-                            ::Smp::PrimitiveTypeKind kind)
+  explicit InvalidType(const ::Smp::IObject *sender,
+                       ::Smp::PrimitiveTypeKind kind)
       : Exception(sender, __func__, "Cannot publish a field with invalid type",
                   "The primitive type kind '", kind, "' is invalid for field '",
                   sender, "'.") {}
-  explicit InvalidFieldType(const ::Smp::IObject *sender,
-                            const ::Smp::Publication::IType *type)
+  explicit InvalidType(const ::Smp::IObject *sender,
+                       const ::Smp::Publication::IType *type)
       : Exception(sender, __func__, "Cannot publish a field with invalid type",
                   "The type '", type ? type->GetName() : "nullptr",
                   "' is invalid for field '", sender, "'.") {}
-  ~InvalidFieldType() noexcept override = default;
-  InvalidFieldType(const InvalidFieldType &) = default;
-  InvalidFieldType &operator=(const InvalidFieldType &) = default;
+  ~InvalidType() noexcept override = default;
+  InvalidType(const InvalidType &) = default;
+  InvalidType &operator=(const InvalidType &) = default;
 };
 
 class DuplicateUuid final : public Exception, public ::Smp::DuplicateUuid {
@@ -1177,19 +1180,19 @@ private:
   ::Xsmp::cstring _newName;
 };
 
-class LibraryNotFound final : public Exception, public ::Smp::LibraryNotFound {
+class FileNotFound final : public Exception, public ::Smp::FileNotFound {
 public:
-  LibraryNotFound(const ::Smp::IObject *sender, ::Smp::String8 libraryName,
-                  std::string_view error)
+  FileNotFound(const ::Smp::IObject *sender, ::Smp::String8 libraryName,
+               std::string_view error)
       : Exception(sender, __func__, "Cannot load a library that does not exist",
                   error),
 
         _libraryName(nullCheck(libraryName)) {}
-  ~LibraryNotFound() noexcept override = default;
-  LibraryNotFound(const LibraryNotFound &) = default;
-  LibraryNotFound &operator=(const LibraryNotFound &) = default;
+  ~FileNotFound() noexcept override = default;
+  FileNotFound(const FileNotFound &) = default;
+  FileNotFound &operator=(const FileNotFound &) = default;
 
-  ::Smp::String8 GetLibraryName() const noexcept override {
+  ::Smp::String8 GetFileName() const noexcept override {
     return _libraryName.c_str();
   }
 
@@ -1197,23 +1200,28 @@ private:
   ::Xsmp::cstring _libraryName;
 };
 
-class InvalidLibrary final : public Exception, public ::Smp::InvalidLibrary {
+class InvalidFile final : public Exception, public ::Smp::InvalidFile {
 public:
-  InvalidLibrary(const ::Smp::IObject *sender, ::Smp::String8 libraryName,
-                 std::string_view msg)
+  InvalidFile(const ::Smp::IObject *sender, ::Smp::String8 libraryName,
+              std::string_view msg)
       : Exception(sender, __func__,
                   "Cannot load an undefined symbol from a library", msg),
-        _libraryName(nullCheck(libraryName)) {}
-  ~InvalidLibrary() noexcept override = default;
-  InvalidLibrary(const InvalidLibrary &) = default;
-  InvalidLibrary &operator=(const InvalidLibrary &) = default;
+        _libraryName(nullCheck(libraryName)), _errorMessage(msg) {}
+  ~InvalidFile() noexcept override = default;
+  InvalidFile(const InvalidFile &) = default;
+  InvalidFile &operator=(const InvalidFile &) = default;
 
-  ::Smp::String8 GetLibraryName() const noexcept override {
+  ::Smp::String8 GetFileName() const noexcept override {
     return _libraryName.c_str();
+  }
+
+  ::Smp::String8 GetErrorMessage() const noexcept override {
+    return _errorMessage.c_str();
   }
 
 private:
   ::Xsmp::cstring _libraryName;
+  ::Xsmp::cstring _errorMessage;
 };
 
 class InvalidSimulationTime final
@@ -1339,6 +1347,253 @@ private:
   ::Smp::PrimitiveTypeKind _type;
 };
 
+class FieldNotConnected final : public Exception,
+                                public ::Smp::FieldNotConnected {
+public:
+  FieldNotConnected(const ::Smp::IObject *sender,
+                    const ::Smp::IOutputField *source,
+                    const ::Smp::IField *target)
+      : Exception(sender, __func__,
+                  "Cannot disconnect a target field from a data flow field "
+                  "they are not connected to",
+
+                  "Fields '", target, "' and '", source,
+                  "' are not connected."),
+
+        _source(source), _target(target) {}
+
+  ~FieldNotConnected() noexcept override = default;
+  FieldNotConnected(const FieldNotConnected &) = default;
+  FieldNotConnected &operator=(const FieldNotConnected &) = default;
+
+  const ::Smp::IOutputField *GetSource() const noexcept override {
+    return _source;
+  }
+
+  const ::Smp::IField *GetTarget() const noexcept override { return _target; }
+
+private:
+  const ::Smp::IOutputField *_source;
+  const ::Smp::IField *_target;
+};
+
+/// An incompatible type is an Smp::InvalidType: the standard reports every
+/// use of a type where it is not allowed through that exception.
+class IncompatibleType final : public Exception, public ::Smp::InvalidType {
+public:
+  IncompatibleType(const ::Smp::IObject *sender, const ::Smp::Uuid &uuid,
+                   std::string_view msg)
+      : Exception(sender, "IncompatibleType", "The type is incompatible",
+                  "The type '", uuid, "' is incompatible: ", msg) {}
+
+  ~IncompatibleType() noexcept override = default;
+  IncompatibleType(const IncompatibleType &) = default;
+  IncompatibleType &operator=(const IncompatibleType &) = default;
+};
+
+class InvalidAccess final : public Exception, public ::Smp::InvalidAccess {
+public:
+  InvalidAccess(const ::Smp::IProperty *sender, ::Smp::AccessKind accessKind,
+                ::Smp::Bool setter)
+      : Exception(sender, __func__,
+                  "Cannot access a property through an accessor it does not "
+                  "provide",
+
+                  "The ", setter ? "setter" : "getter", " of property '",
+                  sender, "' is not available: its access kind is '",
+                  accessKind, "'."),
+
+        _propertyName(sender ? sender->GetName() : "") {}
+
+  ~InvalidAccess() noexcept override = default;
+  InvalidAccess(const InvalidAccess &) = default;
+  InvalidAccess &operator=(const InvalidAccess &) = default;
+
+  ::Smp::String8 GetPropertyName() const noexcept override {
+    return _propertyName.c_str();
+  }
+
+private:
+  ::Xsmp::cstring _propertyName;
+};
+
+class InvalidPropertyValue final : public Exception,
+                                   public ::Smp::InvalidPropertyValue {
+public:
+  InvalidPropertyValue(const ::Smp::IProperty *sender,
+                       const ::Smp::AnySimple &value)
+      : Exception(
+            sender, __func__, "Cannot assign an illegal value to a property",
+
+            "The value '", value, "' is invalid for property '", sender, "'."),
+
+        _property(sender), _value(value),
+        _expectedType(sender ? sender->GetPrimitiveTypeKind()
+                             : ::Smp::PrimitiveTypeKind::PTK_None) {}
+
+  ~InvalidPropertyValue() noexcept override = default;
+  InvalidPropertyValue(const InvalidPropertyValue &) = default;
+  InvalidPropertyValue &operator=(const InvalidPropertyValue &) = default;
+
+  const ::Smp::IProperty *GetProperty() const noexcept override {
+    return _property;
+  }
+
+  ::Smp::AnySimple GetInvalidValue() const noexcept override { return _value; }
+
+  ::Smp::PrimitiveTypeKind GetExpectedType() const noexcept override {
+    return _expectedType;
+  }
+
+private:
+  const ::Smp::IProperty *_property;
+  ::Smp::AnySimple _value;
+  ::Smp::PrimitiveTypeKind _expectedType;
+};
+
+class NoDynamicInvocation final : public Exception,
+                                  public ::Smp::NoDynamicInvocation {
+public:
+  NoDynamicInvocation(const ::Smp::IObject *sender,
+                      const ::Smp::IComponent *component)
+      : Exception(sender, __func__,
+                  "Cannot publish an operation or a property of a component "
+                  "that does not support dynamic invocation",
+
+                  "The component '", component,
+                  "' does not implement Smp::IDynamicInvocation."),
+
+        _component(component) {}
+
+  ~NoDynamicInvocation() noexcept override = default;
+  NoDynamicInvocation(const NoDynamicInvocation &) = default;
+  NoDynamicInvocation &operator=(const NoDynamicInvocation &) = default;
+
+  const ::Smp::IComponent *GetComponent() const noexcept override {
+    return _component;
+  }
+
+private:
+  const ::Smp::IComponent *_component;
+};
+
+class InvalidParent final : public Exception, public ::Smp::InvalidParent {
+public:
+  InvalidParent(const ::Smp::IObject *sender, const ::Smp::IObject *parentFound,
+                const ::Smp::IObject *parentExpected)
+      : Exception(sender, __func__,
+                  "Cannot add a component whose parent is not the expected one",
+
+                  "The parent of the component is '", parentFound,
+                  "' instead of '", parentExpected, "'."),
+
+        _parentFound(parentFound), _parentExpected(parentExpected) {}
+
+  ~InvalidParent() noexcept override = default;
+  InvalidParent(const InvalidParent &) = default;
+  InvalidParent &operator=(const InvalidParent &) = default;
+
+  const ::Smp::IObject *GetParentFound() const noexcept override {
+    return _parentFound;
+  }
+
+  const ::Smp::IObject *GetParentExpected() const noexcept override {
+    return _parentExpected;
+  }
+
+private:
+  const ::Smp::IObject *_parentFound;
+  const ::Smp::IObject *_parentExpected;
+};
+
+class InvalidArrayItemType final
+    : public Exception,
+      public ::Smp::Publication::InvalidArrayItemType {
+public:
+  InvalidArrayItemType(const ::Smp::IObject *sender, std::string_view typeName,
+                       ::Smp::PrimitiveTypeKind type)
+      : Exception(sender, __func__,
+                  "Cannot use a complex type as the item of a simple array",
+
+                  "The item type '", typeName, "' of the simple array type '",
+                  sender, "' is not a simple type."),
+
+        _typeName(typeName), _type(type) {}
+
+  ~InvalidArrayItemType() noexcept override = default;
+  InvalidArrayItemType(const InvalidArrayItemType &) = default;
+  InvalidArrayItemType &operator=(const InvalidArrayItemType &) = default;
+
+  ::Smp::String8 GetTypeName() const noexcept override {
+    return _typeName.c_str();
+  }
+
+  ::Smp::PrimitiveTypeKind GetType() const noexcept override { return _type; }
+
+private:
+  ::Xsmp::cstring _typeName;
+  ::Smp::PrimitiveTypeKind _type;
+};
+
+class InvalidParameterDirection final
+    : public Exception,
+      public ::Smp::Publication::InvalidParameterDirection {
+public:
+  InvalidParameterDirection(const ::Smp::IObject *sender,
+                            std::string_view parameterName)
+      : Exception(sender, __func__,
+                  "Cannot publish a parameter with an invalid direction",
+
+                  "The operation '", sender,
+                  "' already publishes a return parameter, '", parameterName,
+                  "' cannot be a second one."),
+
+        _parameterName(parameterName) {}
+
+  ~InvalidParameterDirection() noexcept override = default;
+  InvalidParameterDirection(const InvalidParameterDirection &) = default;
+  InvalidParameterDirection &
+  operator=(const InvalidParameterDirection &) = default;
+
+  ::Smp::String8 GetParameterName() const noexcept override {
+    return _parameterName.c_str();
+  }
+
+private:
+  ::Xsmp::cstring _parameterName;
+};
+
+class InvalidSmpVersion final : public Exception,
+                                public ::Smp::InvalidSmpVersion {
+public:
+  InvalidSmpVersion(const ::Smp::IObject *sender, ::Smp::String8 libraryName,
+                    ::Smp::UInt64 librarySmpVersion)
+      : Exception(sender, __func__,
+                  "Cannot load a library built against another version of the "
+                  "SMP standard",
+
+                  "Library '", nullCheck(libraryName),
+                  "' was built against "
+                  "SMP version ",
+                  librarySmpVersion,
+                  ", but this simulation "
+                  "environment implements ",
+                  ECSS_SMP_VERSION, "."),
+
+        _librarySmpVersion(librarySmpVersion) {}
+
+  ~InvalidSmpVersion() noexcept override = default;
+  InvalidSmpVersion(const InvalidSmpVersion &) = default;
+  InvalidSmpVersion &operator=(const InvalidSmpVersion &) = default;
+
+  ::Smp::UInt64 GetLibrarySmpVersion() const noexcept override {
+    return _librarySmpVersion;
+  }
+
+private:
+  ::Smp::UInt64 _librarySmpVersion;
+};
+
 class InvalidSimulatorState final : public Exception,
                                     public ::Smp::InvalidSimulatorState {
 public:
@@ -1374,13 +1629,57 @@ void throwException(const ::Smp::IObject *sender, std::string_view name,
 } // namespace detail
 
 void throwFieldAlreadyConnected(const ::Smp::IObject *sender,
-                                const ::Smp::IDataflowField *source,
+                                const ::Smp::IOutputField *source,
                                 const ::Smp::IField *target) {
   throw FieldAlreadyConnected(sender, source, target);
 }
 
+void throwFieldNotConnected(const ::Smp::IObject *sender,
+                            const ::Smp::IOutputField *source,
+                            const ::Smp::IField *target) {
+  throw FieldNotConnected(sender, source, target);
+}
+
+void throwInvalidAccess(const ::Smp::IProperty *sender,
+                        ::Smp::AccessKind accessKind, ::Smp::Bool setter) {
+  throw InvalidAccess(sender, accessKind, setter);
+}
+
+void throwInvalidPropertyValue(const ::Smp::IProperty *sender,
+                               const ::Smp::AnySimple &value) {
+  throw InvalidPropertyValue(sender, value);
+}
+
+void throwNoDynamicInvocation(const ::Smp::IObject *sender,
+                              const ::Smp::IComponent *component) {
+  throw NoDynamicInvocation(sender, component);
+}
+
+void throwInvalidParent(const ::Smp::IObject *sender,
+                        const ::Smp::IObject *parentFound,
+                        const ::Smp::IObject *parentExpected) {
+  throw InvalidParent(sender, parentFound, parentExpected);
+}
+
+void throwInvalidArrayItemType(const ::Smp::IObject *sender,
+                               std::string_view typeName,
+                               ::Smp::PrimitiveTypeKind type) {
+  throw InvalidArrayItemType(sender, typeName, type);
+}
+
+void throwInvalidParameterDirection(const ::Smp::IObject *sender,
+                                    std::string_view parameterName) {
+  throw InvalidParameterDirection(sender, parameterName);
+}
+
+void throwInvalidSmpVersion(const ::Smp::IObject *sender,
+                            ::Smp::String8 libraryName,
+                            ::Smp::UInt64 librarySmpVersion) {
+  throw InvalidSmpVersion(sender, libraryName, librarySmpVersion);
+}
+
 void throwInvalidTarget(const ::Smp::IObject *sender,
-                        const ::Smp::IDataflowField *source,
+                        const ::Smp::IOutputField *source,
                         const ::Smp::IField *target) {
   throw InvalidTarget(sender, source, target);
 }
@@ -1473,13 +1772,13 @@ void throwInvalidParameterCount(const ::Smp::IOperation *sender,
   throw InvalidParameterCount(sender, requestedNbParameters);
 }
 
-void throwInvalidParameterType(const ::Smp::IObject *sender,
-                               std::string_view operationName,
-                               std::string_view parameterName,
-                               ::Smp::PrimitiveTypeKind invalidType,
-                               ::Smp::PrimitiveTypeKind expectedType) {
-  throw InvalidParameterType(sender, operationName, parameterName, invalidType,
-                             expectedType);
+void throwInvalidParameterValue(const ::Smp::IObject *sender,
+                                std::string_view operationName,
+                                std::string_view parameterName,
+                                const ::Smp::AnySimple &invalidValue,
+                                ::Smp::PrimitiveTypeKind expectedType) {
+  throw InvalidParameterValue(sender, operationName, parameterName,
+                              invalidValue, expectedType);
 }
 
 void throwInvalidArrayIndex(const ::Smp::IArrayField *sender,
@@ -1567,28 +1866,23 @@ void throwInvalidAnyType(const ::Smp::IObject *sender,
   throw InvalidAnyType(sender, expectedType, invalidType);
 }
 
-void throwInvalidReturnValue(const ::Smp::IObject *sender,
-                             const ::Smp::AnySimple &value) {
-  throw InvalidReturnValue(sender, value);
-}
-
 void throwInvalidParameterValue(const ::Smp::IObject *sender,
                                 std::string_view parameterName,
-                                const ::Smp::AnySimple &value) {
-  throw InvalidParameterValue(sender, parameterName, value);
+                                const ::Smp::AnySimple &value,
+                                ::Smp::PrimitiveTypeKind expectedType) {
+  throw InvalidParameterValue(sender, parameterName, value, expectedType);
 }
 
-void throwInvalidFieldType(const ::Smp::IObject *sender,
-                           const ::Smp::Uuid &uuid) {
-  throw InvalidFieldType(sender, uuid);
+void throwInvalidType(const ::Smp::IObject *sender, const ::Smp::Uuid &uuid) {
+  throw InvalidType(sender, uuid);
 }
-void throwInvalidFieldType(const ::Smp::IObject *sender,
-                           const ::Smp::Publication::IType *type) {
-  throw InvalidFieldType(sender, type);
+void throwInvalidType(const ::Smp::IObject *sender,
+                      const ::Smp::Publication::IType *type) {
+  throw InvalidType(sender, type);
 }
-void throwInvalidFieldType(const ::Smp::IObject *sender,
-                           ::Smp::PrimitiveTypeKind kind) {
-  throw InvalidFieldType(sender, kind);
+void throwInvalidType(const ::Smp::IObject *sender,
+                      ::Smp::PrimitiveTypeKind kind) {
+  throw InvalidType(sender, kind);
 }
 void throwDuplicateUuid(const ::Smp::IObject *sender,
                         const ::Smp::IFactory *oldFactory,
@@ -1596,14 +1890,14 @@ void throwDuplicateUuid(const ::Smp::IObject *sender,
   throw DuplicateUuid(sender, oldFactory, newName);
 }
 
-void throwLibraryNotFound(const ::Smp::IObject *sender,
-                          ::Smp::String8 libraryName, std::string_view msg) {
-  throw LibraryNotFound(sender, libraryName, msg);
+void throwFileNotFound(const ::Smp::IObject *sender, ::Smp::String8 libraryName,
+                       std::string_view msg) {
+  throw FileNotFound(sender, libraryName, msg);
 }
 
-void throwInvalidLibrary(const ::Smp::IObject *sender,
-                         ::Smp::String8 libraryName, std::string_view msg) {
-  throw InvalidLibrary(sender, libraryName, msg);
+void throwInvalidFile(const ::Smp::IObject *sender, ::Smp::String8 libraryName,
+                      std::string_view msg) {
+  throw InvalidFile(sender, libraryName, msg);
 }
 
 void throwInvalidSimulationTime(const ::Smp::IObject *sender,
@@ -1636,8 +1930,7 @@ void throwDuplicateLiteral(const ::Smp::IObject *sender,
 
 void throwIncompatibleType(const ::Smp::IObject *sender,
                            const ::Smp::Uuid &uuid, std::string_view msg) {
-  throw Exception(sender, "IncompatibleType", "The type is incompatible",
-                  "The type '", uuid, "' is incompatible: ", msg);
+  throw IncompatibleType(sender, uuid, msg);
 }
 
 } // namespace Xsmp::Exception

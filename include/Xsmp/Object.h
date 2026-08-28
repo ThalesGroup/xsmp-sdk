@@ -49,6 +49,13 @@ public:
   /// @return  Parent object of object or null if object has no parent.
   ::Smp::IObject *GetParent() const final;
 
+  /// Returns the child object with the given name.
+  /// A leaf object has no child: derived classes that own children override
+  /// this.
+  /// @param name The name of the child to look for.
+  /// @return  The child with that name, or null if there is no such child.
+  ::Smp::IObject *GetChild(::Smp::String8 name) const override;
+
 private:
   cstring _name;
   cstring _description;

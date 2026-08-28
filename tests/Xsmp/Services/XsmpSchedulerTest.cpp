@@ -310,6 +310,68 @@ TEST(XsmpScheduler, RemoveZuluTimeEvent) {
   sim.Exit();
 }
 
+TEST(XsmpScheduler, AddRelativeZuluTimeEvent) {
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.Connect();
+
+  TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
+  ::Xsmp::EntryPoint ep{"ep", "", &entryPoints, [] {}};
+
+  auto *scheduler = sim.GetScheduler();
+
+  // far enough in the future for the zulu thread not to execute it
+  auto eventId = scheduler->AddRelativeZuluTimeEvent(&ep, 1_h);
+  EXPECT_TRUE(scheduler->IsEventScheduled(eventId));
+
+  // the delay is counted from the current zulu time, so the event landed in
+  // the zulu table and not in the simulation time one
+  EXPECT_NO_THROW(scheduler->SetEventZuluTime(
+      eventId, sim.GetTimeKeeper()->GetZuluTime() + 2_h));
+  EXPECT_THROW(scheduler->SetEventSimulationTime(eventId, 1_ms),
+               ::Smp::Services::InvalidEventId);
+
+  // a delay in the past is rejected
+  EXPECT_THROW(scheduler->AddRelativeZuluTimeEvent(&ep, -1_h),
+               ::Smp::Services::InvalidEventTime);
+
+  // a null delay is legal: only a negative one is rejected, and the date is
+  // derived from the zulu clock so it must not be checked against a later
+  // reading of that same clock
+  EXPECT_NO_THROW(
+      static_cast<void>(scheduler->AddRelativeZuluTimeEvent(&ep, 0)));
+
+  scheduler->RemoveEvent(eventId);
+  EXPECT_FALSE(scheduler->IsEventScheduled(eventId));
+  sim.Exit();
+}
+
+TEST(XsmpScheduler, IsEventScheduled) {
+
+  Simulator sim;
+  sim.LoadLibrary("xsmp_services");
+  sim.Connect();
+
+  TestEntryPointPublisher entryPoints{"entryPoints", "", &sim};
+  ::Xsmp::EntryPoint ep{"ep", "", &entryPoints, [] {}};
+
+  auto *scheduler = sim.GetScheduler();
+
+  // an identifier that was never handed out
+  EXPECT_FALSE(scheduler->IsEventScheduled(-1));
+
+  auto eventId = scheduler->AddSimulationTimeEvent(&ep, 1_ms);
+  EXPECT_TRUE(scheduler->IsEventScheduled(eventId));
+
+  // the identifier is only valid until the event is removed
+  scheduler->RemoveEvent(eventId);
+  EXPECT_FALSE(scheduler->IsEventScheduled(eventId));
+  EXPECT_THROW(scheduler->RemoveEvent(eventId),
+               ::Smp::Services::InvalidEventId);
+  sim.Exit();
+}
+
 TEST(XsmpScheduler, EpochTimeChanged) {
 
   Simulator sim;

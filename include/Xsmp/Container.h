@@ -62,6 +62,11 @@ public:
   /// @return  Parent object of container or nullptr if container has no parent.
   ::Smp::IObject *GetParent() const final;
 
+  /// Returns the child object with the given name.
+  /// @param   name The name of the child to look for.
+  /// @return  The child with that name, or null if there is no such child.
+  ::Smp::IObject *GetChild(::Smp::String8 name) const override;
+
   /// Query for the collection of all components in the container.
   /// The returned collection may be empty if no components exist for the
   /// container.
@@ -139,10 +144,6 @@ private:
     using iterator = typename ::Smp::ComponentCollection::iterator;
     explicit Collection(AbstractContainer &parent);
 
-    ::Smp::String8 GetName() const override;
-    ::Smp::String8 GetDescription() const override;
-    ::Smp::IObject *GetParent() const override;
-
     /// Retrieve element by name
     /// @param name The name of the element to be retrieved.
     /// @return Instance with given name, or nullptr of no such instance exists.
@@ -160,7 +161,7 @@ private:
 
     /// Check if the collection is empty.
     /// @return true if the collection is empty, false otherwise.
-    bool empty() const;
+    ::Smp::Bool empty() const override;
 
     /// Get the begin iterator
     /// @return Begin iterator

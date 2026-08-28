@@ -14,9 +14,9 @@
 
 #include "Smp/ISimpleField.h"
 
-#include "Smp/IDataflowField.h"
 #include "Smp/IFailure.h"
 #include "Smp/IForcibleField.h"
+#include "Smp/IOutputField.h"
 #include <Smp/AnySimple.h>
 #include <Smp/IArrayField.h>
 #include <Smp/ISimpleArrayField.h>
@@ -36,7 +36,7 @@ namespace Xsmp {
 using field = Field<::Smp::Bool>;
 
 static_assert(std::is_base_of_v<Smp::ISimpleField, field>);
-static_assert(!std::is_base_of_v<Smp::IDataflowField, field>);
+static_assert(!std::is_base_of_v<Smp::IOutputField, field>);
 static_assert(!std::is_base_of_v<Smp::IForcibleField, field>);
 static_assert(!std::is_base_of_v<Smp::IArrayField, field>);
 static_assert(!std::is_base_of_v<Smp::ISimpleArrayField, field>);
@@ -44,7 +44,7 @@ static_assert(!std::is_base_of_v<Smp::IStructureField, field>);
 static_assert(!std::is_base_of_v<Smp::IFailure, field>);
 
 static_assert(std::is_base_of_v<Smp::ISimpleField, field::transient>);
-static_assert(!std::is_base_of_v<Smp::IDataflowField, field::transient>);
+static_assert(!std::is_base_of_v<Smp::IOutputField, field::transient>);
 static_assert(!std::is_base_of_v<Smp::IForcibleField, field::transient>);
 static_assert(!std::is_base_of_v<Smp::IArrayField, field::transient>);
 static_assert(!std::is_base_of_v<Smp::ISimpleArrayField, field::transient>);
@@ -52,7 +52,7 @@ static_assert(!std::is_base_of_v<Smp::IStructureField, field::transient>);
 static_assert(!std::is_base_of_v<Smp::IFailure, field::transient>);
 
 static_assert(std::is_base_of_v<Smp::ISimpleField, field::input>);
-static_assert(!std::is_base_of_v<Smp::IDataflowField, field::input>);
+static_assert(!std::is_base_of_v<Smp::IOutputField, field::input>);
 static_assert(!std::is_base_of_v<Smp::IForcibleField, field::input>);
 static_assert(!std::is_base_of_v<Smp::IArrayField, field::input>);
 static_assert(!std::is_base_of_v<Smp::ISimpleArrayField, field::input>);
@@ -60,7 +60,7 @@ static_assert(!std::is_base_of_v<Smp::IStructureField, field::input>);
 static_assert(!std::is_base_of_v<Smp::IFailure, field::input>);
 
 static_assert(std::is_base_of_v<Smp::ISimpleField, field::output>);
-static_assert(std::is_base_of_v<Smp::IDataflowField, field::output>);
+static_assert(std::is_base_of_v<Smp::IOutputField, field::output>);
 static_assert(!std::is_base_of_v<Smp::IForcibleField, field::output>);
 static_assert(!std::is_base_of_v<Smp::IArrayField, field::output>);
 static_assert(!std::is_base_of_v<Smp::ISimpleArrayField, field::output>);
@@ -68,7 +68,7 @@ static_assert(!std::is_base_of_v<Smp::IStructureField, field::output>);
 static_assert(!std::is_base_of_v<Smp::IFailure, field::output>);
 
 static_assert(std::is_base_of_v<Smp::ISimpleField, field::forcible>);
-static_assert(!std::is_base_of_v<Smp::IDataflowField, field::forcible>);
+static_assert(!std::is_base_of_v<Smp::IOutputField, field::forcible>);
 static_assert(std::is_base_of_v<Smp::IForcibleField, field::forcible>);
 static_assert(!std::is_base_of_v<Smp::IArrayField, field::forcible>);
 static_assert(!std::is_base_of_v<Smp::ISimpleArrayField, field::forcible>);
@@ -76,7 +76,7 @@ static_assert(!std::is_base_of_v<Smp::IStructureField, field::forcible>);
 static_assert(!std::is_base_of_v<Smp::IFailure, field::forcible>);
 
 static_assert(std::is_base_of_v<Smp::ISimpleField, field::failure>);
-static_assert(!std::is_base_of_v<Smp::IDataflowField, field::failure>);
+static_assert(!std::is_base_of_v<Smp::IOutputField, field::failure>);
 static_assert(!std::is_base_of_v<Smp::IForcibleField, field::failure>);
 static_assert(!std::is_base_of_v<Smp::IArrayField, field::failure>);
 static_assert(!std::is_base_of_v<Smp::ISimpleArrayField, field::failure>);
@@ -84,7 +84,7 @@ static_assert(!std::is_base_of_v<Smp::IStructureField, field::failure>);
 static_assert(std::is_base_of_v<Smp::IFailure, field::failure>);
 
 static_assert(std::is_base_of_v<Smp::ISimpleField, field::failure::output>);
-static_assert(std::is_base_of_v<Smp::IDataflowField, field::failure::output>);
+static_assert(std::is_base_of_v<Smp::IOutputField, field::failure::output>);
 static_assert(!std::is_base_of_v<Smp::IForcibleField, field::failure::output>);
 static_assert(!std::is_base_of_v<Smp::IArrayField, field::failure::output>);
 static_assert(
@@ -93,7 +93,7 @@ static_assert(!std::is_base_of_v<Smp::IStructureField, field::failure::output>);
 static_assert(std::is_base_of_v<Smp::IFailure, field::failure::output>);
 
 static_assert(std::is_base_of_v<Smp::ISimpleField, field::output::failure>);
-static_assert(std::is_base_of_v<Smp::IDataflowField, field::output::failure>);
+static_assert(std::is_base_of_v<Smp::IOutputField, field::output::failure>);
 static_assert(!std::is_base_of_v<Smp::IForcibleField, field::output::failure>);
 static_assert(!std::is_base_of_v<Smp::IArrayField, field::output::failure>);
 static_assert(
@@ -102,7 +102,7 @@ static_assert(!std::is_base_of_v<Smp::IStructureField, field::output::failure>);
 static_assert(std::is_base_of_v<Smp::IFailure, field::output::failure>);
 
 static_assert(std::is_base_of_v<Smp::ISimpleField, field::forcible::output>);
-static_assert(std::is_base_of_v<Smp::IDataflowField, field::forcible::output>);
+static_assert(std::is_base_of_v<Smp::IOutputField, field::forcible::output>);
 static_assert(std::is_base_of_v<Smp::IForcibleField, field::forcible::output>);
 static_assert(!std::is_base_of_v<Smp::IArrayField, field::forcible::output>);
 static_assert(
@@ -112,7 +112,7 @@ static_assert(
 static_assert(!std::is_base_of_v<Smp::IFailure, field::forcible::output>);
 
 static_assert(std::is_base_of_v<Smp::ISimpleField, field::output::forcible>);
-static_assert(std::is_base_of_v<Smp::IDataflowField, field::output::forcible>);
+static_assert(std::is_base_of_v<Smp::IOutputField, field::output::forcible>);
 static_assert(std::is_base_of_v<Smp::IForcibleField, field::output::forcible>);
 static_assert(!std::is_base_of_v<Smp::IArrayField, field::output::forcible>);
 static_assert(

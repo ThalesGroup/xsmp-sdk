@@ -18,7 +18,6 @@
 #include <Smp/IAggregate.h>
 #include <Smp/IArrayField.h>
 #include <Smp/IContainer.h>
-#include <Smp/IDataflowField.h>
 #include <Smp/IDynamicInvocation.h>
 #include <Smp/IEntryPointPublisher.h>
 #include <Smp/IEventConsumer.h>
@@ -30,12 +29,14 @@
 #include <Smp/ILinkingComponent.h>
 #include <Smp/IModel.h>
 #include <Smp/IOperation.h>
+#include <Smp/IOutputField.h>
 #include <Smp/IParameter.h>
 #include <Smp/IProperty.h>
 #include <Smp/IReference.h>
 #include <Smp/ISimpleArrayField.h>
 #include <Smp/ISimulator.h>
 #include <Smp/IStructureField.h>
+#include <Smp/LibraryLoadingFlag.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Services/IEventManager.h>
 #include <Smp/Services/ILinkRegistry.h>
@@ -62,16 +63,16 @@ std::unique_ptr<::Smp::ISimulator> createSimulator(::Smp::String8 libraryName,
   void *handle = ::Xsmp::LoadLibrary(libraryName);
 
   if (!handle) {
-    ::Xsmp::Exception::throwLibraryNotFound(nullptr, libraryName,
-                                            ::Xsmp::GetLastError());
+    ::Xsmp::Exception::throwFileNotFound(nullptr, libraryName,
+                                         ::Xsmp::GetLastError());
   }
 
   auto *factory =
       ::Xsmp::GetSymbol<::Smp::ISimulator *(*)(::Smp::String8, ::Smp::String8)>(
           handle, factoryName);
   if (!factory) {
-    ::Xsmp::Exception::throwInvalidLibrary(nullptr, libraryName,
-                                           ::Xsmp::GetLastError());
+    ::Xsmp::Exception::throwInvalidFile(nullptr, libraryName,
+                                        ::Xsmp::GetLastError());
   }
 
   return std::unique_ptr<::Smp::ISimulator>((*factory)(name, description));
@@ -280,8 +281,8 @@ void generate(std::ostream &fs, const std::string &indent,
           generate(body, indent + INDENT, nestedField);
       }
 
-      if (dynamic_cast<const ::Smp::IDataflowField *>(obj)) {
-        bases << "ecss_smp.Smp.IDataflowField, ";
+      if (dynamic_cast<const ::Smp::IOutputField *>(obj)) {
+        bases << "ecss_smp.Smp.IOutputField, ";
       }
       if (dynamic_cast<const ::Smp::IFailure *>(obj)) {
         bases << "ecss_smp.Smp.IFailure, ";
@@ -495,17 +496,21 @@ The type registry is typically a singleton, and must not be null, to allow use o
 
       .def(
           "LoadLibrary",
-          [](::Smp::ISimulator &self, ::Smp::String8 libraryName) {
-            self.LoadLibrary(libraryName);
+          [](::Smp::ISimulator &self, ::Smp::String8 libraryName,
+             ::Smp::LibraryLoadingFlag flag) {
+            self.LoadLibrary(libraryName, flag);
             // on success, load the library on Python side too to avoid dangling
             // references on typeinfo
-            ::Xsmp::LoadLibrary(libraryName);
+            ::Xsmp::LoadLibrary(libraryName, flag);
             // the library will stay open until the end of the process
           },
           py::arg("library_name"),
+          py::arg("flag") = ::Smp::LibraryLoadingFlag::LLF_Auto,
           R"(This operation loads a library of a package into memory.
-At loading time, the Initialise() function of this library will be called.
-At exiting or aborting time, the Finalise() function of this library will be called.)")
+At loading time, the GetSmpVersion() function of the library is called: a library built against another version of the SMP standard, or that does not provide that function, is rejected with an InvalidSmpVersion exception.
+Then the Initialise() function of this library will be called.
+At exiting or aborting time, the Finalise() function of this library will be called.
+The flag tells whether the symbols the library defines are made available to the libraries loaded afterwards.)")
 
       .def("generate_python_type_hints", &generatePythonTypeHints,
            py::arg("path"),

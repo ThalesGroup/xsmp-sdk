@@ -34,6 +34,8 @@ Factory::Factory(::Smp::String8 name, ::Smp::String8 description,
 ::Smp::String8 Factory::GetName() const { return _name.c_str(); }
 ::Smp::String8 Factory::GetDescription() const { return _description.c_str(); }
 ::Smp::IObject *Factory::GetParent() const { return _simulator; }
+
+::Smp::IObject *Factory::GetChild(::Smp::String8) const { return nullptr; }
 ::Smp::Uuid Factory::GetUuid() const { return _uuid; }
 
 ::Smp::IComponent *Factory::CreateInstance(::Smp::String8 name,

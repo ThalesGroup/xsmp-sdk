@@ -17,6 +17,7 @@
 #include <Smp/ComponentStateKind.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Publication/ParameterDirectionKind.h>
+#include <Smp/RequestType.h>
 #include <Smp/Services/TimeKind.h>
 #include <Smp/SimulatorStateKind.h>
 #include <Smp/Uuid.h>
@@ -134,6 +135,20 @@ std::ostream &operator<<(std::ostream &os, const AccessKind &obj) {
     return os << "WriteOnly";
   }
   return os << "Unknown ::Smp::AccessKind(" << static_cast<::Smp::Int32>(obj)
+            << ")";
+}
+
+std::ostream &operator<<(std::ostream &os, const RequestType &obj) {
+
+  switch (obj) {
+  case RequestType::RT_Invoke:
+    return os << "Invoke";
+  case RequestType::RT_Get:
+    return os << "Get";
+  case RequestType::RT_Set:
+    return os << "Set";
+  }
+  return os << "Unknown ::Smp::RequestType(" << static_cast<::Smp::Int32>(obj)
             << ")";
 }
 

@@ -53,9 +53,19 @@ public:
   ::Smp::String8 GetDescription() const override;
   ::Smp::IObject *GetParent() const override;
 
+  /// Returns the child object with the given name.
+  /// A published property has no named child.
+  /// @param   name The name of the child to look for.
+  /// @return  Always null.
+  ::Smp::IObject *GetChild(::Smp::String8 name) const override;
+
   /// Provides the type of the property.
   /// @return  Type of the property.
-  ::Smp::Publication::IType *GetType() const override;
+  const ::Smp::Publication::IType *GetType() const override;
+
+  /// Provides the primitive type kind of the property type.
+  /// @return  Primitive type kind of the property.
+  ::Smp::PrimitiveTypeKind GetPrimitiveTypeKind() const override;
 
   /// Provides the access kind of the property.
   /// @return  Access kind of the property.

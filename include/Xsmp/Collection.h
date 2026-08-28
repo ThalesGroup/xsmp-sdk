@@ -16,6 +16,8 @@
 #define XSMP_COLLECTION_H_
 
 #include <Smp/ICollection.h>
+#include <Smp/ICollectionBase.h>
+#include <Smp/IComponent.h>
 #include <Smp/IObject.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/Exception.h>
@@ -24,8 +26,11 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstring>
+#include <memory>
 #include <string_view>
+#include <type_traits>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 /// XSMP standard types and interfaces.
@@ -33,7 +38,13 @@ namespace Xsmp {
 /// XSMP implementation details.
 namespace detail {
 
-template <typename T, bool AllowDuplicates = false>
+/// @tparam RegisterChildren The collection takes part in the name resolution
+/// of the component that owns it: SMP 2025 has such a collection register its
+/// elements with ::Smp::IComponent::AddChild, so that GetChild() and
+/// IsChildInCollection() resolve them, and so that a name already used by
+/// another collection of the same component is rejected.
+template <typename T, bool AllowDuplicates = false,
+          bool RegisterChildren = false>
 class AbstractCollection : public ::Smp::ICollection<T> {
 public:
   using const_iterator = typename ::Smp::ICollection<T>::const_iterator;
@@ -85,21 +96,26 @@ public:
     if constexpr (std::is_base_of_v<::Smp::IObject, T>) {
       if constexpr (!AllowDuplicates) {
         if (this->at(element->GetName())) {
-          ::Xsmp::Exception::throwDuplicateName(this, element->GetName(), this);
+          ::Xsmp::Exception::throwDuplicateName(AsObject(), element->GetName(),
+                                                AsObject());
         }
       }
     } else {
       const auto *casted = dynamic_cast<const ::Smp::IObject *>(element);
       if (!casted) {
         ::Xsmp::Exception::throwException(
-            this, "InvalidObject", "",
+            AsObject(), "InvalidObject", "",
             "Tried to add an element that is not an ::Smp::IObject");
       }
       if constexpr (!AllowDuplicates) {
         if (this->at(casted->GetName())) {
-          ::Xsmp::Exception::throwDuplicateName(this, casted->GetName(), this);
+          ::Xsmp::Exception::throwDuplicateName(AsObject(), casted->GetName(),
+                                                AsObject());
         }
       }
+    }
+    if constexpr (RegisterChildren) {
+      RegisterChild(::Xsmp::Helper::auto_cast<::Smp::IObject>(element));
     }
     _vector.push_back(element);
   }
@@ -110,13 +126,16 @@ public:
     if constexpr (!std::is_base_of_v<::Smp::IObject, T>) {
       if (!dynamic_cast<const ::Smp::IObject *>(element)) {
         ::Xsmp::Exception::throwException(
-            this, "InvalidObject", "",
+            AsObject(), "InvalidObject", "",
             "Tried to remove an element that is not an ::Smp::IObject");
       }
     }
 
     if (const auto it = std::find(_vector.begin(), _vector.end(), element);
         it != _vector.cend()) {
+      if constexpr (RegisterChildren) {
+        UnregisterChild(::Xsmp::Helper::auto_cast<::Smp::IObject>(element));
+      }
       _vector.erase(it);
       return true;
     }
@@ -124,7 +143,45 @@ public:
   }
 
   /// Removes all elements from the collection.
-  void clear() { _vector.clear(); }
+  void clear() {
+    if constexpr (RegisterChildren) {
+      for (auto *element : _vector) {
+        UnregisterChild(::Xsmp::Helper::auto_cast<::Smp::IObject>(element));
+      }
+    }
+    _vector.clear();
+  }
+
+protected:
+  /// In SMP 2025 ::Smp::ICollection no longer derives from ::Smp::IObject, but
+  /// every collection of the SDK is also an ::Xsmp::Object. The exception
+  /// helpers report the collection as the sender, so recover it dynamically.
+  const ::Smp::IObject *AsObject() const {
+    return dynamic_cast<const ::Smp::IObject *>(this);
+  }
+
+  /// The component the collection belongs to, or nullptr when the collection
+  /// is not owned by a component.
+  ::Smp::IComponent *Owner() const {
+    const auto *object = AsObject();
+    return object ? dynamic_cast<::Smp::IComponent *>(object->GetParent())
+                  : nullptr;
+  }
+
+  /// SMP 2025 requires the insertion to fail when the component already has a
+  /// child with that name, whichever of its collections holds it.
+  void RegisterChild(::Smp::IObject *child) {
+    if (auto *owner = Owner(); owner && !owner->AddChild(child, this)) {
+      ::Xsmp::Exception::throwDuplicateName(AsObject(), child->GetName(),
+                                            AsObject());
+    }
+  }
+
+  void UnregisterChild(::Smp::IObject *child) {
+    if (auto *owner = Owner()) {
+      owner->RemoveChild(child, this);
+    }
+  }
 
 private:
   std::vector<T *> _vector;
@@ -134,13 +191,21 @@ private:
 /// @class Collection
 /// XSMP implementation of ::Smp::ICollection.
 /// The Collection instance does not own the elements it contains.
-template <typename T, bool AllowDuplicates = false>
+template <typename T, bool AllowDuplicates = false,
+          bool RegisterChildren = false>
 class Collection final
     : public ::Xsmp::Object,
-      public ::Xsmp::detail::AbstractCollection<T, AllowDuplicates> {
+      public ::Xsmp::detail::AbstractCollection<T, AllowDuplicates,
+                                                RegisterChildren> {
 public:
   using ::Xsmp::Object::Object;
 };
+
+/// @class ChildCollection
+/// A Collection whose elements are children of the ::Smp::IComponent that owns
+/// it, and which therefore takes part in its name resolution.
+template <typename T, bool AllowDuplicates = false>
+using ChildCollection = Collection<T, AllowDuplicates, true>;
 
 /// @class ContainingCollection
 /// XSMP implementation of ::Smp::ICollection.
@@ -166,10 +231,9 @@ public:
     auto it = std::find_if(
         _vector.begin(), _vector.end(),
         [name](const std::unique_ptr<T> &element) {
-          return std::strcmp(
-                     name, ::Xsmp::Helper::auto_cast<::Smp::IObject>(
-                               element.get())
-                               ->GetName()) == 0;
+          return std::strcmp(name, ::Xsmp::Helper::auto_cast<::Smp::IObject>(
+                                       element.get())
+                                       ->GetName()) == 0;
         });
     return it == _vector.cend() ? nullptr : it->get();
   }
@@ -214,7 +278,8 @@ public:
   template <typename U> U *Add(std::unique_ptr<U> element) {
     if constexpr (!allowDuplicates) {
       if (this->at(element->GetName())) {
-        ::Xsmp::Exception::throwDuplicateName(this, element->GetName(), this);
+        ::Xsmp::Exception::throwDuplicateName(AsObject(), element->GetName(),
+                                              AsObject());
       }
     }
     auto *raw = element.get();
@@ -240,6 +305,10 @@ public:
   void clear() { _vector.clear(); }
 
 private:
+  const ::Smp::IObject *AsObject() const {
+    return dynamic_cast<const ::Smp::IObject *>(this);
+  }
+
   std::vector<std::unique_ptr<T>> _vector;
 };
 
@@ -298,12 +367,6 @@ public:
   /// Get the end iterator
   /// @return End iterator
   const_iterator end() const override { return {*this, size()}; }
-
-  ::Smp::String8 GetName() const override { return _delegate->GetName(); }
-  ::Smp::String8 GetDescription() const override {
-    return _delegate->GetDescription();
-  }
-  ::Smp::IObject *GetParent() const override { return _delegate->GetParent(); }
 
 private:
   const ::Smp::ICollection<T> *_delegate;

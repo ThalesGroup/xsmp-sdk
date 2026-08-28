@@ -394,7 +394,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @struct1Transient.setter
         def struct1Transient(self, value: typing.Any) -> None: ...
 
-        class __booleanOutput(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+        class __booleanOutput(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
             pass
 
         @property
@@ -403,7 +403,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @booleanOutput.setter
         def booleanOutput(self, value: typing.Any) -> None: ...
 
-        class __char8Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+        class __char8Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
             pass
 
         @property
@@ -412,7 +412,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @char8Output.setter
         def char8Output(self, value: typing.Any) -> None: ...
 
-        class __enum1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+        class __enum1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
             pass
 
         @property
@@ -421,7 +421,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @enum1Output.setter
         def enum1Output(self, value: typing.Any) -> None: ...
 
-        class __string1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+        class __string1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
             pass
 
         @property
@@ -430,7 +430,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @string1Output.setter
         def string1Output(self, value: typing.Any) -> None: ...
 
-        class __float1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+        class __float1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
             pass
 
         @property
@@ -439,7 +439,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @float1Output.setter
         def float1Output(self, value: typing.Any) -> None: ...
 
-        class __integer1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+        class __integer1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
             pass
 
         @property
@@ -448,7 +448,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @integer1Output.setter
         def integer1Output(self, value: typing.Any) -> None: ...
 
-        class __struct1Output(ecss_smp.Smp.IStructureField, ecss_smp.Smp.IDataflowField, ):
+        class __struct1Output(ecss_smp.Smp.IStructureField, ecss_smp.Smp.IOutputField, ):
             class __boolean(ecss_smp.Smp.ISimpleField, ):
                 pass
 
@@ -680,7 +680,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @integer1Failure.setter
         def integer1Failure(self, value: typing.Any) -> None: ...
 
-        class __booleanAll(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+        class __booleanAll(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
             pass
 
         @property
@@ -689,7 +689,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @booleanAll.setter
         def booleanAll(self, value: typing.Any) -> None: ...
 
-        class __char8All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+        class __char8All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
             pass
 
         @property
@@ -698,7 +698,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @char8All.setter
         def char8All(self, value: typing.Any) -> None: ...
 
-        class __enum1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+        class __enum1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
             pass
 
         @property
@@ -707,7 +707,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @enum1All.setter
         def enum1All(self, value: typing.Any) -> None: ...
 
-        class __string1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+        class __string1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
             pass
 
         @property
@@ -716,7 +716,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @string1All.setter
         def string1All(self, value: typing.Any) -> None: ...
 
-        class __float1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+        class __float1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
             pass
 
         @property
@@ -725,7 +725,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @float1All.setter
         def float1All(self, value: typing.Any) -> None: ...
 
-        class __integer1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+        class __integer1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
             pass
 
         @property
@@ -1092,7 +1092,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @struct1Transient.setter
         def struct1Transient(self, value: typing.Any) -> None: ...
 
-        class __booleanOutput(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+        class __booleanOutput(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
             pass
 
         @property
@@ -1101,7 +1101,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @booleanOutput.setter
         def booleanOutput(self, value: typing.Any) -> None: ...
 
-        class __char8Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+        class __char8Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
             pass
 
         @property
@@ -1110,7 +1110,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @char8Output.setter
         def char8Output(self, value: typing.Any) -> None: ...
 
-        class __enum1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+        class __enum1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
             pass
 
         @property
@@ -1119,7 +1119,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @enum1Output.setter
         def enum1Output(self, value: typing.Any) -> None: ...
 
-        class __string1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+        class __string1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
             pass
 
         @property
@@ -1128,7 +1128,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @string1Output.setter
         def string1Output(self, value: typing.Any) -> None: ...
 
-        class __float1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+        class __float1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
             pass
 
         @property
@@ -1137,7 +1137,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @float1Output.setter
         def float1Output(self, value: typing.Any) -> None: ...
 
-        class __integer1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+        class __integer1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
             pass
 
         @property
@@ -1146,7 +1146,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @integer1Output.setter
         def integer1Output(self, value: typing.Any) -> None: ...
 
-        class __struct1Output(ecss_smp.Smp.IStructureField, ecss_smp.Smp.IDataflowField, ):
+        class __struct1Output(ecss_smp.Smp.IStructureField, ecss_smp.Smp.IOutputField, ):
             class __boolean(ecss_smp.Smp.ISimpleField, ):
                 pass
 
@@ -1378,7 +1378,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @integer1Failure.setter
         def integer1Failure(self, value: typing.Any) -> None: ...
 
-        class __booleanAll(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+        class __booleanAll(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
             pass
 
         @property
@@ -1387,7 +1387,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @booleanAll.setter
         def booleanAll(self, value: typing.Any) -> None: ...
 
-        class __char8All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+        class __char8All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
             pass
 
         @property
@@ -1396,7 +1396,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @char8All.setter
         def char8All(self, value: typing.Any) -> None: ...
 
-        class __enum1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+        class __enum1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
             pass
 
         @property
@@ -1405,7 +1405,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @enum1All.setter
         def enum1All(self, value: typing.Any) -> None: ...
 
-        class __string1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+        class __string1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
             pass
 
         @property
@@ -1414,7 +1414,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @string1All.setter
         def string1All(self, value: typing.Any) -> None: ...
 
-        class __float1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+        class __float1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
             pass
 
         @property
@@ -1423,7 +1423,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
         @float1All.setter
         def float1All(self, value: typing.Any) -> None: ...
 
-        class __integer1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+        class __integer1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
             pass
 
         @property
@@ -1787,7 +1787,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @struct1Transient.setter
             def struct1Transient(self, value: typing.Any) -> None: ...
 
-            class __booleanOutput(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+            class __booleanOutput(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
                 pass
 
             @property
@@ -1796,7 +1796,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @booleanOutput.setter
             def booleanOutput(self, value: typing.Any) -> None: ...
 
-            class __char8Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+            class __char8Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
                 pass
 
             @property
@@ -1805,7 +1805,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @char8Output.setter
             def char8Output(self, value: typing.Any) -> None: ...
 
-            class __enum1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+            class __enum1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
                 pass
 
             @property
@@ -1814,7 +1814,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @enum1Output.setter
             def enum1Output(self, value: typing.Any) -> None: ...
 
-            class __string1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+            class __string1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
                 pass
 
             @property
@@ -1823,7 +1823,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @string1Output.setter
             def string1Output(self, value: typing.Any) -> None: ...
 
-            class __float1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+            class __float1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
                 pass
 
             @property
@@ -1832,7 +1832,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @float1Output.setter
             def float1Output(self, value: typing.Any) -> None: ...
 
-            class __integer1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+            class __integer1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
                 pass
 
             @property
@@ -1841,7 +1841,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @integer1Output.setter
             def integer1Output(self, value: typing.Any) -> None: ...
 
-            class __struct1Output(ecss_smp.Smp.IStructureField, ecss_smp.Smp.IDataflowField, ):
+            class __struct1Output(ecss_smp.Smp.IStructureField, ecss_smp.Smp.IOutputField, ):
                 class __boolean(ecss_smp.Smp.ISimpleField, ):
                     pass
 
@@ -2073,7 +2073,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @integer1Failure.setter
             def integer1Failure(self, value: typing.Any) -> None: ...
 
-            class __booleanAll(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+            class __booleanAll(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
                 pass
 
             @property
@@ -2082,7 +2082,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @booleanAll.setter
             def booleanAll(self, value: typing.Any) -> None: ...
 
-            class __char8All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+            class __char8All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
                 pass
 
             @property
@@ -2091,7 +2091,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @char8All.setter
             def char8All(self, value: typing.Any) -> None: ...
 
-            class __enum1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+            class __enum1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
                 pass
 
             @property
@@ -2100,7 +2100,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @enum1All.setter
             def enum1All(self, value: typing.Any) -> None: ...
 
-            class __string1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+            class __string1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
                 pass
 
             @property
@@ -2109,7 +2109,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @string1All.setter
             def string1All(self, value: typing.Any) -> None: ...
 
-            class __float1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+            class __float1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
                 pass
 
             @property
@@ -2118,7 +2118,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @float1All.setter
             def float1All(self, value: typing.Any) -> None: ...
 
-            class __integer1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+            class __integer1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
                 pass
 
             @property
@@ -2486,7 +2486,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @struct1Transient.setter
             def struct1Transient(self, value: typing.Any) -> None: ...
 
-            class __booleanOutput(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+            class __booleanOutput(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
                 pass
 
             @property
@@ -2495,7 +2495,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @booleanOutput.setter
             def booleanOutput(self, value: typing.Any) -> None: ...
 
-            class __char8Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+            class __char8Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
                 pass
 
             @property
@@ -2504,7 +2504,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @char8Output.setter
             def char8Output(self, value: typing.Any) -> None: ...
 
-            class __enum1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+            class __enum1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
                 pass
 
             @property
@@ -2513,7 +2513,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @enum1Output.setter
             def enum1Output(self, value: typing.Any) -> None: ...
 
-            class __string1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+            class __string1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
                 pass
 
             @property
@@ -2522,7 +2522,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @string1Output.setter
             def string1Output(self, value: typing.Any) -> None: ...
 
-            class __float1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+            class __float1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
                 pass
 
             @property
@@ -2531,7 +2531,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @float1Output.setter
             def float1Output(self, value: typing.Any) -> None: ...
 
-            class __integer1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+            class __integer1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
                 pass
 
             @property
@@ -2540,7 +2540,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @integer1Output.setter
             def integer1Output(self, value: typing.Any) -> None: ...
 
-            class __struct1Output(ecss_smp.Smp.IStructureField, ecss_smp.Smp.IDataflowField, ):
+            class __struct1Output(ecss_smp.Smp.IStructureField, ecss_smp.Smp.IOutputField, ):
                 class __boolean(ecss_smp.Smp.ISimpleField, ):
                     pass
 
@@ -2772,7 +2772,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @integer1Failure.setter
             def integer1Failure(self, value: typing.Any) -> None: ...
 
-            class __booleanAll(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+            class __booleanAll(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
                 pass
 
             @property
@@ -2781,7 +2781,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @booleanAll.setter
             def booleanAll(self, value: typing.Any) -> None: ...
 
-            class __char8All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+            class __char8All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
                 pass
 
             @property
@@ -2790,7 +2790,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @char8All.setter
             def char8All(self, value: typing.Any) -> None: ...
 
-            class __enum1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+            class __enum1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
                 pass
 
             @property
@@ -2799,7 +2799,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @enum1All.setter
             def enum1All(self, value: typing.Any) -> None: ...
 
-            class __string1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+            class __string1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
                 pass
 
             @property
@@ -2808,7 +2808,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @string1All.setter
             def string1All(self, value: typing.Any) -> None: ...
 
-            class __float1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+            class __float1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
                 pass
 
             @property
@@ -2817,7 +2817,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @float1All.setter
             def float1All(self, value: typing.Any) -> None: ...
 
-            class __integer1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+            class __integer1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
                 pass
 
             @property
@@ -3185,7 +3185,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @struct1Transient.setter
             def struct1Transient(self, value: typing.Any) -> None: ...
 
-            class __booleanOutput(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+            class __booleanOutput(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
                 pass
 
             @property
@@ -3194,7 +3194,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @booleanOutput.setter
             def booleanOutput(self, value: typing.Any) -> None: ...
 
-            class __char8Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+            class __char8Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
                 pass
 
             @property
@@ -3203,7 +3203,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @char8Output.setter
             def char8Output(self, value: typing.Any) -> None: ...
 
-            class __enum1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+            class __enum1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
                 pass
 
             @property
@@ -3212,7 +3212,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @enum1Output.setter
             def enum1Output(self, value: typing.Any) -> None: ...
 
-            class __string1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+            class __string1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
                 pass
 
             @property
@@ -3221,7 +3221,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @string1Output.setter
             def string1Output(self, value: typing.Any) -> None: ...
 
-            class __float1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+            class __float1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
                 pass
 
             @property
@@ -3230,7 +3230,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @float1Output.setter
             def float1Output(self, value: typing.Any) -> None: ...
 
-            class __integer1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IDataflowField, ):
+            class __integer1Output(ecss_smp.Smp.ISimpleField, ecss_smp.Smp.IOutputField, ):
                 pass
 
             @property
@@ -3239,7 +3239,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @integer1Output.setter
             def integer1Output(self, value: typing.Any) -> None: ...
 
-            class __struct1Output(ecss_smp.Smp.IStructureField, ecss_smp.Smp.IDataflowField, ):
+            class __struct1Output(ecss_smp.Smp.IStructureField, ecss_smp.Smp.IOutputField, ):
                 class __boolean(ecss_smp.Smp.ISimpleField, ):
                     pass
 
@@ -3471,7 +3471,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @integer1Failure.setter
             def integer1Failure(self, value: typing.Any) -> None: ...
 
-            class __booleanAll(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+            class __booleanAll(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
                 pass
 
             @property
@@ -3480,7 +3480,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @booleanAll.setter
             def booleanAll(self, value: typing.Any) -> None: ...
 
-            class __char8All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+            class __char8All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
                 pass
 
             @property
@@ -3489,7 +3489,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @char8All.setter
             def char8All(self, value: typing.Any) -> None: ...
 
-            class __enum1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+            class __enum1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
                 pass
 
             @property
@@ -3498,7 +3498,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @enum1All.setter
             def enum1All(self, value: typing.Any) -> None: ...
 
-            class __string1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+            class __string1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
                 pass
 
             @property
@@ -3507,7 +3507,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @string1All.setter
             def string1All(self, value: typing.Any) -> None: ...
 
-            class __float1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+            class __float1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
                 pass
 
             @property
@@ -3516,7 +3516,7 @@ class Simulator(ecss_smp.Smp.ISimulator, ):
             @float1All.setter
             def float1All(self, value: typing.Any) -> None: ...
 
-            class __integer1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IDataflowField, ecss_smp.Smp.IFailure, ):
+            class __integer1All(ecss_smp.Smp.IForcibleField, ecss_smp.Smp.IOutputField, ecss_smp.Smp.IFailure, ):
                 pass
 
             @property

@@ -66,7 +66,7 @@ Field::Field(::Smp::String8 name, ::Smp::String8 description,
       _state(state), _input(input), _output(output) {
   // type must be defined
   if (!type) {
-    ::Xsmp::Exception::throwInvalidFieldType(this, type);
+    ::Xsmp::Exception::throwInvalidType(this, type);
   }
 }
 Field::Field(::Smp::String8 name, ::Smp::String8 description,
@@ -78,6 +78,10 @@ Field::Field(::Smp::String8 name, ::Smp::String8 description,
 ::Smp::String8 Field::GetName() const { return _name.c_str(); }
 ::Smp::String8 Field::GetDescription() const { return _description.c_str(); }
 ::Smp::IObject *Field::GetParent() const { return _parent; }
+
+::Smp::IObject *Field::GetChild(::Smp::String8 name) const {
+  return ::Xsmp::Helper::GetFieldChild(this, name);
+}
 ::Smp::ViewKind Field::GetView() const { return _view; }
 ::Smp::Bool Field::IsState() const { return _state; }
 ::Smp::Bool Field::IsInput() const { return _input; }
@@ -91,10 +95,16 @@ std::unique_ptr<Field> Field::Create(::Smp::String8 name,
                                      ::Smp::ViewKind view, ::Smp::Bool state,
                                      ::Smp::Bool input, ::Smp::Bool output) {
 
+  // the primitive String8 is a const char* with no bounded storage: only a
+  // user-defined string type, which declares a maximum length, can be
+  // published
+  if (type->GetUuid() == ::Smp::Uuids::Uuid_String8) {
+    ::Xsmp::Exception::throwInvalidType(parent, type);
+  }
   // create a simple field
   if (type->GetPrimitiveTypeKind() != ::Smp::PrimitiveTypeKind::PTK_None) {
     if (output) {
-      return std::make_unique<SimpleDataflowField>(
+      return std::make_unique<SimpleOutputField>(
           name, description, parent, address, type, view, state, input, output);
     }
     return std::make_unique<SimpleField>(name, description, parent, address,
@@ -107,7 +117,7 @@ std::unique_ptr<Field> Field::Create(::Smp::String8 name,
         array->GetItemType()->GetPrimitiveTypeKind() !=
             ::Smp::PrimitiveTypeKind::PTK_None) {
       if (output) {
-        return std::make_unique<SimpleArrayDataflowField>(
+        return std::make_unique<SimpleArrayOutputField>(
             name, description, parent, address, array, view, state, input,
             output);
       }
@@ -118,9 +128,9 @@ std::unique_ptr<Field> Field::Create(::Smp::String8 name,
     // normal field
 
     if (output) {
-      return std::make_unique<ArrayDataflowField>(name, description, parent,
-                                                  address, array, view, state,
-                                                  input, output);
+      return std::make_unique<ArrayOutputField>(name, description, parent,
+                                                address, array, view, state,
+                                                input, output);
     }
     return std::make_unique<ArrayField>(name, description, parent, address,
                                         array, view, state, input, output);
@@ -129,31 +139,43 @@ std::unique_ptr<Field> Field::Create(::Smp::String8 name,
   if (const auto *structure =
           dynamic_cast<const ::Xsmp::Publication::StructureType *>(type)) {
     if (output) {
-      return std::make_unique<StructureDataflowField>(name, description, parent,
-                                                      address, structure, view,
-                                                      state, input, output);
+      return std::make_unique<StructureOutputField>(name, description, parent,
+                                                    address, structure, view,
+                                                    state, input, output);
     }
     return std::make_unique<StructureField>(name, description, parent, address,
                                             structure, view, state, input,
                                             output);
   }
-  ::Xsmp::Exception::throwInvalidFieldType(parent, type);
+  ::Xsmp::Exception::throwInvalidType(parent, type);
 }
 
-void DataflowField::Connect(::Smp::IField *target) {
-  if (_targets.find(target) != _targets.end()) {
+void OutputField::Connect(::Smp::IField *target) {
+  if (_targets.contains(target)) {
     ::Xsmp::Exception::throwFieldAlreadyConnected(this, this, target);
   }
   if (!this->IsOutput() || !target->IsInput() || target == this ||
       !::Xsmp::Helper::AreEquivalent(this, target)) {
     ::Xsmp::Exception::throwInvalidTarget(this, this, target);
   }
-  _targets.emplace(target);
+  _targets.add(target);
   // push the current value
   Push(this, target);
 }
 
-void DataflowField::Push(::Smp::IField *source, ::Smp::IField *target) {
+void OutputField::Disconnect(::Smp::IField *target) {
+  if (!_targets.remove(target)) {
+    ::Xsmp::Exception::throwFieldNotConnected(this, this, target);
+  }
+}
+
+const ::Smp::FieldCollection *OutputField::GetInputFields() const {
+  return &_targets;
+}
+
+::Smp::Bool OutputField::IsAutomatic() const { return false; }
+
+void OutputField::Push(::Smp::IField *source, ::Smp::IField *target) {
 
   // push a simple field
   if (auto const *simpleSource = dynamic_cast<::Smp::ISimpleField *>(source)) {
@@ -194,7 +216,7 @@ void DataflowField::Push(::Smp::IField *source, ::Smp::IField *target) {
   }
 }
 
-void DataflowField::Push() {
+void OutputField::Push() {
   for (auto *target : _targets) {
     Push(this, target);
   }
@@ -229,7 +251,7 @@ void AnonymousArrayField::Store(::Smp::IStorageWriter *writer) {
 
 ::Smp::IField *AnonymousArrayField::GetItem(::Smp::UInt64 index) const {
   if (index >= GetSize()) {
-    ::Xsmp::Exception::throwInvalidArrayIndex(this, index);
+    return nullptr;
   }
   return GetFields()->at(index);
 }
@@ -337,6 +359,9 @@ void AnonymousSimpleArrayField::SetValue(::Smp::UInt64 index,
     ::Xsmp::Exception::throwInvalidArrayIndex(this, index);
   }
   auto kind = GetType()->GetPrimitiveTypeKind();
+  if (value.GetType() != kind) {
+    ::Xsmp::Exception::throwInvalidArrayValue(this, index, value);
+  }
   switch (kind) {
   case ::Smp::PrimitiveTypeKind::PTK_Bool:
     static_cast<::Smp::Bool *>(GetAddress())[index] = value;
@@ -382,22 +407,28 @@ void AnonymousSimpleArrayField::SetValue(::Smp::UInt64 index,
 }
 
 void AnonymousSimpleArrayField::GetValues(::Smp::UInt64 length,
-                                          ::Smp::AnySimpleArray values) const {
-  if (length != GetSize()) {
+                                          ::Smp::AnySimple *values,
+                                          ::Smp::UInt64 startIndex) const {
+  // startIndex + length would wrap around in UInt64 and let the check
+  // pass for an out of bounds range
+  if (startIndex > GetSize() || length > GetSize() - startIndex) {
     ::Xsmp::Exception::throwInvalidArraySize(this, length);
   }
   for (::Smp::UInt64 i = 0; i < length; ++i) {
-    values[i] = GetValue(i);
+    values[i] = GetValue(startIndex + i);
   }
 }
 
 void AnonymousSimpleArrayField::SetValues(::Smp::UInt64 length,
-                                          ::Smp::AnySimpleArray values) {
-  if (length != GetSize()) {
+                                          ::Smp::AnySimpleArray values,
+                                          ::Smp::UInt64 startIndex) {
+  // startIndex + length would wrap around in UInt64 and let the check
+  // pass for an out of bounds range
+  if (startIndex > GetSize() || length > GetSize() - startIndex) {
     ::Xsmp::Exception::throwInvalidArraySize(this, length);
   }
   for (::Smp::UInt64 i = 0; i < length; ++i) {
-    SetValue(i, values[i]);
+    SetValue(startIndex + i, values[i]);
   }
 }
 
@@ -454,7 +485,7 @@ ArrayField::ArrayField(::Smp::String8 name, ::Smp::String8 description,
 
 ::Smp::IField *ArrayField::GetItem(::Smp::UInt64 index) const {
   if (index >= GetSize()) {
-    ::Xsmp::Exception::throwInvalidArrayIndex(this, index);
+    return nullptr;
   }
   return _fields[index].get();
 }
@@ -550,6 +581,9 @@ void SimpleArrayField::SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) {
   }
   void *address = static_cast<char *>(GetAddress()) + index * _itemSize;
 
+  if (value.GetType() != _itemType->GetPrimitiveTypeKind()) {
+    ::Xsmp::Exception::throwInvalidArrayValue(this, index, value);
+  }
   switch (_itemType->GetPrimitiveTypeKind()) {
   case ::Smp::PrimitiveTypeKind::PTK_Bool:
     *static_cast<::Smp::Bool *>(address) = value;
@@ -596,12 +630,12 @@ void SimpleArrayField::SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) {
     const auto *stringType =
         dynamic_cast<const ::Xsmp::Publication::StringType *>(_itemType);
     if (!stringType) {
-      ::Xsmp::Exception::throwInvalidFieldType(this, _itemType);
+      ::Xsmp::Exception::throwInvalidType(this, _itemType);
     }
     // the buffer of a string field holds its length plus the null terminator
     ::Xsmp::Helper::CopyString(
         static_cast<char *>(address),
-        static_cast<std::size_t>(stringType->GetLength()) + 1, value);
+        static_cast<std::size_t>(stringType->GetMaxLength()) + 1, value);
     break;
   }
   default:
@@ -609,27 +643,33 @@ void SimpleArrayField::SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) {
   }
 }
 
-void SimpleArrayField::GetValues(::Smp::UInt64 length,
-                                 ::Smp::AnySimpleArray values) const {
-  if (length != GetSize()) {
+void SimpleArrayField::GetValues(::Smp::UInt64 length, ::Smp::AnySimple *values,
+                                 ::Smp::UInt64 startIndex) const {
+  // startIndex + length would wrap around in UInt64 and let the check
+  // pass for an out of bounds range
+  if (startIndex > GetSize() || length > GetSize() - startIndex) {
     ::Xsmp::Exception::throwInvalidArraySize(this, length);
   }
   for (::Smp::UInt64 i = 0; i < length; ++i) {
-    values[i] = GetValue(i);
+    values[i] = GetValue(startIndex + i);
   }
 }
 
 void SimpleArrayField::SetValues(::Smp::UInt64 length,
-                                 ::Smp::AnySimpleArray values) {
-  if (length != GetSize()) {
+                                 ::Smp::AnySimpleArray values,
+                                 ::Smp::UInt64 startIndex) {
+  // startIndex + length would wrap around in UInt64 and let the check
+  // pass for an out of bounds range
+  if (startIndex > GetSize() || length > GetSize() - startIndex) {
     ::Xsmp::Exception::throwInvalidArraySize(this, length);
   }
   auto _itemKind = _itemType->GetPrimitiveTypeKind();
   for (::Smp::UInt64 i = 0; i < length; ++i) {
     if (values[i].type != _itemKind) {
-      ::Xsmp::Exception::throwInvalidArrayValue(this, i, values[i]);
+      ::Xsmp::Exception::throwInvalidArrayValue(this, startIndex + i,
+                                                values[i]);
     }
-    SetValue(i, values[i]);
+    SetValue(startIndex + i, values[i]);
   }
 }
 SimpleField::SimpleField(::Smp::String8 name, ::Smp::String8 description,
@@ -693,9 +733,9 @@ void SimpleField::Store(::Smp::IStorageWriter *writer) {
   case ::Smp::PrimitiveTypeKind::PTK_String8:
     if (const auto *stringType =
             dynamic_cast<const ::Xsmp::Publication::StringType *>(GetType())) {
-      return static_cast<::Smp::UInt64>(stringType->GetLength()) + 1U;
+      return static_cast<::Smp::UInt64>(stringType->GetMaxLength()) + 1U;
     } else {
-      ::Xsmp::Exception::throwInvalidFieldType(this, GetType());
+      ::Xsmp::Exception::throwInvalidType(this, GetType());
     }
   default:
     ::Xsmp::Exception::throwInvalidPrimitiveType(this, "void", kind);
@@ -746,6 +786,11 @@ void SimpleField::Store(::Smp::IStorageWriter *writer) {
 
 void SimpleField::SetValue(::Smp::AnySimple value) {
   auto kind = GetPrimitiveTypeKind();
+  // the AnySimple conversion below would report a mismatching kind as a plain
+  // InvalidAnyType; SMP 2025 asks for InvalidFieldValue here
+  if (value.GetType() != kind) {
+    ::Xsmp::Exception::throwInvalidFieldValue(this, value);
+  }
   switch (kind) {
   case ::Smp::PrimitiveTypeKind::PTK_Bool:
     *static_cast<::Smp::Bool *>(GetAddress()) = value;
@@ -792,12 +837,12 @@ void SimpleField::SetValue(::Smp::AnySimple value) {
     const auto *stringType =
         dynamic_cast<const ::Xsmp::Publication::StringType *>(GetType());
     if (!stringType) {
-      ::Xsmp::Exception::throwInvalidFieldType(this, GetType());
+      ::Xsmp::Exception::throwInvalidType(this, GetType());
     }
     // the buffer of a string field holds its length plus the null terminator
     ::Xsmp::Helper::CopyString(
         static_cast<char *>(GetAddress()),
-        static_cast<std::size_t>(stringType->GetLength()) + 1, value);
+        static_cast<std::size_t>(stringType->GetMaxLength()) + 1, value);
     break;
   }
   default:

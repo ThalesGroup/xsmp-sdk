@@ -30,11 +30,10 @@ namespace Xsmp::Services {
 }
 
 ::Smp::IObject *XsmpResolver::ResolveRelative(::Smp::String8 relativePath,
-                                              const ::Smp::IComponent *sender) {
+                                              ::Smp::IObject *relativeRoot) {
   // a relative path cannot start with '/'
   if (relativePath && relativePath[0] != '/') {
-    return ::Xsmp::Helper::Resolve(const_cast<::Smp::IComponent *>(sender),
-                                   relativePath);
+    return ::Xsmp::Helper::Resolve(relativeRoot, relativePath);
   }
   return nullptr;
 }

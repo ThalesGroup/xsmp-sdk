@@ -15,6 +15,7 @@
 #ifndef XSMP_EXCEPTION_H_
 #define XSMP_EXCEPTION_H_
 
+#include <Smp/AccessKind.h>
 #include <Smp/AnySimple.h>
 #include <Smp/ComponentStateKind.h>
 #include <Smp/PrimitiveTypes.h>
@@ -28,11 +29,12 @@
 namespace Smp {
 class IObject;
 class IField;
-class IDataflowField;
+class IOutputField;
 class IEventSink;
 class IEventSource;
 class IEntryPoint;
 class IComponent;
+class IProperty;
 class IOperation;
 class IContainer;
 class IReference;
@@ -75,13 +77,16 @@ throwException(const ::Smp::IObject *sender, std::string_view name,
                          detail::FormatString(std::forward<Args>(message)...));
 }
 
-[[noreturn]] void
-throwFieldAlreadyConnected(const ::Smp::IObject *sender,
-                           const ::Smp::IDataflowField *source,
-                           const ::Smp::IField *target);
+[[noreturn]] void throwFieldAlreadyConnected(const ::Smp::IObject *sender,
+                                             const ::Smp::IOutputField *source,
+                                             const ::Smp::IField *target);
+
+[[noreturn]] void throwFieldNotConnected(const ::Smp::IObject *sender,
+                                         const ::Smp::IOutputField *source,
+                                         const ::Smp::IField *target);
 
 [[noreturn]] void throwInvalidTarget(const ::Smp::IObject *sender,
-                                     const ::Smp::IDataflowField *source,
+                                     const ::Smp::IOutputField *source,
                                      const ::Smp::IField *target);
 
 [[noreturn]] void
@@ -154,9 +159,9 @@ throwEventSinkNotSubscribed(const ::Smp::IObject *sender,
 throwInvalidParameterCount(const ::Smp::IOperation *sender,
                            ::Smp::Int32 requestedNbParameters);
 
-[[noreturn]] void throwInvalidParameterType(
+[[noreturn]] void throwInvalidParameterValue(
     const ::Smp::IObject *sender, std::string_view operationName,
-    std::string_view parameterName, ::Smp::PrimitiveTypeKind invalidType,
+    std::string_view parameterName, const ::Smp::AnySimple &invalidValue,
     ::Smp::PrimitiveTypeKind expectedType);
 
 [[noreturn]] void throwInvalidArrayIndex(const ::Smp::IArrayField *sender,
@@ -219,31 +224,86 @@ throwEntryPointAlreadySubscribed(const ::Smp::IObject *sender,
                                       ::Smp::PrimitiveTypeKind expectedType,
                                       ::Smp::PrimitiveTypeKind invalidType);
 
-[[noreturn]] void throwInvalidReturnValue(const ::Smp::IObject *sender,
-                                          const ::Smp::AnySimple &value);
+[[noreturn]] void throwInvalidParameterValue(
+    const ::Smp::IObject *sender, std::string_view parameterName,
+    const ::Smp::AnySimple &value, ::Smp::PrimitiveTypeKind expectedType);
 
-[[noreturn]] void throwInvalidParameterValue(const ::Smp::IObject *sender,
-                                             std::string_view parameterName,
-                                             const ::Smp::AnySimple &value);
-
-[[noreturn]] void throwInvalidFieldType(const ::Smp::IObject *sender,
-                                        const ::Smp::Uuid &uuid);
-[[noreturn]] void throwInvalidFieldType(const ::Smp::IObject *sender,
-                                        const ::Smp::Publication::IType *type);
-[[noreturn]] void throwInvalidFieldType(const ::Smp::IObject *sender,
-                                        ::Smp::PrimitiveTypeKind kind);
+[[noreturn]] void throwInvalidType(const ::Smp::IObject *sender,
+                                   const ::Smp::Uuid &uuid);
+[[noreturn]] void throwInvalidType(const ::Smp::IObject *sender,
+                                   const ::Smp::Publication::IType *type);
+[[noreturn]] void throwInvalidType(const ::Smp::IObject *sender,
+                                   ::Smp::PrimitiveTypeKind kind);
 
 [[noreturn]] void throwDuplicateUuid(const ::Smp::IObject *sender,
                                      const ::Smp::IFactory *oldFactory,
                                      ::Smp::String8 newName);
 
-[[noreturn]] void throwLibraryNotFound(const ::Smp::IObject *sender,
-                                       ::Smp::String8 libraryName,
-                                       std::string_view msg = "");
+[[noreturn]] void throwFileNotFound(const ::Smp::IObject *sender,
+                                    ::Smp::String8 libraryName,
+                                    std::string_view msg = "");
 
-[[noreturn]] void throwInvalidLibrary(const ::Smp::IObject *sender,
-                                      ::Smp::String8 libraryName,
-                                      std::string_view msg);
+/// Raise Smp::InvalidAccess: the property does not provide the accessor.
+/// @param sender The property being accessed.
+/// @param accessKind The access kind the property does provide.
+/// @param setter True when the setter was called, false for the getter.
+[[noreturn]] void throwInvalidAccess(const ::Smp::IProperty *sender,
+                                     ::Smp::AccessKind accessKind,
+                                     ::Smp::Bool setter);
+
+/// Raise Smp::InvalidPropertyValue: the value does not match the type of the
+/// property.
+/// @param sender The property being assigned.
+/// @param value The offending value.
+[[noreturn]] void throwInvalidPropertyValue(const ::Smp::IProperty *sender,
+                                            const ::Smp::AnySimple &value);
+
+/// Raise Smp::NoDynamicInvocation: an operation or a property is published
+/// for a component that does not implement Smp::IDynamicInvocation.
+/// @param sender The publication receiving the call.
+/// @param component The component that cannot be invoked dynamically.
+[[noreturn]] void throwNoDynamicInvocation(const ::Smp::IObject *sender,
+                                           const ::Smp::IComponent *component);
+
+/// Raise Smp::InvalidParent: the component being added does not have the
+/// expected parent.
+/// @param sender The container the component is added to.
+/// @param parentFound The parent the component actually has.
+/// @param parentExpected The parent it should have.
+[[noreturn]] void throwInvalidParent(const ::Smp::IObject *sender,
+                                     const ::Smp::IObject *parentFound,
+                                     const ::Smp::IObject *parentExpected);
+
+/// Raise Smp::Publication::InvalidArrayItemType: a simple array was declared
+/// with an item type that is not simple.
+/// @param sender The array type being registered.
+/// @param typeName The name of the item type.
+/// @param type The primitive type kind of the item type.
+[[noreturn]] void throwInvalidArrayItemType(const ::Smp::IObject *sender,
+                                            std::string_view typeName,
+                                            ::Smp::PrimitiveTypeKind type);
+
+/// Raise Smp::Publication::InvalidParameterDirection: a second return
+/// parameter was published for an operation.
+/// @param sender The operation being published.
+/// @param parameterName The name of the offending parameter.
+[[noreturn]] void
+throwInvalidParameterDirection(const ::Smp::IObject *sender,
+                               std::string_view parameterName);
+
+/// Raise Smp::InvalidSmpVersion: the library was built against another
+/// version of the SMP standard than the one this SDK implements.
+/// @param sender The simulator loading the library.
+/// @param libraryName The name of the library.
+/// @param librarySmpVersion The version the library reports, or 0 when it
+///        does not provide a GetSmpVersion() function at all.
+[[noreturn]] void throwInvalidSmpVersion(const ::Smp::IObject *sender,
+                                         ::Smp::String8 libraryName,
+                                         ::Smp::UInt64 librarySmpVersion);
+
+[[noreturn]] void throwInvalidFile(const ::Smp::IObject *sender,
+                                   ::Smp::String8 libraryName,
+                                   std::string_view msg);
 
 [[noreturn]] void throwInvalidSimulationTime(const ::Smp::IObject *sender,
                                              ::Smp::Duration current,

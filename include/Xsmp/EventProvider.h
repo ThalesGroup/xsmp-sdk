@@ -57,7 +57,7 @@ protected:
 
 private:
   friend ::Xsmp::detail::AbstractEventSource;
-  ::Xsmp::Collection<::Smp::IEventSource> _event_sources;
+  ::Xsmp::ChildCollection<::Smp::IEventSource> _event_sources;
 };
 
 } // namespace Xsmp

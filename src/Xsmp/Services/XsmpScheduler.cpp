@@ -235,6 +235,23 @@ XsmpScheduler::AddEvent(const ::Smp::IEntryPoint *entryPoint,
                   ::Smp::Services::TimeKind::TK_EpochTime);
 }
 
+::Smp::Services::EventId XsmpScheduler::AddRelativeZuluTimeEvent(
+    const ::Smp::IEntryPoint *entryPoint, ::Smp::Duration zuluTimeDelay,
+    ::Smp::Duration cycleTime, ::Smp::Int64 repeat) {
+  if (zuluTimeDelay < 0) {
+    const auto now = GetSimulator()->GetTimeKeeper()->GetZuluTime();
+    ::Xsmp::Exception::throwInvalidEventTime(this, add(now, zuluTimeDelay),
+                                             now);
+  }
+  // the absolute date is derived from the zulu clock here; going through
+  // AddZuluTimeEvent() would read that clock a second time and reject a legal
+  // delay of 0, the two reads being separated by real time
+  return PostZuluTimeEvent(
+      entryPoint,
+      add(GetSimulator()->GetTimeKeeper()->GetZuluTime(), zuluTimeDelay),
+      cycleTime, repeat);
+}
+
 ::Smp::Services::EventId XsmpScheduler::AddZuluTimeEvent(
     const ::Smp::IEntryPoint *entryPoint, ::Smp::DateTime zuluTime,
     ::Smp::Duration cycleTime, ::Smp::Int64 repeat) {
@@ -244,6 +261,12 @@ XsmpScheduler::AddEvent(const ::Smp::IEntryPoint *entryPoint,
       zuluTime < currentZulu) {
     ::Xsmp::Exception::throwInvalidEventTime(this, zuluTime, currentZulu);
   }
+  return PostZuluTimeEvent(entryPoint, zuluTime, cycleTime, repeat);
+}
+
+::Smp::Services::EventId XsmpScheduler::PostZuluTimeEvent(
+    const ::Smp::IEntryPoint *entryPoint, ::Smp::DateTime zuluTime,
+    ::Smp::Duration cycleTime, ::Smp::Int64 repeat) {
   if (repeat != 0 && cycleTime <= 0) {
     ::Xsmp::Exception::throwInvalidCycleTime(this, cycleTime);
   }
@@ -437,6 +460,12 @@ void XsmpScheduler::RemoveEvent(::Smp::Services::EventId event) {
     return _events_table.begin()->first;
   }
   return std::numeric_limits<::Smp::Duration>::max();
+}
+
+::Smp::Bool
+XsmpScheduler::IsEventScheduled(::Smp::Services::EventId eventId) const {
+  const std::scoped_lock lck{_eventsMutex};
+  return _events.find(eventId) != _events.end();
 }
 
 void XsmpScheduler::Execute(::Smp::Services::EventId eventId) {

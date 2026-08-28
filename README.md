@@ -15,7 +15,7 @@
     </picture>
 </p>
 
-**XSMP SDK** is a framework for the development of SMDL (Simulation Model Definition Language) as defined in the [ECSS SMP standard](https://ecss.nl/standard/ecss-e-st-40-07c-simulation-modelling-platform-2-march-2020/). It provides all SMP components to develop and test catalogues:
+**XSMP SDK** is a framework for the development of SMDL (Simulation Model Definition Language) as defined in the [ECSS SMP standard](https://ecss.nl/standard/ecss-e-st-40-07c-rev-1-simulation-modelling-platform-level-1-5-august-2025/). It provides all SMP components to develop and test catalogues:
 
 - a Component Development Kit (CDK)
 - a lightweight simulator and standard services for test purposes

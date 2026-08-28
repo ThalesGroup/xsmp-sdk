@@ -16,6 +16,7 @@
 #include <Smp/IField.h>
 // clang-format off
 #include <Smp/FieldAlreadyConnected.h>
+#include <Smp/FieldNotConnected.h>
 // clang-format on
 #include <Smp/IPublication.h>
 #include <Smp/InvalidTarget.h>
@@ -34,7 +35,7 @@
 
 namespace Xsmp {
 
-TEST(DataflowField, SimpleConnectAndDisconnect) {
+TEST(OutputField, SimpleConnectAndDisconnect) {
 
   Xsmp::Publication::TypeRegistry registry;
 
@@ -64,11 +65,11 @@ TEST(DataflowField, SimpleConnectAndDisconnect) {
   output = 7;
   EXPECT_EQ(input, 42);
 
-  // disconnecting an unknown target is a no-op
-  EXPECT_NO_THROW(output.Disconnect(&input));
+  // since SMP 2025 disconnecting a target that is not connected raises
+  EXPECT_THROW(output.Disconnect(&input), ::Smp::FieldNotConnected);
 }
 
-TEST(DataflowField, SimpleArrayConnectAndDisconnect) {
+TEST(OutputField, SimpleArrayConnectAndDisconnect) {
 
   Xsmp::Publication::TypeRegistry registry;
   using Type = Array<::Smp::Int32, 2>::simple;
@@ -93,7 +94,7 @@ TEST(DataflowField, SimpleArrayConnectAndDisconnect) {
   EXPECT_EQ(input[0], 42);
 }
 
-TEST(DataflowField, ArrayConnectAndDisconnect) {
+TEST(OutputField, ArrayConnectAndDisconnect) {
 
   Xsmp::Publication::TypeRegistry registry;
   using Type = Array<::Smp::Int32, 2>;
@@ -146,7 +147,7 @@ public:
 };
 } // namespace
 
-TEST(DataflowField, RemoveLinksOfSeveralFields) {
+TEST(OutputField, RemoveLinksOfSeveralFields) {
 
   Simulator sim;
   Xsmp::Publication::TypeRegistry registry;
@@ -252,7 +253,7 @@ void registerPair(Xsmp::Publication::TypeRegistry &registry) {
 }
 } // namespace
 
-TEST(DataflowField, StructureConnectAndDisconnect) {
+TEST(OutputField, StructureConnectAndDisconnect) {
 
   Xsmp::Publication::TypeRegistry registry;
   registerPair(registry);
@@ -281,10 +282,10 @@ TEST(DataflowField, StructureConnectAndDisconnect) {
   EXPECT_EQ(output.GetInputFields()->size(), 0U);
   output.x = 1;
   EXPECT_EQ(input.x, 42);
-  EXPECT_NO_THROW(output.Disconnect(&input));
+  EXPECT_THROW(output.Disconnect(&input), ::Smp::FieldNotConnected);
 }
 
-TEST(DataflowField, NestedConnectAndDisconnect) {
+TEST(OutputField, NestedConnectAndDisconnect) {
 
   Xsmp::Publication::TypeRegistry registry;
   registerPair(registry);
@@ -321,7 +322,7 @@ TEST(DataflowField, NestedConnectAndDisconnect) {
   EXPECT_EQ(input.values[1], 7);
 }
 
-TEST(DataflowField, StructureIncompatibleTarget) {
+TEST(OutputField, StructureIncompatibleTarget) {
 
   Xsmp::Publication::TypeRegistry registry;
   registerPair(registry);
@@ -341,7 +342,7 @@ TEST(DataflowField, StructureIncompatibleTarget) {
   EXPECT_THROW(output.Connect(&mixed), ::Smp::InvalidTarget);
 }
 
-TEST(DataflowField, IncompatibleTarget) {
+TEST(OutputField, IncompatibleTarget) {
 
   Xsmp::Publication::TypeRegistry registry;
 
@@ -373,8 +374,8 @@ TEST(DataflowField, ConnectionCycle) {
   // other form a cycle
   Field<::Smp::Int32>::output::input first{&registry, ::Smp::Uuids::Uuid_Int32,
                                            "first"};
-  Field<::Smp::Int32>::output::input second{&registry,
-                                            ::Smp::Uuids::Uuid_Int32, "second"};
+  Field<::Smp::Int32>::output::input second{&registry, ::Smp::Uuids::Uuid_Int32,
+                                            "second"};
 
   first.Connect(&second);
   second.Connect(&first);

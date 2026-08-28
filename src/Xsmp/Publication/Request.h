@@ -19,6 +19,7 @@
 #include <Smp/IRequest.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Publication/IType.h>
+#include <Smp/RequestType.h>
 #include <functional>
 #include <map>
 #include <string>
@@ -57,7 +58,11 @@ public:
   ///          This method returns the name passed to it, to allow
   ///          finding out which method is actually called on Invoke().
   /// @return  Name of the operation.
-  ::Smp::String8 GetOperationName() const override;
+  ::Smp::String8 GetName() const override;
+
+  /// Return the kind of request: this one invokes an operation.
+  /// @return  Smp::RequestType::RT_Invoke.
+  ::Smp::RequestType GetType() const override;
 
   /// Return the number of parameters stored in the request.
   /// This only considers parameters of direction in, out or in/out, but
@@ -110,10 +115,10 @@ public:
   /// a request object of a void operation. If called with an invalid
   /// return type, it raises an exception of type InvalidAnyType. If
   /// called with an invalid value for the return type, this method
-  /// raises an exception of type InvalidReturnValue.
+  /// raises an exception of type InvalidParameterValue.
   /// @param   value Return value.
   /// @throws  ::Smp::InvalidAnyType
-  /// @throws  ::Smp::InvalidReturnValue
+  /// @throws  ::Smp::InvalidParameterValue
   /// @throws  ::Smp::VoidOperation
   void SetReturnValue(::Smp::AnySimple value) override;
 
@@ -125,8 +130,7 @@ public:
   ::Smp::AnySimple GetReturnValue() const override;
 
   // check whether a value is valid for a given type
-  static bool isValid(const ::Smp::IObject *sender,
-                      const ::Smp::Publication::IType *type,
+  static bool isValid(const ::Smp::Publication::IType *type,
                       const ::Smp::AnySimple &value);
 
 private:

@@ -61,7 +61,7 @@ protected:
   friend class ::Xsmp::detail::Failure;
 
 private:
-  ::Xsmp::Collection<::Smp::IFailure> _failures;
+  ::Xsmp::ChildCollection<::Smp::IFailure> _failures;
 };
 
 } // namespace Xsmp

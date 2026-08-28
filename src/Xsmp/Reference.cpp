@@ -24,15 +24,6 @@ namespace Xsmp::detail {
 
 AbstractReference::Collection::Collection(AbstractReference &parent)
     : _parent(parent) {}
-::Smp::String8 AbstractReference::Collection::GetName() const {
-  return "Collection";
-}
-::Smp::String8 AbstractReference::Collection::GetDescription() const {
-  return "Collection of component";
-}
-::Smp::IObject *AbstractReference::Collection::GetParent() const {
-  return &_parent;
-}
 ::Smp::IComponent *
 AbstractReference::Collection::at(::Smp::String8 name) const {
   return _parent.GetComponent(name);
@@ -42,6 +33,9 @@ AbstractReference::Collection::at(::Smp::String8 name) const {
 }
 size_t AbstractReference::Collection::size() const {
   return static_cast<size_t>(_parent.GetCount());
+}
+::Smp::Bool AbstractReference::Collection::empty() const {
+  return _parent.GetCount() == 0;
 }
 AbstractReference::Collection::const_iterator
 AbstractReference::Collection::begin() const {
@@ -73,6 +67,10 @@ AbstractReference::AbstractReference(::Smp::String8 name,
 }
 
 ::Smp::IObject *AbstractReference::GetParent() const { return _parent; }
+
+::Smp::IObject *AbstractReference::GetChild(::Smp::String8 name) const {
+  return GetComponent(name);
+}
 const ::Smp::ComponentCollection *AbstractReference::GetComponents() const {
   return &_collection;
 }

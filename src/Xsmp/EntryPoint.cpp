@@ -43,6 +43,8 @@ EntryPoint::EntryPoint(::Smp::String8 name, ::Smp::String8 description,
 
 ::Smp::IObject *EntryPoint::GetParent() const { return _parent; }
 
+::Smp::IObject *EntryPoint::GetChild(::Smp::String8) const { return nullptr; }
+
 void EntryPoint::Execute() const { (*this)(); }
 
 } // namespace Xsmp

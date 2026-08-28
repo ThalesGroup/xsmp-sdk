@@ -18,6 +18,7 @@
 #include <Xsmp/Exception.h>
 #include <Xsmp/Helper.h>
 #include <algorithm>
+#include <vector>
 
 namespace Xsmp {
 namespace detail {
@@ -43,24 +44,34 @@ AbstractEventSource::AbstractEventSource(::Smp::String8 name,
 }
 
 ::Smp::IObject *AbstractEventSource::GetParent() const { return _parent; }
+
+::Smp::IObject *AbstractEventSource::GetChild(::Smp::String8) const {
+  return nullptr;
+}
+
+const ::Smp::EventSinkCollection *AbstractEventSource::GetEventSinks() const {
+  return &_event_sinks;
+}
 void AbstractEventSource::Subscribe(::Smp::IEventSink *eventSink) {
   // Check if the type matches
   if (eventSink->GetEventArgType() != _eventArgType) {
     ::Xsmp::Exception::throwInvalidEventSink(this, this, eventSink);
   }
 
-  if (std::find(_event_sinks.begin(), _event_sinks.end(), eventSink) !=
-      _event_sinks.end()) {
-    ::Xsmp::Exception::throwEventSinkAlreadySubscribed(this, this, eventSink);
+  // Smp::CollectionIterator declares itself a random access iterator but has
+  // no difference between two iterators, so the standard algorithms that
+  // dispatch on that category do not compile against it
+  for (const auto *sink : _event_sinks) {
+    if (sink == eventSink) {
+      ::Xsmp::Exception::throwEventSinkAlreadySubscribed(this, this, eventSink);
+    }
   }
-  _event_sinks.insert(eventSink);
+  _event_sinks.Add(eventSink);
 }
 void AbstractEventSource::Unsubscribe(::Smp::IEventSink *eventSink) {
-  auto it = std::find(_event_sinks.begin(), _event_sinks.end(), eventSink);
-  if (it == _event_sinks.end()) {
+  if (!_event_sinks.Remove(eventSink)) {
     ::Xsmp::Exception::throwEventSinkNotSubscribed(this, this, eventSink);
   }
-  _event_sinks.erase(it);
 }
 ::Smp::PrimitiveTypeKind AbstractEventSource::GetEventArgType() const {
   return _eventArgType;
@@ -68,13 +79,16 @@ void AbstractEventSource::Unsubscribe(::Smp::IEventSink *eventSink) {
 
 void AbstractEventSource::RemoveLinks(
     const ::Smp::IComponent *target) noexcept {
-  // remove all event sinks contained in parent
-  for (auto it = _event_sinks.begin(); it != _event_sinks.end();) {
-    if ((*it)->GetParent() == target) {
-      it = _event_sinks.erase(it);
-    } else {
-      ++it;
+  // the sinks are collected first: removing one shifts the collection being
+  // iterated
+  std::vector<::Smp::IEventSink *> toRemove;
+  for (auto *sink : _event_sinks) {
+    if (sink->GetParent() == target) {
+      toRemove.emplace_back(sink);
     }
+  }
+  for (auto *sink : toRemove) {
+    _event_sinks.Remove(sink);
   }
 }
 void AbstractEventSource::DoEmit(::Smp::IObject *sender,

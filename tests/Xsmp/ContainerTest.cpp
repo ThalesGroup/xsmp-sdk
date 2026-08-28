@@ -17,6 +17,7 @@
 #include <Smp/ContainerFull.h>
 #include <Smp/DuplicateName.h>
 #include <Smp/InvalidObjectType.h>
+#include <Smp/InvalidParent.h>
 #include <Smp/NotContained.h>
 #include <Xsmp/Composite.h>
 #include <Xsmp/Container.h>
@@ -60,11 +61,9 @@ TEST(Container, auto_register) {
   EXPECT_STREQ("desc", ctn.GetDescription());
   EXPECT_EQ(&composite, ctn.GetParent());
 
+  // since SMP 2025 a collection is not an ::Smp::IObject
   ASSERT_TRUE(ctn.GetComponents());
-  EXPECT_STREQ("Collection", ctn.GetComponents()->GetName());
-  EXPECT_STREQ("Collection of component",
-               ctn.GetComponents()->GetDescription());
-  EXPECT_EQ(&ctn, ctn.GetComponents()->GetParent());
+  EXPECT_TRUE(ctn.GetComponents()->empty());
 
   EXPECT_EQ(1, ctn.GetLower());
   EXPECT_EQ(2, ctn.GetUpper());
@@ -75,6 +74,18 @@ TEST(Container, auto_register) {
 
   EXPECT_THROW(ctn.AddComponent(&bad_cmp), ::Smp::InvalidObjectType);
   EXPECT_EQ(nullptr, ctn.GetComponent("m1"));
+
+  // a container and its components share the same parent
+  TestComposite otherComposite{"other"};
+  M2 orphan{"orphan", "", &otherComposite};
+  EXPECT_THROW(ctn.AddComponent(&orphan), ::Smp::InvalidParent);
+  try {
+    ctn.AddComponent(&orphan);
+    FAIL();
+  } catch (const ::Smp::InvalidParent &e) {
+    EXPECT_EQ(e.GetParentFound(), &otherComposite);
+    EXPECT_EQ(e.GetParentExpected(), &composite);
+  }
 
   auto *i1 = new M2{"i1", "", &composite};
   ctn.AddComponent(i1);

@@ -32,4 +32,6 @@ Object::Object(::Smp::String8 name, ::Smp::String8 description,
 
 ::Smp::IObject *Object::GetParent() const { return _parent; }
 
+::Smp::IObject *Object::GetChild(::Smp::String8) const { return nullptr; }
+
 } // namespace Xsmp

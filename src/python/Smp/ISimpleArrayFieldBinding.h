@@ -39,8 +39,8 @@ inline void RegisterISimpleArrayField(const py::module_ &m) {
              }
            })
 
-      // GetValues() reads the whole array in one call, so only a full slice
-      // can use it; any other one reads the items it covers
+      // a slice maps onto GetValues(), which reads a run of items in one
+      // call from startIndex
       .def(
           "__getitem__",
           [](const ::Smp::ISimpleArrayField &self, const py::slice &slice) {
@@ -52,9 +52,13 @@ inline void RegisterISimpleArrayField(const py::module_ &m) {
               throw py::error_already_set();
             }
             py::list result{length};
-            if (length == self.GetSize() && step == 1) {
+            if (length == 0) {
+              return result;
+            }
+            // GetValues() reads contiguously, so only a unit step can use it
+            if (step == 1) {
               std::vector<::Smp::AnySimple> values{length};
-              self.GetValues(length, values.data());
+              self.GetValues(length, values.data(), start);
               for (size_t i = 0; i < length; ++i) {
                 result[i] = convert(values[i]);
               }
@@ -101,14 +105,13 @@ inline void RegisterISimpleArrayField(const py::module_ &m) {
               throw py::value_error(
                   "The number of values does not match the slice.");
             }
-            // SetValues() writes the whole array in one call
-            if (length == self.GetSize() && step == 1) {
+            if (step == 1) {
               std::vector<::Smp::AnySimple> converted;
               converted.reserve(length);
               for (const auto &value : values) {
                 converted.emplace_back(convert(value, kind));
               }
-              self.SetValues(length, converted.data());
+              self.SetValues(length, converted.data(), start);
             } else {
               for (size_t i = 0; i < length; ++i, start += step) {
                 self.SetValue(start, convert(values[i], kind));

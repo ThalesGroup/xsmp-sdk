@@ -19,6 +19,7 @@
 #include <Smp/IModel.h>
 #include <Smp/IService.h>
 #include <Smp/ISimulator.h>
+#include <Smp/LibraryLoadingFlag.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Services/EventId.h>
 #include <Smp/SimulatorStateKind.h>
@@ -29,6 +30,7 @@
 #include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Publication/TypeRegistry.h>
 #include <Xsmp/cstring.h>
+#include <initializer_list>
 #include <list>
 #include <utility>
 #include <vector>
@@ -59,6 +61,22 @@ public:
   ::Smp::String8 GetName() const override;
   ::Smp::String8 GetDescription() const override;
   ::Smp::IObject *GetParent() const override;
+
+  /// Returns the child object with the given name.
+  /// @param   name The name of the child to look for.
+  /// @return  The child with that name, or null if there is no such child.
+  ::Smp::IObject *GetChild(::Smp::String8 name) const override;
+
+  /// Reject a state transition made in the wrong state, or made re-entrantly
+  /// from a global event that is still being emitted. SMP 2025 raises
+  /// InvalidSimulatorState where SMP 2020 returned without acting.
+  /// @param expected The state the transition requires.
+  /// @param forbiddenEvents The global events during which it cannot be
+  ///        called.
+  /// @throws ::Smp::InvalidSimulatorState
+  void CheckTransition(
+      ::Smp::SimulatorStateKind expected,
+      std::initializer_list<::Smp::Services::EventId> forbiddenEvents) const;
 
   /// This method asks the simulation environment to call all
   /// initialisation entry points again.
@@ -362,9 +380,11 @@ public:
   /// @param   libraryPath Path to the library to load.
   /// This needs to be a valid path name given the constraints of the
   /// operating system.
-  /// @throws  ::Smp::InvalidLibrary
-  /// @throws  ::Smp::LibraryNotFound
-  void LoadLibrary(::Smp::String8 libraryPath) override;
+  /// @throws  ::Smp::InvalidFile
+  /// @throws  ::Smp::FileNotFound
+  void LoadLibrary(::Smp::String8 libraryPath,
+                   ::Smp::LibraryLoadingFlag flag =
+                       ::Smp::LibraryLoadingFlag::LLF_Auto) override;
 
   /// For tests: run for a specific duration
   /// @param duration the execution Duration

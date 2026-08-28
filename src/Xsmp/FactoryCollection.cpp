@@ -24,11 +24,6 @@ namespace Xsmp {
 
 FactoryCollection::FactoryCollection(::Smp::IObject *parent)
     : _parent{parent} {}
-::Smp::String8 FactoryCollection::GetName() const { return "Factories"; }
-
-::Smp::String8 FactoryCollection::GetDescription() const { return ""; }
-
-::Smp::IObject *FactoryCollection::GetParent() const { return _parent; }
 ::Smp::IFactory *FactoryCollection::at(::Smp::String8 name) const {
   if (!name) {
     return nullptr;
@@ -47,6 +42,8 @@ FactoryCollection::FactoryCollection(::Smp::IObject *parent)
 }
 
 size_t FactoryCollection::size() const { return _factories.size(); }
+
+::Smp::Bool FactoryCollection::empty() const { return _factories.empty(); }
 FactoryCollection::const_iterator FactoryCollection::begin() const {
   return {*this, 0};
 }
@@ -59,7 +56,7 @@ void FactoryCollection::Add(::Smp::IFactory *factory) {
 
   auto factoryPointer = std::unique_ptr<::Smp::IFactory>(factory);
   if (auto it = _uuid_map.find(factory->GetUuid()); it != _uuid_map.end()) {
-    ::Xsmp::Exception::throwDuplicateUuid(this, it->second.get(),
+    ::Xsmp::Exception::throwDuplicateUuid(_parent, it->second.get(),
                                           factory->GetName());
   }
   _uuid_map.try_emplace(factory->GetUuid(), std::move(factoryPointer));

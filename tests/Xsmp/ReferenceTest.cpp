@@ -56,11 +56,9 @@ TEST(Reference, auto_register) {
   EXPECT_EQ(&ref, c.GetReference("ref1"));
   EXPECT_EQ(&ref, c.GetReferences()->at("ref1"));
 
+  // since SMP 2025 a collection is not an ::Smp::IObject
   ASSERT_TRUE(ref.GetComponents());
-  EXPECT_STREQ("Collection", ref.GetComponents()->GetName());
-  EXPECT_STREQ("Collection of component",
-               ref.GetComponents()->GetDescription());
-  EXPECT_EQ(&ref, ref.GetComponents()->GetParent());
+  EXPECT_TRUE(ref.GetComponents()->empty());
 
   EXPECT_FALSE(ref.GetComponents()->begin() != ref.GetComponents()->end());
   EXPECT_EQ(ref.GetComponents()->size(), 0);

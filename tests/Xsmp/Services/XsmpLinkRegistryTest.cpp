@@ -45,6 +45,26 @@ public:
   ::Smp::IField *GetField(::Smp::String8) const override { return nullptr; }
   const ::Smp::FieldCollection *GetFields() const override { return nullptr; }
   const ::Smp::Uuid &GetUuid() const override { return _uuid; }
+  ::Smp::IObject *GetChild(::Smp::String8) const override { return nullptr; }
+  ::Smp::AnySimple GetSimpleValue(::Smp::String8) const override { return {}; }
+  void SetSimpleValue(::Smp::String8, ::Smp::AnySimple) override {}
+  void GetSimpleArrayValue(::Smp::String8, ::Smp::UInt64, ::Smp::AnySimple *,
+                           ::Smp::UInt64) const override {}
+  void SetSimpleArrayValue(::Smp::String8, ::Smp::UInt64, ::Smp::AnySimpleArray,
+                           ::Smp::UInt64) override {}
+  ::Smp::Bool AddChild(::Smp::IObject *,
+                       const ::Smp::ICollectionBase *) override {
+    return false;
+  }
+  ::Smp::Bool RemoveChild(::Smp::IObject *,
+                          const ::Smp::ICollectionBase *) override {
+    return false;
+  }
+  ::Smp::IObject *
+  IsChildInCollection(::Smp::String8,
+                      const ::Smp::ICollectionBase *) const override {
+    return nullptr;
+  }
 
 private:
   ::Smp::String8 _name;

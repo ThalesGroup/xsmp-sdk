@@ -19,6 +19,7 @@
 #include <Smp/IEventSource.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Xsmp/AnySimpleConverter.h>
+#include <Xsmp/Collection.h>
 #include <Xsmp/cstring.h>
 #include <set>
 
@@ -48,9 +49,14 @@ public:
   ::Smp::String8 GetName() const final;
   ::Smp::String8 GetDescription() const final;
   ::Smp::IObject *GetParent() const final;
+  ::Smp::IObject *GetChild(::Smp::String8 name) const final;
   void Subscribe(::Smp::IEventSink *eventSink) final;
   void Unsubscribe(::Smp::IEventSink *eventSink) final;
-  virtual ::Smp::PrimitiveTypeKind GetEventArgType() const;
+  ::Smp::PrimitiveTypeKind GetEventArgType() const override;
+
+  /// The event sinks currently subscribed to this event source.
+  /// @return  Collection of subscribed event sinks.
+  const ::Smp::EventSinkCollection *GetEventSinks() const final;
 
 protected:
   void DoEmit(::Smp::IObject *sender, const ::Smp::AnySimple &value) const;
@@ -59,7 +65,10 @@ private:
   ::Xsmp::cstring _name;
   ::Xsmp::cstring _description;
   ::Smp::IObject *_parent;
-  std::set<::Smp::IEventSink *> _event_sinks;
+  /// Since SMP 2025 the subscribed event sinks are exposed as a collection.
+  /// Two sinks of distinct components may share a name, so duplicates are
+  /// allowed; Subscribe() rejects subscribing the same sink twice.
+  ::Xsmp::detail::AbstractCollection<::Smp::IEventSink, true> _event_sinks;
   ::Smp::PrimitiveTypeKind _eventArgType;
   // Extensions for ILinkingComponent
   /// Asks an Event Source to remove all its links to the given target

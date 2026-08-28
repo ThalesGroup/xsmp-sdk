@@ -15,6 +15,7 @@
 #ifndef XSMP_FACTORYCOLLECTION_H_
 #define XSMP_FACTORYCOLLECTION_H_
 
+#include <Smp/FactoryCollection.h>
 #include <Smp/IFactory.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Uuid.h>
@@ -35,9 +36,6 @@ public:
   FactoryCollection(const FactoryCollection &) = delete;
   FactoryCollection &operator=(const FactoryCollection &) = delete;
   ~FactoryCollection() noexcept override = default;
-  ::Smp::String8 GetName() const override;
-  ::Smp::String8 GetDescription() const override;
-  ::Smp::IObject *GetParent() const override;
   ::Smp::IFactory *at(::Smp::String8 name) const override;
 
   ::Smp::IFactory *at(size_t index) const override;
@@ -45,6 +43,7 @@ public:
   ::Smp::IFactory *at(::Smp::Uuid uuid) const;
 
   size_t size() const override;
+  ::Smp::Bool empty() const override;
   const_iterator begin() const override;
   const_iterator end() const override;
   /// Add a factory to the collection

@@ -15,6 +15,7 @@
 #ifndef XSMP_LIBRARYHELPER_H_
 #define XSMP_LIBRARYHELPER_H_
 
+#include <Smp/LibraryLoadingFlag.h>
 #include <string>
 
 /// XSMP standard types and interfaces.
@@ -29,9 +30,14 @@ namespace Xsmp {
 /// - Linux: lib<libraryName>.so
 /// - MacOS: lib<libraryName>.dylib
 /// - Windows: <libraryName>.dll
+/// @param flag Whether the symbols the library defines are made available to
+/// the libraries loaded afterwards. LLF_Auto leaves the choice to the
+/// platform, which is what SMP 2025 asks of the simulation environment.
 /// @return The handle of the loaded library, or nullptr if the library could
 /// not be loaded.
-void *LoadLibrary(const char *libraryName);
+void *LoadLibrary(
+    const char *libraryName,
+    ::Smp::LibraryLoadingFlag flag = ::Smp::LibraryLoadingFlag::LLF_Auto);
 
 /// Close an open library handle.
 /// @param handle A pointer to the handle of the loaded library that needs to be

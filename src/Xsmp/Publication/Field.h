@@ -17,14 +17,15 @@
 
 #include <Smp/AnySimpleArray.h>
 #include <Smp/IArrayField.h>
-#include <Smp/IDataflowField.h>
 #include <Smp/IField.h>
+#include <Smp/IOutputField.h>
 #include <Smp/ISimpleArrayField.h>
 #include <Smp/ISimpleField.h>
 #include <Smp/IStructureField.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/ViewKind.h>
 #include <Xsmp/Collection.h>
+#include <Xsmp/Field.h>
 #include <Xsmp/Publication/Publication.h>
 #include <Xsmp/cstring.h>
 #include <memory>
@@ -74,6 +75,12 @@ public:
   ::Smp::String8 GetName() const final;
   ::Smp::String8 GetDescription() const final;
   ::Smp::IObject *GetParent() const final;
+
+  /// Returns the child object with the given name.
+  /// A published field has no named child.
+  /// @param   name The name of the child to look for.
+  /// @return  Always null.
+  ::Smp::IObject *GetChild(::Smp::String8 name) const override;
   ::Smp::ViewKind GetView() const final;
 
   ::Smp::Bool IsState() const final;
@@ -99,16 +106,27 @@ private:
   ::Smp::Bool _output;
 };
 
-class DataflowField : public virtual ::Smp::IDataflowField {
+class OutputField : public virtual ::Smp::IOutputField {
 public:
   void Connect(::Smp::IField *target) final;
+
+  /// Disconnect a target field that has been connected before.
+  /// @param   target Target field to disconnect.
+  void Disconnect(::Smp::IField *target) final;
 
   /// Push the current field value to all connected target fields.
   void Push() final;
 
+  /// The fields this output field has been connected to.
+  const ::Smp::FieldCollection *GetInputFields() const final;
+
+  /// XSMP output fields are pushed explicitly, never on assignment.
+  /// @return  Always false.
+  ::Smp::Bool IsAutomatic() const final;
+
 private:
   void Push(::Smp::IField *source, ::Smp::IField *target);
-  std::set<::Smp::IField *> _targets;
+  ::Xsmp::detail::InputFieldCollection _targets;
 };
 
 class AnonymousArrayField final : public Field,
@@ -149,19 +167,19 @@ public:
 
   void SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) final;
 
-  void GetValues(::Smp::UInt64 length,
-                 ::Smp::AnySimpleArray values) const final;
+  void GetValues(::Smp::UInt64 length, ::Smp::AnySimple *values,
+                 ::Smp::UInt64 startIndex = 0) const final;
 
-  void SetValues(::Smp::UInt64 length, ::Smp::AnySimpleArray values) final;
+  void SetValues(::Smp::UInt64 length, ::Smp::AnySimpleArray values,
+                 ::Smp::UInt64 startIndex = 0) final;
 
 private:
   ::Smp::UInt64 GetItemSize() const;
   ::Smp::UInt64 _count;
 };
 
-class AnonymousSimpleArrayDataflowField final
-    : public AnonymousSimpleArrayField,
-      public DataflowField {
+class AnonymousSimpleArrayOutputField final : public AnonymousSimpleArrayField,
+                                              public OutputField {
 public:
   using AnonymousSimpleArrayField::AnonymousSimpleArrayField;
 };
@@ -204,7 +222,7 @@ private:
   std::vector<std::unique_ptr<::Smp::IField>> _fields;
 };
 
-class ArrayDataflowField final : public ArrayField, public DataflowField {
+class ArrayOutputField final : public ArrayField, public OutputField {
 public:
   using ArrayField::ArrayField;
 };
@@ -237,10 +255,11 @@ public:
 
   void SetValue(::Smp::UInt64 index, ::Smp::AnySimple value) final;
 
-  void GetValues(::Smp::UInt64 length,
-                 ::Smp::AnySimpleArray values) const final;
+  void GetValues(::Smp::UInt64 length, ::Smp::AnySimple *values,
+                 ::Smp::UInt64 startIndex = 0) const final;
 
-  void SetValues(::Smp::UInt64 length, ::Smp::AnySimpleArray values) final;
+  void SetValues(::Smp::UInt64 length, ::Smp::AnySimpleArray values,
+                 ::Smp::UInt64 startIndex = 0) final;
 
 private:
   ::Smp::UInt64 _size;
@@ -248,8 +267,8 @@ private:
   ::Smp::UInt64 _itemSize;
 };
 
-class SimpleArrayDataflowField final : public SimpleArrayField,
-                                       public virtual DataflowField {
+class SimpleArrayOutputField final : public SimpleArrayField,
+                                     public virtual OutputField {
 public:
   using SimpleArrayField::SimpleArrayField;
 };
@@ -270,7 +289,7 @@ private:
   ::Smp::UInt64 GetSize() const;
 };
 
-class SimpleDataflowField final : public SimpleField, public DataflowField {
+class SimpleOutputField final : public SimpleField, public OutputField {
 public:
   using SimpleField::SimpleField;
 };
@@ -295,8 +314,7 @@ private:
   ::Xsmp::ContainingCollection<::Smp::IField> _fields;
 };
 
-class StructureDataflowField final : public StructureField,
-                                     public DataflowField {
+class StructureOutputField final : public StructureField, public OutputField {
 public:
   using StructureField::StructureField;
 };

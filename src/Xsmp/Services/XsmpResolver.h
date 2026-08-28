@@ -53,7 +53,7 @@ public:
   /// @return  Component identified by path, or null if no component
   ///          with the given path could be found.
   ::Smp::IObject *ResolveRelative(::Smp::String8 relativePath,
-                                  const ::Smp::IComponent *sender) override;
+                                  ::Smp::IObject *relativeRoot) override;
 
 private:
   friend class ::Xsmp::Component::Helper;

@@ -114,6 +114,11 @@ inline void RegisterIObject(const py::module_ &m) {
            "Returns the parent object of the object.",
            py::return_value_policy::reference_internal)
 
+      .def("GetChild", &::Smp::IObject::GetChild, py::arg("name"),
+           "Returns the child object with the given name, or None when there "
+           "is no such child.",
+           py::return_value_policy::reference_internal)
+
       .def("__repr__",
            [](const ::Smp::IObject &self) {
              return "<" + ::Xsmp::Helper::GetPath(&self) + ": " +

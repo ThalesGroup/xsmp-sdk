@@ -14,6 +14,7 @@
 
 #include "Smp/Exception.h"
 #include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/InvalidArrayItemType.h>
 #include <Smp/Publication/InvalidPrimitiveType.h>
 #include <Smp/Publication/TypeAlreadyRegistered.h>
 #include <Smp/Publication/TypeNotRegistered.h>
@@ -249,14 +250,15 @@ TEST(TypeRegistry, StringType) {
   const auto *type = dynamic_cast<const ::Xsmp::Publication::StringType *>(
       registry.AddStringType("string", "", Smp::Uuid{0, 0, 0, 0, 40}, 8));
   ASSERT_TRUE(type);
-  EXPECT_EQ(type->GetLength(), 8);
+  EXPECT_EQ(type->GetMaxLength(), 8);
 
-  // a negative length would remove the bound used when copying a value into
-  // the field
-  const auto *negative = dynamic_cast<const ::Xsmp::Publication::StringType *>(
-      registry.AddStringType("negative", "", Smp::Uuid{0, 0, 0, 0, 41}, -1));
-  ASSERT_TRUE(negative);
-  EXPECT_EQ(negative->GetLength(), 0);
+  // SMP 2025 takes the length as an Smp::UInt64, so a negative length -- which
+  // used to remove the bound applied when copying a value into the field --
+  // can no longer be requested
+  const auto *empty = dynamic_cast<const ::Xsmp::Publication::StringType *>(
+      registry.AddStringType("empty", "", Smp::Uuid{0, 0, 0, 0, 41}, 0));
+  ASSERT_TRUE(empty);
+  EXPECT_EQ(empty->GetMaxLength(), 0);
 }
 
 TEST(TypeRegistry, StructureType) {
@@ -328,6 +330,43 @@ TEST(TypeRegistry, ClassType) {
   EXPECT_THROW(registry.AddClassType("cls2", "", Smp::Uuid{0, 0, 0, 0, 34},
                                      Smp::Uuid{0, 0, 0, 0, 34}),
                Smp::Exception);
+}
+
+TEST(TypeRegistry, SimpleArrayType) {
+  TypeRegistry registry;
+
+  const auto structure = Smp::Uuid{0, 0, 0, 0, 40};
+  EXPECT_TRUE(registry.AddStructureType("structure", "", structure));
+
+  // a simple array holds its items as values, so they must be of a simple type
+  EXPECT_THROW(registry.AddArrayType("simpleArrayOfStructures", "",
+                                     Smp::Uuid{0, 0, 0, 0, 41}, structure,
+                                     sizeof(::Smp::Int32), 2, true),
+               Smp::Publication::InvalidArrayItemType);
+
+  // the same item type is fine for an array whose items are published as
+  // individual fields
+  EXPECT_TRUE(registry.AddArrayType("arrayOfStructures", "",
+                                    Smp::Uuid{0, 0, 0, 0, 42}, structure,
+                                    sizeof(::Smp::Int32), 2, false));
+
+  EXPECT_TRUE(registry.AddArrayType(
+      "simpleArrayOfInt32", "", Smp::Uuid{0, 0, 0, 0, 43},
+      Smp::Uuids::Uuid_Int32, sizeof(::Smp::Int32), 2, true));
+}
+
+TEST(TypeRegistry, GetChild) {
+  TypeRegistry registry;
+
+  auto *type =
+      registry.AddStructureType("structure", "", Smp::Uuid{0, 0, 0, 0, 50});
+  ASSERT_TRUE(type);
+  // a registered type has the registry as parent, so the resolver has to
+  // reach it through GetChild
+  EXPECT_EQ(type->GetParent(), &registry);
+  EXPECT_EQ(registry.GetChild("structure"), type);
+  EXPECT_EQ(registry.GetChild("unknown"), nullptr);
+  EXPECT_EQ(registry.GetChild(nullptr), nullptr);
 }
 
 } // namespace Xsmp::Publication

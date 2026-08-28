@@ -60,7 +60,7 @@ protected:
 
 private:
   friend ::Xsmp::detail::AbstractContainer;
-  ::Xsmp::Collection<::Smp::IContainer> _containers;
+  ::Xsmp::ChildCollection<::Smp::IContainer> _containers;
 };
 
 } // namespace Xsmp

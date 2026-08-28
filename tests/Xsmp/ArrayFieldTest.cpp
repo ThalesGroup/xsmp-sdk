@@ -13,9 +13,9 @@
 // limitations under the License.
 
 #include "Smp/IArrayField.h"
-#include "Smp/IDataflowField.h"
 #include "Smp/IFailure.h"
 #include "Smp/IForcibleField.h"
+#include "Smp/IOutputField.h"
 #include "Smp/ISimpleField.h"
 #include <Smp/AnySimple.h>
 #include <Smp/ISimpleArrayField.h>
@@ -37,14 +37,14 @@ namespace Xsmp {
 using field = Field<Xsmp::Array<::Smp::Bool, 1>>;
 
 static_assert(!std::is_base_of_v<Smp::ISimpleField, field>);
-static_assert(!std::is_base_of_v<Smp::IDataflowField, field>);
+static_assert(!std::is_base_of_v<Smp::IOutputField, field>);
 static_assert(!std::is_base_of_v<Smp::IForcibleField, field>);
 static_assert(std::is_base_of_v<Smp::IArrayField, field>);
 static_assert(!std::is_base_of_v<Smp::ISimpleArrayField, field>);
 static_assert(!std::is_base_of_v<Smp::IStructureField, field>);
 static_assert(!std::is_base_of_v<Smp::IFailure, field>);
 static_assert(std::is_base_of_v<Smp::ISimpleField, field::value_type>);
-static_assert(!std::is_base_of_v<Smp::IDataflowField, field::value_type>);
+static_assert(!std::is_base_of_v<Smp::IOutputField, field::value_type>);
 static_assert(!std::is_base_of_v<Smp::IForcibleField, field::value_type>);
 static_assert(!std::is_base_of_v<Smp::IArrayField, field::value_type>);
 static_assert(!std::is_base_of_v<Smp::ISimpleArrayField, field::value_type>);
@@ -52,7 +52,7 @@ static_assert(!std::is_base_of_v<Smp::IStructureField, field::value_type>);
 static_assert(!std::is_base_of_v<Smp::IFailure, field::value_type>);
 
 static_assert(!std::is_base_of_v<Smp::ISimpleField, field::transient>);
-static_assert(!std::is_base_of_v<Smp::IDataflowField, field::transient>);
+static_assert(!std::is_base_of_v<Smp::IOutputField, field::transient>);
 static_assert(!std::is_base_of_v<Smp::IForcibleField, field::transient>);
 static_assert(std::is_base_of_v<Smp::IArrayField, field::transient>);
 static_assert(!std::is_base_of_v<Smp::ISimpleArrayField, field::transient>);
@@ -61,7 +61,7 @@ static_assert(!std::is_base_of_v<Smp::IFailure, field::transient>);
 static_assert(
     std::is_base_of_v<Smp::ISimpleField, field::transient::value_type>);
 static_assert(
-    !std::is_base_of_v<Smp::IDataflowField, field::transient::value_type>);
+    !std::is_base_of_v<Smp::IOutputField, field::transient::value_type>);
 static_assert(
     !std::is_base_of_v<Smp::IForcibleField, field::transient::value_type>);
 static_assert(
@@ -73,15 +73,14 @@ static_assert(
 static_assert(!std::is_base_of_v<Smp::IFailure, field::transient::value_type>);
 
 static_assert(!std::is_base_of_v<Smp::ISimpleField, field::output>);
-static_assert(std::is_base_of_v<Smp::IDataflowField, field::output>);
+static_assert(std::is_base_of_v<Smp::IOutputField, field::output>);
 static_assert(!std::is_base_of_v<Smp::IForcibleField, field::output>);
 static_assert(std::is_base_of_v<Smp::IArrayField, field::output>);
 static_assert(!std::is_base_of_v<Smp::ISimpleArrayField, field::output>);
 static_assert(!std::is_base_of_v<Smp::IStructureField, field::output>);
 static_assert(!std::is_base_of_v<Smp::IFailure, field::output>);
 static_assert(std::is_base_of_v<Smp::ISimpleField, field::output::value_type>);
-static_assert(
-    std::is_base_of_v<Smp::IDataflowField, field::output::value_type>);
+static_assert(std::is_base_of_v<Smp::IOutputField, field::output::value_type>);
 static_assert(
     !std::is_base_of_v<Smp::IForcibleField, field::output::value_type>);
 static_assert(!std::is_base_of_v<Smp::IArrayField, field::output::value_type>);
@@ -92,7 +91,7 @@ static_assert(
 static_assert(!std::is_base_of_v<Smp::IFailure, field::output::value_type>);
 
 static_assert(!std::is_base_of_v<Smp::ISimpleField, field::forcible>);
-static_assert(!std::is_base_of_v<Smp::IDataflowField, field::forcible>);
+static_assert(!std::is_base_of_v<Smp::IOutputField, field::forcible>);
 static_assert(!std::is_base_of_v<Smp::IForcibleField, field::forcible>);
 static_assert(std::is_base_of_v<Smp::IArrayField, field::forcible>);
 static_assert(!std::is_base_of_v<Smp::ISimpleArrayField, field::forcible>);
@@ -101,7 +100,7 @@ static_assert(!std::is_base_of_v<Smp::IFailure, field::forcible>);
 static_assert(
     std::is_base_of_v<Smp::ISimpleField, field::forcible::value_type>);
 static_assert(
-    !std::is_base_of_v<Smp::IDataflowField, field::forcible::value_type>);
+    !std::is_base_of_v<Smp::IOutputField, field::forcible::value_type>);
 static_assert(
     std::is_base_of_v<Smp::IForcibleField, field::forcible::value_type>);
 static_assert(
@@ -113,7 +112,7 @@ static_assert(
 static_assert(!std::is_base_of_v<Smp::IFailure, field::forcible::value_type>);
 
 static_assert(!std::is_base_of_v<Smp::ISimpleField, field::failure>);
-static_assert(!std::is_base_of_v<Smp::IDataflowField, field::failure>);
+static_assert(!std::is_base_of_v<Smp::IOutputField, field::failure>);
 static_assert(!std::is_base_of_v<Smp::IForcibleField, field::failure>);
 static_assert(std::is_base_of_v<Smp::IArrayField, field::failure>);
 static_assert(!std::is_base_of_v<Smp::ISimpleArrayField, field::failure>);
@@ -121,7 +120,7 @@ static_assert(!std::is_base_of_v<Smp::IStructureField, field::failure>);
 static_assert(std::is_base_of_v<Smp::IFailure, field::failure>);
 static_assert(std::is_base_of_v<Smp::ISimpleField, field::failure::value_type>);
 static_assert(
-    !std::is_base_of_v<Smp::IDataflowField, field::failure::value_type>);
+    !std::is_base_of_v<Smp::IOutputField, field::failure::value_type>);
 static_assert(
     !std::is_base_of_v<Smp::IForcibleField, field::failure::value_type>);
 static_assert(!std::is_base_of_v<Smp::IArrayField, field::failure::value_type>);
@@ -175,7 +174,8 @@ TEST(ArrayField, BoolType) {
   output.Push();
   EXPECT_EQ(input[0], true);
 
-  EXPECT_THROW(output.GetItem(42), Smp::InvalidArrayIndex);
+  // SMP 2025: an index outside the array returns nullptr
+  EXPECT_EQ(output.GetItem(42), nullptr);
 }
 
 TEST(ArrayField, Int8Type) {
@@ -223,8 +223,7 @@ TEST(ArrayField, EnumType) {
   Xsmp::Publication::TypeRegistry typeRegistry;
   using Type = Array<Enum, 4>;
   const Smp::Uuid enumUuid{0, 1, 2, 3, 4};
-  auto *enumType =
-      typeRegistry.AddEnumerationType("Enum", "", enumUuid, sizeof(Enum));
+  auto *enumType = typeRegistry.AddEnumerationType("Enum", "", enumUuid);
   enumType->AddLiteral("L1", "", static_cast<Smp::Int32>(Enum::L1));
   typeRegistry.AddArrayType("EnumArray", "", Smp::Uuid{}, enumUuid,
                             sizeof(Enum), 4, true);

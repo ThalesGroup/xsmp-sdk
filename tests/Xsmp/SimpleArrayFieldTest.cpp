@@ -14,14 +14,15 @@
 
 #include "Smp/ISimpleField.h"
 
-#include "Smp/IDataflowField.h"
 #include "Smp/IFailure.h"
+#include "Smp/IOutputField.h"
 #include "Smp/ISimpleArrayField.h"
 #include <Smp/AnySimple.h>
 #include <Smp/IArrayField.h>
 #include <Smp/IForcibleField.h>
 #include <Smp/IStructureField.h>
 #include <Smp/InvalidArrayIndex.h>
+#include <Smp/InvalidArraySize.h>
 #include <Smp/InvalidFieldValue.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Publication/IEnumerationType.h>
@@ -30,7 +31,9 @@
 #include <Xsmp/Field.h>
 #include <Xsmp/Publication/TypeRegistry.h>
 #include <Xsmp/String.h>
+#include <array>
 #include <gtest/gtest.h>
+#include <limits>
 #include <type_traits>
 
 namespace Xsmp {
@@ -40,7 +43,7 @@ namespace Xsmp {
 using field = Field<Xsmp::Array<::Smp::Bool, 1>::simple>;
 
 static_assert(!std::is_base_of_v<Smp::ISimpleField, field>);
-static_assert(!std::is_base_of_v<Smp::IDataflowField, field>);
+static_assert(!std::is_base_of_v<Smp::IOutputField, field>);
 static_assert(!std::is_base_of_v<Smp::IForcibleField, field>);
 static_assert(!std::is_base_of_v<Smp::IArrayField, field>);
 static_assert(std::is_base_of_v<Smp::ISimpleArrayField, field>);
@@ -48,7 +51,7 @@ static_assert(!std::is_base_of_v<Smp::IStructureField, field>);
 static_assert(!std::is_base_of_v<Smp::IFailure, field>);
 
 static_assert(!std::is_base_of_v<Smp::ISimpleField, field::failure>);
-static_assert(!std::is_base_of_v<Smp::IDataflowField, field::failure>);
+static_assert(!std::is_base_of_v<Smp::IOutputField, field::failure>);
 static_assert(!std::is_base_of_v<Smp::IForcibleField, field::failure>);
 static_assert(!std::is_base_of_v<Smp::IArrayField, field::failure>);
 static_assert(std::is_base_of_v<Smp::ISimpleArrayField, field::failure>);
@@ -56,7 +59,7 @@ static_assert(!std::is_base_of_v<Smp::IStructureField, field::failure>);
 static_assert(std::is_base_of_v<Smp::IFailure, field::failure>);
 
 static_assert(!std::is_base_of_v<Smp::ISimpleField, field::output>);
-static_assert(std::is_base_of_v<Smp::IDataflowField, field::output>);
+static_assert(std::is_base_of_v<Smp::IOutputField, field::output>);
 static_assert(!std::is_base_of_v<Smp::IForcibleField, field::output>);
 static_assert(!std::is_base_of_v<Smp::IArrayField, field::output>);
 static_assert(std::is_base_of_v<Smp::ISimpleArrayField, field::output>);
@@ -65,6 +68,31 @@ static_assert(!std::is_base_of_v<Smp::IFailure, field::output>);
 
 enum class Enum { L1, L2, L3 };
 using String20 = ::Xsmp::String<20>;
+TEST(SimpleArrayField, StartIndexOutOfBounds) {
+
+  Xsmp::Publication::TypeRegistry typeRegistry;
+  using Type = Array<Smp::Int32, 4>::simple;
+  typeRegistry.AddArrayType("Int32SimpleArray", "", Smp::Uuid{},
+                            Smp::Uuids::Uuid_Int32, sizeof(Smp::Int32), 4,
+                            true);
+  Field<Type> field{&typeRegistry, Smp::Uuid{}, "name"};
+
+  std::array<::Smp::AnySimple, 4> values{};
+
+  // startIndex + length wraps around in UInt64: the range is still out of
+  // bounds and has to be rejected rather than read or written past the array
+  constexpr auto max = std::numeric_limits<::Smp::UInt64>::max();
+  EXPECT_THROW(field.GetValues(3, values.data(), max), ::Smp::InvalidArraySize);
+  EXPECT_THROW(field.SetValues(3, values.data(), max), ::Smp::InvalidArraySize);
+
+  // a start index past the end is rejected even for an empty range
+  EXPECT_THROW(field.GetValues(0, values.data(), 5), ::Smp::InvalidArraySize);
+
+  // the legal ranges still work
+  EXPECT_NO_THROW(field.GetValues(2, values.data(), 2));
+  EXPECT_NO_THROW(field.GetValues(0, values.data(), 4));
+}
+
 TEST(SimpleArrayField, BoolType) {
 
   Xsmp::Publication::TypeRegistry typeRegistry;
@@ -201,8 +229,7 @@ TEST(SimpleArrayField, EnumType) {
   Xsmp::Publication::TypeRegistry typeRegistry;
   using Type = Array<Enum, 4>::simple;
   const Smp::Uuid enumUuid{0, 1, 2, 3, 4};
-  auto *enumType =
-      typeRegistry.AddEnumerationType("Enum", "", enumUuid, sizeof(Enum));
+  auto *enumType = typeRegistry.AddEnumerationType("Enum", "", enumUuid);
   enumType->AddLiteral("L1", "", static_cast<Smp::Int32>(Enum::L1));
   typeRegistry.AddArrayType("EnumSimpleArray", "", Smp::Uuid{}, enumUuid,
                             sizeof(Enum), 4, true);

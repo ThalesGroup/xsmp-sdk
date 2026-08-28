@@ -16,6 +16,7 @@
 #define XSMP_PUBLICATION_PUBLICATION_H_
 
 #include <Smp/AccessKind.h>
+#include <Smp/ICollectionBase.h>
 #include <Smp/IField.h>
 #include <Smp/IOperation.h>
 #include <Smp/IProperty.h>
@@ -71,11 +72,12 @@ public:
   /// @param   output True if field is an output field, false otherwise.
   /// @throws  ::Smp::DuplicateName
   /// @throws  ::Smp::InvalidObjectName
-  void PublishField(::Smp::String8 name, ::Smp::String8 description,
-                    ::Smp::Char8 *address,
-                    ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
-                    ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) final;
+  ::Smp::IField *PublishField(::Smp::String8 name, ::Smp::String8 description,
+                              ::Smp::Char8 *address,
+                              ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
+                              ::Smp::Bool state = true,
+                              ::Smp::Bool input = false,
+                              ::Smp::Bool output = false) final;
 
   /// Publish a Bool field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -92,11 +94,12 @@ public:
   /// @param   output True if field is an output field, false otherwise.
   /// @throws  ::Smp::DuplicateName
   /// @throws  ::Smp::InvalidObjectName
-  void PublishField(::Smp::String8 name, ::Smp::String8 description,
-                    ::Smp::Bool *address,
-                    ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
-                    ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) final;
+  ::Smp::IField *PublishField(::Smp::String8 name, ::Smp::String8 description,
+                              ::Smp::Bool *address,
+                              ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
+                              ::Smp::Bool state = true,
+                              ::Smp::Bool input = false,
+                              ::Smp::Bool output = false) final;
 
   /// Publish a Int8 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -113,11 +116,12 @@ public:
   /// @param   output True if field is an output field, false otherwise.
   /// @throws  ::Smp::DuplicateName
   /// @throws  ::Smp::InvalidObjectName
-  void PublishField(::Smp::String8 name, ::Smp::String8 description,
-                    ::Smp::Int8 *address,
-                    ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
-                    ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) final;
+  ::Smp::IField *PublishField(::Smp::String8 name, ::Smp::String8 description,
+                              ::Smp::Int8 *address,
+                              ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
+                              ::Smp::Bool state = true,
+                              ::Smp::Bool input = false,
+                              ::Smp::Bool output = false) final;
 
   /// Publish a Int16 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -134,11 +138,12 @@ public:
   /// @param   output True if field is an output field, false otherwise.
   /// @throws  ::Smp::DuplicateName
   /// @throws  ::Smp::InvalidObjectName
-  void PublishField(::Smp::String8 name, ::Smp::String8 description,
-                    ::Smp::Int16 *address,
-                    ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
-                    ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) final;
+  ::Smp::IField *PublishField(::Smp::String8 name, ::Smp::String8 description,
+                              ::Smp::Int16 *address,
+                              ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
+                              ::Smp::Bool state = true,
+                              ::Smp::Bool input = false,
+                              ::Smp::Bool output = false) final;
 
   /// Publish a Int32 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -155,11 +160,12 @@ public:
   /// @param   output True if field is an output field, false otherwise.
   /// @throws  ::Smp::DuplicateName
   /// @throws  ::Smp::InvalidObjectName
-  void PublishField(::Smp::String8 name, ::Smp::String8 description,
-                    ::Smp::Int32 *address,
-                    ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
-                    ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) final;
+  ::Smp::IField *PublishField(::Smp::String8 name, ::Smp::String8 description,
+                              ::Smp::Int32 *address,
+                              ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
+                              ::Smp::Bool state = true,
+                              ::Smp::Bool input = false,
+                              ::Smp::Bool output = false) final;
 
   /// Publish a Int64 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -176,11 +182,12 @@ public:
   /// @param   output True if field is an output field, false otherwise.
   /// @throws  ::Smp::DuplicateName
   /// @throws  ::Smp::InvalidObjectName
-  void PublishField(::Smp::String8 name, ::Smp::String8 description,
-                    ::Smp::Int64 *address,
-                    ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
-                    ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) final;
+  ::Smp::IField *PublishField(::Smp::String8 name, ::Smp::String8 description,
+                              ::Smp::Int64 *address,
+                              ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
+                              ::Smp::Bool state = true,
+                              ::Smp::Bool input = false,
+                              ::Smp::Bool output = false) final;
 
   /// Publish a UInt8 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -197,11 +204,12 @@ public:
   /// @param   output True if field is an output field, false otherwise.
   /// @throws  ::Smp::DuplicateName
   /// @throws  ::Smp::InvalidObjectName
-  void PublishField(::Smp::String8 name, ::Smp::String8 description,
-                    ::Smp::UInt8 *address,
-                    ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
-                    ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) final;
+  ::Smp::IField *PublishField(::Smp::String8 name, ::Smp::String8 description,
+                              ::Smp::UInt8 *address,
+                              ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
+                              ::Smp::Bool state = true,
+                              ::Smp::Bool input = false,
+                              ::Smp::Bool output = false) final;
 
   /// Publish a UInt16 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -218,11 +226,12 @@ public:
   /// @param   output True if field is an output field, false otherwise.
   /// @throws  ::Smp::DuplicateName
   /// @throws  ::Smp::InvalidObjectName
-  void PublishField(::Smp::String8 name, ::Smp::String8 description,
-                    ::Smp::UInt16 *address,
-                    ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
-                    ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) final;
+  ::Smp::IField *PublishField(::Smp::String8 name, ::Smp::String8 description,
+                              ::Smp::UInt16 *address,
+                              ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
+                              ::Smp::Bool state = true,
+                              ::Smp::Bool input = false,
+                              ::Smp::Bool output = false) final;
 
   /// Publish a UInt32 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -239,11 +248,12 @@ public:
   /// @param   output True if field is an output field, false otherwise.
   /// @throws  ::Smp::DuplicateName
   /// @throws  ::Smp::InvalidObjectName
-  void PublishField(::Smp::String8 name, ::Smp::String8 description,
-                    ::Smp::UInt32 *address,
-                    ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
-                    ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) final;
+  ::Smp::IField *PublishField(::Smp::String8 name, ::Smp::String8 description,
+                              ::Smp::UInt32 *address,
+                              ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
+                              ::Smp::Bool state = true,
+                              ::Smp::Bool input = false,
+                              ::Smp::Bool output = false) final;
 
   /// Publish a UInt64 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -260,11 +270,12 @@ public:
   /// @param   output True if field is an output field, false otherwise.
   /// @throws  ::Smp::DuplicateName
   /// @throws  ::Smp::InvalidObjectName
-  void PublishField(::Smp::String8 name, ::Smp::String8 description,
-                    ::Smp::UInt64 *address,
-                    ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
-                    ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) final;
+  ::Smp::IField *PublishField(::Smp::String8 name, ::Smp::String8 description,
+                              ::Smp::UInt64 *address,
+                              ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
+                              ::Smp::Bool state = true,
+                              ::Smp::Bool input = false,
+                              ::Smp::Bool output = false) final;
 
   /// Publish a Float32 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -281,11 +292,12 @@ public:
   /// @param   output True if field is an output field, false otherwise.
   /// @throws  ::Smp::DuplicateName
   /// @throws  ::Smp::InvalidObjectName
-  void PublishField(::Smp::String8 name, ::Smp::String8 description,
-                    ::Smp::Float32 *address,
-                    ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
-                    ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) final;
+  ::Smp::IField *PublishField(::Smp::String8 name, ::Smp::String8 description,
+                              ::Smp::Float32 *address,
+                              ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
+                              ::Smp::Bool state = true,
+                              ::Smp::Bool input = false,
+                              ::Smp::Bool output = false) final;
 
   /// Publish a Float64 field with the given name, description, address,
   /// view kind and state, input and output flags.
@@ -302,11 +314,12 @@ public:
   /// @param   output True if field is an output field, false otherwise.
   /// @throws  ::Smp::DuplicateName
   /// @throws  ::Smp::InvalidObjectName
-  void PublishField(::Smp::String8 name, ::Smp::String8 description,
-                    ::Smp::Float64 *address,
-                    ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
-                    ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) final;
+  ::Smp::IField *PublishField(::Smp::String8 name, ::Smp::String8 description,
+                              ::Smp::Float64 *address,
+                              ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
+                              ::Smp::Bool state = true,
+                              ::Smp::Bool input = false,
+                              ::Smp::Bool output = false) final;
 
   /// Publish a field of any type with the given name, description,
   /// address, type, view kind and state, input and output flags.
@@ -317,7 +330,7 @@ public:
   /// If no type with the given type UUID exists, an exception of type
   /// TypeNotRegistered is thrown.
   /// If the type selected with the type UUID is not a valid value type
-  /// for publication of fields, an exception of type InvalidFieldType is
+  /// for publication of fields, an exception of type InvalidType is
   /// thrown.
   /// @param   name Field name.
   /// @param   description Field description.
@@ -328,14 +341,15 @@ public:
   /// @param   input True if field is an input field, false otherwise.
   /// @param   output True if field is an output field, false otherwise.
   /// @throws  ::Smp::DuplicateName
-  /// @throws  ::Smp::InvalidFieldType
+  /// @throws  ::Smp::InvalidType
   /// @throws  ::Smp::InvalidObjectName
   /// @throws  ::Smp::Publication::TypeNotRegistered
-  void PublishField(::Smp::String8 name, ::Smp::String8 description,
-                    void *address, ::Smp::Uuid typeUuid,
-                    ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
-                    ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) final;
+  ::Smp::IField *PublishField(::Smp::String8 name, ::Smp::String8 description,
+                              void *address, ::Smp::Uuid typeUuid,
+                              ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
+                              ::Smp::Bool state = true,
+                              ::Smp::Bool input = false,
+                              ::Smp::Bool output = false) final;
 
   /// Publish a field defined internally that implements the IField
   /// interface.
@@ -361,14 +375,14 @@ public:
   /// @param   input True if field is an input field, false otherwise.
   /// @param   output True if field is an output field, false otherwise.
   /// @throws  ::Smp::DuplicateName
-  /// @throws  ::Smp::InvalidFieldType
+  /// @throws  ::Smp::InvalidType
   /// @throws  ::Smp::InvalidObjectName
-  void PublishArray(::Smp::String8 name, ::Smp::String8 description,
-                    ::Smp::Int64 count, void *address,
-                    ::Smp::PrimitiveTypeKind type,
-                    ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
-                    ::Smp::Bool state = true, ::Smp::Bool input = false,
-                    ::Smp::Bool output = false) final;
+  ::Smp::ISimpleArrayField *
+  PublishArray(::Smp::String8 name, ::Smp::String8 description,
+               ::Smp::Int64 count, void *address, ::Smp::PrimitiveTypeKind type,
+               ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
+               ::Smp::Bool state = true, ::Smp::Bool input = false,
+               ::Smp::Bool output = false) final;
 
   /// Publish top-level node of an array without using the type registry.
   /// This operation can be used, together with subsequent calls to
@@ -384,7 +398,7 @@ public:
   /// @return  Interface to publish item type against.
   /// @throws  ::Smp::DuplicateName
   /// @throws  ::Smp::InvalidObjectName
-  ::Smp::IPublication *
+  ::Smp::Publication::IPublishField *
   PublishArray(::Smp::String8 name, ::Smp::String8 description,
                ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
                ::Smp::Bool state = true) final;
@@ -400,7 +414,7 @@ public:
   /// @return  Reference to publish structure fields against.
   /// @throws  ::Smp::DuplicateName
   /// @throws  ::Smp::InvalidObjectName
-  ::Smp::IPublication *
+  ::Smp::Publication::IPublishField *
   PublishStructure(::Smp::String8 name, ::Smp::String8 description,
                    ::Smp::ViewKind view = ::Smp::ViewKind::VK_All,
                    ::Smp::Bool state = true) final;
@@ -423,7 +437,13 @@ public:
   /// @throws  ::Smp::InvalidObjectName
   ::Smp::Publication::IPublishOperation *
   PublishOperation(::Smp::String8 name, ::Smp::String8 description,
-                   ::Smp::ViewKind view = ::Smp::ViewKind::VK_None) final;
+                   ::Smp::ViewKind view = ::Smp::ViewKind::VK_All) final;
+
+  /// Publish an operation defined internally that implements the IOperation
+  /// interface.
+  /// @param   operation Operation to publish.
+  /// @throws  ::Smp::DuplicateName
+  void PublishOperation(::Smp::IOperation *operation) final;
 
   /// Publish a property
   /// @param   name Property name.
@@ -433,9 +453,16 @@ public:
   /// @param   view Show field in model tree.
   /// @throws  ::Smp::InvalidObjectName
   /// @throws  ::Smp::Publication::TypeNotRegistered
-  void PublishProperty(::Smp::String8 name, ::Smp::String8 description,
-                       ::Smp::Uuid typeUuid, ::Smp::AccessKind accessKind,
-                       ::Smp::ViewKind view = ::Smp::ViewKind::VK_None) final;
+  ::Smp::IProperty *
+  PublishProperty(::Smp::String8 name, ::Smp::String8 description,
+                  ::Smp::Uuid typeUuid, ::Smp::AccessKind accessKind,
+                  ::Smp::ViewKind view = ::Smp::ViewKind::VK_All) final;
+
+  /// Publish a property defined internally that implements the IProperty
+  /// interface.
+  /// @param   property Property to publish.
+  /// @throws  ::Smp::DuplicateName
+  void PublishProperty(::Smp::IProperty *property) final;
 
   /// Get the field of given name.
   ///
@@ -463,7 +490,17 @@ public:
   /// Provides the collection of properties that have been published.
   /// @return  Collection of properties that have been published, which
   ///          may be empty.
+  /// Get a published property by name.
+  /// @param   name Name of the property.
+  /// @return  The property, or null if there is no such property.
+  ::Smp::IProperty *GetProperty(::Smp::String8 name) const final;
+
   const ::Smp::PropertyCollection *GetProperties() const final;
+
+  /// Get a published operation by name.
+  /// @param   name Name of the operation.
+  /// @return  The operation, or null if there is no such operation.
+  ::Smp::IOperation *GetOperation(::Smp::String8 name) const final;
 
   /// Provides the collection of operations that have been published.
   /// @return  Collection of operations that have been published, which
@@ -477,7 +514,7 @@ public:
   /// could be found.
   /// @param   operationName Name of operation.
   /// @return  Request object for operation.
-  ::Smp::IRequest *CreateRequest(::Smp::String8 operationName) final;
+  virtual ::Smp::IRequest *CreateRequest(::Smp::String8 operationName);
 
   /// Create request object.
   /// Returns a request object for the given property getter that describes the
@@ -503,7 +540,7 @@ public:
   /// The request object must not be used anymore after DeleteRequest has
   /// been called for it.
   /// @param   request Request object to delete.
-  void DeleteRequest(::Smp::IRequest *request) final;
+  virtual void DeleteRequest(::Smp::IRequest *request);
 
   /// Call this operation to release all data created during earlier
   /// Publish calls to this instance.
@@ -512,12 +549,37 @@ public:
   void Unpublish() final;
 
 private:
+  /// SMP 2025 has the collections that take part in the name resolution of a
+  /// component register their elements with it. A published feature lives in
+  /// one of two collections, so the one that GetFields(), GetOperations() and
+  /// GetProperties() return is the one named here: it is the collection a
+  /// caller of IsChildInCollection() holds.
+  /// @return the element, for the caller to return in turn.
+  /// @throws ::Smp::DuplicateName when the component already has a child with
+  ///         that name in another of its collections.
+  template <typename T>
+  T *Register(T *element, const ::Smp::ICollectionBase *collection);
+
+  /// Reject a name already used by another child of the component before the
+  /// element is created: the name is shared by the fields, the operations and
+  /// the properties, and an element inserted then rejected would stay in its
+  /// collection while the component ignores it.
+  /// @throws ::Smp::DuplicateName
+  void CheckName(::Smp::String8 name) const;
+
+  /// Unregister every element of the three collections.
+  void UnregisterChildren();
+
   ::Smp::IObject *_parent;
   ::Smp::Publication::ITypeRegistry *_typeRegistry;
   ::Xsmp::ContainingCollection<::Smp::IField> _fields;
   ::Xsmp::DelegateCollection<::Smp::IField> _allFields;
   ::Xsmp::ContainingCollection<::Smp::IProperty> _properties;
+  /// Properties published by name are owned by _properties; those published
+  /// as an IProperty are not, so both are exposed through a delegate.
+  ::Xsmp::DelegateCollection<::Smp::IProperty> _allProperties;
   ::Xsmp::ContainingCollection<::Smp::IOperation> _operations;
+  ::Xsmp::DelegateCollection<::Smp::IOperation> _allOperations;
 };
 
 } // namespace Xsmp::Publication

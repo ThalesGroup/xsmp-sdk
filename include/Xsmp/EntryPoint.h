@@ -77,6 +77,11 @@ public:
   /// parent.
   ::Smp::IObject *GetParent() const override;
 
+  /// Returns the child object with the given name.
+  /// @param   name The name of the child to look for.
+  /// @return  The child with that name, or null if there is no such child.
+  ::Smp::IObject *GetChild(::Smp::String8 name) const override;
+
   /// Execute the entry point's action.
   void Execute() const override;
 

@@ -15,6 +15,7 @@
 #ifndef PYTHON_SMP_PUBLICATION_ITYPEREGISTRY_H_
 #define PYTHON_SMP_PUBLICATION_ITYPEREGISTRY_H_
 
+#include <Smp/Publication/IStringType.h>
 #include <Smp/Publication/ITypeRegistry.h>
 #include <python/ecss_smp.h>
 
@@ -59,7 +60,6 @@ inline void RegisterITypeRegistry(const py::module_ &m) {
       .def("AddEnumerationType",
            &::Smp::Publication::ITypeRegistry::AddEnumerationType,
            py::arg("name"), py::arg("description"), py::arg("typeUuid"),
-           py::arg("memorySize") = 4,
            py::return_value_policy::reference_internal,
            "Add an enumeration type to the registry.")
 

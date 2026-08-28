@@ -597,7 +597,8 @@ TEST(AnySimple, NarrowingReportsTheRightTypes) {
     FAIL();
   } catch (const InvalidAnyType &e) {
     EXPECT_EQ(e.GetExpectedType(), PrimitiveTypeKind::PTK_Int8);
-    EXPECT_EQ(e.GetInvalidType(), PrimitiveTypeKind::PTK_UInt8);
+    // SMP 2025 reports a value instead of a bare type
+    EXPECT_EQ(e.GetInvalidValue().GetType(), PrimitiveTypeKind::PTK_UInt8);
   }
 
   // a conversion out of an AnySimple reports the same way round
@@ -607,7 +608,7 @@ TEST(AnySimple, NarrowingReportsTheRightTypes) {
     FAIL();
   } catch (const InvalidAnyType &e) {
     EXPECT_EQ(e.GetExpectedType(), PrimitiveTypeKind::PTK_Int8);
-    EXPECT_EQ(e.GetInvalidType(), PrimitiveTypeKind::PTK_Int16);
+    EXPECT_EQ(e.GetInvalidValue().GetType(), PrimitiveTypeKind::PTK_Int16);
   }
 }
 

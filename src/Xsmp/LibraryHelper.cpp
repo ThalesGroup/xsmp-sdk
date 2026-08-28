@@ -66,11 +66,14 @@ std::string ModuleDirectory() {
 
 } // namespace
 
-void *LoadLibrary(const char *libraryName) {
+void *LoadLibrary(const char *libraryName, ::Smp::LibraryLoadingFlag flag) {
   if (!libraryName) {
     return nullptr;
   }
 #if (defined(_WIN32) || defined(_WIN64))
+  // Windows has no equivalent of RTLD_LOCAL/RTLD_GLOBAL: SMP 2025 lets the
+  // flag be ignored when the platform has no equivalent value
+  static_cast<void>(flag);
   const auto fileName = LibraryFileName(libraryName);
   if (auto *handle = LoadLibraryA(fileName.c_str())) {
     return handle;
@@ -88,7 +91,19 @@ void *LoadLibrary(const char *libraryName) {
 #else
   // On MacOs the default is RTLD_GLOBAL
   // On Linux the default is RTLD_LOCAL
-  return dlopen(LibraryFileName(libraryName).c_str(), RTLD_NOW);
+  int mode = RTLD_NOW;
+  switch (flag) {
+  case ::Smp::LibraryLoadingFlag::LLF_Local:
+    mode |= RTLD_LOCAL;
+    break;
+  case ::Smp::LibraryLoadingFlag::LLF_Global:
+    mode |= RTLD_GLOBAL;
+    break;
+  case ::Smp::LibraryLoadingFlag::LLF_Auto:
+    // the platform default is kept
+    break;
+  }
+  return dlopen(LibraryFileName(libraryName).c_str(), mode);
 #endif
 }
 

@@ -40,7 +40,7 @@ public:
   /// from IStorageReader on Restore.
   /// @param   address Memory address of memory block.
   /// @param   size Size of memory block.
-  void Store(void *address, ::Smp::UInt64 size) override;
+  void Store(const void *address, ::Smp::UInt64 size) override;
 
   /// Get the state vector file name.
   /// This method returns a full file name, including the path to the

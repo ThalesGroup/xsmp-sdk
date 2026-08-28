@@ -50,6 +50,11 @@ public:
   ::Smp::String8 GetDescription() const final;
   ::Smp::IObject *GetParent() const final;
 
+  /// Returns the child object with the given name.
+  /// @param   name The name of the child to look for.
+  /// @return  The referenced component with that name, or null.
+  ::Smp::IObject *GetChild(::Smp::String8 name) const final;
+
   /// Query for the collection of all referenced components.
   /// The returned collection may be empty if no components are
   /// referenced.
@@ -117,12 +122,10 @@ private:
     using iterator = typename ::Smp::ComponentCollection::iterator;
     explicit Collection(AbstractReference &parent);
 
-    ::Smp::String8 GetName() const override;
-    ::Smp::String8 GetDescription() const override;
-    ::Smp::IObject *GetParent() const override;
     ::Smp::IComponent *at(::Smp::String8 name) const override;
     ::Smp::IComponent *at(size_t index) const override;
     size_t size() const override;
+    ::Smp::Bool empty() const override;
     const_iterator begin() const override;
     const_iterator end() const override;
 

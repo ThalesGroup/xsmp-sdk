@@ -57,7 +57,7 @@ protected:
 
 private:
   friend ::Xsmp::detail::AbstractEventSink;
-  ::Xsmp::Collection<::Smp::IEventSink> _event_sinks;
+  ::Xsmp::ChildCollection<::Smp::IEventSink> _event_sinks;
 };
 
 } // namespace Xsmp

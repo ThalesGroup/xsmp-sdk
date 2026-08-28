@@ -51,6 +51,15 @@ An event sink can only be unsubscribed if it has been subscribed before.)")
       .def("__isub__", &UnsubscribeEventSource, py::arg("event_sink"),
            py::return_value_policy::reference_internal)
 
+      .def("GetEventArgType", &::Smp::IEventSource::GetEventArgType,
+           "Get the primitive type kind of the argument the event source "
+           "transmits, or PTK_None when it transmits none.")
+
+      .def("GetEventSinks", &::Smp::IEventSource::GetEventSinks,
+           "Collection of the event sinks currently subscribed, in the order "
+           "they subscribed.",
+           py::return_value_policy::reference_internal)
+
       .doc() =
       R"(Interface of an event source that event sinks (IEventSink) can subscribe to.
 This interface allows event consumers to subscribe to or unsubscribe from an event.)";
