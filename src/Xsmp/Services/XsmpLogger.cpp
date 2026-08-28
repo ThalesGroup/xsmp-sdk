@@ -449,9 +449,18 @@ public:
   LoggerProcessor(LoggerProcessor &&) = delete;
   LoggerProcessor &operator=(LoggerProcessor &&) = delete;
   ~LoggerProcessor() {
-    Terminate();
-    // write what was logged after the working thread was stopped
-    Drain();
+    // a destructor is implicitly noexcept: joining the thread or writing the
+    // last entries must not terminate the process
+    try {
+      Terminate();
+      // write what was logged after the working thread was stopped
+      Drain();
+    } catch (const std::exception &e) {
+      std::cerr << "Exception thrown while stopping the logger: " << e.what()
+                << '\n';
+    } catch (...) {
+      std::cerr << "Exception thrown while stopping the logger.\n";
+    }
   }
 
   /// Stop the working thread. Called when the service is disconnected, so that
@@ -494,19 +503,22 @@ private:
                 Xsmp::DateTime{zuluTime}, Xsmp::Duration{simulationTime},
                 Xsmp::DateTime{epochTime}, Xsmp::Duration{missionTime}});
   }
-  /// Write the pending entries. The appenders are called without the mutex
-  /// held; a std::queue never invalidates the reference to its front element
-  /// when another entry is pushed.
+  /// Write the pending entries. Each one is taken out of the queue before the
+  /// appenders are called, so that the mutex is not held while writing.
   void Drain() {
-    std::unique_lock lck(_mutex);
-    while (!_logs.empty()) {
-      const auto &log = _logs.front();
-      lck.unlock();
+    while (true) {
+      LogEntry log;
+      {
+        const std::scoped_lock lck{_mutex};
+        if (_logs.empty()) {
+          return;
+        }
+        log = std::move(_logs.front());
+        _logs.pop();
+      }
       for (auto const &appender : _appenders) {
         appender->Append(log);
       }
-      lck.lock();
-      _logs.pop();
     }
   }
 
