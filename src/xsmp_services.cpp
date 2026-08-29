@@ -18,7 +18,7 @@
 /// @file xsmp_services.cpp
 
 // ----------------------------------------------------------------------------
-// ---------------------------- Include Header Files --------------------
+// --------------------------- Include Header Files ---------------------------
 // ----------------------------------------------------------------------------
 
 #include <Smp/ISimulator.h>
@@ -31,18 +31,18 @@
 #include <xsmp_services.h>
 #include <xsmp_time_keeper.h>
 
-// ----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // ----------------------------- Global variables ------------------------------
-// ----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 namespace {
 /// Simulators set.
 std::unordered_set<::Smp::ISimulator *> simulators{};
 } // namespace
 
-// --------------------------------------------------------------------------------
-// --------------------------- Initialise Function -----------------------------
-// --------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// ---------------------------- Initialise Function ----------------------------
+// -----------------------------------------------------------------------------
 
 extern "C" {
 /// Initialise Package xsmp_services.
@@ -72,14 +72,15 @@ bool Initialise_xsmp_services(
 }
 }
 
-// ---------------------------------------------------------------------------------
-// ---------------------------- Finalise Function ------------------------------
-// ---------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// ----------------------------- Finalise Function -----------------------------
+// -----------------------------------------------------------------------------
 
 extern "C" {
-/// Finalise Package xsmp_services.
-/// @return True if finalisation was successful, false otherwise.
 #if ECSS_SMP_VERSION >= 202503L
+/// Finalise Package xsmp_services.
+/// @param simulator Simulator to finalise.
+/// @return True if finalisation was successful, false otherwise.
 bool Finalise_xsmp_services(::Smp::ISimulator *simulator) {
   // avoid double finalisation of that simulator
   if (::simulators.erase(simulator) == 0) {
@@ -96,8 +97,13 @@ bool Finalise_xsmp_services(::Smp::ISimulator *simulator) {
   return finalised;
 }
 
+/// Get the revision of the SMP standard Package xsmp_services was
+/// built against.
+/// @return The revision of the SMP standard.
 ::Smp::UInt64 GetSmpVersion_xsmp_services() { return ECSS_SMP_VERSION; }
 #else
+/// Finalise Package xsmp_services.
+/// @return True if finalisation was successful, false otherwise.
 bool Finalise_xsmp_services() {
   // avoid double finalisation
   if (::simulators.empty()) {

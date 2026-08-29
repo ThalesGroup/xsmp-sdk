@@ -225,8 +225,8 @@ void StructureType::AddField(::Smp::String8 name, ::Smp::String8 description,
   // a structure containing itself, directly or through other types, makes the
   // publication of a field of that type, and the creation of a request holding
   // one, recurse forever
-  std::set<::Smp::Uuid> visited;
-  if (uuid == GetUuid() ||
+  if (std::set<::Smp::Uuid> visited;
+      uuid == GetUuid() ||
       contains(GetTypeRegistry(), GetTypeRegistry()->GetType(uuid), GetUuid(),
                visited)) {
     ::Xsmp::Exception::throwIncompatibleType(

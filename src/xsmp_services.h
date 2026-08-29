@@ -11,27 +11,20 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-// -----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // File Name    : xsmp_services.h
-// -----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 /// @file xsmp_services.h
 
 #ifndef XSMP_SERVICES_H_
 #define XSMP_SERVICES_H_
 
 // ----------------------------------------------------------------------------
-// ---------------------------- Include Header Files --------------------
+// --------------------------------- Includes ---------------------------------
 // ----------------------------------------------------------------------------
-
-namespace Smp {
-class ISimulator;
-namespace Publication {
-class ITypeRegistry;
-} // namespace Publication
-} // namespace Smp
-
+#include <Smp/ISimulator.h>
 #include <Smp/PrimitiveTypes.h>
+#include <Smp/Publication/ITypeRegistry.h>
 
 #if defined(__has_include)
 #if __has_include(<Smp/Version.h>)
@@ -42,10 +35,6 @@ class ITypeRegistry;
 #ifndef ECSS_SMP_VERSION
 #define ECSS_SMP_VERSION 202003L
 #endif
-
-// ----------------------------------------------------------------------------
-// ------------------------ Types and Interfaces ------------------------
-// ----------------------------------------------------------------------------
 
 // Entry points for static library
 extern "C" {
@@ -62,8 +51,8 @@ bool Initialise_xsmp_services(::Smp::ISimulator *simulator,
 /// @return True if finalisation was successful, false otherwise.
 bool Finalise_xsmp_services(::Smp::ISimulator *simulator);
 
-/// Get the revision of the SMP standard Package xsmp_services was built
-/// against.
+/// Get the revision of the SMP standard Package xsmp_services was
+/// built against.
 /// @return The revision of the SMP standard.
 ::Smp::UInt64 GetSmpVersion_xsmp_services();
 #else

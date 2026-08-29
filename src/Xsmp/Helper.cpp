@@ -264,7 +264,7 @@ inline ::Smp::IObject *Resolve(::Smp::IObject *object, ::Smp::String8 name,
     }
   }
 
-  if (auto *field = dynamic_cast<::Smp::IField *>(object)) {
+  if (auto const *field = dynamic_cast<const ::Smp::IField *>(object)) {
     if (auto *child = ResolveFieldSegment(field, name)) {
       return ::Xsmp::Helper::Resolve(child, path);
     }

@@ -79,52 +79,53 @@ inline std::string unescape(std::string_view str) {
   result.reserve(str.size());
   auto it = str.begin();
   while (it != str.end()) {
-    if (*it == '\\') {
-      if (++it != str.end()) {
-        switch (*it) {
-        case '\'':
-          result += '\'';
-          break;
-        case '"':
-          result += '\"';
-          break;
-        case '?':
-          result += '\?';
-          break;
-        case '\\':
-          result += '\\';
-          break;
-        case 'a':
-          result += '\a';
-          break;
-        case 'b':
-          result += '\b';
-          break;
-        case 'f':
-          result += '\f';
-          break;
-        case 'n':
-          result += '\n';
-          break;
-        case 'r':
-          result += '\r';
-          break;
-        case 't':
-          result += '\t';
-          break;
-        case 'v':
-          result += '\v';
-          break;
-        default:
-          result += *it;
-          break;
-        }
-        ++it;
-      }
+    if (*it != '\\') {
+      result += *it;
+      ++it;
       continue;
     }
-    result += *it;
-
+    // a backslash at the very end escapes nothing and is dropped
+    if (++it == str.end()) {
+      break;
+    }
+    switch (*it) {
+    case '\'':
+      result += '\'';
+      break;
+    case '"':
+      result += '\"';
+      break;
+    case '?':
+      result += '\?';
+      break;
+    case '\\':
+      result += '\\';
+      break;
+    case 'a':
+      result += '\a';
+      break;
+    case 'b':
+      result += '\b';
+      break;
+    case 'f':
+      result += '\f';
+      break;
+    case 'n':
+      result += '\n';
+      break;
+    case 'r':
+      result += '\r';
+      break;
+    case 't':
+      result += '\t';
+      break;
+    case 'v':
+      result += '\v';
+      break;
+    default:
+      result += *it;
+      break;
+    }
     ++it;
   }
   return result;
