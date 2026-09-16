@@ -153,6 +153,7 @@ TEST(SimpleField, BoolType) {
   EXPECT_TRUE(output.IsState());
   EXPECT_TRUE(output.IsOutput());
   EXPECT_FALSE(output.IsInput());
+  EXPECT_TRUE(output.IsAutomatic());
 
   EXPECT_NO_THROW(output.Connect(&input));
 

@@ -36,6 +36,13 @@ class TestSmp2025(xsmp.unittest.TestCase):
             [*ecss_smp.Smp.RequestType.__members__],
             ["RT_Invoke", "RT_Get", "RT_Set"])
 
+    def testSimulatorLevel2(self):
+        self.assertIsInstance(self.sim, ecss_smp.Smp.ISimulatorL2)
+        self.assertTrue(callable(self.sim.LoadAssembly))
+        self.assertTrue(callable(self.sim.LoadLinkBase))
+        self.assertTrue(callable(self.sim.LoadSchedule))
+        self.assertTrue(callable(self.sim.LoadConfiguration))
+
     def testNewExceptions(self):
         # a library that is not a package cannot report its SMP version
         with self.assertRaises(ecss_smp.Smp.InvalidSmpVersion):
@@ -65,8 +72,8 @@ class TestSmp2025(xsmp.unittest.TestCase):
     def testOutputField(self):
         output = self.sim.model.booleanOutput
         self.assertIsInstance(output, ecss_smp.Smp.IOutputField)
-        # XSMP pushes explicitly, never on assignment
-        self.assertFalse(output.IsAutomatic())
+        # Generated output fields propagate whenever their value changes.
+        self.assertTrue(output.IsAutomatic())
         self.assertTrue(output.GetInputFields().empty())
 
         target = self.sim.model.booleanInput

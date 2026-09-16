@@ -40,6 +40,7 @@
 #include <Xsmp/LibraryHelper.h>
 #include <Xsmp/Publication/Publication.h>
 #include <Xsmp/Simulator.h>
+#include <Xsmp/SimulatorL2/Loader.h>
 #include <Xsmp/StorageReader.h>
 #include <Xsmp/StorageWriter.h>
 #include <cstdint>
@@ -59,6 +60,7 @@ namespace Xsmp {
 Simulator::Simulator(::Smp::String8 name, ::Smp::String8 description)
     : _name(::Xsmp::Helper::checkName(name, nullptr)),
       _description(description),
+      _level2{std::make_unique<::Xsmp::L2::Loader>(*this)},
 
       // initialize Services Container
       _services{SMP_SimulatorServices, "Services collection of the simulator",
@@ -130,6 +132,9 @@ Simulator::~Simulator() {
     if (_state == ::Smp::SimulatorStateKind::SSK_Executing) {
       Hold(true);
     }
+    // Exit() disconnects services. Schedule entry points must therefore be
+    // detached once execution has stopped, but before entering Exiting.
+    _level2->Shutdown();
     if (_state == ::Smp::SimulatorStateKind::SSK_Standby) {
       Exit();
     }
@@ -145,6 +150,35 @@ Simulator::~Simulator() {
   } catch (...) {
     if (_logger) {
       _logger->Log(this, "Exception thrown while exiting the simulation.",
+                   ::Smp::Services::ILogger::LMK_Error);
+    }
+  }
+
+  // Hold() or Exit() can be implemented by user components and may throw.
+  // Keep Schedule cleanup independent from that exit sequence so callbacks
+  // never outlive the services that own their registrations.
+  _level2->Shutdown();
+
+  // Exit() normally disconnects the scheduler and joins its Zulu thread. If
+  // the simulator is being destroyed from another state (or Exit threw), make
+  // that quiescence guarantee explicit before models start being destroyed.
+  try {
+    if (_scheduler &&
+        _scheduler->GetState() == ::Smp::ComponentStateKind::CSK_Connected) {
+      _scheduler->Disconnect();
+    }
+  } catch (const std::exception &e) {
+    if (_logger) {
+      _logger->Log(this,
+                   (std::string("Exception thrown while disconnecting the "
+                                "scheduler: ") +
+                    e.what())
+                       .c_str(),
+                   ::Smp::Services::ILogger::LMK_Error);
+    }
+  } catch (...) {
+    if (_logger) {
+      _logger->Log(this, "Exception thrown while disconnecting the scheduler.",
                    ::Smp::Services::ILogger::LMK_Error);
     }
   }
@@ -250,9 +284,11 @@ void Simulator::Configure() {
       cmp->Publish(CreatePublication(cmp));
     }
     if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Publishing) {
+      _level2->RetryDeferred();
       cmp->Configure(_logger, _linkRegistry);
     }
   });
+  _level2->RetryDeferred();
 }
 
 void Simulator::Connect() {
@@ -260,13 +296,21 @@ void Simulator::Connect() {
   CheckTransition(::Smp::SimulatorStateKind::SSK_Building, {});
   _state = ::Smp::SimulatorStateKind::SSK_Connecting;
 
+  // Publish the complete hierarchy before resolving Level 2 links and values.
   recursive_action(this, [this](::Smp::IComponent *cmp) {
     if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Created) {
       cmp->Publish(CreatePublication(cmp));
     }
+  });
+  recursive_action(this, [this](::Smp::IComponent *cmp) {
     if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Publishing) {
+      _level2->RetryDeferred();
       cmp->Configure(_logger, _linkRegistry);
     }
+  });
+  _level2->ResolveOrThrow();
+
+  recursive_action(this, [this](::Smp::IComponent *cmp) {
     if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Configured) {
       cmp->Connect(this);
     }
@@ -581,19 +625,33 @@ void Simulator::Reconnect(::Smp::IComponent *root) {
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_EnterReconnectingId);
 
   try {
-    if (auto const *composite = dynamic_cast<::Smp::IComposite *>(root)) {
-      recursive_action(composite, [this](::Smp::IComponent *cmp) {
-        if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Created) {
-          cmp->Publish(CreatePublication(cmp));
-        }
-        if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Publishing) {
-          cmp->Configure(_logger, _linkRegistry);
-        }
-        if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Configured) {
-          cmp->Connect(this);
-        }
-      });
-    }
+    const auto visit = [this, root](auto &&action) {
+      if (root) {
+        recursive_action(root, std::forward<decltype(action)>(action));
+      } else {
+        recursive_action(static_cast<const ::Smp::IComposite *>(this),
+                         std::forward<decltype(action)>(action));
+      }
+    };
+    visit([this](::Smp::IComponent *cmp) {
+      if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Created) {
+        cmp->Publish(CreatePublication(cmp));
+      }
+    });
+    visit([this](::Smp::IComponent *cmp) {
+      if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Publishing) {
+        _level2->RetryDeferred();
+        cmp->Configure(_logger, _linkRegistry);
+      }
+    });
+    // The transition itself is the last opportunity to reject unresolved
+    // Level 2 elements, including when no reconnect root was supplied.
+    _level2->ResolveOrThrow();
+    visit([this](::Smp::IComponent *cmp) {
+      if (cmp->GetState() == ::Smp::ComponentStateKind::CSK_Configured) {
+        cmp->Connect(this);
+      }
+    });
   } catch (...) {
     BackToStandby(::Smp::Services::IEventManager::SMP_LeaveReconnectingId);
     throw;
@@ -607,6 +665,10 @@ void Simulator::Exit() {
   CheckTransition(::Smp::SimulatorStateKind::SSK_Standby,
                   {::Smp::Services::IEventManager::SMP_LeaveStandbyId,
                    ::Smp::Services::IEventManager::SMP_EnterStandbyId});
+
+  // Services are disconnected below. Remove Level 2 callbacks while the
+  // event manager and scheduler are still usable.
+  _level2->Shutdown();
 
   EmitGlobalEvent(::Smp::Services::IEventManager::SMP_LeaveStandbyId);
   _state = ::Smp::SimulatorStateKind::SSK_Exiting;
@@ -872,6 +934,28 @@ void Simulator::LoadLibrary(::Smp::String8 libraryPath,
     ::Xsmp::Exception::throwInvalidFile(this, libraryPath, msg);
   }
   _libraries.emplace_back(libraryPath, handle);
+}
+
+void Simulator::LoadAssembly(::Smp::String8 assemblyPath,
+                             ::Smp::String8 parentPath,
+                             ::Smp::String8 containerName,
+                             ::Smp::String8 rootInstanceName) {
+  _level2->LoadAssembly(assemblyPath, parentPath, containerName,
+                        rootInstanceName);
+}
+
+void Simulator::LoadLinkBase(::Smp::String8 linkBasePath,
+                             ::Smp::String8 parentPath) {
+  _level2->LoadLinkBase(linkBasePath, parentPath);
+}
+
+void Simulator::LoadSchedule(::Smp::String8 schedulePath) {
+  _level2->LoadSchedule(schedulePath);
+}
+
+void Simulator::LoadConfiguration(::Smp::String8 configurationPath,
+                                  ::Smp::String8 parentPath) {
+  _level2->LoadConfiguration(configurationPath, parentPath);
 }
 
 } // namespace Xsmp

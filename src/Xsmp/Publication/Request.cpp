@@ -24,6 +24,7 @@
 #include <Xsmp/Publication/Type.h>
 #include <Xsmp/cstring.h>
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <map>
 #include <string>
@@ -33,6 +34,9 @@ namespace Xsmp::Publication {
 
 bool Request::isValid(const ::Smp::Publication::IType *type,
                       const ::Smp::AnySimple &value) {
+  if (!type) {
+    return false;
+  }
   // a mismatching kind is reported by the caller, which knows whether the
   // value belongs to a parameter, a return value or a property: SMP 2025 asks
   // for InvalidParameterValue and InvalidPropertyValue there, not for the
@@ -52,7 +56,8 @@ bool Request::isValid(const ::Smp::Publication::IType *type,
   else if (const auto *floatType = dynamic_cast<const FloatType *>(type)) {
     auto floatValue = static_cast<::Smp::Float64>(value);
 
-    if ((floatType->IsMinInclusive() ? floatValue < floatType->getMinimum()
+    if (!std::isfinite(floatValue) ||
+        (floatType->IsMinInclusive() ? floatValue < floatType->getMinimum()
                                      : floatValue <= floatType->getMinimum()) ||
         (floatType->IsMaxInclusive() ? floatValue > floatType->getMaximum()
                                      : floatValue >= floatType->getMaximum())) {

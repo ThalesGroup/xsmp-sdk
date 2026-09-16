@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.18)
 
 
 # Extract project version from source
@@ -53,8 +53,25 @@ include(FetchContent)
 # (31 March 2025). Defines Smp/Version.h with ECSS_SMP_VERSION == 202503L.
 FetchContent_Declare(
     ecss_smp
-    URL      "https://ecss.nl/wp-content/uploads/2025/08/ECSS_SMP_L1_(31March2025).zip"
-    URL_HASH MD5=F9C4512E8891EE2124D11A135580D474
+    URL      "https://ecss.nl/wp-content/uploads/2025/08/ECSS_SMP_L1_%2831March2025%29.zip"
+    URL_HASH SHA256=b6bfd02663142d0a6b287c987f065107608ed563a11889b391dc57c01125e3ad
+)
+
+# ECSS-E-ST-40-07C Rev.1 (5 August 2025) -- SMP Level 2, header issue 1.0
+# (31 March 2025). Adds Smp/ISimulatorL2.h and the Assembly, LinkBase and
+# Schedule XML schemas.
+FetchContent_Declare(
+    ecss_smp_l2
+    URL      "https://ecss.nl/wp-content/uploads/2025/08/ECSS_SMP_L2_%2831March2025%29.zip"
+    URL_HASH SHA256=b033bea7a3f52fe99ca4e79c583401e1a35c3759c1eae4d47446055a00a9e448
+)
+
+# The 2025 Level 2 schemas import the 2019 Core schemas. They are kept as a
+# separate build-time dependency so that ECSS material is not vendored here.
+FetchContent_Declare(
+    ecss_smp_legacy
+    URL      "https://ecss.nl/wp-content/uploads/2020/04/ECSS_SMP_Issue1%282March2020%29.zip"
+    URL_HASH SHA256=ce0e047c8de43296f5e98cfb58dc91ac2c7c206c6e8955d63095dda2394335f0
 )
 
 FetchContent_Declare(
@@ -63,7 +80,18 @@ FetchContent_Declare(
     GIT_TAG        v3.0.3
 )
 
-FetchContent_MakeAvailable(ecss_smp date_src)
+FetchContent_MakeAvailable(ecss_smp ecss_smp_l2 ecss_smp_legacy date_src)
+
+include(FetchLibXml2)
+xsmp_fetch_libxml2()
+
+include(PrepareSmpSchemas)
+xsmp_prepare_smp_schemas(
+    "${CMAKE_CURRENT_BINARY_DIR}/smp-schemas"
+    "${ecss_smp_SOURCE_DIR}"
+    "${ecss_smp_l2_SOURCE_DIR}"
+    "${ecss_smp_legacy_SOURCE_DIR}"
+)
 
 option(XSMP_BUILD_TESTS           "whether or not tests should be built"            ${XSMP_MASTER_PROJECT})
 option(XSMP_BUILD_PYTHON_BINDINGS "whether or not Python bindings should be built"  ON)
@@ -231,6 +259,7 @@ target_include_directories(
     Smp
     SYSTEM
     INTERFACE $<BUILD_INTERFACE:${ecss_smp_SOURCE_DIR}>
+              $<BUILD_INTERFACE:${ecss_smp_l2_SOURCE_DIR}>
               $<INSTALL_INTERFACE:include>
 )
 
@@ -578,6 +607,8 @@ add_library(Simulator SHARED
     src/Xsmp/Publication/TypeRegistry.cpp
     src/Xsmp/Publication/Type.cpp
     src/Xsmp/Simulator.cpp
+    src/Xsmp/SimulatorL2/Loader.cpp
+    src/Xsmp/SimulatorL2/Xml.cpp
     src/Xsmp/StorageReader.cpp
     src/Xsmp/StorageWriter.cpp
 )
@@ -591,7 +622,49 @@ target_include_directories(
 )
 
 target_link_libraries(Simulator PUBLIC Xsmp::Cdk)
-target_link_libraries(Simulator PRIVATE Xsmp::LibraryHelper)
+target_link_libraries(Simulator PRIVATE Xsmp::LibraryHelper
+                                        LibXml2::LibXml2
+                                        ${CMAKE_DL_LIBS})
+
+# Locate the schema bundles from the loaded Simulator library at run time.  A
+# configured absolute install prefix would make `cmake --install --prefix`, a
+# relocated SDK and a wheel all look in the build machine's filesystem.
+if(WIN32)
+    set(_xsmp_simulator_build_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+    set(_xsmp_simulator_install_directory "${CMAKE_INSTALL_BINDIR}")
+else()
+    set(_xsmp_simulator_build_directory "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+    set(_xsmp_simulator_install_directory "${CMAKE_INSTALL_LIBDIR}")
+endif()
+file(RELATIVE_PATH _xsmp_schema_build_relative_directory
+     "${_xsmp_simulator_build_directory}"
+     "${CMAKE_CURRENT_BINARY_DIR}/smp-schemas")
+
+if(IS_ABSOLUTE "${_xsmp_simulator_install_directory}")
+    set(_xsmp_simulator_full_install_directory
+        "${_xsmp_simulator_install_directory}")
+else()
+    set(_xsmp_simulator_full_install_directory
+        "${CMAKE_INSTALL_PREFIX}/${_xsmp_simulator_install_directory}")
+endif()
+if(IS_ABSOLUTE "${CMAKE_INSTALL_DATADIR}")
+    set(_xsmp_schema_full_install_directory
+        "${CMAKE_INSTALL_DATADIR}/xsmp/xml")
+else()
+    set(_xsmp_schema_full_install_directory
+        "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/xsmp/xml")
+endif()
+file(RELATIVE_PATH _xsmp_schema_install_relative_directory
+     "${_xsmp_simulator_full_install_directory}"
+     "${_xsmp_schema_full_install_directory}")
+
+target_compile_definitions(
+    Simulator
+    PRIVATE XSMP_SCHEMA_BUILD_ROOT="${_xsmp_schema_build_relative_directory}"
+            XSMP_SCHEMA_INSTALL_ROOT="${_xsmp_schema_install_relative_directory}"
+            "XSMP_L1_SCHEMA_INSTALL_DIR=::Xsmp::L2::Xml::DefaultSchemaDirectory(\"l1\")"
+            "XSMP_L2_SCHEMA_INSTALL_DIR=::Xsmp::L2::Xml::DefaultSchemaDirectory(\"l2\")"
+)
 
 target_compile_options(Simulator PRIVATE ${XSMP_COMPILE_OPTIONS})
 
@@ -711,11 +784,27 @@ if(XSMP_ENABLE_INSTALL)
             DESTINATION "${CMAKE_INSTALL_LIBDIR}"
             FILES_MATCHING
             PATTERN "*.cmake"
+            # Build-only dependency setup is not part of the installed API.
+            PATTERN "FetchLibXml2.cmake" EXCLUDE
     )
-    install(DIRECTORY "include/" "${ecss_smp_SOURCE_DIR}/Smp"
+    install(DIRECTORY "include/"
+                      "${ecss_smp_SOURCE_DIR}/Smp"
+                      "${ecss_smp_l2_SOURCE_DIR}/Smp"
             DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
             FILES_MATCHING
             PATTERN "*.h"
+    )
+    install(DIRECTORY "${XSMP_L1_SCHEMA_DIRECTORY}/"
+            DESTINATION "${CMAKE_INSTALL_DATADIR}/xsmp/xml/l1"
+    )
+    install(DIRECTORY "${XSMP_L2_SCHEMA_DIRECTORY}/"
+            DESTINATION "${CMAKE_INSTALL_DATADIR}/xsmp/xml/l2"
+    )
+    # libxml2 is linked statically into Simulator. Preserve its required notice
+    # in both a regular SDK install and the install tree packed into a wheel.
+    install(FILES "${XSMP_LIBXML2_LICENSE_FILE}"
+            DESTINATION "${CMAKE_INSTALL_DATADIR}/licenses/${PROJECT_NAME}"
+            RENAME "libxml2-Copyright"
     )
     if(XSMP_BUILD_PYTHON_BINDINGS AND NOT SKBUILD STREQUAL "2")
         install(DIRECTORY "python/xsmp"

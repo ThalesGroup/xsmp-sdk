@@ -184,6 +184,7 @@ TEST(StructureField, Instanciate) {
   EXPECT_EQ(toRestore.char8Input, 'a');
 
   Field<StructTest>::output output{&typeRegistry, ::Smp::Uuid{}, "output"};
+  EXPECT_TRUE(output.IsAutomatic());
 
   output.booleanInput = true;
   output.char8Input = 'i';

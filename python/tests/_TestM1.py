@@ -3,7 +3,7 @@ import typing
 import ecss_smp
 
 
-class Simulator(ecss_smp.Smp.ISimulator, ):
+class Simulator(ecss_smp.Smp.ISimulatorL2, ):
     _Services: ecss_smp.Smp.IContainer
 
     class __XsmpLogger(ecss_smp.Smp.Services.ILogger, ecss_smp.Smp.IDynamicInvocation, ecss_smp.Smp.ILinkingComponent, ecss_smp.Smp.IPersist, ):

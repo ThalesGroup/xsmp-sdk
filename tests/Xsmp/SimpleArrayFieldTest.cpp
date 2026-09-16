@@ -41,6 +41,7 @@ namespace Xsmp {
 // static checks
 
 using field = Field<Xsmp::Array<::Smp::Bool, 1>::simple>;
+using simple_array = Xsmp::Array<::Smp::Bool, 1>::simple;
 
 static_assert(!std::is_base_of_v<Smp::ISimpleField, field>);
 static_assert(!std::is_base_of_v<Smp::IOutputField, field>);
@@ -65,6 +66,9 @@ static_assert(!std::is_base_of_v<Smp::IArrayField, field::output>);
 static_assert(std::is_base_of_v<Smp::ISimpleArrayField, field::output>);
 static_assert(!std::is_base_of_v<Smp::IStructureField, field::output>);
 static_assert(!std::is_base_of_v<Smp::IFailure, field::output>);
+static_assert(std::is_convertible_v<field &, simple_array &>);
+static_assert(!std::is_convertible_v<field::output &, simple_array &>);
+static_assert(std::is_same_v<field::output::pointer, const ::Smp::Bool *>);
 
 enum class Enum { L1, L2, L3 };
 using String20 = ::Xsmp::String<20>;
@@ -124,6 +128,7 @@ TEST(SimpleArrayField, BoolType) {
   EXPECT_TRUE(output.IsState());
   EXPECT_TRUE(output.IsOutput());
   EXPECT_FALSE(output.IsInput());
+  EXPECT_TRUE(output.IsAutomatic());
 
   output.Connect(&input);
 
@@ -134,6 +139,24 @@ TEST(SimpleArrayField, BoolType) {
   input[0] = false;
   output.Push();
   EXPECT_EQ(input[0], true);
+
+  output.SetValue(1, {::Smp::PrimitiveTypeKind::PTK_Bool, true});
+  EXPECT_TRUE(input[1]);
+
+  std::array<::Smp::AnySimple, 2> values{
+      ::Smp::AnySimple{::Smp::PrimitiveTypeKind::PTK_Bool, false},
+      ::Smp::AnySimple{::Smp::PrimitiveTypeKind::PTK_Bool, true}};
+  output.SetValues(values.size(), values.data(), 1);
+  EXPECT_FALSE(input[1]);
+  EXPECT_TRUE(input[2]);
+
+  output.fill(true);
+  EXPECT_EQ(input, output);
+
+  Type other{};
+  output.swap(other);
+  EXPECT_EQ(input, output);
+  EXPECT_TRUE(other[0]);
 
   output.at(0) = false;
   EXPECT_EQ(input.at(0), false);

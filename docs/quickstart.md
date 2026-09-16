@@ -59,7 +59,7 @@ pytest_discover_tests()
 Your final `CMakeLists.txt` should looks like this:
 
 ```cmake
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.18)
 
 
 project(your_project LANGUAGES CXX)

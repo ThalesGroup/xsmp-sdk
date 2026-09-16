@@ -27,10 +27,31 @@
 #include <Smp/VoidOperation.h>
 #include <Xsmp/Component.h>
 #include <Xsmp/Publication/Publication.h>
+#include <Xsmp/Publication/Request.h>
 #include <Xsmp/Publication/TypeRegistry.h>
 #include <gtest/gtest.h>
 
+#include <limits>
+
 namespace Xsmp::Publication {
+
+TEST(Request, ValidatesNonFinitePrimitiveFloatValues) {
+  TypeRegistry registry;
+  const auto *type = registry.GetType(::Smp::Uuids::Uuid_Float64);
+  ASSERT_NE(type, nullptr);
+
+  EXPECT_TRUE(Request::isValid(
+      type, {::Smp::PrimitiveTypeKind::PTK_Float64,
+             std::numeric_limits<::Smp::Float64>::infinity()}));
+  EXPECT_TRUE(Request::isValid(
+      type, {::Smp::PrimitiveTypeKind::PTK_Float64,
+             -std::numeric_limits<::Smp::Float64>::infinity()}));
+  EXPECT_TRUE(Request::isValid(
+      type, {::Smp::PrimitiveTypeKind::PTK_Float64,
+             std::numeric_limits<::Smp::Float64>::quiet_NaN()}));
+  EXPECT_FALSE(
+      Request::isValid(nullptr, {::Smp::PrimitiveTypeKind::PTK_Float64, 0.0}));
+}
 
 TEST(Request, VoidOperation) {
 
@@ -203,6 +224,19 @@ TEST(Request, FloatOperation) {
 
   EXPECT_NO_THROW(
       request->SetReturnValue({Smp::PrimitiveTypeKind::PTK_Float64, 0.}));
+
+  EXPECT_THROW(
+      request->SetReturnValue({Smp::PrimitiveTypeKind::PTK_Float64,
+                               std::numeric_limits<Smp::Float64>::infinity()}),
+      Smp::Exception);
+  EXPECT_THROW(
+      request->SetReturnValue({Smp::PrimitiveTypeKind::PTK_Float64,
+                               -std::numeric_limits<Smp::Float64>::infinity()}),
+      Smp::Exception);
+  EXPECT_THROW(
+      request->SetReturnValue({Smp::PrimitiveTypeKind::PTK_Float64,
+                               std::numeric_limits<Smp::Float64>::quiet_NaN()}),
+      Smp::Exception);
 
   publication.DeleteRequest(request);
 }

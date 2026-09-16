@@ -52,11 +52,15 @@ function(xsmp_generate_python_stubs TARGET)
                 --output-dir "${ARG_OUTPUT_DIR}"
                 "--root-suffix=-stubs"
                 --exit-code
+                # C++-qualified expressions emitted in docstrings are not
+                # valid Python expressions and cannot be resolved by stubgen.
+                --ignore-invalid-expressions "^Smp::"
                 # these enums are used as default argument values; pybind11
                 # renders them as `<Enum.LITERAL: value>`, which is not a valid
                 # python expression
                 --enum-class-locations "ViewKind:${ARG_MODULE}.Smp"
                 --enum-class-locations "PrimitiveTypeKind:${ARG_MODULE}.Smp"
+                --enum-class-locations "LibraryLoadingFlag:${ARG_MODULE}.Smp"
         COMMAND "${Python_EXECUTABLE}"
                 "${CMAKE_CURRENT_SOURCE_DIR}/cmake/postprocess_python_stubs.py"
                 "${_stubs_dir}"

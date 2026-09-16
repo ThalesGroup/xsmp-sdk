@@ -46,6 +46,8 @@ wheel.packages = [
 
 [tool.scikit-build.cmake.define]
 XSMP_BUILD_PYTHON_BINDINGS = "ON"
+XSMP_BUILD_TESTS = "OFF"
+XSMP_BUILD_PACKAGE = "OFF"
 
 [tool.pytest.ini_options]
 minversion = "6.0"

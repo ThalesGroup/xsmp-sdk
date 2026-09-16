@@ -35,6 +35,7 @@
 #include <Smp/IReference.h>
 #include <Smp/ISimpleArrayField.h>
 #include <Smp/ISimulator.h>
+#include <Smp/ISimulatorL2.h>
 #include <Smp/IStructureField.h>
 #include <Smp/LibraryLoadingFlag.h>
 #include <Smp/PrimitiveTypes.h>
@@ -236,7 +237,9 @@ void generate(std::ostream &fs, const std::string &indent,
   }
 
   if (const auto *composite = dynamic_cast<const ::Smp::IComposite *>(obj)) {
-    if (dynamic_cast<const ::Smp::ISimulator *>(obj))
+    if (dynamic_cast<const ::Smp::ISimulatorL2 *>(obj))
+      bases << "ecss_smp.Smp.ISimulatorL2, ";
+    else if (dynamic_cast<const ::Smp::ISimulator *>(obj))
       bases << "ecss_smp.Smp.ISimulator, ";
     else
       bases << "ecss_smp.Smp.IComposite, ";

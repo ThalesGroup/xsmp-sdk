@@ -59,6 +59,7 @@
 #include <Smp/ISimpleArrayField.h>
 #include <Smp/ISimpleField.h>
 #include <Smp/ISimulator.h>
+#include <Smp/ISimulatorL2.h>
 #include <Smp/IStructureField.h>
 #include <Smp/InvalidAccess.h>
 #include <Smp/InvalidAnyType.h>
@@ -148,6 +149,7 @@
 #include <python/Smp/ISimpleArrayFieldBinding.h>
 #include <python/Smp/ISimpleFieldBinding.h>
 #include <python/Smp/ISimulatorBinding.h>
+#include <python/Smp/ISimulatorL2Binding.h>
 #include <python/Smp/IStructureFieldBinding.h>
 #include <python/Smp/LibraryLoadingFlagBinding.h>
 #include <python/Smp/PrimitiveTypeKindBinding.h>
@@ -246,7 +248,11 @@ static inline const TypeHierarchy IObjectHierarchy =
 
         TypeHierarchy::template of<::Smp::IComposite>({
             // IComposite
-            TypeHierarchy::template of<::Smp::ISimulator>(),
+            TypeHierarchy::template of<::Smp::ISimulator>({
+                // ISimulator
+                TypeHierarchy::template of<::Smp::ISimulatorL2>(),
+
+            }),
 
         }),
 
@@ -964,4 +970,5 @@ This exception is raised when trying to publish a field or a parameter with an i
   RegisterITimeKeeper(services);
 
   RegisterISimulator(smp);
+  RegisterISimulatorL2(smp);
 }

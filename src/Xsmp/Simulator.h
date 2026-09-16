@@ -18,7 +18,7 @@
 #include <Smp/IFactory.h>
 #include <Smp/IModel.h>
 #include <Smp/IService.h>
-#include <Smp/ISimulator.h>
+#include <Smp/ISimulatorL2.h>
 #include <Smp/LibraryLoadingFlag.h>
 #include <Smp/PrimitiveTypes.h>
 #include <Smp/Services/EventId.h>
@@ -32,6 +32,7 @@
 #include <Xsmp/cstring.h>
 #include <initializer_list>
 #include <list>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -47,7 +48,11 @@ extern "C" ::Smp::ISimulator *createSimulator(::Smp::String8 name,
 
 namespace Xsmp {
 
-class Simulator final : public ::Xsmp::Composite, public ::Smp::ISimulator {
+namespace L2 {
+class Loader;
+} // namespace L2
+
+class Simulator final : public ::Xsmp::Composite, public ::Smp::ISimulatorL2 {
 public:
   explicit Simulator(
       ::Smp::String8 name = "XsmpSimulator",
@@ -386,6 +391,22 @@ public:
                    ::Smp::LibraryLoadingFlag flag =
                        ::Smp::LibraryLoadingFlag::LLF_Auto) override;
 
+  /// Load an SMP Level 2 assembly and create its component hierarchy and links.
+  void LoadAssembly(::Smp::String8 assemblyPath, ::Smp::String8 parentPath,
+                    ::Smp::String8 containerName,
+                    ::Smp::String8 rootInstanceName) override;
+
+  /// Load an SMP Level 2 link base and create its links.
+  void LoadLinkBase(::Smp::String8 linkBasePath,
+                    ::Smp::String8 parentPath) override;
+
+  /// Load an SMP Level 2 schedule and register its events.
+  void LoadSchedule(::Smp::String8 schedulePath) override;
+
+  /// Load an SMP Level 1 configuration and apply its field values.
+  void LoadConfiguration(::Smp::String8 configurationPath,
+                         ::Smp::String8 parentPath) override;
+
   /// For tests: run for a specific duration
   /// @param duration the execution Duration
   void Run(::Smp::Duration duration);
@@ -408,6 +429,11 @@ private:
   // they are destroyed after them: a component holds a pointer to its
   // publication and may use it while being destroyed
   std::list<::Xsmp::Publication::Publication> _publications;
+
+  // Level 2 Schedule entry points can still be referenced by the scheduler
+  // while an event is completing. Keep the loader alive longer than models
+  // and services so those callbacks are quiescent before it releases them.
+  std::unique_ptr<::Xsmp::L2::Loader> _level2;
 
   Container<::Smp::IService> _services;
   Container<::Smp::IModel> _models;

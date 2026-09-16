@@ -188,9 +188,9 @@ public:
     return nullptr;
   };
 
-  /// XSMP output fields are pushed explicitly, never on assignment.
-  /// @return  Always false.
-  ::Smp::Bool IsAutomatic() const override { return false; }
+  /// Generated XSMP output fields propagate whenever their value changes.
+  /// @return  Always true.
+  ::Smp::Bool IsAutomatic() const override { return true; }
 };
 
 /// The input fields an output field is connected to.
@@ -817,6 +817,10 @@ public:
       ::Xsmp::Exception::throwInvalidFieldValue(this, value);
     }
     _value[index] = ::Xsmp::AnySimpleConverter<value_type>::convert(value);
+    if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
+                                             Annotations...>) {
+      this->internal_push(index);
+    }
   }
 
   void GetValues(::Smp::UInt64 length, ::Smp::AnySimple *values,
@@ -848,6 +852,10 @@ public:
       }
       _value[startIndex + i] =
           ::Xsmp::AnySimpleConverter<value_type>::convert(values[i]);
+      if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
+                                               Annotations...>) {
+        this->internal_push(startIndex + i);
+      }
     }
   }
 
@@ -870,7 +878,10 @@ public:
   }
 
   using value_type = typename T::value_type;
-  using pointer = value_type *;
+  using pointer =
+      std::conditional_t<::Xsmp::Annotation::any_of<
+                             ::Xsmp::Annotation::connectable, Annotations...>,
+                         const value_type *, value_type *>;
   using const_pointer = const value_type *;
 
   struct protected_reference {
@@ -1030,11 +1041,32 @@ public:
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-  operator const T &() const noexcept { return _value; }
-  operator T &() noexcept { return _value; }
+  using array_reference =
+      std::conditional_t<::Xsmp::Annotation::any_of<
+                             ::Xsmp::Annotation::connectable, Annotations...>,
+                         const T &, T &>;
 
-  void fill(const value_type &_u) { _value.fill(_u); }
-  void swap(T &_other) noexcept { _value.swap(_other); }
+  operator const T &() const noexcept { return _value; }
+  operator array_reference() noexcept { return _value; }
+
+  void fill(const value_type &_u) {
+    _value.fill(_u);
+    if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
+                                             Annotations...>) {
+      for (::Smp::UInt64 i = 0; i < _size; ++i) {
+        this->internal_push(i);
+      }
+    }
+  }
+  void swap(T &_other) {
+    _value.swap(_other);
+    if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
+                                             Annotations...>) {
+      for (::Smp::UInt64 i = 0; i < _size; ++i) {
+        this->internal_push(i);
+      }
+    }
+  }
 
   // Iterators.
   [[nodiscard]] iterator begin() noexcept {
@@ -1154,14 +1186,7 @@ public:
 
   [[nodiscard]] const_reference back() const noexcept { return _value.back(); }
 
-  [[nodiscard]] pointer data() noexcept {
-    if constexpr (::Xsmp::Annotation::any_of<::Xsmp::Annotation::connectable,
-                                             Annotations...>) {
-      return iterator{this, _value.data(), 0};
-    } else {
-      return _value.data();
-    }
-  }
+  [[nodiscard]] pointer data() noexcept { return _value.data(); }
 
   [[nodiscard]] const_pointer data() const noexcept { return _value.data(); }
 

@@ -24,7 +24,7 @@ jobs:
             os:
             - ubuntu-latest
             cmake_version:
-            - '3.14'
+            - '3.18'
             - '3.24'
             - '3.25'
             - '3.26'
